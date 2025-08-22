@@ -113,6 +113,9 @@ extern class SDL {
     @:native("SDL_PollEvent")
     static function pollEvent(event:Pointer<Event>):Bool;
 
+    @:native("SDL_GetTicks")
+    static function getTicks():UInt64;
+
     static inline function getEvent():Pointer<Event> {
         var event:Pointer<Event> = null;
         untyped __cpp__("SDL_Event __sdl_ev__; {0} = &__sdl_ev__", event);

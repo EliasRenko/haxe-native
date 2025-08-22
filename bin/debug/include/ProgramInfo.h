@@ -69,6 +69,9 @@ class HXCPP_CLASS_ATTRIBUTES ProgramInfo_obj : public ::hx::Object
 		void setupVertexAttributes();
 		::Dynamic setupVertexAttributes_dyn();
 
+		void setUniformFloat(::String name,Float value);
+		::Dynamic setUniformFloat_dyn();
+
 		void printVertexLayout();
 		::Dynamic printVertexLayout_dyn();
 
@@ -89,6 +92,21 @@ class HXCPP_CLASS_ATTRIBUTES ProgramInfo_obj : public ::hx::Object
 
 		bool compile();
 		::Dynamic compile_dyn();
+
+		void introspectProgram();
+		::Dynamic introspectProgram_dyn();
+
+		void introspectAttributes();
+		::Dynamic introspectAttributes_dyn();
+
+		void introspectUniforms();
+		::Dynamic introspectUniforms_dyn();
+
+		int getComponentCount(int glType);
+		::Dynamic getComponentCount_dyn();
+
+		 ::UniformFormat convertGLTypeToUniformFormat(int glType);
+		::Dynamic convertGLTypeToUniformFormat_dyn();
 
 		bool checkShaderCompilation(unsigned int shader,::String type);
 		::Dynamic checkShaderCompilation_dyn();

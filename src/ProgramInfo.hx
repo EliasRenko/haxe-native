@@ -65,6 +65,20 @@ class ProgramInfo {
 		vertexShaderSource = vertexSource != null ? vertexSource : getDefaultVertexShader();
 		fragmentShaderSource = fragmentSource != null ? fragmentSource : getDefaultFragmentShader();
 		programId = -1;
+		
+		// Automatically compile and introspect the shader program
+		if (!compile()) {
+			trace("Failed to compile shader program: " + name);
+			return;
+		}
+		
+		// Automatically discover attributes and uniforms from compiled program
+		introspectProgram();
+		
+		// Calculate vertex layout for interleaved data
+		finalizeVertexLayout();
+		
+		trace("ProgramInfo '" + name + "' created and introspected successfully!");
 	}
 
 	public function addAttribute(name:String, format:Int, size:Int, stride:Int, offset:Int, location:Int):Void {
@@ -94,7 +108,24 @@ class ProgramInfo {
 	
 	// Call this AFTER adding all attributes to set correct stride for interleaved data
 	public function finalizeVertexLayout():Void {
-		var totalVertexSize = calculateCurrentOffset();
+		if (attributes.length == 0) {
+			trace("No attributes to finalize");
+			return;
+		}
+		
+		// Sort attributes by location to ensure consistent layout
+		attributes.sort(function(a, b) return a.location - b.location);
+		
+		// Calculate offsets for interleaved data layout
+		var currentOffset = 0;
+		for (attr in attributes) {
+			attr.offset = currentOffset;
+			// Size in bytes = components * sizeof(float) - assuming float attributes
+			var sizeInBytes = attr.size * 4; // 4 bytes per float
+			currentOffset += sizeInBytes;
+		}
+		
+		var totalVertexSize = currentOffset;
 		
 		// Set the same stride for ALL attributes (interleaved data)
 		for (attr in attributes) {
@@ -102,6 +133,7 @@ class ProgramInfo {
 		}
 		
 		dataPerVertex = totalVertexSize;
+		trace("Vertex layout finalized: " + totalVertexSize + " bytes per vertex");
 	}
 	
 	// ** Setup vertex attributes using glVertexAttribPointer
@@ -123,6 +155,35 @@ class ProgramInfo {
 				attr.stride,       // stride: bytes between consecutive vertices
 				attr.offset        // offset: bytes from start of vertex to this attribute
 			);
+		}
+	}
+	
+	// ** Get uniform location and set value
+	public function setUniformFloat(name:String, value:Float):Void {
+		if (!isCompiled) {
+			trace("Warning: Program not compiled, cannot set uniform: " + name);
+			return;
+		}
+		
+		// First try to find the uniform in our introspected list (faster)
+		for (uniform in uniforms) {
+			if (uniform.name == name) {
+				if (uniform.format == UniformFormat.Float) {
+					GL.uniform1f(uniform.location, value);
+					return;
+				} else {
+					trace("Warning: Uniform '" + name + "' is not a float uniform");
+					return;
+				}
+			}
+		}
+		
+		// Fallback to runtime lookup if not found in introspected uniforms
+		var location = GL.getUniformLocation(program, name);
+		if (location != -1) {
+			GL.uniform1f(location, value);
+		} else {
+			trace("Warning: Uniform '" + name + "' not found in shader");
 		}
 	}
 	
@@ -258,6 +319,141 @@ class ProgramInfo {
 		isCompiled = true;
 		trace("Shader compilation complete!");
 		return true;
+	}
+	
+	// ** Automatically discover attributes and uniforms from compiled shader program
+	private function introspectProgram():Void {
+		if (!isCompiled) {
+			trace("Warning: Cannot introspect program that is not compiled");
+			return;
+		}
+		
+		trace("Starting shader program introspection for: " + __name);
+		
+		// Clear existing arrays
+		attributes = [];
+		uniforms = [];
+		
+		// Introspect active attributes
+		introspectAttributes();
+		
+		// Introspect active uniforms  
+		introspectUniforms();
+		
+		trace("Introspection complete!");
+	}
+	
+	// ** Discover all active vertex attributes
+	private function introspectAttributes():Void {
+		// Get number of active attributes
+		var activeAttributes:Int = 0;
+		untyped __cpp__("glGetProgramiv({0}, GL_ACTIVE_ATTRIBUTES, &{1})", program, activeAttributes);
+		trace("Found " + activeAttributes + " active attributes");
+		
+		// Get maximum attribute name length
+		var maxNameLength:Int = 0;
+		untyped __cpp__("glGetProgramiv({0}, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &{1})", program, maxNameLength);
+		
+		for (i in 0...activeAttributes) {
+			var nameLength:Int = 0;
+			var size:Int = 0;
+			var type:Int = 0;
+			var name:String = "";
+			
+			// Get attribute info using C++ code with dynamic allocation
+			untyped __cpp__("
+				char* nameBuffer = new char[{0}];
+				glGetActiveAttrib({1}, {2}, {0}, &{3}, &{4}, (GLenum*)&{5}, nameBuffer);
+				{6} = String(nameBuffer);
+				delete[] nameBuffer;
+			", maxNameLength, program, i, nameLength, size, type, name);
+			
+			// Get attribute location
+			var location:Int = GL.getAttribLocation(program, name);
+			
+			// Determine component count based on OpenGL type
+			var componentCount = getComponentCount(type);
+			
+			trace("Attribute " + i + ": '" + name + "' location=" + location + " type=" + type + " size=" + size + " components=" + componentCount);
+			
+			// Add to attributes array (offset and stride will be calculated later)
+			attributes.push({
+				name: name,
+				format: GL.FLOAT, // Assume float for now - could be enhanced
+				size: componentCount,
+				stride: 0,  // Will be calculated in finalizeVertexLayout
+				offset: 0,  // Will be calculated in finalizeVertexLayout  
+				location: location
+			});
+		}
+	}
+	
+	// ** Discover all active uniforms
+	private function introspectUniforms():Void {
+		// Get number of active uniforms
+		var activeUniforms:Int = 0;
+		untyped __cpp__("glGetProgramiv({0}, GL_ACTIVE_UNIFORMS, &{1})", program, activeUniforms);
+		trace("Found " + activeUniforms + " active uniforms");
+		
+		// Get maximum uniform name length
+		var maxNameLength:Int = 0;
+		untyped __cpp__("glGetProgramiv({0}, GL_ACTIVE_UNIFORM_MAX_LENGTH, &{1})", program, maxNameLength);
+		
+		for (i in 0...activeUniforms) {
+			var nameLength:Int = 0;
+			var size:Int = 0;
+			var type:Int = 0;
+			var name:String = "";
+			
+			// Get uniform info using C++ code with dynamic allocation
+			untyped __cpp__("
+				char* nameBuffer = new char[{0}];
+				glGetActiveUniform({1}, {2}, {0}, &{3}, &{4}, (GLenum*)&{5}, nameBuffer);
+				{6} = String(nameBuffer);
+				delete[] nameBuffer;
+			", maxNameLength, program, i, nameLength, size, type, name);
+			
+			// Get uniform location
+			var location:Int = GL.getUniformLocation(program, name);
+			
+			// Convert OpenGL type to our UniformFormat
+			var format = convertGLTypeToUniformFormat(type);
+			
+			trace("Uniform " + i + ": '" + name + "' location=" + location + " type=" + type + " format=" + format);
+			
+			// Add to uniforms array
+			uniforms.push({
+				name: name,
+				format: format,
+				setter: null, // No setter needed for introspected uniforms
+				location: location
+			});
+		}
+	}
+	
+	// ** Helper: Get component count from OpenGL type
+	private function getComponentCount(glType:Int):Int {
+		if (glType == GL.FLOAT) return 1;
+		if (glType == GL.FLOAT_VEC2) return 2;
+		if (glType == GL.FLOAT_VEC3) return 3;
+		if (glType == GL.FLOAT_VEC4) return 4;
+		if (glType == GL.INT) return 1;
+		if (glType == GL.INT_VEC2) return 2;
+		if (glType == GL.INT_VEC3) return 3;
+		if (glType == GL.INT_VEC4) return 4;
+		return 1; // Default to 1 for unknown types
+	}
+	
+	// ** Helper: Convert OpenGL type to UniformFormat
+	private function convertGLTypeToUniformFormat(glType:Int):UniformFormat {
+		if (glType == GL.FLOAT) return UniformFormat.Float;
+		if (glType == GL.FLOAT_VEC2) return UniformFormat.Vec2;
+		if (glType == GL.FLOAT_VEC3) return UniformFormat.Vec3;
+		if (glType == GL.FLOAT_VEC4) return UniformFormat.Vec4;
+		if (glType == GL.FLOAT_MAT4) return UniformFormat.Mat4;
+		if (glType == GL.INT) return UniformFormat.Int;
+		if (glType == GL.SAMPLER_2D) return UniformFormat.Sampler2D;
+		return UniformFormat.Float; // Default fallback
 	}
 	
 	private function checkShaderCompilation(shader:Shader, type:String):Bool {

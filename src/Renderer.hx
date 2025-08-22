@@ -34,25 +34,11 @@ class Renderer {
         trace("Initializing test triangle...");
         
         // Create ProgramInfo with simple vertex/fragment shaders
+        // This automatically compiles and introspects the shader program!
         testProgram = new ProgramInfo("TestTriangle", getTestVertexShader(), getTestFragmentShader());
         
-        // Setup vertex attributes for position and color
-        testProgram.addAttributeAuto("aPos", GL.FLOAT, 3, 0);    // vec3 position
-        testProgram.addAttributeAuto("aColor", GL.FLOAT, 3, 1);  // vec3 color
-        
-        // Finalize vertex layout
-        testProgram.finalizeVertexLayout();
-        
-        // Print debug info
+        // Print debug info about the introspected program
         testProgram.printVertexLayout();
-        
-        // Compile shaders
-        trace("About to compile shaders...");
-        if (!testProgram.compile()) {
-            trace("Failed to compile test shaders!");
-            return;
-        }
-        trace("Shaders compiled successfully!");
         
         // Create vertex data (interleaved: pos.x, pos.y, pos.z, color.r, color.g, color.b)
         trace("Creating vertex data...");
@@ -113,6 +99,10 @@ class Renderer {
         // Use our shader program
         GL.useProgram(testProgram.program);
         
+        // Set time uniform for animation (time in seconds since start)
+        var currentTime = (SDL.getTicks() : Float) / 1000.0; // Convert milliseconds to seconds
+        testProgram.setUniformFloat("uTime", currentTime);
+        
         // Bind VAO and draw
         GL.bindVertexArray(testVAO);
         GL.drawArrays(GL.TRIANGLES, 0, 3);
@@ -127,8 +117,22 @@ class Renderer {
         
         out vec3 vertexColor;
         
+        uniform float uTime;
+        
         void main() {
-            gl_Position = vec4(aPos, 1.0);
+            // Animate the triangle by rotating it based on time
+            float angle = uTime * 2.0;
+            float cosA = cos(angle);
+            float sinA = sin(angle);
+            
+            // Simple 2D rotation matrix
+            vec3 rotatedPos = vec3(
+                aPos.x * cosA - aPos.y * sinA,
+                aPos.x * sinA + aPos.y * cosA,
+                aPos.z
+            );
+            
+            gl_Position = vec4(rotatedPos, 1.0);
             vertexColor = aColor;
         }
         ';
