@@ -6,8 +6,11 @@
 #include <hxcpp.h>
 #endif
 
+HX_DECLARE_CLASS0(DisplayObject)
 HX_DECLARE_CLASS0(ProgramInfo)
 HX_DECLARE_CLASS0(Renderer)
+HX_DECLARE_CLASS1(display,Image)
+HX_DECLARE_CLASS1(display,Triangle)
 
 
 
@@ -46,24 +49,27 @@ class HXCPP_CLASS_ATTRIBUTES Renderer_obj : public ::hx::Object
 		unsigned int shaderProgram;
 		unsigned int vbo;
 		unsigned int vao;
-		 ::ProgramInfo testProgram;
-		unsigned int testVAO;
-		unsigned int testVBO;
-		bool testInitialized;
+		 ::display::Triangle testTriangle;
+		 ::ProgramInfo triangleProgram;
+		 ::display::Image testImage;
+		 ::ProgramInfo imageProgram;
 		void render();
 		::Dynamic render_dyn();
+
+		void renderDisplayObject( ::DisplayObject displayObject);
+		::Dynamic renderDisplayObject_dyn();
 
 		void initializeTestTriangle();
 		::Dynamic initializeTestTriangle_dyn();
 
-		void renderTestTriangle();
-		::Dynamic renderTestTriangle_dyn();
+		void initializeTestImage();
+		::Dynamic initializeTestImage_dyn();
 
-		::String getTestVertexShader();
-		::Dynamic getTestVertexShader_dyn();
+		::String getImageVertexShader();
+		::Dynamic getImageVertexShader_dyn();
 
-		::String getTestFragmentShader();
-		::Dynamic getTestFragmentShader_dyn();
+		::String getImageFragmentShader();
+		::Dynamic getImageFragmentShader_dyn();
 
 		void cleanup();
 		::Dynamic cleanup_dyn();

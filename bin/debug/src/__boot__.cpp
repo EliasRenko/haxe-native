@@ -4,17 +4,41 @@
 #ifndef INCLUDED_haxe_io_Error
 #include <haxe/io/Error.h>
 #endif
+#ifndef INCLUDED_ValueType
+#include <ValueType.h>
+#endif
 #ifndef INCLUDED_UniformFormat
 #include <UniformFormat.h>
 #endif
 #ifndef INCLUDED_haxe_Log
 #include <haxe/Log.h>
 #endif
+#ifndef INCLUDED_display_Vector4
+#include <display/Vector4.h>
+#endif
+#ifndef INCLUDED_BlendFactor
+#include <BlendFactor.h>
+#endif
 #ifndef INCLUDED_haxe_iterators_ArrayIterator
 #include <haxe/iterators/ArrayIterator.h>
 #endif
 #ifndef INCLUDED_haxe_io_Bytes
 #include <haxe/io/Bytes.h>
+#endif
+#ifndef INCLUDED_haxe_ds_StringMap
+#include <haxe/ds/StringMap.h>
+#endif
+#ifndef INCLUDED_display_Triangle
+#include <display/Triangle.h>
+#endif
+#ifndef INCLUDED_display_Image
+#include <display/Image.h>
+#endif
+#ifndef INCLUDED_haxe_IMap
+#include <haxe/IMap.h>
+#endif
+#ifndef INCLUDED_Type
+#include <Type.h>
 #endif
 #ifndef INCLUDED_Std
 #include <Std.h>
@@ -28,6 +52,18 @@
 #ifndef INCLUDED_Main
 #include <Main.h>
 #endif
+#ifndef INCLUDED_DisplayObject
+#include <DisplayObject.h>
+#endif
+#ifndef INCLUDED_Matrix
+#include <Matrix.h>
+#endif
+#ifndef INCLUDED_Indices
+#include <Indices.h>
+#endif
+#ifndef INCLUDED_Vertices
+#include <Vertices.h>
+#endif
 
 void __files__boot();
 
@@ -36,16 +72,31 @@ void __boot_all()
 __files__boot();
 ::hx::RegisterResources( ::hx::GetResources() );
 ::haxe::io::Error_obj::__register();
+::ValueType_obj::__register();
 ::UniformFormat_obj::__register();
 ::haxe::Log_obj::__register();
+::display::Vector4_obj::__register();
+::BlendFactor_obj::__register();
 ::haxe::iterators::ArrayIterator_obj::__register();
 ::haxe::io::Bytes_obj::__register();
+::haxe::ds::StringMap_obj::__register();
+::display::Triangle_obj::__register();
+::display::Image_obj::__register();
+::haxe::IMap_obj::__register();
+::Type_obj::__register();
 ::Std_obj::__register();
 ::Renderer_obj::__register();
 ::ProgramInfo_obj::__register();
 ::Main_obj::__register();
+::DisplayObject_obj::__register();
+::Matrix_obj::__register();
+::Indices_obj::__register();
+::Vertices_obj::__register();
 ::haxe::io::Error_obj::__boot();
+::ValueType_obj::__boot();
 ::UniformFormat_obj::__boot();
 ::haxe::Log_obj::__boot();
+::BlendFactor_obj::__boot();
+::display::Vector4_obj::__boot();
 }
 

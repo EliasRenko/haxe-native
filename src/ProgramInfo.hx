@@ -209,28 +209,29 @@ class ProgramInfo {
 	}
 	
 	private function getFormatName(format:Int):String {
-		// Using if-else to avoid pattern matching issues
-		if (format == GL.FLOAT) return "GL_FLOAT";
-		else if (format == GL.INT) return "GL_INT";
-		else if (format == GL.UNSIGNED_INT) return "GL_UNSIGNED_INT";
-		else if (format == GL.SHORT) return "GL_SHORT";
-		else if (format == GL.UNSIGNED_SHORT) return "GL_UNSIGNED_SHORT";
-		else if (format == GL.BYTE) return "GL_BYTE";
-		else if (format == GL.UNSIGNED_BYTE) return "GL_UNSIGNED_BYTE";
-		else return "UNKNOWN";
+		return switch (format) {
+			case 5126: "GL_FLOAT";           // GL_FLOAT
+			case 5124: "GL_INT";             // GL_INT  
+			case 5125: "GL_UNSIGNED_INT";    // GL_UNSIGNED_INT
+			case 5122: "GL_SHORT";           // GL_SHORT
+			case 5123: "GL_UNSIGNED_SHORT";  // GL_UNSIGNED_SHORT
+			case 5120: "GL_BYTE";            // GL_BYTE
+			case 5121: "GL_UNSIGNED_BYTE";   // GL_UNSIGNED_BYTE
+			default: "UNKNOWN";
+		}
 	}
 	
 	private function getFormatSize(format:Int):Int {
-		// Return bytes per component for different GL formats
-		// Using numeric values to avoid pattern matching issues
-		if (format == GL.FLOAT) return 4;           // 4 bytes per float
-		else if (format == GL.INT) return 4;        // 4 bytes per int
-		else if (format == GL.UNSIGNED_INT) return 4; // 4 bytes per uint
-		else if (format == GL.SHORT) return 2;      // 2 bytes per short
-		else if (format == GL.UNSIGNED_SHORT) return 2; // 2 bytes per ushort
-		else if (format == GL.BYTE) return 1;       // 1 byte per byte
-		else if (format == GL.UNSIGNED_BYTE) return 1; // 1 byte per ubyte
-		else return 4;                              // Default to 4 bytes
+		return switch (format) {
+			case 5126: 4;  // GL_FLOAT - 4 bytes per float
+			case 5124: 4;  // GL_INT - 4 bytes per int
+			case 5125: 4;  // GL_UNSIGNED_INT - 4 bytes per uint
+			case 5122: 2;  // GL_SHORT - 2 bytes per short
+			case 5123: 2;  // GL_UNSIGNED_SHORT - 2 bytes per ushort
+			case 5120: 1;  // GL_BYTE - 1 byte per byte
+			case 5121: 1;  // GL_UNSIGNED_BYTE - 1 byte per ubyte
+			default: 4;    // Default to 4 bytes
+		}
 	}
 	
 	private function calculateCurrentOffset():Int {
@@ -433,27 +434,31 @@ class ProgramInfo {
 	
 	// ** Helper: Get component count from OpenGL type
 	private function getComponentCount(glType:Int):Int {
-		if (glType == GL.FLOAT) return 1;
-		if (glType == GL.FLOAT_VEC2) return 2;
-		if (glType == GL.FLOAT_VEC3) return 3;
-		if (glType == GL.FLOAT_VEC4) return 4;
-		if (glType == GL.INT) return 1;
-		if (glType == GL.INT_VEC2) return 2;
-		if (glType == GL.INT_VEC3) return 3;
-		if (glType == GL.INT_VEC4) return 4;
-		return 1; // Default to 1 for unknown types
+		return switch (glType) {
+			case 5126: 1;   // GL_FLOAT
+			case 35664: 2;  // GL_FLOAT_VEC2
+			case 35665: 3;  // GL_FLOAT_VEC3
+			case 35666: 4;  // GL_FLOAT_VEC4
+			case 5124: 1;   // GL_INT
+			case 35667: 2;  // GL_INT_VEC2
+			case 35668: 3;  // GL_INT_VEC3
+			case 35669: 4;  // GL_INT_VEC4
+			default: 1;     // Default to 1 for unknown types
+		}
 	}
 	
 	// ** Helper: Convert OpenGL type to UniformFormat
 	private function convertGLTypeToUniformFormat(glType:Int):UniformFormat {
-		if (glType == GL.FLOAT) return UniformFormat.Float;
-		if (glType == GL.FLOAT_VEC2) return UniformFormat.Vec2;
-		if (glType == GL.FLOAT_VEC3) return UniformFormat.Vec3;
-		if (glType == GL.FLOAT_VEC4) return UniformFormat.Vec4;
-		if (glType == GL.FLOAT_MAT4) return UniformFormat.Mat4;
-		if (glType == GL.INT) return UniformFormat.Int;
-		if (glType == GL.SAMPLER_2D) return UniformFormat.Sampler2D;
-		return UniformFormat.Float; // Default fallback
+		return switch (glType) {
+			case 5126: UniformFormat.Float;     // GL_FLOAT
+			case 35664: UniformFormat.Vec2;     // GL_FLOAT_VEC2
+			case 35665: UniformFormat.Vec3;     // GL_FLOAT_VEC3
+			case 35666: UniformFormat.Vec4;     // GL_FLOAT_VEC4
+			case 35676: UniformFormat.Mat4;     // GL_FLOAT_MAT4
+			case 5124: UniformFormat.Int;       // GL_INT
+			case 35678: UniformFormat.Sampler2D; // GL_SAMPLER_2D
+			default: UniformFormat.Float;       // Default fallback
+		}
 	}
 	
 	private function checkShaderCompilation(shader:Shader, type:String):Bool {

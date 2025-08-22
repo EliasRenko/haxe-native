@@ -6,12 +6,17 @@ const char *__hxcpp_all_files[] = {
 #ifdef HXCPP_DEBUGGER
 "?",
 "C:\\HaxeToolkit\\haxe\\std/cpp/_std/Std.hx",
+"C:\\HaxeToolkit\\haxe\\std/cpp/_std/Type.hx",
 "C:\\HaxeToolkit\\haxe\\std/cpp/_std/haxe/Log.hx",
+"C:\\HaxeToolkit\\haxe\\std/cpp/_std/haxe/ds/StringMap.hx",
 "C:\\HaxeToolkit\\haxe\\std/haxe/io/Bytes.hx",
 "C:\\HaxeToolkit\\haxe\\std/haxe/iterators/ArrayIterator.hx",
+"DisplayObject.hx",
 "Main.hx",
 "ProgramInfo.hx",
 "Renderer.hx",
+"display/Image.hx",
+"display/Triangle.hx",
 #endif
  0 };
 
@@ -19,22 +24,37 @@ const char *__hxcpp_all_files_fullpath[] = {
 #ifdef HXCPP_DEBUGGER
 "C:\\Users\\efedorenko\\Desktop\\engine\\?",
 "C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\Std.hx",
+"C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\Type.hx",
 "C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\haxe\\Log.hx",
+"C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\haxe\\ds\\StringMap.hx",
 "C:\\HaxeToolkit\\haxe\\std\\haxe\\io\\Bytes.hx",
 "C:\\HaxeToolkit\\haxe\\std\\haxe\\iterators\\ArrayIterator.hx",
+"C:\\Users\\efedorenko\\Desktop\\engine\\src\\DisplayObject.hx",
 "C:\\Users\\efedorenko\\Desktop\\engine\\src\\Main.hx",
 "C:\\Users\\efedorenko\\Desktop\\engine\\src\\ProgramInfo.hx",
 "C:\\Users\\efedorenko\\Desktop\\engine\\src\\Renderer.hx",
+"C:\\Users\\efedorenko\\Desktop\\engine\\src\\display\\Image.hx",
+"C:\\Users\\efedorenko\\Desktop\\engine\\src\\display\\Triangle.hx",
 #endif
  0 };
 
 const char *__hxcpp_all_classes[] = {
 #ifdef HXCPP_DEBUGGER
+"Vertices",
+"Indices",
+"Matrix",
+"BlendFactor",
+"DisplayObject",
 "Main",
 "ProgramInfo",
 "Renderer",
 "Std",
+"Type",
+"display.Vector4",
+"display.Image",
+"display.Triangle",
 "haxe.Log",
+"haxe.ds.StringMap",
 "haxe.io.Bytes",
 "haxe.iterators.ArrayIterator",
 #endif
