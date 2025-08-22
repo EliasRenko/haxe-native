@@ -20,6 +20,9 @@
 #ifndef INCLUDED_display_Image
 #include <display/Image.h>
 #endif
+#ifndef INCLUDED_display_Rectangle
+#include <display/Rectangle.h>
+#endif
 #ifndef INCLUDED_display_Triangle
 #include <display/Triangle.h>
 #endif
@@ -27,25 +30,26 @@
 #include <haxe/Log.h>
 #endif
 
-HX_DEFINE_STACK_FRAME(_hx_pos_201f460b2ea368b5_23_new,"Renderer","new",0x27490fd5,"Renderer.new","Renderer.hx",23,0x8fac813b)
-HX_LOCAL_STACK_FRAME(_hx_pos_201f460b2ea368b5_30_render,"Renderer","render",0xd71b8301,"Renderer.render","Renderer.hx",30,0x8fac813b)
-HX_LOCAL_STACK_FRAME(_hx_pos_201f460b2ea368b5_50_renderDisplayObject,"Renderer","renderDisplayObject",0x26ee7ae0,"Renderer.renderDisplayObject","Renderer.hx",50,0x8fac813b)
-HX_LOCAL_STACK_FRAME(_hx_pos_201f460b2ea368b5_64_initializeTestTriangle,"Renderer","initializeTestTriangle",0xbcf47855,"Renderer.initializeTestTriangle","Renderer.hx",64,0x8fac813b)
-HX_LOCAL_STACK_FRAME(_hx_pos_201f460b2ea368b5_83_initializeTestImage,"Renderer","initializeTestImage",0x9f6c9bae,"Renderer.initializeTestImage","Renderer.hx",83,0x8fac813b)
-HX_LOCAL_STACK_FRAME(_hx_pos_201f460b2ea368b5_102_getImageVertexShader,"Renderer","getImageVertexShader",0x33257d19,"Renderer.getImageVertexShader","Renderer.hx",102,0x8fac813b)
-HX_LOCAL_STACK_FRAME(_hx_pos_201f460b2ea368b5_119_getImageFragmentShader,"Renderer","getImageFragmentShader",0xe3e9d685,"Renderer.getImageFragmentShader","Renderer.hx",119,0x8fac813b)
-HX_LOCAL_STACK_FRAME(_hx_pos_201f460b2ea368b5_132_cleanup,"Renderer","cleanup",0x8d24aa19,"Renderer.cleanup","Renderer.hx",132,0x8fac813b)
+HX_DEFINE_STACK_FRAME(_hx_pos_201f460b2ea368b5_28_new,"Renderer","new",0x27490fd5,"Renderer.new","Renderer.hx",28,0x8fac813b)
+HX_LOCAL_STACK_FRAME(_hx_pos_201f460b2ea368b5_36_render,"Renderer","render",0xd71b8301,"Renderer.render","Renderer.hx",36,0x8fac813b)
+HX_LOCAL_STACK_FRAME(_hx_pos_201f460b2ea368b5_61_renderDisplayObject,"Renderer","renderDisplayObject",0x26ee7ae0,"Renderer.renderDisplayObject","Renderer.hx",61,0x8fac813b)
+HX_LOCAL_STACK_FRAME(_hx_pos_201f460b2ea368b5_75_initializeTestTriangle,"Renderer","initializeTestTriangle",0xbcf47855,"Renderer.initializeTestTriangle","Renderer.hx",75,0x8fac813b)
+HX_LOCAL_STACK_FRAME(_hx_pos_201f460b2ea368b5_94_initializeTestRectangle,"Renderer","initializeTestRectangle",0x33307602,"Renderer.initializeTestRectangle","Renderer.hx",94,0x8fac813b)
+HX_LOCAL_STACK_FRAME(_hx_pos_201f460b2ea368b5_112_initializeTestImage,"Renderer","initializeTestImage",0x9f6c9bae,"Renderer.initializeTestImage","Renderer.hx",112,0x8fac813b)
+HX_LOCAL_STACK_FRAME(_hx_pos_201f460b2ea368b5_131_getImageVertexShader,"Renderer","getImageVertexShader",0x33257d19,"Renderer.getImageVertexShader","Renderer.hx",131,0x8fac813b)
+HX_LOCAL_STACK_FRAME(_hx_pos_201f460b2ea368b5_148_getImageFragmentShader,"Renderer","getImageFragmentShader",0xe3e9d685,"Renderer.getImageFragmentShader","Renderer.hx",148,0x8fac813b)
+HX_LOCAL_STACK_FRAME(_hx_pos_201f460b2ea368b5_161_cleanup,"Renderer","cleanup",0x8d24aa19,"Renderer.cleanup","Renderer.hx",161,0x8fac813b)
 
 void Renderer_obj::__construct(int windowWidth,int windowHeight){
-            	HX_STACKFRAME(&_hx_pos_201f460b2ea368b5_23_new)
+            	HX_STACKFRAME(&_hx_pos_201f460b2ea368b5_28_new)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(windowWidth,"windowWidth")
             	HX_STACK_ARG(windowHeight,"windowHeight")
-HXLINE(  23)
-HXLINE(  24)		::haxe::Log_obj::trace(HX_("Creating clean renderer...",ed,6e,eb,31),::hx::SourceInfo(HX_("src/Renderer.hx",50,0e,7a,39),24,HX_("Renderer",63,81,8d,8c),HX_("new",60,d0,53,00)));
-HXLINE(  25)		this->initializeTestTriangle();
-HXLINE(  26)		this->initializeTestImage();
-HXLINE(  27)		::haxe::Log_obj::trace(HX_("Clean renderer initialized!",93,5d,57,e6),::hx::SourceInfo(HX_("src/Renderer.hx",50,0e,7a,39),27,HX_("Renderer",63,81,8d,8c),HX_("new",60,d0,53,00)));
+HXLINE(  28)
+HXLINE(  29)		::haxe::Log_obj::trace(HX_("Creating clean renderer...",ed,6e,eb,31),::hx::SourceInfo(HX_("src/Renderer.hx",50,0e,7a,39),29,HX_("Renderer",63,81,8d,8c),HX_("new",60,d0,53,00)));
+HXLINE(  30)		this->initializeTestTriangle();
+HXLINE(  31)		this->initializeTestRectangle();
+HXLINE(  33)		::haxe::Log_obj::trace(HX_("Clean renderer initialized!",93,5d,57,e6),::hx::SourceInfo(HX_("src/Renderer.hx",50,0e,7a,39),33,HX_("Renderer",63,81,8d,8c),HX_("new",60,d0,53,00)));
             	}
 
 Dynamic Renderer_obj::__CreateEmpty() { return new Renderer_obj; }
@@ -64,14 +68,17 @@ bool Renderer_obj::_hx_isInstanceOf(int inClassId) {
 }
 
 void Renderer_obj::render(){
-            	HX_STACKFRAME(&_hx_pos_201f460b2ea368b5_30_render)
+            	HX_STACKFRAME(&_hx_pos_201f460b2ea368b5_36_render)
             	HX_STACK_THIS(this)
-HXLINE(  30)
-HXLINE(  32)		glClearColor(((Float)0.6),((Float)0.6),((Float)0.6),((Float)1.0));
-HXLINE(  33)		glClear(16384);
-HXLINE(  36)		if (::hx::IsNotNull( this->testTriangle )) {
-HXLINE(  38)			this->testTriangle->update(((Float)0.016));
-HXLINE(  39)			this->renderDisplayObject(this->testTriangle);
+HXLINE(  36)
+HXLINE(  38)		glClearColor(((Float)0.6),((Float)0.6),((Float)0.6),((Float)1.0));
+HXLINE(  39)		glClear(16384);
+HXLINE(  42)		if (::hx::IsNotNull( this->testTriangle )) {
+HXLINE(  44)			this->testTriangle->update(((Float)0.016));
+HXLINE(  45)			this->renderDisplayObject(this->testTriangle);
+            		}
+HXLINE(  49)		if (::hx::IsNotNull( this->testRectangle )) {
+HXLINE(  50)			this->renderDisplayObject(this->testRectangle);
             		}
             	}
 
@@ -79,95 +86,114 @@ HXLINE(  39)			this->renderDisplayObject(this->testTriangle);
 HX_DEFINE_DYNAMIC_FUNC0(Renderer_obj,render,(void))
 
 void Renderer_obj::renderDisplayObject( ::DisplayObject displayObject){
-            	HX_GC_STACKFRAME(&_hx_pos_201f460b2ea368b5_50_renderDisplayObject)
+            	HX_GC_STACKFRAME(&_hx_pos_201f460b2ea368b5_61_renderDisplayObject)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(displayObject,"displayObject")
-HXLINE(  50)
-HXLINE(  51)		if (!(displayObject->visible)) {
-HXLINE(  51)			return;
+HXLINE(  61)
+HXLINE(  62)		if (!(displayObject->visible)) {
+HXLINE(  62)			return;
             		}
-HXLINE(  54)		if (!(displayObject->initialized)) {
-HXLINE(  55)			displayObject->init();
+HXLINE(  65)		if (!(displayObject->initialized)) {
+HXLINE(  66)			displayObject->init();
             		}
-HXLINE(  59)		HX_VARI(  ::Matrix,cameraMatrix) =  ::Matrix_obj::__alloc( HX_CTX );
-HXLINE(  60)		cameraMatrix->identity();
-HXLINE(  63)		displayObject->render(cameraMatrix);
+HXLINE(  70)		HX_VARI(  ::Matrix,cameraMatrix) =  ::Matrix_obj::__alloc( HX_CTX );
+HXLINE(  71)		cameraMatrix->identity();
+HXLINE(  74)		displayObject->render(cameraMatrix);
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC1(Renderer_obj,renderDisplayObject,(void))
 
 void Renderer_obj::initializeTestTriangle(){
-            	HX_GC_STACKFRAME(&_hx_pos_201f460b2ea368b5_64_initializeTestTriangle)
+            	HX_GC_STACKFRAME(&_hx_pos_201f460b2ea368b5_75_initializeTestTriangle)
             	HX_STACK_THIS(this)
-HXLINE(  64)
-HXLINE(  65)		::haxe::Log_obj::trace(HX_("Initializing test triangle using DisplayObject architecture...",83,7a,c9,0e),::hx::SourceInfo(HX_("src/Renderer.hx",50,0e,7a,39),65,HX_("Renderer",63,81,8d,8c),HX_("initializeTestTriangle",aa,1a,47,06)));
-HXLINE(  68)		::String _hx_tmp = ::display::Triangle_obj::getVertexShader();
-HXDLIN(  68)		this->triangleProgram =  ::ProgramInfo_obj::__alloc( HX_CTX ,HX_("TestTriangle",5a,31,df,c8),_hx_tmp,::display::Triangle_obj::getFragmentShader());
-HXLINE(  71)		this->triangleProgram->printVertexLayout();
-HXLINE(  74)		this->testTriangle =  ::display::Triangle_obj::__alloc( HX_CTX ,this->triangleProgram);
-HXLINE(  77)		this->testTriangle->setRotationSpeed(((Float)2.0));
-HXLINE(  78)		this->testTriangle->setAutoRotate(true);
-HXLINE(  80)		::haxe::Log_obj::trace(HX_("Test triangle initialized successfully!",64,7e,2b,6e),::hx::SourceInfo(HX_("src/Renderer.hx",50,0e,7a,39),80,HX_("Renderer",63,81,8d,8c),HX_("initializeTestTriangle",aa,1a,47,06)));
+HXLINE(  75)
+HXLINE(  76)		::haxe::Log_obj::trace(HX_("Initializing test triangle using DisplayObject architecture...",83,7a,c9,0e),::hx::SourceInfo(HX_("src/Renderer.hx",50,0e,7a,39),76,HX_("Renderer",63,81,8d,8c),HX_("initializeTestTriangle",aa,1a,47,06)));
+HXLINE(  79)		::String _hx_tmp = ::display::Triangle_obj::getVertexShader();
+HXDLIN(  79)		this->triangleProgram =  ::ProgramInfo_obj::__alloc( HX_CTX ,HX_("TestTriangle",5a,31,df,c8),_hx_tmp,::display::Triangle_obj::getFragmentShader());
+HXLINE(  82)		this->triangleProgram->printVertexLayout();
+HXLINE(  85)		this->testTriangle =  ::display::Triangle_obj::__alloc( HX_CTX ,this->triangleProgram);
+HXLINE(  88)		this->testTriangle->setRotationSpeed(((Float)2.0));
+HXLINE(  89)		this->testTriangle->setAutoRotate(true);
+HXLINE(  91)		::haxe::Log_obj::trace(HX_("Test triangle initialized successfully!",64,7e,2b,6e),::hx::SourceInfo(HX_("src/Renderer.hx",50,0e,7a,39),91,HX_("Renderer",63,81,8d,8c),HX_("initializeTestTriangle",aa,1a,47,06)));
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC0(Renderer_obj,initializeTestTriangle,(void))
 
-void Renderer_obj::initializeTestImage(){
-            	HX_GC_STACKFRAME(&_hx_pos_201f460b2ea368b5_83_initializeTestImage)
+void Renderer_obj::initializeTestRectangle(){
+            	HX_GC_STACKFRAME(&_hx_pos_201f460b2ea368b5_94_initializeTestRectangle)
             	HX_STACK_THIS(this)
-HXLINE(  83)
-HXLINE(  84)		::haxe::Log_obj::trace(HX_("Initializing test image using DisplayObject architecture...",00,f9,48,1d),::hx::SourceInfo(HX_("src/Renderer.hx",50,0e,7a,39),84,HX_("Renderer",63,81,8d,8c),HX_("initializeTestImage",39,62,5a,a4)));
-HXLINE(  87)		::String _hx_tmp = this->getImageVertexShader();
-HXDLIN(  87)		this->imageProgram =  ::ProgramInfo_obj::__alloc( HX_CTX ,HX_("TestImage",89,3d,3e,28),_hx_tmp,this->getImageFragmentShader());
-HXLINE(  90)		this->testImage =  ::display::Image_obj::__alloc( HX_CTX ,this->imageProgram,null());
-HXLINE(  93)		this->testImage->set_x(( (Float)(100) ));
-HXLINE(  94)		this->testImage->set_y(( (Float)(100) ));
-HXLINE(  95)		this->testImage->set_width(( (Float)(200) ));
-HXLINE(  96)		this->testImage->set_height(( (Float)(200) ));
-HXLINE(  98)		::haxe::Log_obj::trace(HX_("Test image initialized successfully!",1b,cc,21,f5),::hx::SourceInfo(HX_("src/Renderer.hx",50,0e,7a,39),98,HX_("Renderer",63,81,8d,8c),HX_("initializeTestImage",39,62,5a,a4)));
+HXLINE(  94)
+HXLINE(  95)		::haxe::Log_obj::trace(HX_("Initializing test rectangle using DisplayObject architecture...",54,be,0a,26),::hx::SourceInfo(HX_("src/Renderer.hx",50,0e,7a,39),95,HX_("Renderer",63,81,8d,8c),HX_("initializeTestRectangle",0d,de,2b,12)));
+HXLINE(  98)		::String _hx_tmp = ::display::Rectangle_obj::getVertexShader();
+HXDLIN(  98)		this->rectangleProgram =  ::ProgramInfo_obj::__alloc( HX_CTX ,HX_("TestRectangle",5d,a1,a7,94),_hx_tmp,::display::Rectangle_obj::getFragmentShader());
+HXLINE( 101)		this->rectangleProgram->printVertexLayout();
+HXLINE( 104)		this->testRectangle =  ::display::Rectangle_obj::__alloc( HX_CTX ,this->rectangleProgram,((Float)0.6),((Float)0.4));
+HXLINE( 109)		::haxe::Log_obj::trace(HX_("Test rectangle initialized successfully!",ef,ca,5e,05),::hx::SourceInfo(HX_("src/Renderer.hx",50,0e,7a,39),109,HX_("Renderer",63,81,8d,8c),HX_("initializeTestRectangle",0d,de,2b,12)));
+            	}
+
+
+HX_DEFINE_DYNAMIC_FUNC0(Renderer_obj,initializeTestRectangle,(void))
+
+void Renderer_obj::initializeTestImage(){
+            	HX_GC_STACKFRAME(&_hx_pos_201f460b2ea368b5_112_initializeTestImage)
+            	HX_STACK_THIS(this)
+HXLINE( 112)
+HXLINE( 113)		::haxe::Log_obj::trace(HX_("Initializing test image using DisplayObject architecture...",00,f9,48,1d),::hx::SourceInfo(HX_("src/Renderer.hx",50,0e,7a,39),113,HX_("Renderer",63,81,8d,8c),HX_("initializeTestImage",39,62,5a,a4)));
+HXLINE( 116)		::String _hx_tmp = this->getImageVertexShader();
+HXDLIN( 116)		this->imageProgram =  ::ProgramInfo_obj::__alloc( HX_CTX ,HX_("TestImage",89,3d,3e,28),_hx_tmp,this->getImageFragmentShader());
+HXLINE( 119)		this->testImage =  ::display::Image_obj::__alloc( HX_CTX ,this->imageProgram,null());
+HXLINE( 122)		this->testImage->set_x(( (Float)(100) ));
+HXLINE( 123)		this->testImage->set_y(( (Float)(100) ));
+HXLINE( 124)		this->testImage->set_width(( (Float)(200) ));
+HXLINE( 125)		this->testImage->set_height(( (Float)(200) ));
+HXLINE( 127)		::haxe::Log_obj::trace(HX_("Test image initialized successfully!",1b,cc,21,f5),::hx::SourceInfo(HX_("src/Renderer.hx",50,0e,7a,39),127,HX_("Renderer",63,81,8d,8c),HX_("initializeTestImage",39,62,5a,a4)));
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC0(Renderer_obj,initializeTestImage,(void))
 
 ::String Renderer_obj::getImageVertexShader(){
-            	HX_STACKFRAME(&_hx_pos_201f460b2ea368b5_102_getImageVertexShader)
+            	HX_STACKFRAME(&_hx_pos_201f460b2ea368b5_131_getImageVertexShader)
             	HX_STACK_THIS(this)
-HXLINE( 102)
-HXDLIN( 102)		return HX_("\r\n        #version 330 core\r\n        layout (location = 0) in vec3 aPos;\r\n        layout (location = 1) in vec2 aTexCoord;\r\n        \r\n        out vec2 TexCoord;\r\n        \r\n        uniform mat4 uMatrix;\r\n        \r\n        void main() {\r\n            gl_Position = uMatrix * vec4(aPos, 1.0);\r\n            TexCoord = aTexCoord;\r\n        }\r\n        ",d8,7c,3e,c1);
+HXLINE( 131)
+HXDLIN( 131)		return HX_("\r\n        #version 330 core\r\n        layout (location = 0) in vec3 aPos;\r\n        layout (location = 1) in vec2 aTexCoord;\r\n        \r\n        out vec2 TexCoord;\r\n        \r\n        uniform mat4 uMatrix;\r\n        \r\n        void main() {\r\n            gl_Position = uMatrix * vec4(aPos, 1.0);\r\n            TexCoord = aTexCoord;\r\n        }\r\n        ",d8,7c,3e,c1);
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC0(Renderer_obj,getImageVertexShader,return )
 
 ::String Renderer_obj::getImageFragmentShader(){
-            	HX_STACKFRAME(&_hx_pos_201f460b2ea368b5_119_getImageFragmentShader)
+            	HX_STACKFRAME(&_hx_pos_201f460b2ea368b5_148_getImageFragmentShader)
             	HX_STACK_THIS(this)
-HXLINE( 119)
-HXDLIN( 119)		return HX_("\r\n        #version 330 core\r\n        in vec2 TexCoord;\r\n        out vec4 FragColor;\r\n        \r\n        uniform vec4 uColor;\r\n        \r\n        void main() {\r\n            // For now, just render a solid color since we don't have textures yet\r\n            FragColor = uColor;\r\n        }",ba,81,06,5c);
+HXLINE( 148)
+HXDLIN( 148)		return HX_("\r\n        #version 330 core\r\n        in vec2 TexCoord;\r\n        out vec4 FragColor;\r\n        \r\n        uniform vec4 uColor;\r\n        \r\n        void main() {\r\n            // For now, just render a solid color since we don't have textures yet\r\n            FragColor = uColor;\r\n        }",ba,81,06,5c);
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC0(Renderer_obj,getImageFragmentShader,return )
 
 void Renderer_obj::cleanup(){
-            	HX_STACKFRAME(&_hx_pos_201f460b2ea368b5_132_cleanup)
+            	HX_STACKFRAME(&_hx_pos_201f460b2ea368b5_161_cleanup)
             	HX_STACK_THIS(this)
-HXLINE( 132)
-HXLINE( 134)		bool _hx_tmp = ::hx::IsNotNull( this->testTriangle );
-HXLINE( 138)		bool _hx_tmp1 = ::hx::IsNotNull( this->testImage );
-HXLINE( 143)		if (::hx::IsNotNull( this->triangleProgram )) {
-HXLINE( 143)			this->triangleProgram->dispose();
+HXLINE( 161)
+HXLINE( 163)		bool _hx_tmp = ::hx::IsNotNull( this->testTriangle );
+HXLINE( 167)		bool _hx_tmp1 = ::hx::IsNotNull( this->testRectangle );
+HXLINE( 171)		bool _hx_tmp2 = ::hx::IsNotNull( this->testImage );
+HXLINE( 176)		if (::hx::IsNotNull( this->triangleProgram )) {
+HXLINE( 176)			this->triangleProgram->dispose();
             		}
-HXLINE( 144)		if (::hx::IsNotNull( this->imageProgram )) {
-HXLINE( 144)			this->imageProgram->dispose();
+HXLINE( 177)		if (::hx::IsNotNull( this->rectangleProgram )) {
+HXLINE( 177)			this->rectangleProgram->dispose();
             		}
-HXLINE( 147)		if ((this->shaderProgram != 0)) {
-HXLINE( 148)			glDeleteShader(this->shaderProgram);
+HXLINE( 178)		if (::hx::IsNotNull( this->imageProgram )) {
+HXLINE( 178)			this->imageProgram->dispose();
             		}
-HXLINE( 150)		::haxe::Log_obj::trace(HX_("Renderer cleanup complete",92,6f,db,9d),::hx::SourceInfo(HX_("src/Renderer.hx",50,0e,7a,39),150,HX_("Renderer",63,81,8d,8c),HX_("cleanup",24,0c,42,ab)));
+HXLINE( 181)		if ((this->shaderProgram != 0)) {
+HXLINE( 182)			glDeleteShader(this->shaderProgram);
+            		}
+HXLINE( 184)		::haxe::Log_obj::trace(HX_("Renderer cleanup complete",92,6f,db,9d),::hx::SourceInfo(HX_("src/Renderer.hx",50,0e,7a,39),184,HX_("Renderer",63,81,8d,8c),HX_("cleanup",24,0c,42,ab)));
             	}
 
 
@@ -199,6 +225,8 @@ void Renderer_obj::__Mark(HX_MARK_PARAMS)
 	HX_MARK_MEMBER_NAME(vao,"vao");
 	HX_MARK_MEMBER_NAME(testTriangle,"testTriangle");
 	HX_MARK_MEMBER_NAME(triangleProgram,"triangleProgram");
+	HX_MARK_MEMBER_NAME(testRectangle,"testRectangle");
+	HX_MARK_MEMBER_NAME(rectangleProgram,"rectangleProgram");
 	HX_MARK_MEMBER_NAME(testImage,"testImage");
 	HX_MARK_MEMBER_NAME(imageProgram,"imageProgram");
 	HX_MARK_END_CLASS();
@@ -211,6 +239,8 @@ void Renderer_obj::__Visit(HX_VISIT_PARAMS)
 	HX_VISIT_MEMBER_NAME(vao,"vao");
 	HX_VISIT_MEMBER_NAME(testTriangle,"testTriangle");
 	HX_VISIT_MEMBER_NAME(triangleProgram,"triangleProgram");
+	HX_VISIT_MEMBER_NAME(testRectangle,"testRectangle");
+	HX_VISIT_MEMBER_NAME(rectangleProgram,"rectangleProgram");
 	HX_VISIT_MEMBER_NAME(testImage,"testImage");
 	HX_VISIT_MEMBER_NAME(imageProgram,"imageProgram");
 }
@@ -237,9 +267,13 @@ void Renderer_obj::__Visit(HX_VISIT_PARAMS)
 		break;
 	case 13:
 		if (HX_FIELD_EQ(inName,"shaderProgram") ) { return ::hx::Val( shaderProgram ); }
+		if (HX_FIELD_EQ(inName,"testRectangle") ) { return ::hx::Val( testRectangle ); }
 		break;
 	case 15:
 		if (HX_FIELD_EQ(inName,"triangleProgram") ) { return ::hx::Val( triangleProgram ); }
+		break;
+	case 16:
+		if (HX_FIELD_EQ(inName,"rectangleProgram") ) { return ::hx::Val( rectangleProgram ); }
 		break;
 	case 19:
 		if (HX_FIELD_EQ(inName,"renderDisplayObject") ) { return ::hx::Val( renderDisplayObject_dyn() ); }
@@ -251,6 +285,9 @@ void Renderer_obj::__Visit(HX_VISIT_PARAMS)
 	case 22:
 		if (HX_FIELD_EQ(inName,"initializeTestTriangle") ) { return ::hx::Val( initializeTestTriangle_dyn() ); }
 		if (HX_FIELD_EQ(inName,"getImageFragmentShader") ) { return ::hx::Val( getImageFragmentShader_dyn() ); }
+		break;
+	case 23:
+		if (HX_FIELD_EQ(inName,"initializeTestRectangle") ) { return ::hx::Val( initializeTestRectangle_dyn() ); }
 	}
 	return super::__Field(inName,inCallProp);
 }
@@ -271,9 +308,13 @@ void Renderer_obj::__Visit(HX_VISIT_PARAMS)
 		break;
 	case 13:
 		if (HX_FIELD_EQ(inName,"shaderProgram") ) { shaderProgram=inValue.Cast< unsigned int >(); return inValue; }
+		if (HX_FIELD_EQ(inName,"testRectangle") ) { testRectangle=inValue.Cast<  ::display::Rectangle >(); return inValue; }
 		break;
 	case 15:
 		if (HX_FIELD_EQ(inName,"triangleProgram") ) { triangleProgram=inValue.Cast<  ::ProgramInfo >(); return inValue; }
+		break;
+	case 16:
+		if (HX_FIELD_EQ(inName,"rectangleProgram") ) { rectangleProgram=inValue.Cast<  ::ProgramInfo >(); return inValue; }
 	}
 	return super::__SetField(inName,inValue,inCallProp);
 }
@@ -285,6 +326,8 @@ void Renderer_obj::__GetFields(Array< ::String> &outFields)
 	outFields->push(HX_("vao",e4,de,59,00));
 	outFields->push(HX_("testTriangle",3a,e5,cc,00));
 	outFields->push(HX_("triangleProgram",9c,9c,41,c6));
+	outFields->push(HX_("testRectangle",7d,51,b7,4c));
+	outFields->push(HX_("rectangleProgram",15,12,13,56));
 	outFields->push(HX_("testImage",a9,5d,6b,86));
 	outFields->push(HX_("imageProgram",69,c4,c1,e3));
 	super::__GetFields(outFields);
@@ -297,6 +340,8 @@ static ::hx::StorageInfo Renderer_obj_sMemberStorageInfo[] = {
 	{::hx::fsUnknown /* unsigned int */ ,(int)offsetof(Renderer_obj,vao),HX_("vao",e4,de,59,00)},
 	{::hx::fsObject /*  ::display::Triangle */ ,(int)offsetof(Renderer_obj,testTriangle),HX_("testTriangle",3a,e5,cc,00)},
 	{::hx::fsObject /*  ::ProgramInfo */ ,(int)offsetof(Renderer_obj,triangleProgram),HX_("triangleProgram",9c,9c,41,c6)},
+	{::hx::fsObject /*  ::display::Rectangle */ ,(int)offsetof(Renderer_obj,testRectangle),HX_("testRectangle",7d,51,b7,4c)},
+	{::hx::fsObject /*  ::ProgramInfo */ ,(int)offsetof(Renderer_obj,rectangleProgram),HX_("rectangleProgram",15,12,13,56)},
 	{::hx::fsObject /*  ::display::Image */ ,(int)offsetof(Renderer_obj,testImage),HX_("testImage",a9,5d,6b,86)},
 	{::hx::fsObject /*  ::ProgramInfo */ ,(int)offsetof(Renderer_obj,imageProgram),HX_("imageProgram",69,c4,c1,e3)},
 	{ ::hx::fsUnknown, 0, null()}
@@ -310,11 +355,14 @@ static ::String Renderer_obj_sMemberFields[] = {
 	HX_("vao",e4,de,59,00),
 	HX_("testTriangle",3a,e5,cc,00),
 	HX_("triangleProgram",9c,9c,41,c6),
+	HX_("testRectangle",7d,51,b7,4c),
+	HX_("rectangleProgram",15,12,13,56),
 	HX_("testImage",a9,5d,6b,86),
 	HX_("imageProgram",69,c4,c1,e3),
 	HX_("render",56,6b,29,05),
 	HX_("renderDisplayObject",6b,41,dc,2b),
 	HX_("initializeTestTriangle",aa,1a,47,06),
+	HX_("initializeTestRectangle",0d,de,2b,12),
 	HX_("initializeTestImage",39,62,5a,a4),
 	HX_("getImageVertexShader",2e,70,45,7e),
 	HX_("getImageFragmentShader",da,78,3c,2d),

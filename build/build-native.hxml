@@ -11,6 +11,8 @@
 -D HXCPP_DEBUGGER
 -D HXCPP_M64
 -D HXCPP_CPP11
+-D HXCPP_NO_PCH
+-D HXCPP_NO_PRECOMPILED_HEADERS
 -D no-deprecation-warnings
 
 -debug 

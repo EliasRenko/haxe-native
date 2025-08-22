@@ -5,6 +5,7 @@ import ProgramInfo;
 import DisplayObject;
 import display.Image;
 import display.Triangle;
+import display.Rectangle;
 
 class Renderer {
     
@@ -16,6 +17,10 @@ class Renderer {
     private var testTriangle:Triangle;
     private var triangleProgram:ProgramInfo;
     
+    // Test rectangle using DisplayObject architecture
+    private var testRectangle:Rectangle;
+    private var rectangleProgram:ProgramInfo;
+    
     // Test image using DisplayObject architecture
     private var testImage:Image;
     private var imageProgram:ProgramInfo;
@@ -23,7 +28,8 @@ class Renderer {
     public function new(windowWidth:Int, windowHeight:Int) {
         trace("Creating clean renderer...");
         initializeTestTriangle();
-        initializeTestImage();
+        initializeTestRectangle();
+        //initializeTestImage();
         trace("Clean renderer initialized!");
     }
     
@@ -37,6 +43,11 @@ class Renderer {
             // Update triangle animation
             testTriangle.update(0.016); // Assuming ~60fps
             renderDisplayObject(testTriangle);
+        }
+
+        // Render test rectangle using DisplayObject architecture  
+        if (testRectangle != null) {
+            renderDisplayObject(testRectangle);
         }
 
         // Render test image using DisplayObject architecture
@@ -78,6 +89,24 @@ class Renderer {
         testTriangle.setAutoRotate(true);
         
         trace("Test triangle initialized successfully!");
+    }
+    
+    private function initializeTestRectangle():Void {
+        trace("Initializing test rectangle using DisplayObject architecture...");
+        
+        // Create ProgramInfo with rectangle shaders and automatic introspection
+        rectangleProgram = new ProgramInfo("TestRectangle", Rectangle.getVertexShader(), Rectangle.getFragmentShader());
+        
+        // Print debug info about the introspected program
+        rectangleProgram.printVertexLayout();
+        
+        // Create the rectangle display object with custom size
+        testRectangle = new Rectangle(rectangleProgram, 0.6, 0.4);
+        
+        // You can customize colors if desired
+        // testRectangle.setCornerColors([1.0, 0.5, 0.0], [0.5, 1.0, 0.0], [0.0, 0.5, 1.0], [1.0, 0.0, 0.5]);
+        
+        trace("Test rectangle initialized successfully!");
     }
     
     private function initializeTestImage():Void {
@@ -135,12 +164,17 @@ class Renderer {
             // DisplayObjects automatically clean up their VAO/VBO in their cleanup
         }
         
+        if (testRectangle != null) {
+            // DisplayObjects automatically clean up their VAO/VBO in their cleanup
+        }
+        
         if (testImage != null) {
             // DisplayObjects automatically clean up their VAO/VBO in their cleanup
         }
         
         // Cleanup shader programs
         if (triangleProgram != null) triangleProgram.dispose();
+        if (rectangleProgram != null) rectangleProgram.dispose();
         if (imageProgram != null) imageProgram.dispose();
         
         // Simple cleanup for now - just shader if it exists

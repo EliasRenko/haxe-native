@@ -1,6 +1,14 @@
 #ifndef HXCPP_CONFIG_INCLUDED
 #define HXCPP_CONFIG_INCLUDED
 
+#if !defined(HXCPP_NO_PCH) && !defined(NO_HXCPP_NO_PCH)
+#define HXCPP_NO_PCH 
+#endif
+
+#if !defined(HXCPP_NO_PRECOMPILED_HEADERS) && !defined(NO_HXCPP_NO_PRECOMPILED_HEADERS)
+#define HXCPP_NO_PRECOMPILED_HEADERS 
+#endif
+
 #if !defined(HX_WINDOWS) && !defined(NO_HX_WINDOWS)
 #define HX_WINDOWS 
 #endif

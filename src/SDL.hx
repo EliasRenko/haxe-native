@@ -14,7 +14,7 @@ typedef SDL_PropertiesID = UInt64;
 @:keep
 @:buildXml(
 '<target id="haxe">
-   <lib name="C:/Users/efedorenko/Desktop/engine/lib/x64/SDL3.lib"/>
+   <lib name="lib/x64/SDL3.lib"/>
    <lib name="user32.lib"/>
    <lib name="gdi32.lib"/>
    <lib name="winmm.lib"/>
@@ -27,7 +27,9 @@ typedef SDL_PropertiesID = UInt64;
    <lib name="uuid.lib"/>
 </target>
 <files id="haxe">
-    <compilerflag value="-I../include"/>
+    <compilerflag value="-Iinclude"/>
+    <compilerflag value="-DHXCPP_NO_PCH"/>
+    <compilerflag value="-DHXCPP_NO_PRECOMPILED_HEADERS"/>
 </files>')
 @:include("SDL3/SDL.h")
 extern class SDL {
