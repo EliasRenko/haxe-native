@@ -35,6 +35,17 @@
    <depend name="include/Vertices.h"/>
    <depend name="include/display/Rectangle.h"/>
   </file>
+  <file name="src/display/Quad.cpp" >
+   <depend name="include/DisplayObject.h"/>
+   <depend name="include/Indices.h"/>
+   <depend name="include/Matrix.h"/>
+   <depend name="include/ProgramInfo.h"/>
+   <depend name="include/Std.h"/>
+   <depend name="include/Vertices.h"/>
+   <depend name="include/display/Quad.h"/>
+   <depend name="include/haxe/Log.h"/>
+   <depend name="include/haxe/io/Bytes.h"/>
+  </file>
   <file name="src/display/Image.cpp" >
    <depend name="include/DisplayObject.h"/>
    <depend name="include/Indices.h"/>
@@ -69,6 +80,7 @@
    <depend name="include/ProgramInfo.h"/>
    <depend name="include/Renderer.h"/>
    <depend name="include/display/Image.h"/>
+   <depend name="include/display/Quad.h"/>
    <depend name="include/display/Rectangle.h"/>
    <depend name="include/display/Triangle.h"/>
    <depend name="include/haxe/Log.h"/>

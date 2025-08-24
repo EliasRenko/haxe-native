@@ -6,6 +6,7 @@ import DisplayObject;
 import display.Image;
 import display.Triangle;
 import display.Rectangle;
+import display.Quad;
 
 class Renderer {
     
@@ -21,6 +22,10 @@ class Renderer {
     private var testRectangle:Rectangle;
     private var rectangleProgram:ProgramInfo;
     
+    // Test textured quad using DisplayObject architecture
+    private var testQuad:Quad;
+    private var quadProgram:ProgramInfo;
+    
     // Test image using DisplayObject architecture
     private var testImage:Image;
     private var imageProgram:ProgramInfo;
@@ -29,6 +34,7 @@ class Renderer {
         trace("Creating clean renderer...");
         initializeTestTriangle();
         initializeTestRectangle();
+        initializeTestQuad();
         //initializeTestImage();
         trace("Clean renderer initialized!");
     }
@@ -48,6 +54,11 @@ class Renderer {
         // Render test rectangle using DisplayObject architecture  
         if (testRectangle != null) {
             renderDisplayObject(testRectangle);
+        }
+
+        // Render test textured quad using DisplayObject architecture
+        if (testQuad != null) {
+            renderDisplayObject(testQuad);
         }
 
         // Render test image using DisplayObject architecture
@@ -109,6 +120,24 @@ class Renderer {
         trace("Test rectangle initialized successfully!");
     }
     
+    private function initializeTestQuad():Void {
+        trace("Initializing test textured quad using DisplayObject architecture...");
+        
+        // Create ProgramInfo with quad shaders and automatic introspection
+        quadProgram = new ProgramInfo("TestQuad", Quad.getVertexShader(), Quad.getFragmentShader());
+        
+        // Print debug info about the introspected program
+        quadProgram.printVertexLayout();
+        
+        // Create the textured quad display object
+        testQuad = new Quad(quadProgram, 0.5, 0.5);
+        
+        // Create a checkerboard texture for testing
+        testQuad.createCheckerboardTexture(64);
+        
+        trace("Test textured quad initialized successfully!");
+    }
+    
     private function initializeTestImage():Void {
         trace("Initializing test image using DisplayObject architecture...");
         
@@ -168,6 +197,11 @@ class Renderer {
             // DisplayObjects automatically clean up their VAO/VBO in their cleanup
         }
         
+        if (testQuad != null) {
+            // DisplayObjects automatically clean up their VAO/VBO and textures in their cleanup
+            testQuad.remove();
+        }
+        
         if (testImage != null) {
             // DisplayObjects automatically clean up their VAO/VBO in their cleanup
         }
@@ -175,6 +209,7 @@ class Renderer {
         // Cleanup shader programs
         if (triangleProgram != null) triangleProgram.dispose();
         if (rectangleProgram != null) rectangleProgram.dispose();
+        if (quadProgram != null) quadProgram.dispose();
         if (imageProgram != null) imageProgram.dispose();
         
         // Simple cleanup for now - just shader if it exists

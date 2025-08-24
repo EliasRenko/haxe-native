@@ -72,7 +72,7 @@ class HXCPP_CLASS_ATTRIBUTES DisplayObject_obj : public ::hx::Object
 		void updateBuffers();
 		::Dynamic updateBuffers_dyn();
 
-		void remove();
+		virtual void remove();
 		::Dynamic remove_dyn();
 
 		virtual void render( ::Matrix cameraMatrix);

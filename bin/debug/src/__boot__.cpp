@@ -34,6 +34,9 @@
 #ifndef INCLUDED_display_Rectangle
 #include <display/Rectangle.h>
 #endif
+#ifndef INCLUDED_display_Quad
+#include <display/Quad.h>
+#endif
 #ifndef INCLUDED_display_Image
 #include <display/Image.h>
 #endif
@@ -85,6 +88,7 @@ __files__boot();
 ::haxe::ds::StringMap_obj::__register();
 ::display::Triangle_obj::__register();
 ::display::Rectangle_obj::__register();
+::display::Quad_obj::__register();
 ::display::Image_obj::__register();
 ::haxe::IMap_obj::__register();
 ::Type_obj::__register();

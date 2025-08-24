@@ -16,6 +16,7 @@ const char *__hxcpp_all_files[] = {
 "ProgramInfo.hx",
 "Renderer.hx",
 "display/Image.hx",
+"display/Quad.hx",
 "display/Rectangle.hx",
 "display/Triangle.hx",
 #endif
@@ -35,6 +36,7 @@ const char *__hxcpp_all_files_fullpath[] = {
 "C:\\Users\\Renko\\Documents\\Libraries\\engine\\src\\ProgramInfo.hx",
 "C:\\Users\\Renko\\Documents\\Libraries\\engine\\src\\Renderer.hx",
 "C:\\Users\\Renko\\Documents\\Libraries\\engine\\src\\display\\Image.hx",
+"C:\\Users\\Renko\\Documents\\Libraries\\engine\\src\\display\\Quad.hx",
 "C:\\Users\\Renko\\Documents\\Libraries\\engine\\src\\display\\Rectangle.hx",
 "C:\\Users\\Renko\\Documents\\Libraries\\engine\\src\\display\\Triangle.hx",
 #endif
@@ -54,6 +56,7 @@ const char *__hxcpp_all_classes[] = {
 "Type",
 "display.Vector4",
 "display.Image",
+"display.Quad",
 "display.Rectangle",
 "display.Triangle",
 "haxe.Log",

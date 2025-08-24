@@ -10,6 +10,7 @@ HX_DECLARE_CLASS0(DisplayObject)
 HX_DECLARE_CLASS0(ProgramInfo)
 HX_DECLARE_CLASS0(Renderer)
 HX_DECLARE_CLASS1(display,Image)
+HX_DECLARE_CLASS1(display,Quad)
 HX_DECLARE_CLASS1(display,Rectangle)
 HX_DECLARE_CLASS1(display,Triangle)
 
@@ -54,6 +55,8 @@ class HXCPP_CLASS_ATTRIBUTES Renderer_obj : public ::hx::Object
 		 ::ProgramInfo triangleProgram;
 		 ::display::Rectangle testRectangle;
 		 ::ProgramInfo rectangleProgram;
+		 ::display::Quad testQuad;
+		 ::ProgramInfo quadProgram;
 		 ::display::Image testImage;
 		 ::ProgramInfo imageProgram;
 		void render();
@@ -67,6 +70,9 @@ class HXCPP_CLASS_ATTRIBUTES Renderer_obj : public ::hx::Object
 
 		void initializeTestRectangle();
 		::Dynamic initializeTestRectangle_dyn();
+
+		void initializeTestQuad();
+		::Dynamic initializeTestQuad_dyn();
 
 		void initializeTestImage();
 		::Dynamic initializeTestImage_dyn();
