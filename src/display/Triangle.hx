@@ -3,7 +3,6 @@ package display;
 import GL;
 import SDL;
 import DisplayObject;
-import ProgramInfo;
 
 class Triangle extends DisplayObject {
     // Triangle-specific properties
@@ -18,10 +17,10 @@ class Triangle extends DisplayObject {
     public function new(programInfo:ProgramInfo) {
         // Create triangle vertices (interleaved: pos.x, pos.y, pos.z, color.r, color.g, color.b)
         var triangleVertices = new Vertices([
-            // Make triangle bigger and ensure it's in NDC space (-1 to 1)
-             0.0,  0.8, 0.0,  1.0, 0.0, 0.0,  // Top vertex - Red - made bigger
-            -0.8, -0.8, 0.0,  0.0, 1.0, 0.0,  // Bottom left - Green - made bigger
-             0.8, -0.8, 0.0,  0.0, 0.0, 1.0   // Bottom right - Blue - made bigger
+            // Use simple coordinates that work with identity matrix
+             0.0,  0.5, 0.0,  1.0, 0.0, 0.0,  // Top vertex - Red
+            -0.5, -0.5, 0.0,  0.0, 1.0, 0.0,  // Bottom left - Green
+             0.5, -0.5, 0.0,  0.0, 0.0, 1.0   // Bottom right - Blue
         ]);
         
         // No indices needed for simple triangle
@@ -30,11 +29,15 @@ class Triangle extends DisplayObject {
         // Set up triangle-specific properties
         mode = GL.TRIANGLES;
         __verticesToRender = 3;
+        
+        trace("TRIANGLE: Created with coordinates in range -0.5 to 0.5");
     }
     
     // Update the triangle (called each frame)
     public function update(deltaTime:Float):Void {
-        // No animation for now - just static triangle
+        if (autoRotate) {
+            rotationZ += rotationSpeed * deltaTime;
+        }
     }
     
     // Set individual vertex colors
@@ -77,11 +80,13 @@ class Triangle extends DisplayObject {
         layout (location = 0) in vec3 aPos;
         layout (location = 1) in vec3 aColor;
         
+        uniform mat4 uMatrix;
+        
         out vec3 vertexColor;
         
         void main() {
-            // Static triangle - no animation
-            gl_Position = vec4(aPos, 1.0);
+            // Apply matrix transformation - DEBUGGING VERSION
+            gl_Position = uMatrix * vec4(aPos, 1.0);
             vertexColor = aColor;
         }
         ';

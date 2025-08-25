@@ -24,21 +24,21 @@ const char *__hxcpp_all_files[] = {
 
 const char *__hxcpp_all_files_fullpath[] = {
 #ifdef HXCPP_DEBUGGER
-"C:\\Users\\Renko\\Documents\\Libraries\\engine\\?",
+"C:\\Users\\efedorenko\\Desktop\\engine\\?",
 "C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\Std.hx",
 "C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\Type.hx",
 "C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\haxe\\Log.hx",
 "C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\haxe\\ds\\StringMap.hx",
 "C:\\HaxeToolkit\\haxe\\std\\haxe\\io\\Bytes.hx",
 "C:\\HaxeToolkit\\haxe\\std\\haxe\\iterators\\ArrayIterator.hx",
-"C:\\Users\\Renko\\Documents\\Libraries\\engine\\src\\DisplayObject.hx",
-"C:\\Users\\Renko\\Documents\\Libraries\\engine\\src\\Main.hx",
-"C:\\Users\\Renko\\Documents\\Libraries\\engine\\src\\ProgramInfo.hx",
-"C:\\Users\\Renko\\Documents\\Libraries\\engine\\src\\Renderer.hx",
-"C:\\Users\\Renko\\Documents\\Libraries\\engine\\src\\display\\Image.hx",
-"C:\\Users\\Renko\\Documents\\Libraries\\engine\\src\\display\\Quad.hx",
-"C:\\Users\\Renko\\Documents\\Libraries\\engine\\src\\display\\Rectangle.hx",
-"C:\\Users\\Renko\\Documents\\Libraries\\engine\\src\\display\\Triangle.hx",
+"C:\\Users\\efedorenko\\Desktop\\engine\\src\\DisplayObject.hx",
+"C:\\Users\\efedorenko\\Desktop\\engine\\src\\Main.hx",
+"C:\\Users\\efedorenko\\Desktop\\engine\\src\\ProgramInfo.hx",
+"C:\\Users\\efedorenko\\Desktop\\engine\\src\\Renderer.hx",
+"C:\\Users\\efedorenko\\Desktop\\engine\\src\\display\\Image.hx",
+"C:\\Users\\efedorenko\\Desktop\\engine\\src\\display\\Quad.hx",
+"C:\\Users\\efedorenko\\Desktop\\engine\\src\\display\\Rectangle.hx",
+"C:\\Users\\efedorenko\\Desktop\\engine\\src\\display\\Triangle.hx",
 #endif
  0 };
 

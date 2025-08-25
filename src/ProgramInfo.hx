@@ -187,6 +187,63 @@ class ProgramInfo {
 		}
 	}
 	
+	// ** Set matrix4x4 uniform
+	public function setUniformMatrix4(name:String, matrix:Array<Float>):Void {
+		if (!isCompiled) {
+			trace("Warning: Program not compiled, cannot set uniform: " + name);
+			return;
+		}
+		
+		// First try to find the uniform in our introspected list (faster)
+		for (uniform in uniforms) {
+			if (uniform.name == name) {
+				if (uniform.format == UniformFormat.Mat4) {
+					// CRITICAL FIX: Use proper matrix data conversion
+					// Create a copy to ensure proper memory layout
+					var matrixData = new Array<Float>();
+					for (i in 0...16) {
+						matrixData[i] = matrix[i];
+					}
+					
+					// Use transpose=false for column-major OpenGL matrix format
+					// Pass count=1 for a single 4x4 matrix
+					untyped __cpp__("
+						float matData[16];
+						for(int i = 0; i < 16; i++) {
+							matData[i] = {0}[i];
+						}
+						glUniformMatrix4fv({1}, 1, GL_FALSE, matData);
+					", matrixData, uniform.location);
+					return;
+				} else {
+					trace("Warning: Uniform '" + name + "' is not a Mat4 uniform");
+					return;
+				}
+			}
+		}
+		
+		// Fallback to runtime lookup if not found in introspected uniforms
+		var location = GL.getUniformLocation(program, name);
+		if (location != -1) {
+			// Create a copy to ensure proper memory layout
+			var matrixData = new Array<Float>();
+			for (i in 0...16) {
+				matrixData[i] = matrix[i];
+			}
+			
+			// Use transpose=false for column-major OpenGL matrix format
+			untyped __cpp__("
+				float matData[16];
+				for(int i = 0; i < 16; i++) {
+					matData[i] = {0}[i];
+				}
+				glUniformMatrix4fv({1}, 1, GL_FALSE, matData);
+			", matrixData, location);
+		} else {
+			trace("Warning: Uniform '" + name + "' not found in shader");
+		}
+	}
+	
 	// ** Debug method to print vertex layout
 	public function printVertexLayout():Void {
 		trace("=== Vertex Layout for " + name + " ===");

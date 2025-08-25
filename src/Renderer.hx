@@ -53,11 +53,18 @@ class Renderer {
 
         // Render test rectangle using DisplayObject architecture  
         if (testRectangle != null) {
+            // Add simple scaling animation
+            var time = cast(SDL.getTicks(), Int) / 1000.0; // Convert to seconds
+            testRectangle.scaleX = 0.8 + 0.2 * Math.sin(time * 2.0);
+            testRectangle.scaleY = 0.8 + 0.2 * Math.cos(time * 2.0);
             renderDisplayObject(testRectangle);
         }
 
         // Render test textured quad using DisplayObject architecture
         if (testQuad != null) {
+            // Add rotation animation
+            var time = cast(SDL.getTicks(), Int) / 1000.0; // Convert to seconds
+            testQuad.rotationZ = time;
             renderDisplayObject(testQuad);
         }
 
@@ -95,7 +102,11 @@ class Renderer {
         // Create the triangle display object
         testTriangle = new Triangle(triangleProgram);
         
-        // Configure triangle properties
+        // Configure triangle properties - position it at left side
+        testTriangle.x = -0.5;
+        testTriangle.y = 0.3;
+        testTriangle.scaleX = 0.7;
+        testTriangle.scaleY = 0.7;
         testTriangle.setRotationSpeed(2.0);
         testTriangle.setAutoRotate(true);
         
@@ -114,6 +125,12 @@ class Renderer {
         // Create the rectangle display object with custom size
         testRectangle = new Rectangle(rectangleProgram, 0.6, 0.4);
         
+        // Position rectangle at center-right
+        testRectangle.x = 0.5;
+        testRectangle.y = 0.3;
+        testRectangle.scaleX = 0.8;
+        testRectangle.scaleY = 0.8;
+        
         // You can customize colors if desired
         // testRectangle.setCornerColors([1.0, 0.5, 0.0], [0.5, 1.0, 0.0], [0.0, 0.5, 1.0], [1.0, 0.0, 0.5]);
         
@@ -131,6 +148,12 @@ class Renderer {
         
         // Create the textured quad display object
         testQuad = new Quad(quadProgram, 0.5, 0.5);
+        
+        // Position quad at bottom center
+        testQuad.x = 0.0;
+        testQuad.y = -0.5;
+        testQuad.scaleX = 0.6;
+        testQuad.scaleY = 0.6;
         
         // Create a checkerboard texture for testing
         testQuad.createCheckerboardTexture(64);

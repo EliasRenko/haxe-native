@@ -2,6 +2,7 @@ package;
 
 import GL;
 import ProgramInfo;
+import ProgramInfo.UniformFormat;
 
 typedef BlendFactors = {
 	source:Int,
@@ -57,21 +58,64 @@ class Matrix {
 		];
 	}
 	
-	// Placeholder methods - can be expanded later
-	public function appendScale(x:Float, y:Float, z:Float):Void {
-		// TODO: Implement proper matrix scaling
-	}
-	
-	public function appendRotation(angle:Float, axis:Dynamic):Void {
-		// TODO: Implement proper matrix rotation
+	// Matrix transformation methods
+	public function setTranslation(x:Float, y:Float, z:Float):Void {
+		data[12] = x;  // Translation X
+		data[13] = y;  // Translation Y
+		data[14] = z;  // Translation Z
 	}
 	
 	public function appendTranslation(x:Float, y:Float, z:Float):Void {
-		// TODO: Implement proper matrix translation
+		var m = new Matrix();
+		m.identity();
+		m.data[12] = x;
+		m.data[13] = y; 
+		m.data[14] = z;
+		this.append(m);
+	}
+	
+	public function appendScale(x:Float, y:Float, z:Float):Void {
+		var m = new Matrix();
+		m.identity();
+		m.data[0] = x;   // Scale X
+		m.data[5] = y;   // Scale Y
+		m.data[10] = z;  // Scale Z
+		this.append(m);
+	}
+	
+	public function appendRotationZ(angle:Float):Void {
+		var cos = Math.cos(angle);
+		var sin = Math.sin(angle);
+		var m = new Matrix();
+		m.identity();
+		m.data[0] = cos;   // [0,0]
+		m.data[1] = sin;   // [0,1]
+		m.data[4] = -sin;  // [1,0]
+		m.data[5] = cos;   // [1,1]
+		this.append(m);
+	}
+	
+	public function appendRotation(angle:Float, axis:Dynamic):Void {
+		// For now, just support Z-axis rotation
+		appendRotationZ(angle);
 	}
 	
 	public function append(other:Matrix):Void {
-		// TODO: Implement proper matrix multiplication
+		// Matrix multiplication: this = this * other
+		var result = new Array<Float>();
+		result.resize(16);
+		
+		for (i in 0...4) {
+			for (j in 0...4) {
+				var sum = 0.0;
+				for (k in 0...4) {
+					sum += this.data[i * 4 + k] * other.data[k * 4 + j];
+				}
+				result[i * 4 + j] = sum;
+			}
+		}
+		
+		this.data = result;
 	}
 }
 
@@ -94,6 +138,15 @@ class DisplayObject {
 	public var uniforms:Map<String, Dynamic> = new Map<String, Dynamic>();
 	public var visible:Bool = true;
 	public var signature:String = "";
+
+	// Transformation properties
+	public var x:Float = 0.0;
+	public var y:Float = 0.0;
+	public var z:Float = 0.0;
+	public var rotationZ:Float = 0.0; // Rotation in radians
+	public var scaleX:Float = 1.0;
+	public var scaleY:Float = 1.0;
+	public var scaleZ:Float = 1.0;
 
 	// ** Privates.
 	private var __shouldTransform:Bool = false;
@@ -196,8 +249,29 @@ class DisplayObject {
 		}
 	}
 
+	public function updateTransform():Void {
+		// Reset matrix to identity
+		matrix.identity();
+		
+		// Apply transformations in order: Scale -> Rotate -> Translate
+		if (scaleX != 1.0 || scaleY != 1.0 || scaleZ != 1.0) {
+			matrix.appendScale(scaleX, scaleY, scaleZ);
+		}
+		
+		if (rotationZ != 0.0) {
+			matrix.appendRotationZ(rotationZ);
+		}
+		
+		if (x != 0.0 || y != 0.0 || z != 0.0) {
+			matrix.appendTranslation(x, y, z);
+		}
+	}
+
 	public function render(cameraMatrix:Matrix):Void {
 		if (!visible || !initialized) return;
+		
+		// Update transformation matrix based on current properties
+		updateTransform();
 		
 		// Use the program
 		GL.useProgram(programInfo.program);
@@ -221,6 +295,14 @@ class DisplayObject {
 	
 	// Override this in subclasses to set specific uniforms
 	private function setUniforms():Void {
+		// Automatically set the uMatrix uniform if it exists in the shader
+		for (uniform in programInfo.uniforms) {
+			if (uniform.name == "uMatrix" && uniform.format == UniformFormat.Mat4) {
+				programInfo.setUniformMatrix4("uMatrix", matrix.data);
+				break;
+			}
+		}
+		
 		// Set any uniforms stored in the uniforms map
 		for (name => value in uniforms) {
 			// Check if it's a Float using Type.typeof instead of Std.isOfType

@@ -72,6 +72,9 @@ class HXCPP_CLASS_ATTRIBUTES ProgramInfo_obj : public ::hx::Object
 		void setUniformFloat(::String name,Float value);
 		::Dynamic setUniformFloat_dyn();
 
+		void setUniformMatrix4(::String name,::Array< Float > matrix);
+		::Dynamic setUniformMatrix4_dyn();
+
 		void printVertexLayout();
 		::Dynamic printVertexLayout_dyn();
 

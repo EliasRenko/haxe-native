@@ -52,11 +52,6 @@ class HXCPP_CLASS_ATTRIBUTES Image_obj : public  ::DisplayObject_obj
 		Float _hx___width;
 		Float _hx___originX;
 		Float _hx___originY;
-		Float _hx___scaleX;
-		Float _hx___scaleY;
-		Float _hx___x;
-		Float _hx___y;
-		Float _hx___z;
 		void centerOrigin();
 		::Dynamic centerOrigin_dyn();
 
@@ -94,36 +89,6 @@ class HXCPP_CLASS_ATTRIBUTES Image_obj : public  ::DisplayObject_obj
 
 		Float set_originY(Float value);
 		::Dynamic set_originY_dyn();
-
-		Float set_scaleX(Float value);
-		::Dynamic set_scaleX_dyn();
-
-		Float set_scaleY(Float value);
-		::Dynamic set_scaleY_dyn();
-
-		Float get_x();
-		::Dynamic get_x_dyn();
-
-		Float set_x(Float value);
-		::Dynamic set_x_dyn();
-
-		Float get_y();
-		::Dynamic get_y_dyn();
-
-		Float set_y(Float value);
-		::Dynamic set_y_dyn();
-
-		Float get_z();
-		::Dynamic get_z_dyn();
-
-		Float set_z(Float value);
-		::Dynamic set_z_dyn();
-
-		Float get_scaleX();
-		::Dynamic get_scaleX_dyn();
-
-		Float get_scaleY();
-		::Dynamic get_scaleY_dyn();
 
 		Float get_angle();
 		::Dynamic get_angle_dyn();

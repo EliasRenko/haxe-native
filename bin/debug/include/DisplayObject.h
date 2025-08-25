@@ -59,6 +59,13 @@ class HXCPP_CLASS_ATTRIBUTES DisplayObject_obj : public ::hx::Object
 		 ::haxe::ds::StringMap uniforms;
 		bool visible;
 		::String signature;
+		Float x;
+		Float y;
+		Float z;
+		Float rotationZ;
+		Float scaleX;
+		Float scaleY;
+		Float scaleZ;
 		bool _hx___shouldTransform;
 		int _hx___verticesToRender;
 		int _hx___indicesToRender;
@@ -74,6 +81,9 @@ class HXCPP_CLASS_ATTRIBUTES DisplayObject_obj : public ::hx::Object
 
 		virtual void remove();
 		::Dynamic remove_dyn();
+
+		void updateTransform();
+		::Dynamic updateTransform_dyn();
 
 		virtual void render( ::Matrix cameraMatrix);
 		::Dynamic render_dyn();

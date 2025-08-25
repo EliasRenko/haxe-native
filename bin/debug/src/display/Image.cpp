@@ -36,30 +36,20 @@ HX_DEFINE_STACK_FRAME(_hx_pos_707cb44249f20c30_10_new,"display.Image","new",0x78
 static const int _hx_array_data_41cf700f_1[] = {
 	(int)0,(int)1,(int)2,(int)0,(int)2,(int)3,
 };
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_114_centerOrigin,"display.Image","centerOrigin",0x5d3f415a,"display.Image.centerOrigin","display/Image.hx",114,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_121_setTextures,"display.Image","setTextures",0xf0143e1b,"display.Image.setTextures","display/Image.hx",121,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_152_setUV,"display.Image","setUV",0xb95f90e4,"display.Image.setUV","display/Image.hx",152,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_169_render,"display.Image","render",0x0ff801d5,"display.Image.render","display/Image.hx",169,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_185_set_angle,"display.Image","set_angle",0xedc1cf17,"display.Image.set_angle","display/Image.hx",185,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_194_set_height,"display.Image","set_height",0xbb065823,"display.Image.set_height","display/Image.hx",194,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_211_set_width,"display.Image","set_width",0x9542414a,"display.Image.set_width","display/Image.hx",211,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_229_get_height,"display.Image","get_height",0xb788b9af,"display.Image.get_height","display/Image.hx",229,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_233_get_width,"display.Image","get_width",0xb1f1553e,"display.Image.get_width","display/Image.hx",233,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_237_get_originX,"display.Image","get_originX",0x35d46cea,"display.Image.get_originX","display/Image.hx",237,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_240_set_originX,"display.Image","set_originX",0x404173f6,"display.Image.set_originX","display/Image.hx",240,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_248_get_originY,"display.Image","get_originY",0x35d46ceb,"display.Image.get_originY","display/Image.hx",248,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_251_set_originY,"display.Image","set_originY",0x404173f7,"display.Image.set_originY","display/Image.hx",251,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_258_set_scaleX,"display.Image","set_scaleX",0xf4e03aca,"display.Image.set_scaleX","display/Image.hx",258,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_264_set_scaleY,"display.Image","set_scaleY",0xf4e03acb,"display.Image.set_scaleY","display/Image.hx",264,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_272_get_x,"display.Image","get_x",0xd090a3b0,"display.Image.get_x","display/Image.hx",272,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_275_set_x,"display.Image","set_x",0xb95f99bc,"display.Image.set_x","display/Image.hx",275,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_284_get_y,"display.Image","get_y",0xd090a3b1,"display.Image.get_y","display/Image.hx",284,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_287_set_y,"display.Image","set_y",0xb95f99bd,"display.Image.set_y","display/Image.hx",287,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_296_get_z,"display.Image","get_z",0xd090a3b2,"display.Image.get_z","display/Image.hx",296,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_299_set_z,"display.Image","set_z",0xb95f99be,"display.Image.set_z","display/Image.hx",299,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_310_get_scaleX,"display.Image","get_scaleX",0xf1629c56,"display.Image.get_scaleX","display/Image.hx",310,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_315_get_scaleY,"display.Image","get_scaleY",0xf1629c57,"display.Image.get_scaleY","display/Image.hx",315,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_320_get_angle,"display.Image","get_angle",0x0a70e30b,"display.Image.get_angle","display/Image.hx",320,0x6e756f10)
+HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_83_centerOrigin,"display.Image","centerOrigin",0x5d3f415a,"display.Image.centerOrigin","display/Image.hx",83,0x6e756f10)
+HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_90_setTextures,"display.Image","setTextures",0xf0143e1b,"display.Image.setTextures","display/Image.hx",90,0x6e756f10)
+HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_121_setUV,"display.Image","setUV",0xb95f90e4,"display.Image.setUV","display/Image.hx",121,0x6e756f10)
+HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_138_render,"display.Image","render",0x0ff801d5,"display.Image.render","display/Image.hx",138,0x6e756f10)
+HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_154_set_angle,"display.Image","set_angle",0xedc1cf17,"display.Image.set_angle","display/Image.hx",154,0x6e756f10)
+HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_163_set_height,"display.Image","set_height",0xbb065823,"display.Image.set_height","display/Image.hx",163,0x6e756f10)
+HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_180_set_width,"display.Image","set_width",0x9542414a,"display.Image.set_width","display/Image.hx",180,0x6e756f10)
+HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_198_get_height,"display.Image","get_height",0xb788b9af,"display.Image.get_height","display/Image.hx",198,0x6e756f10)
+HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_202_get_width,"display.Image","get_width",0xb1f1553e,"display.Image.get_width","display/Image.hx",202,0x6e756f10)
+HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_206_get_originX,"display.Image","get_originX",0x35d46cea,"display.Image.get_originX","display/Image.hx",206,0x6e756f10)
+HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_209_set_originX,"display.Image","set_originX",0x404173f6,"display.Image.set_originX","display/Image.hx",209,0x6e756f10)
+HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_217_get_originY,"display.Image","get_originY",0x35d46ceb,"display.Image.get_originY","display/Image.hx",217,0x6e756f10)
+HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_220_set_originY,"display.Image","set_originY",0x404173f7,"display.Image.set_originY","display/Image.hx",220,0x6e756f10)
+HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_229_get_angle,"display.Image","get_angle",0x0a70e30b,"display.Image.get_angle","display/Image.hx",229,0x6e756f10)
 namespace display{
 
 void Image_obj::__construct( ::ProgramInfo programInfo,::Array< int > textureIds){
@@ -68,36 +58,31 @@ void Image_obj::__construct( ::ProgramInfo programInfo,::Array< int > textureIds
             	HX_STACK_ARG(programInfo,"programInfo")
             	HX_STACK_ARG(textureIds,"textureIds")
 HXLINE(  10)
-HXLINE(  80)		this->_hx___z = ((Float)0);
-HXLINE(  78)		this->_hx___y = ((Float)0);
-HXLINE(  76)		this->_hx___x = ((Float)0);
-HXLINE(  74)		this->_hx___scaleY = ((Float)1);
-HXLINE(  72)		this->_hx___scaleX = ((Float)1);
-HXLINE(  70)		this->_hx___originY = ((Float)0);
-HXLINE(  68)		this->_hx___originX = ((Float)0);
-HXLINE(  66)		this->_hx___width = ((Float)0);
-HXLINE(  64)		this->_hx___height = ((Float)0);
-HXLINE(  62)		this->_hx___angle = ((Float)0);
-HXLINE(  83)		HX_VARI( Float,w) = ((Float)256.0);
-HXLINE(  84)		HX_VARI( Float,h) = ((Float)256.0);
-HXLINE(  85)		HX_VARI( ::Array< Float >,vertices) = ::Array_obj< Float >::__new(20)->init(0,0)->init(1,0)->init(2,0)->init(3,0)->init(4,0)->init(5,0)->init(6,h)->init(7,0)->init(8,0)->init(9,1)->init(10,w)->init(11,h)->init(12,0)->init(13,1)->init(14,1)->init(15,w)->init(16,0)->init(17,0)->init(18,1)->init(19,0);
-HXLINE(  97)		HX_VARI(  ::Vertices,v) =  ::Vertices_obj::__alloc( HX_CTX ,vertices);
-HXLINE(  98)		HX_VARI( ::Array< int >,indices) = ::Array_obj< int >::fromData( _hx_array_data_41cf700f_1,6);
-HXLINE( 100)		super::__construct(programInfo,v, ::Indices_obj::__alloc( HX_CTX ,indices));
-HXLINE( 102)		bool _hx_tmp;
-HXDLIN( 102)		if (::hx::IsNotNull( textureIds )) {
-HXLINE( 102)			_hx_tmp = (textureIds->length > 0);
+HXLINE(  49)		this->_hx___originY = ((Float)0);
+HXLINE(  47)		this->_hx___originX = ((Float)0);
+HXLINE(  45)		this->_hx___width = ((Float)0);
+HXLINE(  43)		this->_hx___height = ((Float)0);
+HXLINE(  41)		this->_hx___angle = ((Float)0);
+HXLINE(  52)		HX_VARI( Float,w) = ((Float)256.0);
+HXLINE(  53)		HX_VARI( Float,h) = ((Float)256.0);
+HXLINE(  54)		HX_VARI( ::Array< Float >,vertices) = ::Array_obj< Float >::__new(20)->init(0,0)->init(1,0)->init(2,0)->init(3,0)->init(4,0)->init(5,0)->init(6,h)->init(7,0)->init(8,0)->init(9,1)->init(10,w)->init(11,h)->init(12,0)->init(13,1)->init(14,1)->init(15,w)->init(16,0)->init(17,0)->init(18,1)->init(19,0);
+HXLINE(  66)		HX_VARI(  ::Vertices,v) =  ::Vertices_obj::__alloc( HX_CTX ,vertices);
+HXLINE(  67)		HX_VARI( ::Array< int >,indices) = ::Array_obj< int >::fromData( _hx_array_data_41cf700f_1,6);
+HXLINE(  69)		super::__construct(programInfo,v, ::Indices_obj::__alloc( HX_CTX ,indices));
+HXLINE(  71)		bool _hx_tmp;
+HXDLIN(  71)		if (::hx::IsNotNull( textureIds )) {
+HXLINE(  71)			_hx_tmp = (textureIds->length > 0);
             		}
             		else {
-HXLINE( 102)			_hx_tmp = false;
+HXLINE(  71)			_hx_tmp = false;
             		}
-HXDLIN( 102)		if (_hx_tmp) {
-HXLINE( 103)			this->textures = textureIds;
+HXDLIN(  71)		if (_hx_tmp) {
+HXLINE(  72)			this->textures = textureIds;
             		}
-HXLINE( 106)		this->_hx___verticesToRender = 4;
-HXLINE( 107)		this->_hx___indicesToRender = 6;
-HXLINE( 110)		this->_hx___width = w;
-HXLINE( 111)		this->_hx___height = h;
+HXLINE(  75)		this->_hx___verticesToRender = 4;
+HXLINE(  76)		this->_hx___indicesToRender = 6;
+HXLINE(  79)		this->_hx___width = w;
+HXLINE(  80)		this->_hx___height = h;
             	}
 
 Dynamic Image_obj::__CreateEmpty() { return new Image_obj; }
@@ -120,62 +105,62 @@ bool Image_obj::_hx_isInstanceOf(int inClassId) {
 }
 
 void Image_obj::centerOrigin(){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_114_centerOrigin)
+            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_83_centerOrigin)
             	HX_STACK_THIS(this)
-HXLINE( 114)
-HXLINE( 116)		this->set_originX((this->_hx___width / ( (Float)(2) )));
-HXLINE( 118)		this->set_originY((this->_hx___height / ( (Float)(2) )));
+HXLINE(  83)
+HXLINE(  85)		this->set_originX((this->_hx___width / ( (Float)(2) )));
+HXLINE(  87)		this->set_originY((this->_hx___height / ( (Float)(2) )));
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC0(Image_obj,centerOrigin,(void))
 
 void Image_obj::setTextures(::Array< int > textures,int width,int height){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_121_setTextures)
+            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_90_setTextures)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(textures,"textures")
             	HX_STACK_ARG(width,"width")
             	HX_STACK_ARG(height,"height")
-HXLINE( 121)
-HXLINE( 123)		if ((textures->length == 0)) {
-HXLINE( 125)			::haxe::Log_obj::trace(HX_("No textures to set!",bb,30,80,ef),::hx::SourceInfo(HX_("src/display/Image.hx",db,55,e7,d4),125,HX_("display.Image",0f,70,cf,41),HX_("setTextures",fa,c0,2f,96)));
-HXLINE( 127)			return;
+HXLINE(  90)
+HXLINE(  92)		if ((textures->length == 0)) {
+HXLINE(  94)			::haxe::Log_obj::trace(HX_("No textures to set!",bb,30,80,ef),::hx::SourceInfo(HX_("src/display/Image.hx",db,55,e7,d4),94,HX_("display.Image",0f,70,cf,41),HX_("setTextures",fa,c0,2f,96)));
+HXLINE(  96)			return;
             		}
             		else {
-HXLINE( 131)			int textures1 = textures->length;
-HXDLIN( 131)			if ((textures1 == this->programInfo->get_textureCount())) {
-HXLINE( 133)				this->textures = textures;
+HXLINE( 100)			int textures1 = textures->length;
+HXDLIN( 100)			if ((textures1 == this->programInfo->get_textureCount())) {
+HXLINE( 102)				this->textures = textures;
             			}
             			else {
-HXLINE( 137)				HX_STACK_DO_THROW(HX_("Invalid number of textures!",8e,25,b5,7e));
+HXLINE( 106)				HX_STACK_DO_THROW(HX_("Invalid number of textures!",8e,25,b5,7e));
             			}
-HXLINE( 142)			this->set_width(( (Float)(width) ));
-HXLINE( 146)			this->set_height(( (Float)(height) ));
+HXLINE( 111)			this->set_width(( (Float)(width) ));
+HXLINE( 115)			this->set_height(( (Float)(height) ));
             		}
-HXLINE( 149)		this->setUV(( (Float)(0) ),( (Float)(0) ),( (Float)(1) ),( (Float)(1) ));
+HXLINE( 118)		this->setUV(( (Float)(0) ),( (Float)(0) ),( (Float)(1) ),( (Float)(1) ));
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC3(Image_obj,setTextures,(void))
 
 void Image_obj::setUV(Float x,Float y,Float width,Float height){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_152_setUV)
+            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_121_setUV)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(x,"x")
             	HX_STACK_ARG(y,"y")
             	HX_STACK_ARG(width,"width")
             	HX_STACK_ARG(height,"height")
-HXLINE( 152)
-HXLINE( 153)		this->vertices->set(3,x);
-HXLINE( 154)		this->vertices->set(8,x);
-HXLINE( 155)		this->vertices->set(13,width);
-HXLINE( 156)		this->vertices->set(18,width);
-HXLINE( 158)		this->vertices->set(4,y);
-HXLINE( 159)		this->vertices->set(9,height);
-HXLINE( 160)		this->vertices->set(14,height);
-HXLINE( 161)		this->vertices->set(19,y);
-HXLINE( 164)		if (this->initialized) {
-HXLINE( 165)			this->updateBuffers();
+HXLINE( 121)
+HXLINE( 122)		this->vertices->set(3,x);
+HXLINE( 123)		this->vertices->set(8,x);
+HXLINE( 124)		this->vertices->set(13,width);
+HXLINE( 125)		this->vertices->set(18,width);
+HXLINE( 127)		this->vertices->set(4,y);
+HXLINE( 128)		this->vertices->set(9,height);
+HXLINE( 129)		this->vertices->set(14,height);
+HXLINE( 130)		this->vertices->set(19,y);
+HXLINE( 133)		if (this->initialized) {
+HXLINE( 134)			this->updateBuffers();
             		}
             	}
 
@@ -183,280 +168,167 @@ HXLINE( 165)			this->updateBuffers();
 HX_DEFINE_DYNAMIC_FUNC4(Image_obj,setUV,(void))
 
 void Image_obj::render( ::Matrix cameraMatrix){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_169_render)
+            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_138_render)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(cameraMatrix,"cameraMatrix")
-HXLINE( 169)
-HXLINE( 171)		this->matrix->identity();
-HXLINE( 172)		this->matrix->appendScale(this->_hx___scaleX,this->_hx___scaleY,( (Float)(1) ));
-HXLINE( 173)		this->matrix->appendRotation(this->_hx___angle,::display::Vector4_obj::Z_AXIS);
-HXLINE( 174)		this->matrix->appendTranslation(this->_hx___x,this->_hx___y,this->_hx___z);
-HXLINE( 175)		this->matrix->append(cameraMatrix);
-HXLINE( 177)		this->uniforms->set(HX_("matrix",41,36,c8,bb),this->matrix);
-HXLINE( 178)		this->uniforms->set(HX_("color",63,71,5c,4a),::cpp::VirtualArray_obj::__new(4)->init(0,((Float)1.0))->init(1,((Float)1.0))->init(2,((Float)1.0))->init(3,((Float)1.0)));
-HXLINE( 180)		this->_hx___shouldTransform = false;
+HXLINE( 138)
+HXLINE( 140)		this->matrix->identity();
+HXLINE( 141)		this->matrix->appendScale(this->scaleX,this->scaleY,( (Float)(1) ));
+HXLINE( 142)		this->matrix->appendRotation(this->_hx___angle,::display::Vector4_obj::Z_AXIS);
+HXLINE( 143)		this->matrix->appendTranslation(this->x,this->y,this->z);
+HXLINE( 144)		this->matrix->append(cameraMatrix);
+HXLINE( 146)		this->uniforms->set(HX_("matrix",41,36,c8,bb),this->matrix);
+HXLINE( 147)		this->uniforms->set(HX_("color",63,71,5c,4a),::cpp::VirtualArray_obj::__new(4)->init(0,((Float)1.0))->init(1,((Float)1.0))->init(2,((Float)1.0))->init(3,((Float)1.0)));
+HXLINE( 149)		this->_hx___shouldTransform = false;
             	}
 
 
 Float Image_obj::set_angle(Float value){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_185_set_angle)
+            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_154_set_angle)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(value,"value")
-HXLINE( 185)
-HXLINE( 187)		Float _hx_tmp;
-HXDLIN( 187)		value = ::hx::Mod(value,360);
-HXDLIN( 187)		if ((value >= 0)) {
-HXLINE( 187)			_hx_tmp = value;
+HXLINE( 154)
+HXLINE( 156)		Float _hx_tmp;
+HXDLIN( 156)		value = ::hx::Mod(value,360);
+HXDLIN( 156)		if ((value >= 0)) {
+HXLINE( 156)			_hx_tmp = value;
             		}
             		else {
-HXLINE( 187)			_hx_tmp = (value + 360);
+HXLINE( 156)			_hx_tmp = (value + 360);
             		}
-HXDLIN( 187)		this->_hx___angle = _hx_tmp;
-HXLINE( 189)		this->_hx___shouldTransform = true;
-HXLINE( 191)		return value;
+HXDLIN( 156)		this->_hx___angle = _hx_tmp;
+HXLINE( 158)		this->_hx___shouldTransform = true;
+HXLINE( 160)		return value;
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC1(Image_obj,set_angle,return )
 
 Float Image_obj::set_height(Float value){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_194_set_height)
+            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_163_set_height)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(value,"value")
-HXLINE( 194)
-HXLINE( 195)		 ::Vertices _hx_tmp = this->vertices;
-HXDLIN( 195)		_hx_tmp->set(1,(( (Float)(0) ) - this->get_originY()));
-HXLINE( 196)		 ::Vertices _hx_tmp1 = this->vertices;
-HXDLIN( 196)		Float _hx_tmp2 = (value * this->_hx___scaleY);
-HXDLIN( 196)		_hx_tmp1->set(6,(_hx_tmp2 - this->get_originY()));
-HXLINE( 197)		 ::Vertices _hx_tmp3 = this->vertices;
-HXDLIN( 197)		Float _hx_tmp4 = (value * this->_hx___scaleY);
-HXDLIN( 197)		_hx_tmp3->set(11,(_hx_tmp4 - this->get_originY()));
-HXLINE( 198)		 ::Vertices _hx_tmp5 = this->vertices;
-HXDLIN( 198)		_hx_tmp5->set(16,(( (Float)(0) ) - this->get_originY()));
-HXLINE( 200)		this->_hx___height = value;
-HXLINE( 201)		this->_hx___shouldTransform = true;
-HXLINE( 204)		if (this->initialized) {
-HXLINE( 205)			this->updateBuffers();
+HXLINE( 163)
+HXLINE( 164)		 ::Vertices _hx_tmp = this->vertices;
+HXDLIN( 164)		_hx_tmp->set(1,(( (Float)(0) ) - this->get_originY()));
+HXLINE( 165)		 ::Vertices _hx_tmp1 = this->vertices;
+HXDLIN( 165)		Float _hx_tmp2 = (value * this->scaleY);
+HXDLIN( 165)		_hx_tmp1->set(6,(_hx_tmp2 - this->get_originY()));
+HXLINE( 166)		 ::Vertices _hx_tmp3 = this->vertices;
+HXDLIN( 166)		Float _hx_tmp4 = (value * this->scaleY);
+HXDLIN( 166)		_hx_tmp3->set(11,(_hx_tmp4 - this->get_originY()));
+HXLINE( 167)		 ::Vertices _hx_tmp5 = this->vertices;
+HXDLIN( 167)		_hx_tmp5->set(16,(( (Float)(0) ) - this->get_originY()));
+HXLINE( 169)		this->_hx___height = value;
+HXLINE( 170)		this->_hx___shouldTransform = true;
+HXLINE( 173)		if (this->initialized) {
+HXLINE( 174)			this->updateBuffers();
             		}
-HXLINE( 208)		return value;
+HXLINE( 177)		return value;
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC1(Image_obj,set_height,return )
 
 Float Image_obj::set_width(Float value){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_211_set_width)
+            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_180_set_width)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(value,"value")
-HXLINE( 211)
-HXLINE( 212)		 ::Vertices _hx_tmp = this->vertices;
-HXDLIN( 212)		_hx_tmp->set(0,(( (Float)(0) ) - this->get_originX()));
-HXLINE( 213)		 ::Vertices _hx_tmp1 = this->vertices;
-HXDLIN( 213)		_hx_tmp1->set(5,(( (Float)(0) ) - this->get_originX()));
-HXLINE( 214)		 ::Vertices _hx_tmp2 = this->vertices;
-HXDLIN( 214)		Float _hx_tmp3 = (value * this->_hx___scaleX);
-HXDLIN( 214)		_hx_tmp2->set(10,(_hx_tmp3 - this->get_originX()));
-HXLINE( 215)		 ::Vertices _hx_tmp4 = this->vertices;
-HXDLIN( 215)		Float _hx_tmp5 = (value * this->_hx___scaleX);
-HXDLIN( 215)		_hx_tmp4->set(15,(_hx_tmp5 - this->get_originX()));
-HXLINE( 217)		this->_hx___width = value;
-HXLINE( 218)		this->_hx___shouldTransform = true;
-HXLINE( 221)		if (this->initialized) {
-HXLINE( 222)			this->updateBuffers();
+HXLINE( 180)
+HXLINE( 181)		 ::Vertices _hx_tmp = this->vertices;
+HXDLIN( 181)		_hx_tmp->set(0,(( (Float)(0) ) - this->get_originX()));
+HXLINE( 182)		 ::Vertices _hx_tmp1 = this->vertices;
+HXDLIN( 182)		_hx_tmp1->set(5,(( (Float)(0) ) - this->get_originX()));
+HXLINE( 183)		 ::Vertices _hx_tmp2 = this->vertices;
+HXDLIN( 183)		Float _hx_tmp3 = (value * this->scaleX);
+HXDLIN( 183)		_hx_tmp2->set(10,(_hx_tmp3 - this->get_originX()));
+HXLINE( 184)		 ::Vertices _hx_tmp4 = this->vertices;
+HXDLIN( 184)		Float _hx_tmp5 = (value * this->scaleX);
+HXDLIN( 184)		_hx_tmp4->set(15,(_hx_tmp5 - this->get_originX()));
+HXLINE( 186)		this->_hx___width = value;
+HXLINE( 187)		this->_hx___shouldTransform = true;
+HXLINE( 190)		if (this->initialized) {
+HXLINE( 191)			this->updateBuffers();
             		}
-HXLINE( 225)		return value;
+HXLINE( 194)		return value;
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC1(Image_obj,set_width,return )
 
 Float Image_obj::get_height(){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_229_get_height)
+            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_198_get_height)
             	HX_STACK_THIS(this)
-HXLINE( 229)
-HXDLIN( 229)		return this->_hx___height;
+HXLINE( 198)
+HXDLIN( 198)		return this->_hx___height;
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC0(Image_obj,get_height,return )
 
 Float Image_obj::get_width(){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_233_get_width)
+            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_202_get_width)
             	HX_STACK_THIS(this)
-HXLINE( 233)
-HXDLIN( 233)		return this->_hx___width;
+HXLINE( 202)
+HXDLIN( 202)		return this->_hx___width;
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC0(Image_obj,get_width,return )
 
 Float Image_obj::get_originX(){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_237_get_originX)
+            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_206_get_originX)
             	HX_STACK_THIS(this)
-HXLINE( 237)
-HXDLIN( 237)		return this->_hx___originX;
+HXLINE( 206)
+HXDLIN( 206)		return this->_hx___originX;
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC0(Image_obj,get_originX,return )
 
 Float Image_obj::set_originX(Float value){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_240_set_originX)
+            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_209_set_originX)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(value,"value")
-HXLINE( 240)
-HXLINE( 241)		this->_hx___originX = value;
-HXLINE( 242)		this->_hx___shouldTransform = true;
-HXLINE( 243)		this->set_width(this->_hx___width);
-HXLINE( 244)		return this->_hx___originX;
+HXLINE( 209)
+HXLINE( 210)		this->_hx___originX = value;
+HXLINE( 211)		this->_hx___shouldTransform = true;
+HXLINE( 212)		this->set_width(this->_hx___width);
+HXLINE( 213)		return this->_hx___originX;
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC1(Image_obj,set_originX,return )
 
 Float Image_obj::get_originY(){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_248_get_originY)
+            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_217_get_originY)
             	HX_STACK_THIS(this)
-HXLINE( 248)
-HXDLIN( 248)		return this->_hx___originY;
+HXLINE( 217)
+HXDLIN( 217)		return this->_hx___originY;
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC0(Image_obj,get_originY,return )
 
 Float Image_obj::set_originY(Float value){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_251_set_originY)
+            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_220_set_originY)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(value,"value")
-HXLINE( 251)
-HXLINE( 252)		this->_hx___originY = value;
-HXLINE( 253)		this->_hx___shouldTransform = true;
-HXLINE( 254)		this->set_height(this->_hx___height);
-HXLINE( 255)		return this->_hx___originY;
+HXLINE( 220)
+HXLINE( 221)		this->_hx___originY = value;
+HXLINE( 222)		this->_hx___shouldTransform = true;
+HXLINE( 223)		this->set_height(this->_hx___height);
+HXLINE( 224)		return this->_hx___originY;
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC1(Image_obj,set_originY,return )
 
-Float Image_obj::set_scaleX(Float value){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_258_set_scaleX)
-            	HX_STACK_THIS(this)
-            	HX_STACK_ARG(value,"value")
-HXLINE( 258)
-HXLINE( 259)		this->_hx___shouldTransform = true;
-HXLINE( 260)		this->set_width(this->_hx___width);
-HXLINE( 261)		return (this->_hx___scaleX = value);
-            	}
-
-
-HX_DEFINE_DYNAMIC_FUNC1(Image_obj,set_scaleX,return )
-
-Float Image_obj::set_scaleY(Float value){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_264_set_scaleY)
-            	HX_STACK_THIS(this)
-            	HX_STACK_ARG(value,"value")
-HXLINE( 264)
-HXLINE( 265)		this->_hx___shouldTransform = true;
-HXLINE( 266)		this->set_height(this->_hx___height);
-HXLINE( 267)		return (this->_hx___scaleY = value);
-            	}
-
-
-HX_DEFINE_DYNAMIC_FUNC1(Image_obj,set_scaleY,return )
-
-Float Image_obj::get_x(){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_272_get_x)
-            	HX_STACK_THIS(this)
-HXLINE( 272)
-HXDLIN( 272)		return this->_hx___x;
-            	}
-
-
-HX_DEFINE_DYNAMIC_FUNC0(Image_obj,get_x,return )
-
-Float Image_obj::set_x(Float value){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_275_set_x)
-            	HX_STACK_THIS(this)
-            	HX_STACK_ARG(value,"value")
-HXLINE( 275)
-HXLINE( 277)		this->_hx___shouldTransform = true;
-HXLINE( 279)		return (this->_hx___x = value);
-            	}
-
-
-HX_DEFINE_DYNAMIC_FUNC1(Image_obj,set_x,return )
-
-Float Image_obj::get_y(){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_284_get_y)
-            	HX_STACK_THIS(this)
-HXLINE( 284)
-HXDLIN( 284)		return this->_hx___y;
-            	}
-
-
-HX_DEFINE_DYNAMIC_FUNC0(Image_obj,get_y,return )
-
-Float Image_obj::set_y(Float value){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_287_set_y)
-            	HX_STACK_THIS(this)
-            	HX_STACK_ARG(value,"value")
-HXLINE( 287)
-HXLINE( 289)		this->_hx___shouldTransform = true;
-HXLINE( 291)		return (this->_hx___y = value);
-            	}
-
-
-HX_DEFINE_DYNAMIC_FUNC1(Image_obj,set_y,return )
-
-Float Image_obj::get_z(){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_296_get_z)
-            	HX_STACK_THIS(this)
-HXLINE( 296)
-HXDLIN( 296)		return this->_hx___z;
-            	}
-
-
-HX_DEFINE_DYNAMIC_FUNC0(Image_obj,get_z,return )
-
-Float Image_obj::set_z(Float value){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_299_set_z)
-            	HX_STACK_THIS(this)
-            	HX_STACK_ARG(value,"value")
-HXLINE( 299)
-HXLINE( 301)		this->_hx___z = value;
-HXLINE( 303)		this->_hx___shouldTransform = true;
-HXLINE( 305)		return this->_hx___z;
-            	}
-
-
-HX_DEFINE_DYNAMIC_FUNC1(Image_obj,set_z,return )
-
-Float Image_obj::get_scaleX(){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_310_get_scaleX)
-            	HX_STACK_THIS(this)
-HXLINE( 310)
-HXDLIN( 310)		return this->_hx___scaleX;
-            	}
-
-
-HX_DEFINE_DYNAMIC_FUNC0(Image_obj,get_scaleX,return )
-
-Float Image_obj::get_scaleY(){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_315_get_scaleY)
-            	HX_STACK_THIS(this)
-HXLINE( 315)
-HXDLIN( 315)		return this->_hx___scaleY;
-            	}
-
-
-HX_DEFINE_DYNAMIC_FUNC0(Image_obj,get_scaleY,return )
-
 Float Image_obj::get_angle(){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_320_get_angle)
+            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_229_get_angle)
             	HX_STACK_THIS(this)
-HXLINE( 320)
-HXDLIN( 320)		return this->_hx___angle;
+HXLINE( 229)
+HXDLIN( 229)		return this->_hx___angle;
             	}
 
 
@@ -483,31 +355,13 @@ Image_obj::Image_obj()
 ::hx::Val Image_obj::__Field(const ::String &inName,::hx::PropertyAccess inCallProp)
 {
 	switch(inName.length) {
-	case 1:
-		if (HX_FIELD_EQ(inName,"x") ) { if (inCallProp == ::hx::paccAlways) return ::hx::Val( get_x() ); }
-		if (HX_FIELD_EQ(inName,"y") ) { if (inCallProp == ::hx::paccAlways) return ::hx::Val( get_y() ); }
-		if (HX_FIELD_EQ(inName,"z") ) { if (inCallProp == ::hx::paccAlways) return ::hx::Val( get_z() ); }
-		break;
-	case 3:
-		if (HX_FIELD_EQ(inName,"__x") ) { return ::hx::Val( _hx___x ); }
-		if (HX_FIELD_EQ(inName,"__y") ) { return ::hx::Val( _hx___y ); }
-		if (HX_FIELD_EQ(inName,"__z") ) { return ::hx::Val( _hx___z ); }
-		break;
 	case 5:
 		if (HX_FIELD_EQ(inName,"angle") ) { if (inCallProp == ::hx::paccAlways) return ::hx::Val( get_angle() ); }
 		if (HX_FIELD_EQ(inName,"width") ) { if (inCallProp == ::hx::paccAlways) return ::hx::Val( get_width() ); }
 		if (HX_FIELD_EQ(inName,"setUV") ) { return ::hx::Val( setUV_dyn() ); }
-		if (HX_FIELD_EQ(inName,"get_x") ) { return ::hx::Val( get_x_dyn() ); }
-		if (HX_FIELD_EQ(inName,"set_x") ) { return ::hx::Val( set_x_dyn() ); }
-		if (HX_FIELD_EQ(inName,"get_y") ) { return ::hx::Val( get_y_dyn() ); }
-		if (HX_FIELD_EQ(inName,"set_y") ) { return ::hx::Val( set_y_dyn() ); }
-		if (HX_FIELD_EQ(inName,"get_z") ) { return ::hx::Val( get_z_dyn() ); }
-		if (HX_FIELD_EQ(inName,"set_z") ) { return ::hx::Val( set_z_dyn() ); }
 		break;
 	case 6:
 		if (HX_FIELD_EQ(inName,"height") ) { if (inCallProp == ::hx::paccAlways) return ::hx::Val( get_height() ); }
-		if (HX_FIELD_EQ(inName,"scaleX") ) { if (inCallProp == ::hx::paccAlways) return ::hx::Val( get_scaleX() ); }
-		if (HX_FIELD_EQ(inName,"scaleY") ) { if (inCallProp == ::hx::paccAlways) return ::hx::Val( get_scaleY() ); }
 		if (HX_FIELD_EQ(inName,"render") ) { return ::hx::Val( render_dyn() ); }
 		break;
 	case 7:
@@ -518,8 +372,6 @@ Image_obj::Image_obj()
 		break;
 	case 8:
 		if (HX_FIELD_EQ(inName,"__height") ) { return ::hx::Val( _hx___height ); }
-		if (HX_FIELD_EQ(inName,"__scaleX") ) { return ::hx::Val( _hx___scaleX ); }
-		if (HX_FIELD_EQ(inName,"__scaleY") ) { return ::hx::Val( _hx___scaleY ); }
 		break;
 	case 9:
 		if (HX_FIELD_EQ(inName,"__originX") ) { return ::hx::Val( _hx___originX ); }
@@ -532,10 +384,6 @@ Image_obj::Image_obj()
 	case 10:
 		if (HX_FIELD_EQ(inName,"set_height") ) { return ::hx::Val( set_height_dyn() ); }
 		if (HX_FIELD_EQ(inName,"get_height") ) { return ::hx::Val( get_height_dyn() ); }
-		if (HX_FIELD_EQ(inName,"set_scaleX") ) { return ::hx::Val( set_scaleX_dyn() ); }
-		if (HX_FIELD_EQ(inName,"set_scaleY") ) { return ::hx::Val( set_scaleY_dyn() ); }
-		if (HX_FIELD_EQ(inName,"get_scaleX") ) { return ::hx::Val( get_scaleX_dyn() ); }
-		if (HX_FIELD_EQ(inName,"get_scaleY") ) { return ::hx::Val( get_scaleY_dyn() ); }
 		break;
 	case 11:
 		if (HX_FIELD_EQ(inName,"setTextures") ) { return ::hx::Val( setTextures_dyn() ); }
@@ -553,24 +401,12 @@ Image_obj::Image_obj()
 ::hx::Val Image_obj::__SetField(const ::String &inName,const ::hx::Val &inValue,::hx::PropertyAccess inCallProp)
 {
 	switch(inName.length) {
-	case 1:
-		if (HX_FIELD_EQ(inName,"x") ) { if (inCallProp == ::hx::paccAlways) return ::hx::Val( set_x(inValue.Cast< Float >()) ); }
-		if (HX_FIELD_EQ(inName,"y") ) { if (inCallProp == ::hx::paccAlways) return ::hx::Val( set_y(inValue.Cast< Float >()) ); }
-		if (HX_FIELD_EQ(inName,"z") ) { if (inCallProp == ::hx::paccAlways) return ::hx::Val( set_z(inValue.Cast< Float >()) ); }
-		break;
-	case 3:
-		if (HX_FIELD_EQ(inName,"__x") ) { _hx___x=inValue.Cast< Float >(); return inValue; }
-		if (HX_FIELD_EQ(inName,"__y") ) { _hx___y=inValue.Cast< Float >(); return inValue; }
-		if (HX_FIELD_EQ(inName,"__z") ) { _hx___z=inValue.Cast< Float >(); return inValue; }
-		break;
 	case 5:
 		if (HX_FIELD_EQ(inName,"angle") ) { if (inCallProp == ::hx::paccAlways) return ::hx::Val( set_angle(inValue.Cast< Float >()) ); }
 		if (HX_FIELD_EQ(inName,"width") ) { if (inCallProp == ::hx::paccAlways) return ::hx::Val( set_width(inValue.Cast< Float >()) ); }
 		break;
 	case 6:
 		if (HX_FIELD_EQ(inName,"height") ) { if (inCallProp == ::hx::paccAlways) return ::hx::Val( set_height(inValue.Cast< Float >()) ); }
-		if (HX_FIELD_EQ(inName,"scaleX") ) { if (inCallProp == ::hx::paccAlways) return ::hx::Val( set_scaleX(inValue.Cast< Float >()) ); }
-		if (HX_FIELD_EQ(inName,"scaleY") ) { if (inCallProp == ::hx::paccAlways) return ::hx::Val( set_scaleY(inValue.Cast< Float >()) ); }
 		break;
 	case 7:
 		if (HX_FIELD_EQ(inName,"originX") ) { if (inCallProp == ::hx::paccAlways) return ::hx::Val( set_originX(inValue.Cast< Float >()) ); }
@@ -580,8 +416,6 @@ Image_obj::Image_obj()
 		break;
 	case 8:
 		if (HX_FIELD_EQ(inName,"__height") ) { _hx___height=inValue.Cast< Float >(); return inValue; }
-		if (HX_FIELD_EQ(inName,"__scaleX") ) { _hx___scaleX=inValue.Cast< Float >(); return inValue; }
-		if (HX_FIELD_EQ(inName,"__scaleY") ) { _hx___scaleY=inValue.Cast< Float >(); return inValue; }
 		break;
 	case 9:
 		if (HX_FIELD_EQ(inName,"__originX") ) { _hx___originX=inValue.Cast< Float >(); return inValue; }
@@ -597,21 +431,11 @@ void Image_obj::__GetFields(Array< ::String> &outFields)
 	outFields->push(HX_("height",e7,07,4c,02));
 	outFields->push(HX_("originX",b2,8f,f5,55));
 	outFields->push(HX_("originY",b3,8f,f5,55));
-	outFields->push(HX_("scaleX",8e,ea,25,3c));
-	outFields->push(HX_("scaleY",8f,ea,25,3c));
-	outFields->push(HX_("x",78,00,00,00));
-	outFields->push(HX_("y",79,00,00,00));
-	outFields->push(HX_("z",7a,00,00,00));
 	outFields->push(HX_("__angle",b3,9c,40,8d));
 	outFields->push(HX_("__height",07,73,7b,aa));
 	outFields->push(HX_("__width",e6,0e,c1,34));
 	outFields->push(HX_("__originX",92,e0,43,d7));
 	outFields->push(HX_("__originY",93,e0,43,d7));
-	outFields->push(HX_("__scaleX",ae,55,55,e4));
-	outFields->push(HX_("__scaleY",af,55,55,e4));
-	outFields->push(HX_("__x",58,69,48,00));
-	outFields->push(HX_("__y",59,69,48,00));
-	outFields->push(HX_("__z",5a,69,48,00));
 	super::__GetFields(outFields);
 };
 
@@ -622,11 +446,6 @@ static ::hx::StorageInfo Image_obj_sMemberStorageInfo[] = {
 	{::hx::fsFloat,(int)offsetof(Image_obj,_hx___width),HX_("__width",e6,0e,c1,34)},
 	{::hx::fsFloat,(int)offsetof(Image_obj,_hx___originX),HX_("__originX",92,e0,43,d7)},
 	{::hx::fsFloat,(int)offsetof(Image_obj,_hx___originY),HX_("__originY",93,e0,43,d7)},
-	{::hx::fsFloat,(int)offsetof(Image_obj,_hx___scaleX),HX_("__scaleX",ae,55,55,e4)},
-	{::hx::fsFloat,(int)offsetof(Image_obj,_hx___scaleY),HX_("__scaleY",af,55,55,e4)},
-	{::hx::fsFloat,(int)offsetof(Image_obj,_hx___x),HX_("__x",58,69,48,00)},
-	{::hx::fsFloat,(int)offsetof(Image_obj,_hx___y),HX_("__y",59,69,48,00)},
-	{::hx::fsFloat,(int)offsetof(Image_obj,_hx___z),HX_("__z",5a,69,48,00)},
 	{ ::hx::fsUnknown, 0, null()}
 };
 static ::hx::StaticInfo *Image_obj_sStaticStorageInfo = 0;
@@ -638,11 +457,6 @@ static ::String Image_obj_sMemberFields[] = {
 	HX_("__width",e6,0e,c1,34),
 	HX_("__originX",92,e0,43,d7),
 	HX_("__originY",93,e0,43,d7),
-	HX_("__scaleX",ae,55,55,e4),
-	HX_("__scaleY",af,55,55,e4),
-	HX_("__x",58,69,48,00),
-	HX_("__y",59,69,48,00),
-	HX_("__z",5a,69,48,00),
 	HX_("centerOrigin",9b,41,36,0f),
 	HX_("setTextures",fa,c0,2f,96),
 	HX_("setUV",83,92,2f,7a),
@@ -656,16 +470,6 @@ static ::String Image_obj_sMemberFields[] = {
 	HX_("set_originX",d5,f6,5c,e6),
 	HX_("get_originY",ca,ef,ef,db),
 	HX_("set_originY",d6,f6,5c,e6),
-	HX_("set_scaleX",cb,f8,2a,30),
-	HX_("set_scaleY",cc,f8,2a,30),
-	HX_("get_x",4f,a5,60,91),
-	HX_("set_x",5b,9b,2f,7a),
-	HX_("get_y",50,a5,60,91),
-	HX_("set_y",5c,9b,2f,7a),
-	HX_("get_z",51,a5,60,91),
-	HX_("set_z",5d,9b,2f,7a),
-	HX_("get_scaleX",57,5a,ad,2c),
-	HX_("get_scaleY",58,5a,ad,2c),
 	HX_("get_angle",2a,a0,8b,66),
 	::String(null()) };
 

@@ -264,8 +264,11 @@ class Quad extends DisplayObject {
         
         out vec2 TexCoord;
         
+        uniform mat4 uMatrix;
+        
         void main() {
-            gl_Position = vec4(aPos, 1.0);
+            // Apply matrix transformation
+            gl_Position = uMatrix * vec4(aPos, 1.0);
             TexCoord = aTexCoord;
         }
         ';

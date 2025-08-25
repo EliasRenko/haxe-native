@@ -46,14 +46,20 @@ class HXCPP_CLASS_ATTRIBUTES Matrix_obj : public ::hx::Object
 		void identity();
 		::Dynamic identity_dyn();
 
-		void appendScale(Float x,Float y,Float z);
-		::Dynamic appendScale_dyn();
-
-		void appendRotation(Float angle, ::Dynamic axis);
-		::Dynamic appendRotation_dyn();
+		void setTranslation(Float x,Float y,Float z);
+		::Dynamic setTranslation_dyn();
 
 		void appendTranslation(Float x,Float y,Float z);
 		::Dynamic appendTranslation_dyn();
+
+		void appendScale(Float x,Float y,Float z);
+		::Dynamic appendScale_dyn();
+
+		void appendRotationZ(Float angle);
+		::Dynamic appendRotationZ_dyn();
+
+		void appendRotation(Float angle, ::Dynamic axis);
+		::Dynamic appendRotation_dyn();
 
 		void append( ::Matrix other);
 		::Dynamic append_dyn();

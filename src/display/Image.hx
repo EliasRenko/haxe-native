@@ -26,7 +26,7 @@ class Image extends DisplayObject {
 	  */
 	 public var height(get, set):Float;
 
-	 /**
+	/**
 	 * The x origin of the graphic.
 	 */
 	public var originX(get, set):Float;
@@ -35,27 +35,6 @@ class Image extends DisplayObject {
 	 * The y origin of the graphic.
 	 */
 	public var originY(get, set):Float;
-
-	public var scaleX(get, set):Float;
-
-	public var scaleY(get, set):Float;
-
-	 /**
-	 * The x position of the graphic in space.
-	 */
-	@:access
-	public var x(get, set):Float;
-
-	/**
-	 * The y position of the graphic in space.
-	 */
-	@:access
-	public var y(get, set):Float;
-
-	/**
-	 * The z position of the graphic in space.
-	 */
-	public var z(get, set):Float;
 
 	// ** Privates.
 
@@ -68,16 +47,6 @@ class Image extends DisplayObject {
 	private var __originX:Float = 0;
 
 	private var __originY:Float = 0;
-
-	private var __scaleX:Float = 1;
-
-	private var __scaleY:Float = 1;
-
-	private var __x:Float = 0;
-
-	private var __y:Float = 0;
-
-	private var __z:Float = 0;
 
 	public function new(programInfo:ProgramInfo, ?textureIds:Array<Int>) {
 		var w = 256.0;
@@ -169,9 +138,9 @@ class Image extends DisplayObject {
 	override function render(cameraMatrix:Matrix):Void {
 
 		this.matrix.identity();
-		this.matrix.appendScale(__scaleX, __scaleY, 1);
+		this.matrix.appendScale(scaleX, scaleY, 1);
 		this.matrix.appendRotation(__angle, Vector4.Z_AXIS);
-		this.matrix.appendTranslation(__x, __y, __z);
+		this.matrix.appendTranslation(x, y, z);
 		this.matrix.append(cameraMatrix);
 
 		uniforms.set("matrix", this.matrix);
@@ -192,10 +161,10 @@ class Image extends DisplayObject {
 	}
 
 	private function set_height(value:Float):Float {
-		vertices.set(1, 0 - originY);                    // Bottom-left Y
-		vertices.set(6, (value * __scaleY) - originY);   // Top-left Y
-		vertices.set(11, (value * __scaleY) - originY);  // Top-right Y
-		vertices.set(16, 0 - originY);                   // Bottom-right Y
+		vertices.set(1, 0 - originY);                  // Bottom-left Y
+		vertices.set(6, (value * scaleY) - originY);   // Top-left Y
+		vertices.set(11, (value * scaleY) - originY);  // Top-right Y
+		vertices.set(16, 0 - originY);                 // Bottom-right Y
 		
 		__height = value;
 		__shouldTransform = true;
@@ -209,10 +178,10 @@ class Image extends DisplayObject {
 	}
 	
 	private function set_width(value:Float):Float {
-		vertices.set(0, 0 - originX);                    // Bottom-left X
-		vertices.set(5, 0 - originX);                    // Top-left X
-		vertices.set(10, (value * __scaleX) - originX); // Top-right X
-		vertices.set(15, (value * __scaleX) - originX); // Bottom-right X
+		vertices.set(0, 0 - originX);                  // Bottom-left X
+		vertices.set(5, 0 - originX);                  // Top-left X
+		vertices.set(10, (value * scaleX) - originX); // Top-right X
+		vertices.set(15, (value * scaleX) - originX); // Bottom-right X
 		
 		__width = value;
 		__shouldTransform = true;
@@ -253,66 +222,6 @@ class Image extends DisplayObject {
 		__shouldTransform = true;
 		height = __height;
 		return __originY;
-	}
-	
-	private function set_scaleX(value:Float):Float {
-		__shouldTransform = true;
-		width = __width;
-		return __scaleX = value;
-	}
-		
-	private function set_scaleY(value:Float):Float {
-		__shouldTransform = true;
-		height = __height;
-		return __scaleY = value;
-	}
-
-	private function get_x():Float {
-
-		return __x;
-	}
-
-	private function set_x(value:Float):Float {
-
-		__shouldTransform = true;
-
-		return __x = value;
-	}
-
-	private function get_y():Float {
-
-		return __y;
-	}
-		
-	private function set_y(value:Float):Float {
-
-		__shouldTransform = true;
-
-		return __y = value;
-	}
-
-	private function get_z():Float {
-
-		return __z;
-	}
-
-	private function set_z(value:Float):Float {
-		
-		__z = value;
-
-		__shouldTransform = true;
-
-		return __z;
-	}
-
-	private function get_scaleX():Float {
-		
-		return __scaleX;
-	}
-
-	private function get_scaleY():Float {
-		
-		return __scaleY;
 	}
 
 	function get_angle():Float {

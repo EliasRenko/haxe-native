@@ -5,14 +5,14 @@
 #include <Indices.h>
 #endif
 
-HX_DEFINE_STACK_FRAME(_hx_pos_946b09801cf56202_34_new,"Indices","new",0x08129f79,"Indices.new","DisplayObject.hx",34,0x55877edd)
+HX_DEFINE_STACK_FRAME(_hx_pos_946b09801cf56202_35_new,"Indices","new",0x08129f79,"Indices.new","DisplayObject.hx",35,0x55877edd)
 
 void Indices_obj::__construct(::Array< int > data){
-            	HX_STACKFRAME(&_hx_pos_946b09801cf56202_34_new)
+            	HX_STACKFRAME(&_hx_pos_946b09801cf56202_35_new)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(data,"data")
-HXLINE(  34)
-HXDLIN(  34)		this->data = data;
+HXLINE(  35)
+HXDLIN(  35)		this->data = data;
             	}
 
 Dynamic Indices_obj::__CreateEmpty() { return new Indices_obj; }
