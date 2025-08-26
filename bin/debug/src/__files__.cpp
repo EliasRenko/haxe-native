@@ -5,6 +5,7 @@ namespace hx {
 const char *__hxcpp_all_files[] = {
 #ifdef HXCPP_DEBUGGER
 "?",
+"App.hx",
 "C:\\HaxeToolkit\\haxe\\std/cpp/_std/Std.hx",
 "C:\\HaxeToolkit\\haxe\\std/cpp/_std/Type.hx",
 "C:\\HaxeToolkit\\haxe\\std/cpp/_std/haxe/Log.hx",
@@ -25,6 +26,7 @@ const char *__hxcpp_all_files[] = {
 const char *__hxcpp_all_files_fullpath[] = {
 #ifdef HXCPP_DEBUGGER
 "C:\\Users\\efedorenko\\Desktop\\engine\\?",
+"C:\\Users\\efedorenko\\Desktop\\engine\\src\\App.hx",
 "C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\Std.hx",
 "C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\Type.hx",
 "C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\haxe\\Log.hx",
@@ -44,6 +46,7 @@ const char *__hxcpp_all_files_fullpath[] = {
 
 const char *__hxcpp_all_classes[] = {
 #ifdef HXCPP_DEBUGGER
+"App",
 "Vertices",
 "Indices",
 "Matrix",

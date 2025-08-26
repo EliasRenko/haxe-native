@@ -70,6 +70,9 @@
 #ifndef INCLUDED_Vertices
 #include <Vertices.h>
 #endif
+#ifndef INCLUDED_App
+#include <App.h>
+#endif
 
 void __files__boot();
 
@@ -100,6 +103,7 @@ __files__boot();
 ::Matrix_obj::__register();
 ::Indices_obj::__register();
 ::Vertices_obj::__register();
+::App_obj::__register();
 ::haxe::io::Error_obj::__boot();
 ::ValueType_obj::__boot();
 ::UniformFormat_obj::__boot();
