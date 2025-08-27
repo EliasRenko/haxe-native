@@ -4,6 +4,7 @@ import GL;
 import SDL;
 import DisplayObject;
 import ProgramInfo;
+import data.TextureData;
 
 class Quad extends DisplayObject {
     // Quad-specific properties
@@ -30,14 +31,14 @@ class Quad extends DisplayObject {
         
         var quadVertices = new Vertices([
             // Position (x, y, z) + UV coordinates (u, v)
-            // Top-left vertex
-            -halfWidth,  halfHeight, 0.0,  0.0, 1.0,
-            // Top-right vertex
-             halfWidth,  halfHeight, 0.0,  1.0, 1.0,
-            // Bottom-right vertex
-             halfWidth, -halfHeight, 0.0,  1.0, 0.0,
-            // Bottom-left vertex
-            -halfWidth, -halfHeight, 0.0,  0.0, 0.0
+            // Top-left vertex - flip V coordinate
+            -halfWidth,  halfHeight, 0.0,  0.0, 0.0,
+            // Top-right vertex - flip V coordinate
+             halfWidth,  halfHeight, 0.0,  1.0, 0.0,
+            // Bottom-right vertex - flip V coordinate
+             halfWidth, -halfHeight, 0.0,  1.0, 1.0,
+            // Bottom-left vertex - flip V coordinate
+            -halfWidth, -halfHeight, 0.0,  0.0, 1.0
         ]);
         
         // Indices for two triangles to form a quad
@@ -150,6 +151,81 @@ class Quad extends DisplayObject {
         
         hasTexture = true;
         trace("Checkerboard texture created with ID: " + textureId + " (size: " + size + "x" + size + ")");
+    }
+
+    // Create OpenGL texture from TextureData
+    public function createTextureFromData(textureData:data.TextureData):Void {
+        if (textureId != 0) {
+            // Delete old texture
+            untyped __cpp__("
+                {
+                    unsigned int texId = {0};
+                    glDeleteTextures(1, &texId);
+                }
+            ", textureId);
+        }
+        
+        // Convert grayscale to RGB for better compatibility
+        var processedTexture = textureData.toRGB();
+        
+        textureId = untyped __cpp__("
+            [](){ 
+                unsigned int texId;
+                glGenTextures(1, &texId);
+                return texId;
+            }()
+        ");
+        
+        GL.bindTexture(GL.TEXTURE_2D, textureId);
+        
+        // Determine OpenGL format based on bytes per pixel
+        var glFormat:Int;
+        var glInternalFormat:Int;
+        
+        switch (processedTexture.bytesPerPixel) {
+            case 1: // Grayscale - use GL_RED and handle in shader
+                glFormat = 0x1903; // GL_RED
+                glInternalFormat = 0x8229; // GL_R8
+            case 3: // RGB
+                glFormat = 0x1907; // GL_RGB
+                glInternalFormat = 0x1907; // GL_RGB
+            case 4: // RGBA
+                glFormat = GL.RGBA;
+                glInternalFormat = GL.RGBA;
+            default:
+                throw "Unsupported texture format: " + processedTexture.bytesPerPixel + " bytes per pixel";
+        }
+        
+        // Upload texture data to GPU
+        // Convert UInt8Array to Bytes for OpenGL upload
+        var bytes = haxe.io.Bytes.alloc(processedTexture.width * processedTexture.height * processedTexture.bytesPerPixel);
+        for (i in 0...bytes.length) {
+            bytes.set(i, processedTexture.bytes[i]);
+        }
+        
+        untyped __cpp__("glTexImage2D(GL_TEXTURE_2D, 0, {0}, {1}, {2}, 0, {3}, GL_UNSIGNED_BYTE, {4}->b->GetBase())", 
+            glInternalFormat, processedTexture.width, processedTexture.height, glFormat, bytes);
+        
+        // Set texture parameters
+        if (processedTexture.powerOfTwo) {
+            // Power-of-two textures can use mipmaps and repeat wrapping
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR_MIPMAP_LINEAR);
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.REPEAT);
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.REPEAT);
+            GL.generateMipmap(GL.TEXTURE_2D);
+        } else {
+            // Non-power-of-two textures should use clamp and no mipmaps
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR);
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
+        }
+        
+        GL.bindTexture(GL.TEXTURE_2D, 0);
+        
+        hasTexture = true;
+        trace("Texture uploaded to GPU with ID: " + textureId + " (" + processedTexture.width + "x" + processedTexture.height + ", " + processedTexture.bytesPerPixel + " BPP, converted from " + textureData.bytesPerPixel + " BPP)");
     }
     
     // Clean up texture resources

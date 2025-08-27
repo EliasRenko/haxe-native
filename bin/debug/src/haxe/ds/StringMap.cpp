@@ -14,7 +14,9 @@
 HX_DEFINE_STACK_FRAME(_hx_pos_cdf59c2a6fa2817a_60_new,"haxe.ds.StringMap","new",0x0f13f0c6,"haxe.ds.StringMap.new","C:\\HaxeToolkit\\haxe\\std/cpp/_std/haxe/ds/StringMap.hx",60,0x969b5cf0)
 HX_LOCAL_STACK_FRAME(_hx_pos_cdf59c2a6fa2817a_63_set,"haxe.ds.StringMap","set",0x0f17bc08,"haxe.ds.StringMap.set","C:\\HaxeToolkit\\haxe\\std/cpp/_std/haxe/ds/StringMap.hx",63,0x969b5cf0)
 HX_LOCAL_STACK_FRAME(_hx_pos_cdf59c2a6fa2817a_67_get,"haxe.ds.StringMap","get",0x0f0ea0fc,"haxe.ds.StringMap.get","C:\\HaxeToolkit\\haxe\\std/cpp/_std/haxe/ds/StringMap.hx",67,0x969b5cf0)
+HX_LOCAL_STACK_FRAME(_hx_pos_cdf59c2a6fa2817a_71_exists,"haxe.ds.StringMap","exists",0xd35fc136,"haxe.ds.StringMap.exists","C:\\HaxeToolkit\\haxe\\std/cpp/_std/haxe/ds/StringMap.hx",71,0x969b5cf0)
 HX_LOCAL_STACK_FRAME(_hx_pos_cdf59c2a6fa2817a_78_keys,"haxe.ds.StringMap","keys",0x20631ace,"haxe.ds.StringMap.keys","C:\\HaxeToolkit\\haxe\\std/cpp/_std/haxe/ds/StringMap.hx",78,0x969b5cf0)
+HX_LOCAL_STACK_FRAME(_hx_pos_cdf59c2a6fa2817a_105_clear,"haxe.ds.StringMap","clear",0x9fb0f773,"haxe.ds.StringMap.clear","C:\\HaxeToolkit\\haxe\\std/cpp/_std/haxe/ds/StringMap.hx",105,0x969b5cf0)
 namespace haxe{
 namespace ds{
 
@@ -81,6 +83,17 @@ HXDLIN(  67)		return  ::__string_hash_get(this->h,key);
 
 HX_DEFINE_DYNAMIC_FUNC1(StringMap_obj,get,return )
 
+bool StringMap_obj::exists(::String key){
+            	HX_STACKFRAME(&_hx_pos_cdf59c2a6fa2817a_71_exists)
+            	HX_STACK_THIS(this)
+            	HX_STACK_ARG(key,"key")
+HXLINE(  71)
+HXDLIN(  71)		return  ::__string_hash_exists(this->h,key);
+            	}
+
+
+HX_DEFINE_DYNAMIC_FUNC1(StringMap_obj,exists,return )
+
  ::Dynamic StringMap_obj::keys(){
             	HX_GC_STACKFRAME(&_hx_pos_cdf59c2a6fa2817a_78_keys)
             	HX_STACK_THIS(this)
@@ -91,6 +104,16 @@ HXLINE(  80)		return  ::haxe::iterators::ArrayIterator_obj::__alloc( HX_CTX ,a);
 
 
 HX_DEFINE_DYNAMIC_FUNC0(StringMap_obj,keys,return )
+
+void StringMap_obj::clear(){
+            	HX_STACKFRAME(&_hx_pos_cdf59c2a6fa2817a_105_clear)
+            	HX_STACK_THIS(this)
+HXLINE( 105)
+HXDLIN( 105)		 ::__string_hash_clear(this->h);
+            	}
+
+
+HX_DEFINE_DYNAMIC_FUNC0(StringMap_obj,clear,(void))
 
 
 ::hx::ObjectPtr< StringMap_obj > StringMap_obj::__new() {
@@ -134,6 +157,12 @@ void StringMap_obj::__Visit(HX_VISIT_PARAMS)
 		break;
 	case 4:
 		if (HX_FIELD_EQ(inName,"keys") ) { return ::hx::Val( keys_dyn() ); }
+		break;
+	case 5:
+		if (HX_FIELD_EQ(inName,"clear") ) { return ::hx::Val( clear_dyn() ); }
+		break;
+	case 6:
+		if (HX_FIELD_EQ(inName,"exists") ) { return ::hx::Val( exists_dyn() ); }
 	}
 	return super::__Field(inName,inCallProp);
 }
@@ -165,7 +194,9 @@ static ::String StringMap_obj_sMemberFields[] = {
 	HX_("h",68,00,00,00),
 	HX_("set",a2,9b,57,00),
 	HX_("get",96,80,4e,00),
+	HX_("exists",dc,1d,e0,bf),
 	HX_("keys",f4,e1,06,47),
+	HX_("clear",8d,71,5b,48),
 	::String(null()) };
 
 ::hx::Class StringMap_obj::__mClass;

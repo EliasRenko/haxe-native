@@ -7,9 +7,11 @@ import display.Image;
 import display.Triangle;
 import display.Rectangle;
 import display.Quad;
+import data.TextureData;
 
 class Renderer {
     
+    private var app:App;
     private var shaderProgram:GlUInt;
     private var vbo:GlUInt;
     private var vao:GlUInt;
@@ -30,8 +32,9 @@ class Renderer {
     private var testImage:Image;
     private var imageProgram:ProgramInfo;
     
-    public function new(windowWidth:Int, windowHeight:Int) {
+    public function new(app:App, windowWidth:Int, windowHeight:Int) {
         trace("Creating clean renderer...");
+        this.app = app;
         initializeTestTriangle();
         initializeTestRectangle();
         initializeTestQuad();
@@ -107,7 +110,7 @@ class Renderer {
         testTriangle.y = 0.3;
         testTriangle.scaleX = 0.7;
         testTriangle.scaleY = 0.7;
-        testTriangle.setRotationSpeed(2.0);
+        testTriangle.setRotationSpeed(0.1);
         testTriangle.setAutoRotate(true);
         
         trace("Test triangle initialized successfully!");
@@ -155,8 +158,20 @@ class Renderer {
         testQuad.scaleX = 0.6;
         testQuad.scaleY = 0.6;
         
-        // Create a checkerboard texture for testing
-        testQuad.createCheckerboardTexture(64);
+        // Load dev_1.tga texture instead of creating a gradient
+        trace("Loading dev_1.tga texture...");
+        app.resources.loadTexture("textures/dev_1.tga")
+            .then(function(textureData:data.TextureData) {
+                trace("Successfully loaded dev_1.tga, uploading to GPU...");
+                testQuad.createTextureFromData(textureData);
+                trace("dev_1.tga texture uploaded to quad!");
+            })
+            .onError(function(error:String) {
+                trace("Failed to load dev_1.tga: " + error + ", falling back to gradient");
+                // Fallback to gradient texture if loading fails
+                var gradientTexture = createGradientTexture(64, 64);
+                testQuad.createTextureFromData(gradientTexture);
+            });
         
         trace("Test textured quad initialized successfully!");
     }
@@ -240,5 +255,27 @@ class Renderer {
             GL.deleteShader(shaderProgram);
         }
         trace("Renderer cleanup complete");
+    }
+
+    // Create a gradient texture for testing TextureData upload
+    private function createGradientTexture(width:Int, height:Int):TextureData {
+        var pixels = new haxe.io.UInt8Array(width * height * 3); // RGB format
+        
+        for (y in 0...height) {
+            for (x in 0...width) {
+                var index = (y * width + x) * 3;
+                
+                // Create a simple red-green gradient
+                var red = Std.int((x / width) * 255);
+                var green = Std.int((y / height) * 255);
+                var blue = 128; // Constant blue
+                
+                pixels[index + 0] = red;   // R
+                pixels[index + 1] = green; // G
+                pixels[index + 2] = blue;  // B
+            }
+        }
+        
+        return new TextureData(pixels, 3, width, height, false);
     }
 }

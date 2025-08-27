@@ -6,7 +6,7 @@ import DisplayObject;
 
 class Triangle extends DisplayObject {
     // Triangle-specific properties
-    public var rotationSpeed:Float = 2.0;
+    public var rotationSpeed:Float = 0.1;
     public var autoRotate:Bool = true;
     
     // Color properties for each vertex

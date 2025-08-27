@@ -6,9 +6,11 @@
 #include <hxcpp.h>
 #endif
 
+HX_DECLARE_CLASS0(App)
 HX_DECLARE_CLASS0(DisplayObject)
 HX_DECLARE_CLASS0(ProgramInfo)
 HX_DECLARE_CLASS0(Renderer)
+HX_DECLARE_CLASS1(data,TextureData)
 HX_DECLARE_CLASS1(display,Image)
 HX_DECLARE_CLASS1(display,Quad)
 HX_DECLARE_CLASS1(display,Rectangle)
@@ -26,13 +28,13 @@ class HXCPP_CLASS_ATTRIBUTES Renderer_obj : public ::hx::Object
 	public:
 		enum { _hx_ClassId = 0x3f005987 };
 
-		void __construct(int windowWidth,int windowHeight);
+		void __construct( ::App app,int windowWidth,int windowHeight);
 		inline void *operator new(size_t inSize, bool inContainer=true,const char *inName="Renderer")
 			{ return ::hx::Object::operator new(inSize,inContainer,inName); }
 		inline void *operator new(size_t inSize, int extra)
 			{ return ::hx::Object::operator new(inSize+extra,true,"Renderer"); }
-		static ::hx::ObjectPtr< Renderer_obj > __new(int windowWidth,int windowHeight);
-		static ::hx::ObjectPtr< Renderer_obj > __alloc(::hx::Ctx *_hx_ctx,int windowWidth,int windowHeight);
+		static ::hx::ObjectPtr< Renderer_obj > __new( ::App app,int windowWidth,int windowHeight);
+		static ::hx::ObjectPtr< Renderer_obj > __alloc(::hx::Ctx *_hx_ctx, ::App app,int windowWidth,int windowHeight);
 		static void * _hx_vtable;
 		static Dynamic __CreateEmpty();
 		static Dynamic __Create(::hx::DynamicArray inArgs);
@@ -48,6 +50,7 @@ class HXCPP_CLASS_ATTRIBUTES Renderer_obj : public ::hx::Object
 		bool _hx_isInstanceOf(int inClassId);
 		::String __ToString() const { return HX_("Renderer",63,81,8d,8c); }
 
+		 ::App app;
 		unsigned int shaderProgram;
 		unsigned int vbo;
 		unsigned int vao;
@@ -85,6 +88,9 @@ class HXCPP_CLASS_ATTRIBUTES Renderer_obj : public ::hx::Object
 
 		void cleanup();
 		::Dynamic cleanup_dyn();
+
+		 ::data::TextureData createGradientTexture(int width,int height);
+		::Dynamic createGradientTexture_dyn();
 
 };
 

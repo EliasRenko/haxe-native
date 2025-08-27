@@ -1,0 +1,3 @@
+Hello, this is a test file!
+This file is used to test the resource loading system.
+Line 3: Testing resource management.

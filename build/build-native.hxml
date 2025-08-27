@@ -1,6 +1,7 @@
 # Copy resources (using --macro to ensure execution)
 --macro Sys.command("cmd", ["/c", ".\\bat\\copy-files.bat", ".\\include", ".\\bin\\debug\\include"])
 --macro Sys.command("cmd", ["/c", ".\\bat\\copy-files.bat", ".\\lib", ".\\bin\\debug\\lib"])
+--macro Sys.command("cmd", ["/c", ".\\bat\\copy-files.bat", ".\\res", ".\\bin\\debug\\res"])
 --macro Sys.command("cmd", ["/c", "if not exist bin\\debug\\src mkdir bin\\debug\\src"])
 --macro Sys.command("cmd", ["/c", "copy src\\glad.c bin\\debug\\src\\glad.c"])
 

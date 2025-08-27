@@ -7,11 +7,20 @@
 #ifndef INCLUDED_ValueType
 #include <ValueType.h>
 #endif
+#ifndef INCLUDED_PromiseState
+#include <PromiseState.h>
+#endif
 #ifndef INCLUDED_UniformFormat
 #include <UniformFormat.h>
 #endif
+#ifndef INCLUDED_loaders_TGALoader
+#include <loaders/TGALoader.h>
+#endif
 #ifndef INCLUDED_haxe_Log
 #include <haxe/Log.h>
+#endif
+#ifndef INCLUDED_sys_thread__Thread_HaxeThread
+#include <sys/thread/_Thread/HaxeThread.h>
 #endif
 #ifndef INCLUDED_display_Vector4
 #include <display/Vector4.h>
@@ -19,14 +28,71 @@
 #ifndef INCLUDED_BlendFactor
 #include <BlendFactor.h>
 #endif
+#ifndef INCLUDED_sys_thread__Thread_Thread_Impl_
+#include <sys/thread/_Thread/Thread_Impl_.h>
+#endif
+#ifndef INCLUDED_sys_thread_Lock
+#include <sys/thread/Lock.h>
+#endif
+#ifndef INCLUDED_sys_thread__EventLoop_RegularEvent
+#include <sys/thread/_EventLoop/RegularEvent.h>
+#endif
+#ifndef INCLUDED_sys_FileSystem
+#include <sys/FileSystem.h>
+#endif
 #ifndef INCLUDED_haxe_iterators_ArrayIterator
 #include <haxe/iterators/ArrayIterator.h>
+#endif
+#ifndef INCLUDED_haxe_io_Path
+#include <haxe/io/Path.h>
+#endif
+#ifndef INCLUDED_haxe_io_Eof
+#include <haxe/io/Eof.h>
+#endif
+#ifndef INCLUDED_haxe_io_BytesInput
+#include <haxe/io/BytesInput.h>
+#endif
+#ifndef INCLUDED_haxe_io_Input
+#include <haxe/io/Input.h>
 #endif
 #ifndef INCLUDED_haxe_io_Bytes
 #include <haxe/io/Bytes.h>
 #endif
+#ifndef INCLUDED_haxe_io_ArrayBufferViewImpl
+#include <haxe/io/ArrayBufferViewImpl.h>
+#endif
+#ifndef INCLUDED_haxe_exceptions_NotImplementedException
+#include <haxe/exceptions/NotImplementedException.h>
+#endif
+#ifndef INCLUDED_haxe_exceptions_PosException
+#include <haxe/exceptions/PosException.h>
+#endif
 #ifndef INCLUDED_haxe_ds_StringMap
 #include <haxe/ds/StringMap.h>
+#endif
+#ifndef INCLUDED_haxe_ValueException
+#include <haxe/ValueException.h>
+#endif
+#ifndef INCLUDED_haxe_NativeStackTrace
+#include <haxe/NativeStackTrace.h>
+#endif
+#ifndef INCLUDED_haxe_MainLoop
+#include <haxe/MainLoop.h>
+#endif
+#ifndef INCLUDED_haxe_MainEvent
+#include <haxe/MainEvent.h>
+#endif
+#ifndef INCLUDED_haxe_Exception
+#include <haxe/Exception.h>
+#endif
+#ifndef INCLUDED_haxe_EntryPoint
+#include <haxe/EntryPoint.h>
+#endif
+#ifndef INCLUDED_sys_thread_EventLoop
+#include <sys/thread/EventLoop.h>
+#endif
+#ifndef INCLUDED_sys_thread_Mutex
+#include <sys/thread/Mutex.h>
 #endif
 #ifndef INCLUDED_display_Triangle
 #include <display/Triangle.h>
@@ -40,11 +106,17 @@
 #ifndef INCLUDED_display_Image
 #include <display/Image.h>
 #endif
+#ifndef INCLUDED_data_TextureData
+#include <data/TextureData.h>
+#endif
 #ifndef INCLUDED_haxe_IMap
 #include <haxe/IMap.h>
 #endif
 #ifndef INCLUDED_Type
 #include <Type.h>
+#endif
+#ifndef INCLUDED_Sys
+#include <Sys.h>
 #endif
 #ifndef INCLUDED_Std
 #include <Std.h>
@@ -52,11 +124,20 @@
 #ifndef INCLUDED_Renderer
 #include <Renderer.h>
 #endif
+#ifndef INCLUDED_Reflect
+#include <Reflect.h>
+#endif
+#ifndef INCLUDED_Promise
+#include <Promise.h>
+#endif
 #ifndef INCLUDED_ProgramInfo
 #include <ProgramInfo.h>
 #endif
 #ifndef INCLUDED_Main
 #include <Main.h>
+#endif
+#ifndef INCLUDED_EventDispacher
+#include <EventDispacher.h>
 #endif
 #ifndef INCLUDED_DisplayObject
 #include <DisplayObject.h>
@@ -70,6 +151,9 @@
 #ifndef INCLUDED_Vertices
 #include <Vertices.h>
 #endif
+#ifndef INCLUDED__App___Resources
+#include <_App/__Resources.h>
+#endif
 #ifndef INCLUDED_App
 #include <App.h>
 #endif
@@ -82,33 +166,65 @@ __files__boot();
 ::hx::RegisterResources( ::hx::GetResources() );
 ::haxe::io::Error_obj::__register();
 ::ValueType_obj::__register();
+::PromiseState_obj::__register();
 ::UniformFormat_obj::__register();
+::loaders::TGALoader_obj::__register();
 ::haxe::Log_obj::__register();
+::sys::thread::_Thread::HaxeThread_obj::__register();
 ::display::Vector4_obj::__register();
 ::BlendFactor_obj::__register();
+::sys::thread::_Thread::Thread_Impl__obj::__register();
+::sys::thread::Lock_obj::__register();
+::sys::thread::_EventLoop::RegularEvent_obj::__register();
+::sys::FileSystem_obj::__register();
 ::haxe::iterators::ArrayIterator_obj::__register();
+::haxe::io::Path_obj::__register();
+::haxe::io::Eof_obj::__register();
+::haxe::io::BytesInput_obj::__register();
+::haxe::io::Input_obj::__register();
 ::haxe::io::Bytes_obj::__register();
+::haxe::io::ArrayBufferViewImpl_obj::__register();
+::haxe::exceptions::NotImplementedException_obj::__register();
+::haxe::exceptions::PosException_obj::__register();
 ::haxe::ds::StringMap_obj::__register();
+::haxe::ValueException_obj::__register();
+::haxe::NativeStackTrace_obj::__register();
+::haxe::MainLoop_obj::__register();
+::haxe::MainEvent_obj::__register();
+::haxe::Exception_obj::__register();
+::haxe::EntryPoint_obj::__register();
+::sys::thread::EventLoop_obj::__register();
+::sys::thread::Mutex_obj::__register();
 ::display::Triangle_obj::__register();
 ::display::Rectangle_obj::__register();
 ::display::Quad_obj::__register();
 ::display::Image_obj::__register();
+::data::TextureData_obj::__register();
 ::haxe::IMap_obj::__register();
 ::Type_obj::__register();
+::Sys_obj::__register();
 ::Std_obj::__register();
 ::Renderer_obj::__register();
+::Reflect_obj::__register();
+::Promise_obj::__register();
 ::ProgramInfo_obj::__register();
 ::Main_obj::__register();
+::EventDispacher_obj::__register();
 ::DisplayObject_obj::__register();
 ::Matrix_obj::__register();
 ::Indices_obj::__register();
 ::Vertices_obj::__register();
+::_App::__Resources_obj::__register();
 ::App_obj::__register();
 ::haxe::io::Error_obj::__boot();
 ::ValueType_obj::__boot();
+::PromiseState_obj::__boot();
 ::UniformFormat_obj::__boot();
+::sys::thread::_Thread::HaxeThread_obj::__init__();
 ::haxe::Log_obj::__boot();
 ::BlendFactor_obj::__boot();
 ::display::Vector4_obj::__boot();
+::sys::thread::_Thread::HaxeThread_obj::__boot();
+::loaders::TGALoader_obj::__boot();
 }
 

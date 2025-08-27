@@ -55,7 +55,7 @@ HXLINE(  15)		this->rightColor = ::Array_obj< Float >::fromData( _hx_array_data_
 HXLINE(  14)		this->leftColor = ::Array_obj< Float >::fromData( _hx_array_data_a52bd694_2,3);
 HXLINE(  13)		this->topColor = ::Array_obj< Float >::fromData( _hx_array_data_a52bd694_3,3);
 HXLINE(  10)		this->autoRotate = true;
-HXLINE(   9)		this->rotationSpeed = ((Float)2.0);
+HXLINE(   9)		this->rotationSpeed = ((Float)0.1);
 HXLINE(  19)		HX_VARI(  ::Vertices,triangleVertices) =  ::Vertices_obj::__alloc( HX_CTX ,::Array_obj< Float >::fromData( _hx_array_data_a52bd694_4,18));
 HXLINE(  27)		super::__construct(programInfo,triangleVertices,null());
 HXLINE(  30)		this->mode = GL_TRIANGLES;
