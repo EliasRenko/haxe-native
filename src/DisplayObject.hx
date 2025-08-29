@@ -3,6 +3,7 @@ package;
 import GL;
 import ProgramInfo;
 import ProgramInfo.UniformFormat;
+import math.Matrix;
 
 typedef BlendFactors = {
 	source:Int,
@@ -33,89 +34,6 @@ class Indices {
 	
 	public function new(data:Array<Int>) {
 		this.data = data;
-	}
-}
-
-// Simple matrix class for transformations
-class Matrix {
-	public var data:Array<Float>;
-	
-	public function new() {
-		data = [
-			1, 0, 0, 0,
-			0, 1, 0, 0, 
-			0, 0, 1, 0,
-			0, 0, 0, 1
-		];
-	}
-	
-	public function identity():Void {
-		data = [
-			1, 0, 0, 0,
-			0, 1, 0, 0,
-			0, 0, 1, 0,
-			0, 0, 0, 1
-		];
-	}
-	
-	// Matrix transformation methods
-	public function setTranslation(x:Float, y:Float, z:Float):Void {
-		data[12] = x;  // Translation X
-		data[13] = y;  // Translation Y
-		data[14] = z;  // Translation Z
-	}
-	
-	public function appendTranslation(x:Float, y:Float, z:Float):Void {
-		var m = new Matrix();
-		m.identity();
-		m.data[12] = x;
-		m.data[13] = y; 
-		m.data[14] = z;
-		this.append(m);
-	}
-	
-	public function appendScale(x:Float, y:Float, z:Float):Void {
-		var m = new Matrix();
-		m.identity();
-		m.data[0] = x;   // Scale X
-		m.data[5] = y;   // Scale Y
-		m.data[10] = z;  // Scale Z
-		this.append(m);
-	}
-	
-	public function appendRotationZ(angle:Float):Void {
-		var cos = Math.cos(angle);
-		var sin = Math.sin(angle);
-		var m = new Matrix();
-		m.identity();
-		m.data[0] = cos;   // [0,0]
-		m.data[1] = sin;   // [0,1]
-		m.data[4] = -sin;  // [1,0]
-		m.data[5] = cos;   // [1,1]
-		this.append(m);
-	}
-	
-	public function appendRotation(angle:Float, axis:Dynamic):Void {
-		// For now, just support Z-axis rotation
-		appendRotationZ(angle);
-	}
-	
-	public function append(other:Matrix):Void {
-		// Matrix multiplication: this = this * other
-		var result = new Array<Float>();
-		result.resize(16);
-		
-		for (i in 0...4) {
-			for (j in 0...4) {
-				var sum = 0.0;
-				for (k in 0...4) {
-					sum += this.data[i * 4 + k] * other.data[k * 4 + j];
-				}
-				result[i * 4 + j] = sum;
-			}
-		}
-		
-		this.data = result;
 	}
 }
 
@@ -273,11 +191,15 @@ class DisplayObject {
 		// Update transformation matrix based on current properties
 		updateTransform();
 		
+		// Create final matrix by combining camera matrix with object matrix
+		var finalMatrix = Matrix.copy(cameraMatrix);
+		finalMatrix.append(matrix);
+		
 		// Use the program
 		GL.useProgram(programInfo.program);
 		
-		// Set uniforms (subclasses should override this method to set their specific uniforms)
-		setUniforms();
+		// Set uniforms with the final combined matrix
+		setUniforms(finalMatrix);
 		
 		// Bind VAO and draw
 		GL.bindVertexArray(vao);
@@ -294,11 +216,11 @@ class DisplayObject {
 	}
 	
 	// Override this in subclasses to set specific uniforms
-	private function setUniforms():Void {
+	private function setUniforms(finalMatrix:Matrix):Void {
 		// Automatically set the uMatrix uniform if it exists in the shader
 		for (uniform in programInfo.uniforms) {
 			if (uniform.name == "uMatrix" && uniform.format == UniformFormat.Mat4) {
-				programInfo.setUniformMatrix4("uMatrix", matrix.data);
+				programInfo.setUniformMatrix4("uMatrix", finalMatrix.data);
 				break;
 			}
 		}

@@ -5,7 +5,7 @@
 #include <display/Vector4.h>
 #endif
 
-HX_LOCAL_STACK_FRAME(_hx_pos_708c49577ab76266_7_boot,"display.Vector4","boot",0x6130097b,"display.Vector4.boot","display/Image.hx",7,0x6e756f10)
+HX_LOCAL_STACK_FRAME(_hx_pos_708c49577ab76266_8_boot,"display.Vector4","boot",0x6130097b,"display.Vector4.boot","display/Image.hx",8,0x6e756f10)
 namespace display{
 
 void Vector4_obj::__construct() { }
@@ -106,8 +106,8 @@ void Vector4_obj::__register()
 void Vector4_obj::__boot()
 {
 {
-            	HX_STACKFRAME(&_hx_pos_708c49577ab76266_7_boot)
-HXDLIN(   7)		Z_AXIS =  ::Dynamic(::hx::Anon_obj::Create(3)
+            	HX_STACKFRAME(&_hx_pos_708c49577ab76266_8_boot)
+HXDLIN(   8)		Z_AXIS =  ::Dynamic(::hx::Anon_obj::Create(3)
             			->setFixed(0,HX_("x",78,00,00,00),((Float)0.0))
             			->setFixed(1,HX_("y",79,00,00,00),((Float)0.0))
             			->setFixed(2,HX_("z",7a,00,00,00),((Float)1.0)));

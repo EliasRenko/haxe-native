@@ -10,9 +10,9 @@
 #include <DisplayObject.h>
 #endif
 HX_DECLARE_CLASS0(DisplayObject)
-HX_DECLARE_CLASS0(Matrix)
 HX_DECLARE_CLASS0(ProgramInfo)
 HX_DECLARE_CLASS1(display,Image)
+HX_DECLARE_CLASS1(math,Matrix)
 
 namespace display{
 
@@ -61,7 +61,7 @@ class HXCPP_CLASS_ATTRIBUTES Image_obj : public  ::DisplayObject_obj
 		void setUV(Float x,Float y,Float width,Float height);
 		::Dynamic setUV_dyn();
 
-		void render( ::Matrix cameraMatrix);
+		void render( ::math::Matrix cameraMatrix);
 
 		Float set_angle(Float value);
 		::Dynamic set_angle_dyn();

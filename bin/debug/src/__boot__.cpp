@@ -40,6 +40,9 @@
 #ifndef INCLUDED_sys_FileSystem
 #include <sys/FileSystem.h>
 #endif
+#ifndef INCLUDED_math_Matrix
+#include <math/Matrix.h>
+#endif
 #ifndef INCLUDED_haxe_iterators_ArrayIterator
 #include <haxe/iterators/ArrayIterator.h>
 #endif
@@ -142,14 +145,14 @@
 #ifndef INCLUDED_DisplayObject
 #include <DisplayObject.h>
 #endif
-#ifndef INCLUDED_Matrix
-#include <Matrix.h>
-#endif
 #ifndef INCLUDED_Indices
 #include <Indices.h>
 #endif
 #ifndef INCLUDED_Vertices
 #include <Vertices.h>
+#endif
+#ifndef INCLUDED_Camera
+#include <Camera.h>
 #endif
 #ifndef INCLUDED__App___Resources
 #include <_App/__Resources.h>
@@ -177,6 +180,7 @@ __files__boot();
 ::sys::thread::Lock_obj::__register();
 ::sys::thread::_EventLoop::RegularEvent_obj::__register();
 ::sys::FileSystem_obj::__register();
+::math::Matrix_obj::__register();
 ::haxe::iterators::ArrayIterator_obj::__register();
 ::haxe::io::Path_obj::__register();
 ::haxe::io::Eof_obj::__register();
@@ -211,9 +215,9 @@ __files__boot();
 ::Main_obj::__register();
 ::EventDispacher_obj::__register();
 ::DisplayObject_obj::__register();
-::Matrix_obj::__register();
 ::Indices_obj::__register();
 ::Vertices_obj::__register();
+::Camera_obj::__register();
 ::_App::__Resources_obj::__register();
 ::App_obj::__register();
 ::haxe::io::Error_obj::__boot();

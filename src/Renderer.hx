@@ -8,6 +8,8 @@ import display.Triangle;
 import display.Rectangle;
 import display.Quad;
 import data.TextureData;
+import Camera;
+import math.Matrix;
 
 class Renderer {
     
@@ -15,6 +17,11 @@ class Renderer {
     private var shaderProgram:GlUInt;
     private var vbo:GlUInt;
     private var vao:GlUInt;
+    
+    // Camera for world and projection matrices
+    private var camera:Camera;
+    private var windowWidth:Int;
+    private var windowHeight:Int;
     
     // DisplayObjects
     private var testTriangle:Triangle;
@@ -35,6 +42,13 @@ class Renderer {
     public function new(app:App, windowWidth:Int, windowHeight:Int) {
         trace("Creating clean renderer...");
         this.app = app;
+        this.windowWidth = windowWidth;
+        this.windowHeight = windowHeight;
+        
+        // Initialize camera
+        camera = new Camera();
+        camera.ortho = true; // Use orthographic projection for 2D
+        
         initializeTestTriangle();
         initializeTestRectangle();
         initializeTestQuad();
@@ -47,27 +61,9 @@ class Renderer {
         GL.glClearColor(0.6, 0.6, 0.6, 1.0);
         GL.glClear(GL.COLOR_BUFFER_BIT);
 
-        // Render test triangle using DisplayObject architecture
-        if (testTriangle != null) {
-            // Update triangle animation
-            testTriangle.update(0.016); // Assuming ~60fps
-            renderDisplayObject(testTriangle);
-        }
-
-        // Render test rectangle using DisplayObject architecture  
-        if (testRectangle != null) {
-            // Add simple scaling animation
-            var time = cast(SDL.getTicks(), Int) / 1000.0; // Convert to seconds
-            testRectangle.scaleX = 0.8 + 0.2 * Math.sin(time * 2.0);
-            testRectangle.scaleY = 0.8 + 0.2 * Math.cos(time * 2.0);
-            renderDisplayObject(testRectangle);
-        }
-
         // Render test textured quad using DisplayObject architecture
         if (testQuad != null) {
-            // Add rotation animation
-            var time = cast(SDL.getTicks(), Int) / 1000.0; // Convert to seconds
-            testQuad.rotationZ = time;
+            // No rotation - render quad stationary for cleaner testing
             renderDisplayObject(testQuad);
         }
 
@@ -87,11 +83,11 @@ class Renderer {
             displayObject.init();
         }
         
-        // Create a simple identity matrix for now (camera matrix)
-        var cameraMatrix = new Matrix();
-        cameraMatrix.identity();
+        // Calculate the camera matrix (world + projection)
+        camera.renderMatrix(windowWidth, windowHeight);
+        var cameraMatrix = camera.getMatrix();
         
-        // Render the display object
+        // Render the display object with the camera matrix
         displayObject.render(cameraMatrix);
     }    private function initializeTestTriangle():Void {
         trace("Initializing test triangle using DisplayObject architecture...");
@@ -149,28 +145,28 @@ class Renderer {
         // Print debug info about the introspected program
         quadProgram.printVertexLayout();
         
-        // Create the textured quad display object
-        testQuad = new Quad(quadProgram, 0.5, 0.5);
+        // Create the textured quad display object - smaller size for better texture detail visibility
+        testQuad = new Quad(quadProgram, 128, 128);
         
-        // Position quad at bottom center
+        // Center the quad for better visibility
         testQuad.x = 0.0;
-        testQuad.y = -0.5;
-        testQuad.scaleX = 0.6;
-        testQuad.scaleY = 0.6;
+        testQuad.y = 0.0;
+        // Remove scaling to see actual texture size after loading
+        // testQuad.scaleX = 0.6;
+        // testQuad.scaleY = 0.6;
         
-        // Load dev_1.tga texture instead of creating a gradient
-        trace("Loading dev_1.tga texture...");
-        app.resources.loadTexture("textures/dev_1.tga")
+        // Load dev1.tga texture instead of creating a gradient
+        trace("Loading dev1.tga texture...");
+        app.resources.loadTexture("textures/dev1.tga")
             .then(function(textureData:data.TextureData) {
-                trace("Successfully loaded dev_1.tga, uploading to GPU...");
+                trace("Successfully loaded dev1.tga, uploading to GPU...");
                 testQuad.createTextureFromData(textureData);
-                trace("dev_1.tga texture uploaded to quad!");
+                trace("dev1.tga texture uploaded to quad!");
             })
             .onError(function(error:String) {
-                trace("Failed to load dev_1.tga: " + error + ", falling back to gradient");
-                // Fallback to gradient texture if loading fails
-                var gradientTexture = createGradientTexture(64, 64);
-                testQuad.createTextureFromData(gradientTexture);
+                trace("Failed to load dev1.tga: " + error + ", falling back to checkerboard");
+                // Fallback to checkerboard texture if loading fails
+                testQuad.createCheckerboardTexture(64);
             });
         
         trace("Test textured quad initialized successfully!");

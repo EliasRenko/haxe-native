@@ -7,9 +7,6 @@
 #ifndef INCLUDED_Indices
 #include <Indices.h>
 #endif
-#ifndef INCLUDED_Matrix
-#include <Matrix.h>
-#endif
 #ifndef INCLUDED_ProgramInfo
 #include <ProgramInfo.h>
 #endif
@@ -31,58 +28,61 @@
 #ifndef INCLUDED_haxe_ds_StringMap
 #include <haxe/ds/StringMap.h>
 #endif
+#ifndef INCLUDED_math_Matrix
+#include <math/Matrix.h>
+#endif
 
-HX_DEFINE_STACK_FRAME(_hx_pos_707cb44249f20c30_10_new,"display.Image","new",0x7805c481,"display.Image.new","display/Image.hx",10,0x6e756f10)
+HX_DEFINE_STACK_FRAME(_hx_pos_707cb44249f20c30_11_new,"display.Image","new",0x7805c481,"display.Image.new","display/Image.hx",11,0x6e756f10)
 static const int _hx_array_data_41cf700f_1[] = {
 	(int)0,(int)1,(int)2,(int)0,(int)2,(int)3,
 };
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_83_centerOrigin,"display.Image","centerOrigin",0x5d3f415a,"display.Image.centerOrigin","display/Image.hx",83,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_90_setTextures,"display.Image","setTextures",0xf0143e1b,"display.Image.setTextures","display/Image.hx",90,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_121_setUV,"display.Image","setUV",0xb95f90e4,"display.Image.setUV","display/Image.hx",121,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_138_render,"display.Image","render",0x0ff801d5,"display.Image.render","display/Image.hx",138,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_154_set_angle,"display.Image","set_angle",0xedc1cf17,"display.Image.set_angle","display/Image.hx",154,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_163_set_height,"display.Image","set_height",0xbb065823,"display.Image.set_height","display/Image.hx",163,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_180_set_width,"display.Image","set_width",0x9542414a,"display.Image.set_width","display/Image.hx",180,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_198_get_height,"display.Image","get_height",0xb788b9af,"display.Image.get_height","display/Image.hx",198,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_202_get_width,"display.Image","get_width",0xb1f1553e,"display.Image.get_width","display/Image.hx",202,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_206_get_originX,"display.Image","get_originX",0x35d46cea,"display.Image.get_originX","display/Image.hx",206,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_209_set_originX,"display.Image","set_originX",0x404173f6,"display.Image.set_originX","display/Image.hx",209,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_217_get_originY,"display.Image","get_originY",0x35d46ceb,"display.Image.get_originY","display/Image.hx",217,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_220_set_originY,"display.Image","set_originY",0x404173f7,"display.Image.set_originY","display/Image.hx",220,0x6e756f10)
-HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_229_get_angle,"display.Image","get_angle",0x0a70e30b,"display.Image.get_angle","display/Image.hx",229,0x6e756f10)
+HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_84_centerOrigin,"display.Image","centerOrigin",0x5d3f415a,"display.Image.centerOrigin","display/Image.hx",84,0x6e756f10)
+HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_91_setTextures,"display.Image","setTextures",0xf0143e1b,"display.Image.setTextures","display/Image.hx",91,0x6e756f10)
+HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_122_setUV,"display.Image","setUV",0xb95f90e4,"display.Image.setUV","display/Image.hx",122,0x6e756f10)
+HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_139_render,"display.Image","render",0x0ff801d5,"display.Image.render","display/Image.hx",139,0x6e756f10)
+HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_155_set_angle,"display.Image","set_angle",0xedc1cf17,"display.Image.set_angle","display/Image.hx",155,0x6e756f10)
+HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_164_set_height,"display.Image","set_height",0xbb065823,"display.Image.set_height","display/Image.hx",164,0x6e756f10)
+HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_181_set_width,"display.Image","set_width",0x9542414a,"display.Image.set_width","display/Image.hx",181,0x6e756f10)
+HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_199_get_height,"display.Image","get_height",0xb788b9af,"display.Image.get_height","display/Image.hx",199,0x6e756f10)
+HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_203_get_width,"display.Image","get_width",0xb1f1553e,"display.Image.get_width","display/Image.hx",203,0x6e756f10)
+HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_207_get_originX,"display.Image","get_originX",0x35d46cea,"display.Image.get_originX","display/Image.hx",207,0x6e756f10)
+HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_210_set_originX,"display.Image","set_originX",0x404173f6,"display.Image.set_originX","display/Image.hx",210,0x6e756f10)
+HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_218_get_originY,"display.Image","get_originY",0x35d46ceb,"display.Image.get_originY","display/Image.hx",218,0x6e756f10)
+HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_221_set_originY,"display.Image","set_originY",0x404173f7,"display.Image.set_originY","display/Image.hx",221,0x6e756f10)
+HX_LOCAL_STACK_FRAME(_hx_pos_707cb44249f20c30_230_get_angle,"display.Image","get_angle",0x0a70e30b,"display.Image.get_angle","display/Image.hx",230,0x6e756f10)
 namespace display{
 
 void Image_obj::__construct( ::ProgramInfo programInfo,::Array< int > textureIds){
-            	HX_GC_STACKFRAME(&_hx_pos_707cb44249f20c30_10_new)
+            	HX_GC_STACKFRAME(&_hx_pos_707cb44249f20c30_11_new)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(programInfo,"programInfo")
             	HX_STACK_ARG(textureIds,"textureIds")
-HXLINE(  10)
-HXLINE(  49)		this->_hx___originY = ((Float)0);
-HXLINE(  47)		this->_hx___originX = ((Float)0);
-HXLINE(  45)		this->_hx___width = ((Float)0);
-HXLINE(  43)		this->_hx___height = ((Float)0);
-HXLINE(  41)		this->_hx___angle = ((Float)0);
-HXLINE(  52)		HX_VARI( Float,w) = ((Float)256.0);
-HXLINE(  53)		HX_VARI( Float,h) = ((Float)256.0);
-HXLINE(  54)		HX_VARI( ::Array< Float >,vertices) = ::Array_obj< Float >::__new(20)->init(0,0)->init(1,0)->init(2,0)->init(3,0)->init(4,0)->init(5,0)->init(6,h)->init(7,0)->init(8,0)->init(9,1)->init(10,w)->init(11,h)->init(12,0)->init(13,1)->init(14,1)->init(15,w)->init(16,0)->init(17,0)->init(18,1)->init(19,0);
-HXLINE(  66)		HX_VARI(  ::Vertices,v) =  ::Vertices_obj::__alloc( HX_CTX ,vertices);
-HXLINE(  67)		HX_VARI( ::Array< int >,indices) = ::Array_obj< int >::fromData( _hx_array_data_41cf700f_1,6);
-HXLINE(  69)		super::__construct(programInfo,v, ::Indices_obj::__alloc( HX_CTX ,indices));
-HXLINE(  71)		bool _hx_tmp;
-HXDLIN(  71)		if (::hx::IsNotNull( textureIds )) {
-HXLINE(  71)			_hx_tmp = (textureIds->length > 0);
+HXLINE(  11)
+HXLINE(  50)		this->_hx___originY = ((Float)0);
+HXLINE(  48)		this->_hx___originX = ((Float)0);
+HXLINE(  46)		this->_hx___width = ((Float)0);
+HXLINE(  44)		this->_hx___height = ((Float)0);
+HXLINE(  42)		this->_hx___angle = ((Float)0);
+HXLINE(  53)		HX_VARI( Float,w) = ((Float)256.0);
+HXLINE(  54)		HX_VARI( Float,h) = ((Float)256.0);
+HXLINE(  55)		HX_VARI( ::Array< Float >,vertices) = ::Array_obj< Float >::__new(20)->init(0,0)->init(1,0)->init(2,0)->init(3,0)->init(4,0)->init(5,0)->init(6,h)->init(7,0)->init(8,0)->init(9,1)->init(10,w)->init(11,h)->init(12,0)->init(13,1)->init(14,1)->init(15,w)->init(16,0)->init(17,0)->init(18,1)->init(19,0);
+HXLINE(  67)		HX_VARI(  ::Vertices,v) =  ::Vertices_obj::__alloc( HX_CTX ,vertices);
+HXLINE(  68)		HX_VARI( ::Array< int >,indices) = ::Array_obj< int >::fromData( _hx_array_data_41cf700f_1,6);
+HXLINE(  70)		super::__construct(programInfo,v, ::Indices_obj::__alloc( HX_CTX ,indices));
+HXLINE(  72)		bool _hx_tmp;
+HXDLIN(  72)		if (::hx::IsNotNull( textureIds )) {
+HXLINE(  72)			_hx_tmp = (textureIds->length > 0);
             		}
             		else {
-HXLINE(  71)			_hx_tmp = false;
+HXLINE(  72)			_hx_tmp = false;
             		}
-HXDLIN(  71)		if (_hx_tmp) {
-HXLINE(  72)			this->textures = textureIds;
+HXDLIN(  72)		if (_hx_tmp) {
+HXLINE(  73)			this->textures = textureIds;
             		}
-HXLINE(  75)		this->_hx___verticesToRender = 4;
-HXLINE(  76)		this->_hx___indicesToRender = 6;
-HXLINE(  79)		this->_hx___width = w;
-HXLINE(  80)		this->_hx___height = h;
+HXLINE(  76)		this->_hx___verticesToRender = 4;
+HXLINE(  77)		this->_hx___indicesToRender = 6;
+HXLINE(  80)		this->_hx___width = w;
+HXLINE(  81)		this->_hx___height = h;
             	}
 
 Dynamic Image_obj::__CreateEmpty() { return new Image_obj; }
@@ -105,230 +105,230 @@ bool Image_obj::_hx_isInstanceOf(int inClassId) {
 }
 
 void Image_obj::centerOrigin(){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_83_centerOrigin)
+            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_84_centerOrigin)
             	HX_STACK_THIS(this)
-HXLINE(  83)
-HXLINE(  85)		this->set_originX((this->_hx___width / ( (Float)(2) )));
-HXLINE(  87)		this->set_originY((this->_hx___height / ( (Float)(2) )));
+HXLINE(  84)
+HXLINE(  86)		this->set_originX((this->_hx___width / ( (Float)(2) )));
+HXLINE(  88)		this->set_originY((this->_hx___height / ( (Float)(2) )));
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC0(Image_obj,centerOrigin,(void))
 
 void Image_obj::setTextures(::Array< int > textures,int width,int height){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_90_setTextures)
+            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_91_setTextures)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(textures,"textures")
             	HX_STACK_ARG(width,"width")
             	HX_STACK_ARG(height,"height")
-HXLINE(  90)
-HXLINE(  92)		if ((textures->length == 0)) {
-HXLINE(  94)			::haxe::Log_obj::trace(HX_("No textures to set!",bb,30,80,ef),::hx::SourceInfo(HX_("src/display/Image.hx",db,55,e7,d4),94,HX_("display.Image",0f,70,cf,41),HX_("setTextures",fa,c0,2f,96)));
-HXLINE(  96)			return;
+HXLINE(  91)
+HXLINE(  93)		if ((textures->length == 0)) {
+HXLINE(  95)			::haxe::Log_obj::trace(HX_("No textures to set!",bb,30,80,ef),::hx::SourceInfo(HX_("src/display/Image.hx",db,55,e7,d4),95,HX_("display.Image",0f,70,cf,41),HX_("setTextures",fa,c0,2f,96)));
+HXLINE(  97)			return;
             		}
             		else {
-HXLINE( 100)			int textures1 = textures->length;
-HXDLIN( 100)			if ((textures1 == this->programInfo->get_textureCount())) {
-HXLINE( 102)				this->textures = textures;
+HXLINE( 101)			int textures1 = textures->length;
+HXDLIN( 101)			if ((textures1 == this->programInfo->get_textureCount())) {
+HXLINE( 103)				this->textures = textures;
             			}
             			else {
-HXLINE( 106)				HX_STACK_DO_THROW(HX_("Invalid number of textures!",8e,25,b5,7e));
+HXLINE( 107)				HX_STACK_DO_THROW(HX_("Invalid number of textures!",8e,25,b5,7e));
             			}
-HXLINE( 111)			this->set_width(( (Float)(width) ));
-HXLINE( 115)			this->set_height(( (Float)(height) ));
+HXLINE( 112)			this->set_width(( (Float)(width) ));
+HXLINE( 116)			this->set_height(( (Float)(height) ));
             		}
-HXLINE( 118)		this->setUV(( (Float)(0) ),( (Float)(0) ),( (Float)(1) ),( (Float)(1) ));
+HXLINE( 119)		this->setUV(( (Float)(0) ),( (Float)(0) ),( (Float)(1) ),( (Float)(1) ));
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC3(Image_obj,setTextures,(void))
 
 void Image_obj::setUV(Float x,Float y,Float width,Float height){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_121_setUV)
+            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_122_setUV)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(x,"x")
             	HX_STACK_ARG(y,"y")
             	HX_STACK_ARG(width,"width")
             	HX_STACK_ARG(height,"height")
-HXLINE( 121)
-HXLINE( 122)		this->vertices->set(3,x);
-HXLINE( 123)		this->vertices->set(8,x);
-HXLINE( 124)		this->vertices->set(13,width);
-HXLINE( 125)		this->vertices->set(18,width);
-HXLINE( 127)		this->vertices->set(4,y);
-HXLINE( 128)		this->vertices->set(9,height);
-HXLINE( 129)		this->vertices->set(14,height);
-HXLINE( 130)		this->vertices->set(19,y);
-HXLINE( 133)		if (this->initialized) {
-HXLINE( 134)			this->updateBuffers();
+HXLINE( 122)
+HXLINE( 123)		this->vertices->set(3,x);
+HXLINE( 124)		this->vertices->set(8,x);
+HXLINE( 125)		this->vertices->set(13,width);
+HXLINE( 126)		this->vertices->set(18,width);
+HXLINE( 128)		this->vertices->set(4,y);
+HXLINE( 129)		this->vertices->set(9,height);
+HXLINE( 130)		this->vertices->set(14,height);
+HXLINE( 131)		this->vertices->set(19,y);
+HXLINE( 134)		if (this->initialized) {
+HXLINE( 135)			this->updateBuffers();
             		}
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC4(Image_obj,setUV,(void))
 
-void Image_obj::render( ::Matrix cameraMatrix){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_138_render)
+void Image_obj::render( ::math::Matrix cameraMatrix){
+            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_139_render)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(cameraMatrix,"cameraMatrix")
-HXLINE( 138)
-HXLINE( 140)		this->matrix->identity();
-HXLINE( 141)		this->matrix->appendScale(this->scaleX,this->scaleY,( (Float)(1) ));
-HXLINE( 142)		this->matrix->appendRotation(this->_hx___angle,::display::Vector4_obj::Z_AXIS);
-HXLINE( 143)		this->matrix->appendTranslation(this->x,this->y,this->z);
-HXLINE( 144)		this->matrix->append(cameraMatrix);
-HXLINE( 146)		this->uniforms->set(HX_("matrix",41,36,c8,bb),this->matrix);
-HXLINE( 147)		this->uniforms->set(HX_("color",63,71,5c,4a),::cpp::VirtualArray_obj::__new(4)->init(0,((Float)1.0))->init(1,((Float)1.0))->init(2,((Float)1.0))->init(3,((Float)1.0)));
-HXLINE( 149)		this->_hx___shouldTransform = false;
+HXLINE( 139)
+HXLINE( 141)		this->matrix->identity();
+HXLINE( 142)		this->matrix->appendScale(this->scaleX,this->scaleY,( (Float)(1) ));
+HXLINE( 143)		this->matrix->appendRotation(this->_hx___angle,::display::Vector4_obj::Z_AXIS);
+HXLINE( 144)		this->matrix->appendTranslation(this->x,this->y,this->z);
+HXLINE( 145)		this->matrix->append(cameraMatrix);
+HXLINE( 147)		this->uniforms->set(HX_("matrix",41,36,c8,bb),this->matrix);
+HXLINE( 148)		this->uniforms->set(HX_("color",63,71,5c,4a),::cpp::VirtualArray_obj::__new(4)->init(0,((Float)1.0))->init(1,((Float)1.0))->init(2,((Float)1.0))->init(3,((Float)1.0)));
+HXLINE( 150)		this->_hx___shouldTransform = false;
             	}
 
 
 Float Image_obj::set_angle(Float value){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_154_set_angle)
+            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_155_set_angle)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(value,"value")
-HXLINE( 154)
-HXLINE( 156)		Float _hx_tmp;
-HXDLIN( 156)		value = ::hx::Mod(value,360);
-HXDLIN( 156)		if ((value >= 0)) {
-HXLINE( 156)			_hx_tmp = value;
+HXLINE( 155)
+HXLINE( 157)		Float _hx_tmp;
+HXDLIN( 157)		value = ::hx::Mod(value,360);
+HXDLIN( 157)		if ((value >= 0)) {
+HXLINE( 157)			_hx_tmp = value;
             		}
             		else {
-HXLINE( 156)			_hx_tmp = (value + 360);
+HXLINE( 157)			_hx_tmp = (value + 360);
             		}
-HXDLIN( 156)		this->_hx___angle = _hx_tmp;
-HXLINE( 158)		this->_hx___shouldTransform = true;
-HXLINE( 160)		return value;
+HXDLIN( 157)		this->_hx___angle = _hx_tmp;
+HXLINE( 159)		this->_hx___shouldTransform = true;
+HXLINE( 161)		return value;
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC1(Image_obj,set_angle,return )
 
 Float Image_obj::set_height(Float value){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_163_set_height)
+            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_164_set_height)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(value,"value")
-HXLINE( 163)
-HXLINE( 164)		 ::Vertices _hx_tmp = this->vertices;
-HXDLIN( 164)		_hx_tmp->set(1,(( (Float)(0) ) - this->get_originY()));
-HXLINE( 165)		 ::Vertices _hx_tmp1 = this->vertices;
-HXDLIN( 165)		Float _hx_tmp2 = (value * this->scaleY);
-HXDLIN( 165)		_hx_tmp1->set(6,(_hx_tmp2 - this->get_originY()));
-HXLINE( 166)		 ::Vertices _hx_tmp3 = this->vertices;
-HXDLIN( 166)		Float _hx_tmp4 = (value * this->scaleY);
-HXDLIN( 166)		_hx_tmp3->set(11,(_hx_tmp4 - this->get_originY()));
-HXLINE( 167)		 ::Vertices _hx_tmp5 = this->vertices;
-HXDLIN( 167)		_hx_tmp5->set(16,(( (Float)(0) ) - this->get_originY()));
-HXLINE( 169)		this->_hx___height = value;
-HXLINE( 170)		this->_hx___shouldTransform = true;
-HXLINE( 173)		if (this->initialized) {
-HXLINE( 174)			this->updateBuffers();
+HXLINE( 164)
+HXLINE( 165)		 ::Vertices _hx_tmp = this->vertices;
+HXDLIN( 165)		_hx_tmp->set(1,(( (Float)(0) ) - this->get_originY()));
+HXLINE( 166)		 ::Vertices _hx_tmp1 = this->vertices;
+HXDLIN( 166)		Float _hx_tmp2 = (value * this->scaleY);
+HXDLIN( 166)		_hx_tmp1->set(6,(_hx_tmp2 - this->get_originY()));
+HXLINE( 167)		 ::Vertices _hx_tmp3 = this->vertices;
+HXDLIN( 167)		Float _hx_tmp4 = (value * this->scaleY);
+HXDLIN( 167)		_hx_tmp3->set(11,(_hx_tmp4 - this->get_originY()));
+HXLINE( 168)		 ::Vertices _hx_tmp5 = this->vertices;
+HXDLIN( 168)		_hx_tmp5->set(16,(( (Float)(0) ) - this->get_originY()));
+HXLINE( 170)		this->_hx___height = value;
+HXLINE( 171)		this->_hx___shouldTransform = true;
+HXLINE( 174)		if (this->initialized) {
+HXLINE( 175)			this->updateBuffers();
             		}
-HXLINE( 177)		return value;
+HXLINE( 178)		return value;
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC1(Image_obj,set_height,return )
 
 Float Image_obj::set_width(Float value){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_180_set_width)
+            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_181_set_width)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(value,"value")
-HXLINE( 180)
-HXLINE( 181)		 ::Vertices _hx_tmp = this->vertices;
-HXDLIN( 181)		_hx_tmp->set(0,(( (Float)(0) ) - this->get_originX()));
-HXLINE( 182)		 ::Vertices _hx_tmp1 = this->vertices;
-HXDLIN( 182)		_hx_tmp1->set(5,(( (Float)(0) ) - this->get_originX()));
-HXLINE( 183)		 ::Vertices _hx_tmp2 = this->vertices;
-HXDLIN( 183)		Float _hx_tmp3 = (value * this->scaleX);
-HXDLIN( 183)		_hx_tmp2->set(10,(_hx_tmp3 - this->get_originX()));
-HXLINE( 184)		 ::Vertices _hx_tmp4 = this->vertices;
-HXDLIN( 184)		Float _hx_tmp5 = (value * this->scaleX);
-HXDLIN( 184)		_hx_tmp4->set(15,(_hx_tmp5 - this->get_originX()));
-HXLINE( 186)		this->_hx___width = value;
-HXLINE( 187)		this->_hx___shouldTransform = true;
-HXLINE( 190)		if (this->initialized) {
-HXLINE( 191)			this->updateBuffers();
+HXLINE( 181)
+HXLINE( 182)		 ::Vertices _hx_tmp = this->vertices;
+HXDLIN( 182)		_hx_tmp->set(0,(( (Float)(0) ) - this->get_originX()));
+HXLINE( 183)		 ::Vertices _hx_tmp1 = this->vertices;
+HXDLIN( 183)		_hx_tmp1->set(5,(( (Float)(0) ) - this->get_originX()));
+HXLINE( 184)		 ::Vertices _hx_tmp2 = this->vertices;
+HXDLIN( 184)		Float _hx_tmp3 = (value * this->scaleX);
+HXDLIN( 184)		_hx_tmp2->set(10,(_hx_tmp3 - this->get_originX()));
+HXLINE( 185)		 ::Vertices _hx_tmp4 = this->vertices;
+HXDLIN( 185)		Float _hx_tmp5 = (value * this->scaleX);
+HXDLIN( 185)		_hx_tmp4->set(15,(_hx_tmp5 - this->get_originX()));
+HXLINE( 187)		this->_hx___width = value;
+HXLINE( 188)		this->_hx___shouldTransform = true;
+HXLINE( 191)		if (this->initialized) {
+HXLINE( 192)			this->updateBuffers();
             		}
-HXLINE( 194)		return value;
+HXLINE( 195)		return value;
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC1(Image_obj,set_width,return )
 
 Float Image_obj::get_height(){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_198_get_height)
+            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_199_get_height)
             	HX_STACK_THIS(this)
-HXLINE( 198)
-HXDLIN( 198)		return this->_hx___height;
+HXLINE( 199)
+HXDLIN( 199)		return this->_hx___height;
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC0(Image_obj,get_height,return )
 
 Float Image_obj::get_width(){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_202_get_width)
+            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_203_get_width)
             	HX_STACK_THIS(this)
-HXLINE( 202)
-HXDLIN( 202)		return this->_hx___width;
+HXLINE( 203)
+HXDLIN( 203)		return this->_hx___width;
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC0(Image_obj,get_width,return )
 
 Float Image_obj::get_originX(){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_206_get_originX)
+            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_207_get_originX)
             	HX_STACK_THIS(this)
-HXLINE( 206)
-HXDLIN( 206)		return this->_hx___originX;
+HXLINE( 207)
+HXDLIN( 207)		return this->_hx___originX;
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC0(Image_obj,get_originX,return )
 
 Float Image_obj::set_originX(Float value){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_209_set_originX)
+            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_210_set_originX)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(value,"value")
-HXLINE( 209)
-HXLINE( 210)		this->_hx___originX = value;
-HXLINE( 211)		this->_hx___shouldTransform = true;
-HXLINE( 212)		this->set_width(this->_hx___width);
-HXLINE( 213)		return this->_hx___originX;
+HXLINE( 210)
+HXLINE( 211)		this->_hx___originX = value;
+HXLINE( 212)		this->_hx___shouldTransform = true;
+HXLINE( 213)		this->set_width(this->_hx___width);
+HXLINE( 214)		return this->_hx___originX;
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC1(Image_obj,set_originX,return )
 
 Float Image_obj::get_originY(){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_217_get_originY)
+            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_218_get_originY)
             	HX_STACK_THIS(this)
-HXLINE( 217)
-HXDLIN( 217)		return this->_hx___originY;
+HXLINE( 218)
+HXDLIN( 218)		return this->_hx___originY;
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC0(Image_obj,get_originY,return )
 
 Float Image_obj::set_originY(Float value){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_220_set_originY)
+            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_221_set_originY)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(value,"value")
-HXLINE( 220)
-HXLINE( 221)		this->_hx___originY = value;
-HXLINE( 222)		this->_hx___shouldTransform = true;
-HXLINE( 223)		this->set_height(this->_hx___height);
-HXLINE( 224)		return this->_hx___originY;
+HXLINE( 221)
+HXLINE( 222)		this->_hx___originY = value;
+HXLINE( 223)		this->_hx___shouldTransform = true;
+HXLINE( 224)		this->set_height(this->_hx___height);
+HXLINE( 225)		return this->_hx___originY;
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC1(Image_obj,set_originY,return )
 
 Float Image_obj::get_angle(){
-            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_229_get_angle)
+            	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_230_get_angle)
             	HX_STACK_THIS(this)
-HXLINE( 229)
-HXDLIN( 229)		return this->_hx___angle;
+HXLINE( 230)
+HXDLIN( 230)		return this->_hx___angle;
             	}
 
 

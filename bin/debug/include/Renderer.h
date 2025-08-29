@@ -7,6 +7,7 @@
 #endif
 
 HX_DECLARE_CLASS0(App)
+HX_DECLARE_CLASS0(Camera)
 HX_DECLARE_CLASS0(DisplayObject)
 HX_DECLARE_CLASS0(ProgramInfo)
 HX_DECLARE_CLASS0(Renderer)
@@ -54,6 +55,9 @@ class HXCPP_CLASS_ATTRIBUTES Renderer_obj : public ::hx::Object
 		unsigned int shaderProgram;
 		unsigned int vbo;
 		unsigned int vao;
+		 ::Camera camera;
+		int windowWidth;
+		int windowHeight;
 		 ::display::Triangle testTriangle;
 		 ::ProgramInfo triangleProgram;
 		 ::display::Rectangle testRectangle;

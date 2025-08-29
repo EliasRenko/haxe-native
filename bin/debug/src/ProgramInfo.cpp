@@ -24,27 +24,27 @@ HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_96_addAttributeAuto,"ProgramInfo",
 HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_117_finalizeVertexLayout,"ProgramInfo","finalizeVertexLayout",0xd09908e8,"ProgramInfo.finalizeVertexLayout","ProgramInfo.hx",117,0x05be0d0c)
 HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_110_finalizeVertexLayout,"ProgramInfo","finalizeVertexLayout",0xd09908e8,"ProgramInfo.finalizeVertexLayout","ProgramInfo.hx",110,0x05be0d0c)
 HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_140_setupVertexAttributes,"ProgramInfo","setupVertexAttributes",0x9c073d7c,"ProgramInfo.setupVertexAttributes","ProgramInfo.hx",140,0x05be0d0c)
-HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_162_setUniformFloat,"ProgramInfo","setUniformFloat",0xd2feab0e,"ProgramInfo.setUniformFloat","ProgramInfo.hx",162,0x05be0d0c)
-HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_191_setUniformMatrix4,"ProgramInfo","setUniformMatrix4",0x39a8e8c5,"ProgramInfo.setUniformMatrix4","ProgramInfo.hx",191,0x05be0d0c)
-HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_248_printVertexLayout,"ProgramInfo","printVertexLayout",0x729f3e7f,"ProgramInfo.printVertexLayout","ProgramInfo.hx",248,0x05be0d0c)
-HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_269_getFormatName,"ProgramInfo","getFormatName",0x8174c8dc,"ProgramInfo.getFormatName","ProgramInfo.hx",269,0x05be0d0c)
-HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_282_getFormatSize,"ProgramInfo","getFormatSize",0x84c8f752,"ProgramInfo.getFormatSize","ProgramInfo.hx",282,0x05be0d0c)
-HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_294_calculateCurrentOffset,"ProgramInfo","calculateCurrentOffset",0xf74d0362,"ProgramInfo.calculateCurrentOffset","ProgramInfo.hx",294,0x05be0d0c)
-HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_303_addUniform,"ProgramInfo","addUniform",0x36e87b0f,"ProgramInfo.addUniform","ProgramInfo.hx",303,0x05be0d0c)
-HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_307_addTexture,"ProgramInfo","addTexture",0x206502b6,"ProgramInfo.addTexture","ProgramInfo.hx",307,0x05be0d0c)
-HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_311_compile,"ProgramInfo","compile",0x7d5ec1f7,"ProgramInfo.compile","ProgramInfo.hx",311,0x05be0d0c)
-HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_383_introspectProgram,"ProgramInfo","introspectProgram",0x1c46df9b,"ProgramInfo.introspectProgram","ProgramInfo.hx",383,0x05be0d0c)
-HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_405_introspectAttributes,"ProgramInfo","introspectAttributes",0x69431c20,"ProgramInfo.introspectAttributes","ProgramInfo.hx",405,0x05be0d0c)
-HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_450_introspectUniforms,"ProgramInfo","introspectUniforms",0x1de9abc8,"ProgramInfo.introspectUniforms","ProgramInfo.hx",450,0x05be0d0c)
-HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_494_getComponentCount,"ProgramInfo","getComponentCount",0x62978f8c,"ProgramInfo.getComponentCount","ProgramInfo.hx",494,0x05be0d0c)
-HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_509_convertGLTypeToUniformFormat,"ProgramInfo","convertGLTypeToUniformFormat",0x6e17b07a,"ProgramInfo.convertGLTypeToUniformFormat","ProgramInfo.hx",509,0x05be0d0c)
-HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_524_checkShaderCompilation,"ProgramInfo","checkShaderCompilation",0x3b2fc5b2,"ProgramInfo.checkShaderCompilation","ProgramInfo.hx",524,0x05be0d0c)
-HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_530_checkProgramLinking,"ProgramInfo","checkProgramLinking",0x6741f070,"ProgramInfo.checkProgramLinking","ProgramInfo.hx",530,0x05be0d0c)
-HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_535_getDefaultVertexShader,"ProgramInfo","getDefaultVertexShader",0xaa7af910,"ProgramInfo.getDefaultVertexShader","ProgramInfo.hx",535,0x05be0d0c)
-HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_554_getDefaultFragmentShader,"ProgramInfo","getDefaultFragmentShader",0xf88f7e3c,"ProgramInfo.getDefaultFragmentShader","ProgramInfo.hx",554,0x05be0d0c)
-HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_570_dispose,"ProgramInfo","dispose",0xb53c1d23,"ProgramInfo.dispose","ProgramInfo.hx",570,0x05be0d0c)
-HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_583_get_name,"ProgramInfo","get_name",0x807384d0,"ProgramInfo.get_name","ProgramInfo.hx",583,0x05be0d0c)
-HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_587_get_textureCount,"ProgramInfo","get_textureCount",0x9f449179,"ProgramInfo.get_textureCount","ProgramInfo.hx",587,0x05be0d0c)
+HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_165_setUniformFloat,"ProgramInfo","setUniformFloat",0xd2feab0e,"ProgramInfo.setUniformFloat","ProgramInfo.hx",165,0x05be0d0c)
+HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_194_setUniformMatrix4,"ProgramInfo","setUniformMatrix4",0x39a8e8c5,"ProgramInfo.setUniformMatrix4","ProgramInfo.hx",194,0x05be0d0c)
+HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_251_printVertexLayout,"ProgramInfo","printVertexLayout",0x729f3e7f,"ProgramInfo.printVertexLayout","ProgramInfo.hx",251,0x05be0d0c)
+HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_272_getFormatName,"ProgramInfo","getFormatName",0x8174c8dc,"ProgramInfo.getFormatName","ProgramInfo.hx",272,0x05be0d0c)
+HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_285_getFormatSize,"ProgramInfo","getFormatSize",0x84c8f752,"ProgramInfo.getFormatSize","ProgramInfo.hx",285,0x05be0d0c)
+HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_297_calculateCurrentOffset,"ProgramInfo","calculateCurrentOffset",0xf74d0362,"ProgramInfo.calculateCurrentOffset","ProgramInfo.hx",297,0x05be0d0c)
+HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_306_addUniform,"ProgramInfo","addUniform",0x36e87b0f,"ProgramInfo.addUniform","ProgramInfo.hx",306,0x05be0d0c)
+HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_310_addTexture,"ProgramInfo","addTexture",0x206502b6,"ProgramInfo.addTexture","ProgramInfo.hx",310,0x05be0d0c)
+HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_314_compile,"ProgramInfo","compile",0x7d5ec1f7,"ProgramInfo.compile","ProgramInfo.hx",314,0x05be0d0c)
+HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_386_introspectProgram,"ProgramInfo","introspectProgram",0x1c46df9b,"ProgramInfo.introspectProgram","ProgramInfo.hx",386,0x05be0d0c)
+HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_408_introspectAttributes,"ProgramInfo","introspectAttributes",0x69431c20,"ProgramInfo.introspectAttributes","ProgramInfo.hx",408,0x05be0d0c)
+HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_453_introspectUniforms,"ProgramInfo","introspectUniforms",0x1de9abc8,"ProgramInfo.introspectUniforms","ProgramInfo.hx",453,0x05be0d0c)
+HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_497_getComponentCount,"ProgramInfo","getComponentCount",0x62978f8c,"ProgramInfo.getComponentCount","ProgramInfo.hx",497,0x05be0d0c)
+HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_512_convertGLTypeToUniformFormat,"ProgramInfo","convertGLTypeToUniformFormat",0x6e17b07a,"ProgramInfo.convertGLTypeToUniformFormat","ProgramInfo.hx",512,0x05be0d0c)
+HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_527_checkShaderCompilation,"ProgramInfo","checkShaderCompilation",0x3b2fc5b2,"ProgramInfo.checkShaderCompilation","ProgramInfo.hx",527,0x05be0d0c)
+HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_533_checkProgramLinking,"ProgramInfo","checkProgramLinking",0x6741f070,"ProgramInfo.checkProgramLinking","ProgramInfo.hx",533,0x05be0d0c)
+HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_538_getDefaultVertexShader,"ProgramInfo","getDefaultVertexShader",0xaa7af910,"ProgramInfo.getDefaultVertexShader","ProgramInfo.hx",538,0x05be0d0c)
+HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_557_getDefaultFragmentShader,"ProgramInfo","getDefaultFragmentShader",0xf88f7e3c,"ProgramInfo.getDefaultFragmentShader","ProgramInfo.hx",557,0x05be0d0c)
+HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_573_dispose,"ProgramInfo","dispose",0xb53c1d23,"ProgramInfo.dispose","ProgramInfo.hx",573,0x05be0d0c)
+HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_586_get_name,"ProgramInfo","get_name",0x807384d0,"ProgramInfo.get_name","ProgramInfo.hx",586,0x05be0d0c)
+HX_LOCAL_STACK_FRAME(_hx_pos_95d8fdb7263ecd3b_590_get_textureCount,"ProgramInfo","get_textureCount",0x9f449179,"ProgramInfo.get_textureCount","ProgramInfo.hx",590,0x05be0d0c)
 
 void ProgramInfo_obj::__construct(::String name,::String vertexSource,::String fragmentSource){
             	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_37_new)
@@ -197,14 +197,16 @@ HXLINE( 140)
 HXLINE( 141)		if (!(this->isCompiled)) {
 HXLINE( 142)			::haxe::Log_obj::trace(HX_("Warning: Program not compiled yet, attributes may not be bound correctly",91,40,d5,e1),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),142,HX_("ProgramInfo",f2,d8,11,a1),HX_("setupVertexAttributes",f8,41,c0,96)));
             		}
-HXLINE( 145)		{
-HXLINE( 145)			int _g = 0;
-HXDLIN( 145)			::Array< ::Dynamic> _g1 = this->attributes;
-HXDLIN( 145)			while((_g < _g1->length)){
-HXLINE( 145)				HX_VARI(  ::Dynamic,attr) = _g1->__get(_g);
-HXDLIN( 145)				_g = (_g + 1);
-HXLINE( 147)				glEnableVertexAttribArray(( (unsigned int)(attr->__Field(HX_("location",35,6e,46,e5),::hx::paccDynamic)) ));
-HXLINE( 151)				glVertexAttribPointer(attr->__Field(HX_("location",35,6e,46,e5),::hx::paccDynamic), attr->__Field(HX_("size",c1,a0,53,4c),::hx::paccDynamic), attr->__Field(HX_("format",37,8f,8e,fd),::hx::paccDynamic), GL_FALSE, attr->__Field(HX_("stride",19,20,30,11),::hx::paccDynamic), (void*)(intptr_t)attr->__Field(HX_("offset",93,97,3f,60),::hx::paccDynamic));
+HXLINE( 145)		::haxe::Log_obj::trace(((HX_("Setting up ",b5,7e,12,93) + this->attributes->length) + HX_(" vertex attributes:",e7,b0,e7,9f)),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),145,HX_("ProgramInfo",f2,d8,11,a1),HX_("setupVertexAttributes",f8,41,c0,96)));
+HXLINE( 146)		{
+HXLINE( 146)			int _g = 0;
+HXDLIN( 146)			::Array< ::Dynamic> _g1 = this->attributes;
+HXDLIN( 146)			while((_g < _g1->length)){
+HXLINE( 146)				HX_VARI(  ::Dynamic,attr) = _g1->__get(_g);
+HXDLIN( 146)				_g = (_g + 1);
+HXLINE( 147)				::haxe::Log_obj::trace( ::Dynamic((((((((((HX_("  ",00,1c,00,00) + attr->__Field(HX_("name",4b,72,ff,48),::hx::paccDynamic)) + HX_(": location=",02,49,0d,f4)) + attr->__Field(HX_("location",35,6e,46,e5),::hx::paccDynamic)) + HX_(", size=",68,fd,f4,6d)) + attr->__Field(HX_("size",c1,a0,53,4c),::hx::paccDynamic)) + HX_(", stride=",10,46,b8,60)) + attr->__Field(HX_("stride",19,20,30,11),::hx::paccDynamic)) + HX_(", offset=",56,59,31,3f)) + attr->__Field(HX_("offset",93,97,3f,60),::hx::paccDynamic))),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),147,HX_("ProgramInfo",f2,d8,11,a1),HX_("setupVertexAttributes",f8,41,c0,96)));
+HXLINE( 150)				glEnableVertexAttribArray(( (unsigned int)(attr->__Field(HX_("location",35,6e,46,e5),::hx::paccDynamic)) ));
+HXLINE( 154)				glVertexAttribPointer(attr->__Field(HX_("location",35,6e,46,e5),::hx::paccDynamic), attr->__Field(HX_("size",c1,a0,53,4c),::hx::paccDynamic), attr->__Field(HX_("format",37,8f,8e,fd),::hx::paccDynamic), GL_FALSE, attr->__Field(HX_("stride",19,20,30,11),::hx::paccDynamic), (void*)(intptr_t)attr->__Field(HX_("offset",93,97,3f,60),::hx::paccDynamic));
             			}
             		}
             	}
@@ -213,39 +215,39 @@ HXLINE( 151)				glVertexAttribPointer(attr->__Field(HX_("location",35,6e,46,e5),
 HX_DEFINE_DYNAMIC_FUNC0(ProgramInfo_obj,setupVertexAttributes,(void))
 
 void ProgramInfo_obj::setUniformFloat(::String name,Float value){
-            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_162_setUniformFloat)
+            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_165_setUniformFloat)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(name,"name")
             	HX_STACK_ARG(value,"value")
-HXLINE( 162)
-HXLINE( 163)		if (!(this->isCompiled)) {
-HXLINE( 164)			::haxe::Log_obj::trace((HX_("Warning: Program not compiled, cannot set uniform: ",cf,6a,7b,1d) + name),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),164,HX_("ProgramInfo",f2,d8,11,a1),HX_("setUniformFloat",8a,ea,98,f1)));
-HXLINE( 165)			return;
+HXLINE( 165)
+HXLINE( 166)		if (!(this->isCompiled)) {
+HXLINE( 167)			::haxe::Log_obj::trace((HX_("Warning: Program not compiled, cannot set uniform: ",cf,6a,7b,1d) + name),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),167,HX_("ProgramInfo",f2,d8,11,a1),HX_("setUniformFloat",8a,ea,98,f1)));
+HXLINE( 168)			return;
             		}
-HXLINE( 169)		{
-HXLINE( 169)			int _g = 0;
-HXDLIN( 169)			::Array< ::Dynamic> _g1 = this->uniforms;
-HXDLIN( 169)			while((_g < _g1->length)){
-HXLINE( 169)				HX_VARI(  ::Dynamic,uniform) = _g1->__get(_g);
-HXDLIN( 169)				_g = (_g + 1);
-HXLINE( 170)				if (::hx::IsEq( uniform->__Field(HX_("name",4b,72,ff,48),::hx::paccDynamic),name )) {
-HXLINE( 171)					if (::hx::IsPointerEq( uniform->__Field(HX_("format",37,8f,8e,fd),::hx::paccDynamic),::UniformFormat_obj::_hx_Float_dyn() )) {
-HXLINE( 172)						glUniform1f(( (int)(uniform->__Field(HX_("location",35,6e,46,e5),::hx::paccDynamic)) ),value);
-HXLINE( 173)						return;
+HXLINE( 172)		{
+HXLINE( 172)			int _g = 0;
+HXDLIN( 172)			::Array< ::Dynamic> _g1 = this->uniforms;
+HXDLIN( 172)			while((_g < _g1->length)){
+HXLINE( 172)				HX_VARI(  ::Dynamic,uniform) = _g1->__get(_g);
+HXDLIN( 172)				_g = (_g + 1);
+HXLINE( 173)				if (::hx::IsEq( uniform->__Field(HX_("name",4b,72,ff,48),::hx::paccDynamic),name )) {
+HXLINE( 174)					if (::hx::IsPointerEq( uniform->__Field(HX_("format",37,8f,8e,fd),::hx::paccDynamic),::UniformFormat_obj::_hx_Float_dyn() )) {
+HXLINE( 175)						glUniform1f(( (int)(uniform->__Field(HX_("location",35,6e,46,e5),::hx::paccDynamic)) ),value);
+HXLINE( 176)						return;
             					}
             					else {
-HXLINE( 175)						::haxe::Log_obj::trace(((HX_("Warning: Uniform '",f9,29,20,c1) + name) + HX_("' is not a float uniform",47,2b,f7,43)),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),175,HX_("ProgramInfo",f2,d8,11,a1),HX_("setUniformFloat",8a,ea,98,f1)));
-HXLINE( 176)						return;
+HXLINE( 178)						::haxe::Log_obj::trace(((HX_("Warning: Uniform '",f9,29,20,c1) + name) + HX_("' is not a float uniform",47,2b,f7,43)),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),178,HX_("ProgramInfo",f2,d8,11,a1),HX_("setUniformFloat",8a,ea,98,f1)));
+HXLINE( 179)						return;
             					}
             				}
             			}
             		}
-HXLINE( 182)		HX_VARI( int,location) = glGetUniformLocation(this->program,name.utf8_str());
-HXLINE( 183)		if ((location != -1)) {
-HXLINE( 184)			glUniform1f(location,value);
+HXLINE( 185)		HX_VARI( int,location) = glGetUniformLocation(this->program,name.utf8_str());
+HXLINE( 186)		if ((location != -1)) {
+HXLINE( 187)			glUniform1f(location,value);
             		}
             		else {
-HXLINE( 186)			::haxe::Log_obj::trace(((HX_("Warning: Uniform '",f9,29,20,c1) + name) + HX_("' not found in shader",1c,9b,79,6e)),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),186,HX_("ProgramInfo",f2,d8,11,a1),HX_("setUniformFloat",8a,ea,98,f1)));
+HXLINE( 189)			::haxe::Log_obj::trace(((HX_("Warning: Uniform '",f9,29,20,c1) + name) + HX_("' not found in shader",1c,9b,79,6e)),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),189,HX_("ProgramInfo",f2,d8,11,a1),HX_("setUniformFloat",8a,ea,98,f1)));
             		}
             	}
 
@@ -253,80 +255,80 @@ HXLINE( 186)			::haxe::Log_obj::trace(((HX_("Warning: Uniform '",f9,29,20,c1) + 
 HX_DEFINE_DYNAMIC_FUNC2(ProgramInfo_obj,setUniformFloat,(void))
 
 void ProgramInfo_obj::setUniformMatrix4(::String name,::Array< Float > matrix){
-            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_191_setUniformMatrix4)
+            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_194_setUniformMatrix4)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(name,"name")
             	HX_STACK_ARG(matrix,"matrix")
-HXLINE( 191)
-HXLINE( 192)		if (!(this->isCompiled)) {
-HXLINE( 193)			::haxe::Log_obj::trace((HX_("Warning: Program not compiled, cannot set uniform: ",cf,6a,7b,1d) + name),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),193,HX_("ProgramInfo",f2,d8,11,a1),HX_("setUniformMatrix4",41,ff,ee,e2)));
-HXLINE( 194)			return;
+HXLINE( 194)
+HXLINE( 195)		if (!(this->isCompiled)) {
+HXLINE( 196)			::haxe::Log_obj::trace((HX_("Warning: Program not compiled, cannot set uniform: ",cf,6a,7b,1d) + name),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),196,HX_("ProgramInfo",f2,d8,11,a1),HX_("setUniformMatrix4",41,ff,ee,e2)));
+HXLINE( 197)			return;
             		}
-HXLINE( 198)		{
-HXLINE( 198)			int _g = 0;
-HXDLIN( 198)			::Array< ::Dynamic> _g1 = this->uniforms;
-HXDLIN( 198)			while((_g < _g1->length)){
-HXLINE( 198)				HX_VARI(  ::Dynamic,uniform) = _g1->__get(_g);
-HXDLIN( 198)				_g = (_g + 1);
-HXLINE( 199)				if (::hx::IsEq( uniform->__Field(HX_("name",4b,72,ff,48),::hx::paccDynamic),name )) {
-HXLINE( 200)					if (::hx::IsPointerEq( uniform->__Field(HX_("format",37,8f,8e,fd),::hx::paccDynamic),::UniformFormat_obj::Mat4_dyn() )) {
-HXLINE( 203)						HX_VARI( ::Array< Float >,matrixData) = ::Array_obj< Float >::__new();
-HXLINE( 204)						{
-HXLINE( 205)							matrixData[0] = matrix->__get(0);
-HXDLIN( 205)							matrixData[1] = matrix->__get(1);
-HXDLIN( 205)							matrixData[2] = matrix->__get(2);
-HXDLIN( 205)							matrixData[3] = matrix->__get(3);
-HXDLIN( 205)							matrixData[4] = matrix->__get(4);
-HXDLIN( 205)							matrixData[5] = matrix->__get(5);
-HXDLIN( 205)							matrixData[6] = matrix->__get(6);
-HXDLIN( 205)							matrixData[7] = matrix->__get(7);
-HXDLIN( 205)							matrixData[8] = matrix->__get(8);
-HXDLIN( 205)							matrixData[9] = matrix->__get(9);
-HXDLIN( 205)							matrixData[10] = matrix->__get(10);
-HXDLIN( 205)							matrixData[11] = matrix->__get(11);
-HXDLIN( 205)							matrixData[12] = matrix->__get(12);
-HXDLIN( 205)							matrixData[13] = matrix->__get(13);
-HXDLIN( 205)							matrixData[14] = matrix->__get(14);
-HXDLIN( 205)							matrixData[15] = matrix->__get(15);
+HXLINE( 201)		{
+HXLINE( 201)			int _g = 0;
+HXDLIN( 201)			::Array< ::Dynamic> _g1 = this->uniforms;
+HXDLIN( 201)			while((_g < _g1->length)){
+HXLINE( 201)				HX_VARI(  ::Dynamic,uniform) = _g1->__get(_g);
+HXDLIN( 201)				_g = (_g + 1);
+HXLINE( 202)				if (::hx::IsEq( uniform->__Field(HX_("name",4b,72,ff,48),::hx::paccDynamic),name )) {
+HXLINE( 203)					if (::hx::IsPointerEq( uniform->__Field(HX_("format",37,8f,8e,fd),::hx::paccDynamic),::UniformFormat_obj::Mat4_dyn() )) {
+HXLINE( 206)						HX_VARI( ::Array< Float >,matrixData) = ::Array_obj< Float >::__new();
+HXLINE( 207)						{
+HXLINE( 208)							matrixData[0] = matrix->__get(0);
+HXDLIN( 208)							matrixData[1] = matrix->__get(1);
+HXDLIN( 208)							matrixData[2] = matrix->__get(2);
+HXDLIN( 208)							matrixData[3] = matrix->__get(3);
+HXDLIN( 208)							matrixData[4] = matrix->__get(4);
+HXDLIN( 208)							matrixData[5] = matrix->__get(5);
+HXDLIN( 208)							matrixData[6] = matrix->__get(6);
+HXDLIN( 208)							matrixData[7] = matrix->__get(7);
+HXDLIN( 208)							matrixData[8] = matrix->__get(8);
+HXDLIN( 208)							matrixData[9] = matrix->__get(9);
+HXDLIN( 208)							matrixData[10] = matrix->__get(10);
+HXDLIN( 208)							matrixData[11] = matrix->__get(11);
+HXDLIN( 208)							matrixData[12] = matrix->__get(12);
+HXDLIN( 208)							matrixData[13] = matrix->__get(13);
+HXDLIN( 208)							matrixData[14] = matrix->__get(14);
+HXDLIN( 208)							matrixData[15] = matrix->__get(15);
             						}
-HXLINE( 210)						
+HXLINE( 213)						
 						float matData[16];
 						for(int i = 0; i < 16; i++) {
 							matData[i] = matrixData[i];
 						}
 						glUniformMatrix4fv(uniform->__Field(HX_("location",35,6e,46,e5),::hx::paccDynamic), 1, GL_FALSE, matData);
 					;
-HXLINE( 217)						return;
+HXLINE( 220)						return;
             					}
             					else {
-HXLINE( 219)						::haxe::Log_obj::trace(((HX_("Warning: Uniform '",f9,29,20,c1) + name) + HX_("' is not a Mat4 uniform",11,c2,ab,8e)),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),219,HX_("ProgramInfo",f2,d8,11,a1),HX_("setUniformMatrix4",41,ff,ee,e2)));
-HXLINE( 220)						return;
+HXLINE( 222)						::haxe::Log_obj::trace(((HX_("Warning: Uniform '",f9,29,20,c1) + name) + HX_("' is not a Mat4 uniform",11,c2,ab,8e)),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),222,HX_("ProgramInfo",f2,d8,11,a1),HX_("setUniformMatrix4",41,ff,ee,e2)));
+HXLINE( 223)						return;
             					}
             				}
             			}
             		}
-HXLINE( 226)		HX_VARI( int,location) = glGetUniformLocation(this->program,name.utf8_str());
-HXLINE( 227)		if ((location != -1)) {
-HXLINE( 229)			HX_VARI_NAME( ::Array< Float >,matrixData1,"matrixData") = ::Array_obj< Float >::__new();
-HXLINE( 230)			{
-HXLINE( 231)				matrixData1[0] = matrix->__get(0);
-HXDLIN( 231)				matrixData1[1] = matrix->__get(1);
-HXDLIN( 231)				matrixData1[2] = matrix->__get(2);
-HXDLIN( 231)				matrixData1[3] = matrix->__get(3);
-HXDLIN( 231)				matrixData1[4] = matrix->__get(4);
-HXDLIN( 231)				matrixData1[5] = matrix->__get(5);
-HXDLIN( 231)				matrixData1[6] = matrix->__get(6);
-HXDLIN( 231)				matrixData1[7] = matrix->__get(7);
-HXDLIN( 231)				matrixData1[8] = matrix->__get(8);
-HXDLIN( 231)				matrixData1[9] = matrix->__get(9);
-HXDLIN( 231)				matrixData1[10] = matrix->__get(10);
-HXDLIN( 231)				matrixData1[11] = matrix->__get(11);
-HXDLIN( 231)				matrixData1[12] = matrix->__get(12);
-HXDLIN( 231)				matrixData1[13] = matrix->__get(13);
-HXDLIN( 231)				matrixData1[14] = matrix->__get(14);
-HXDLIN( 231)				matrixData1[15] = matrix->__get(15);
+HXLINE( 229)		HX_VARI( int,location) = glGetUniformLocation(this->program,name.utf8_str());
+HXLINE( 230)		if ((location != -1)) {
+HXLINE( 232)			HX_VARI_NAME( ::Array< Float >,matrixData1,"matrixData") = ::Array_obj< Float >::__new();
+HXLINE( 233)			{
+HXLINE( 234)				matrixData1[0] = matrix->__get(0);
+HXDLIN( 234)				matrixData1[1] = matrix->__get(1);
+HXDLIN( 234)				matrixData1[2] = matrix->__get(2);
+HXDLIN( 234)				matrixData1[3] = matrix->__get(3);
+HXDLIN( 234)				matrixData1[4] = matrix->__get(4);
+HXDLIN( 234)				matrixData1[5] = matrix->__get(5);
+HXDLIN( 234)				matrixData1[6] = matrix->__get(6);
+HXDLIN( 234)				matrixData1[7] = matrix->__get(7);
+HXDLIN( 234)				matrixData1[8] = matrix->__get(8);
+HXDLIN( 234)				matrixData1[9] = matrix->__get(9);
+HXDLIN( 234)				matrixData1[10] = matrix->__get(10);
+HXDLIN( 234)				matrixData1[11] = matrix->__get(11);
+HXDLIN( 234)				matrixData1[12] = matrix->__get(12);
+HXDLIN( 234)				matrixData1[13] = matrix->__get(13);
+HXDLIN( 234)				matrixData1[14] = matrix->__get(14);
+HXDLIN( 234)				matrixData1[15] = matrix->__get(15);
             			}
-HXLINE( 235)			
+HXLINE( 238)			
 				float matData[16];
 				for(int i = 0; i < 16; i++) {
 					matData[i] = matrixData1[i];
@@ -335,7 +337,7 @@ HXLINE( 235)
 			;
             		}
             		else {
-HXLINE( 243)			::haxe::Log_obj::trace(((HX_("Warning: Uniform '",f9,29,20,c1) + name) + HX_("' not found in shader",1c,9b,79,6e)),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),243,HX_("ProgramInfo",f2,d8,11,a1),HX_("setUniformMatrix4",41,ff,ee,e2)));
+HXLINE( 246)			::haxe::Log_obj::trace(((HX_("Warning: Uniform '",f9,29,20,c1) + name) + HX_("' not found in shader",1c,9b,79,6e)),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),246,HX_("ProgramInfo",f2,d8,11,a1),HX_("setUniformMatrix4",41,ff,ee,e2)));
             		}
             	}
 
@@ -343,166 +345,166 @@ HXLINE( 243)			::haxe::Log_obj::trace(((HX_("Warning: Uniform '",f9,29,20,c1) + 
 HX_DEFINE_DYNAMIC_FUNC2(ProgramInfo_obj,setUniformMatrix4,(void))
 
 void ProgramInfo_obj::printVertexLayout(){
-            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_248_printVertexLayout)
+            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_251_printVertexLayout)
             	HX_STACK_THIS(this)
-HXLINE( 248)
-HXLINE( 249)		 ::Dynamic _hx_tmp = ::haxe::Log_obj::trace;
-HXDLIN( 249)		::String _hx_tmp1 = ((HX_("=== Vertex Layout for ",d4,92,63,9c) + this->get_name()) + HX_(" ===",bd,52,55,15));
-HXDLIN( 249)		_hx_tmp(_hx_tmp1,::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),249,HX_("ProgramInfo",f2,d8,11,a1),HX_("printVertexLayout",fb,54,e5,1b)));
-HXLINE( 250)		 ::Dynamic _hx_tmp2 = ::haxe::Log_obj::trace;
-HXDLIN( 250)		int _hx_int = this->dataPerVertex;
-HXDLIN( 250)		Float _hx_tmp3;
-HXDLIN( 250)		if ((_hx_int < 0)) {
-HXLINE( 250)			_hx_tmp3 = (((Float)4294967296.0) + _hx_int);
+HXLINE( 251)
+HXLINE( 252)		 ::Dynamic _hx_tmp = ::haxe::Log_obj::trace;
+HXDLIN( 252)		::String _hx_tmp1 = ((HX_("=== Vertex Layout for ",d4,92,63,9c) + this->get_name()) + HX_(" ===",bd,52,55,15));
+HXDLIN( 252)		_hx_tmp(_hx_tmp1,::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),252,HX_("ProgramInfo",f2,d8,11,a1),HX_("printVertexLayout",fb,54,e5,1b)));
+HXLINE( 253)		 ::Dynamic _hx_tmp2 = ::haxe::Log_obj::trace;
+HXDLIN( 253)		int _hx_int = this->dataPerVertex;
+HXDLIN( 253)		Float _hx_tmp3;
+HXDLIN( 253)		if ((_hx_int < 0)) {
+HXLINE( 253)			_hx_tmp3 = (((Float)4294967296.0) + _hx_int);
             		}
             		else {
-HXLINE( 250)			_hx_tmp3 = (_hx_int + ((Float)0.0));
+HXLINE( 253)			_hx_tmp3 = (_hx_int + ((Float)0.0));
             		}
-HXDLIN( 250)		::String _hx_tmp4 = ((HX_("Total vertex size: ",67,fd,d6,39) + ::Std_obj::string(_hx_tmp3)) + HX_(" bytes",4b,94,03,89));
-HXDLIN( 250)		_hx_tmp2(_hx_tmp4,::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),250,HX_("ProgramInfo",f2,d8,11,a1),HX_("printVertexLayout",fb,54,e5,1b)));
-HXLINE( 251)		::haxe::Log_obj::trace(HX_("Attributes:",63,ab,34,d0),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),251,HX_("ProgramInfo",f2,d8,11,a1),HX_("printVertexLayout",fb,54,e5,1b)));
-HXLINE( 253)		{
-HXLINE( 253)			int _g = 0;
-HXDLIN( 253)			int _g1 = this->attributes->length;
-HXDLIN( 253)			while((_g < _g1)){
-HXLINE( 253)				_g = (_g + 1);
-HXDLIN( 253)				HX_VARI( int,i) = (_g - 1);
-HXLINE( 254)				HX_VARI(  ::Dynamic,attr) = this->attributes->__get(i);
-HXLINE( 255)				HX_VARI( ::String,formatName) = this->getFormatName(( (int)(attr->__Field(HX_("format",37,8f,8e,fd),::hx::paccDynamic)) ));
-HXLINE( 256)				int attr1 = ( (int)(attr->__Field(HX_("size",c1,a0,53,4c),::hx::paccDynamic)) );
-HXDLIN( 256)				HX_VARI( int,sizeInBytes) = (attr1 * this->getFormatSize(( (int)(attr->__Field(HX_("format",37,8f,8e,fd),::hx::paccDynamic)) )));
-HXLINE( 258)				::haxe::Log_obj::trace( ::Dynamic(((((HX_("  [",5b,64,18,00) + i) + HX_("] ",23,51,00,00)) + attr->__Field(HX_("name",4b,72,ff,48),::hx::paccDynamic)) + HX_(":",3a,00,00,00))),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),258,HX_("ProgramInfo",f2,d8,11,a1),HX_("printVertexLayout",fb,54,e5,1b)));
-HXLINE( 259)				::haxe::Log_obj::trace( ::Dynamic((HX_("      Location: ",3b,b0,05,74) + attr->__Field(HX_("location",35,6e,46,e5),::hx::paccDynamic))),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),259,HX_("ProgramInfo",f2,d8,11,a1),HX_("printVertexLayout",fb,54,e5,1b)));
-HXLINE( 260)				::haxe::Log_obj::trace( ::Dynamic(((((HX_("      Format: ",bd,4d,5d,0c) + formatName) + HX_(" (",08,1c,00,00)) + attr->__Field(HX_("size",c1,a0,53,4c),::hx::paccDynamic)) + HX_(" components)",33,72,ad,b8))),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),260,HX_("ProgramInfo",f2,d8,11,a1),HX_("printVertexLayout",fb,54,e5,1b)));
-HXLINE( 261)				::haxe::Log_obj::trace(((HX_("      Size: ",c7,0d,d7,09) + sizeInBytes) + HX_(" bytes",4b,94,03,89)),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),261,HX_("ProgramInfo",f2,d8,11,a1),HX_("printVertexLayout",fb,54,e5,1b)));
-HXLINE( 262)				::haxe::Log_obj::trace( ::Dynamic(((HX_("      Offset: ",19,25,a6,43) + attr->__Field(HX_("offset",93,97,3f,60),::hx::paccDynamic)) + HX_(" bytes",4b,94,03,89))),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),262,HX_("ProgramInfo",f2,d8,11,a1),HX_("printVertexLayout",fb,54,e5,1b)));
-HXLINE( 263)				::haxe::Log_obj::trace( ::Dynamic(((HX_("      Stride: ",1f,5b,2e,78) + attr->__Field(HX_("stride",19,20,30,11),::hx::paccDynamic)) + HX_(" bytes",4b,94,03,89))),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),263,HX_("ProgramInfo",f2,d8,11,a1),HX_("printVertexLayout",fb,54,e5,1b)));
+HXDLIN( 253)		::String _hx_tmp4 = ((HX_("Total vertex size: ",67,fd,d6,39) + ::Std_obj::string(_hx_tmp3)) + HX_(" bytes",4b,94,03,89));
+HXDLIN( 253)		_hx_tmp2(_hx_tmp4,::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),253,HX_("ProgramInfo",f2,d8,11,a1),HX_("printVertexLayout",fb,54,e5,1b)));
+HXLINE( 254)		::haxe::Log_obj::trace(HX_("Attributes:",63,ab,34,d0),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),254,HX_("ProgramInfo",f2,d8,11,a1),HX_("printVertexLayout",fb,54,e5,1b)));
+HXLINE( 256)		{
+HXLINE( 256)			int _g = 0;
+HXDLIN( 256)			int _g1 = this->attributes->length;
+HXDLIN( 256)			while((_g < _g1)){
+HXLINE( 256)				_g = (_g + 1);
+HXDLIN( 256)				HX_VARI( int,i) = (_g - 1);
+HXLINE( 257)				HX_VARI(  ::Dynamic,attr) = this->attributes->__get(i);
+HXLINE( 258)				HX_VARI( ::String,formatName) = this->getFormatName(( (int)(attr->__Field(HX_("format",37,8f,8e,fd),::hx::paccDynamic)) ));
+HXLINE( 259)				int attr1 = ( (int)(attr->__Field(HX_("size",c1,a0,53,4c),::hx::paccDynamic)) );
+HXDLIN( 259)				HX_VARI( int,sizeInBytes) = (attr1 * this->getFormatSize(( (int)(attr->__Field(HX_("format",37,8f,8e,fd),::hx::paccDynamic)) )));
+HXLINE( 261)				::haxe::Log_obj::trace( ::Dynamic(((((HX_("  [",5b,64,18,00) + i) + HX_("] ",23,51,00,00)) + attr->__Field(HX_("name",4b,72,ff,48),::hx::paccDynamic)) + HX_(":",3a,00,00,00))),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),261,HX_("ProgramInfo",f2,d8,11,a1),HX_("printVertexLayout",fb,54,e5,1b)));
+HXLINE( 262)				::haxe::Log_obj::trace( ::Dynamic((HX_("      Location: ",3b,b0,05,74) + attr->__Field(HX_("location",35,6e,46,e5),::hx::paccDynamic))),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),262,HX_("ProgramInfo",f2,d8,11,a1),HX_("printVertexLayout",fb,54,e5,1b)));
+HXLINE( 263)				::haxe::Log_obj::trace( ::Dynamic(((((HX_("      Format: ",bd,4d,5d,0c) + formatName) + HX_(" (",08,1c,00,00)) + attr->__Field(HX_("size",c1,a0,53,4c),::hx::paccDynamic)) + HX_(" components)",33,72,ad,b8))),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),263,HX_("ProgramInfo",f2,d8,11,a1),HX_("printVertexLayout",fb,54,e5,1b)));
+HXLINE( 264)				::haxe::Log_obj::trace(((HX_("      Size: ",c7,0d,d7,09) + sizeInBytes) + HX_(" bytes",4b,94,03,89)),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),264,HX_("ProgramInfo",f2,d8,11,a1),HX_("printVertexLayout",fb,54,e5,1b)));
+HXLINE( 265)				::haxe::Log_obj::trace( ::Dynamic(((HX_("      Offset: ",19,25,a6,43) + attr->__Field(HX_("offset",93,97,3f,60),::hx::paccDynamic)) + HX_(" bytes",4b,94,03,89))),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),265,HX_("ProgramInfo",f2,d8,11,a1),HX_("printVertexLayout",fb,54,e5,1b)));
+HXLINE( 266)				::haxe::Log_obj::trace( ::Dynamic(((HX_("      Stride: ",1f,5b,2e,78) + attr->__Field(HX_("stride",19,20,30,11),::hx::paccDynamic)) + HX_(" bytes",4b,94,03,89))),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),266,HX_("ProgramInfo",f2,d8,11,a1),HX_("printVertexLayout",fb,54,e5,1b)));
             			}
             		}
-HXLINE( 265)		::haxe::Log_obj::trace(HX_("========================",80,b0,f0,85),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),265,HX_("ProgramInfo",f2,d8,11,a1),HX_("printVertexLayout",fb,54,e5,1b)));
+HXLINE( 268)		::haxe::Log_obj::trace(HX_("========================",80,b0,f0,85),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),268,HX_("ProgramInfo",f2,d8,11,a1),HX_("printVertexLayout",fb,54,e5,1b)));
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC0(ProgramInfo_obj,printVertexLayout,(void))
 
 ::String ProgramInfo_obj::getFormatName(int format){
-            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_269_getFormatName)
+            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_272_getFormatName)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(format,"format")
-HXLINE( 269)
-HXDLIN( 269)		switch((int)(format)){
+HXLINE( 272)
+HXDLIN( 272)		switch((int)(format)){
             			case (int)5120: {
-HXLINE( 275)				return HX_("GL_BYTE",a2,5e,88,ca);
+HXLINE( 278)				return HX_("GL_BYTE",a2,5e,88,ca);
             			}
             			break;
             			case (int)5121: {
-HXLINE( 276)				return HX_("GL_UNSIGNED_BYTE",f8,3e,cc,b8);
+HXLINE( 279)				return HX_("GL_UNSIGNED_BYTE",f8,3e,cc,b8);
             			}
             			break;
             			case (int)5122: {
-HXLINE( 273)				return HX_("GL_SHORT",82,eb,59,2b);
+HXLINE( 276)				return HX_("GL_SHORT",82,eb,59,2b);
             			}
             			break;
             			case (int)5123: {
-HXLINE( 274)				return HX_("GL_UNSIGNED_SHORT",6c,56,7a,b8);
+HXLINE( 277)				return HX_("GL_UNSIGNED_SHORT",6c,56,7a,b8);
             			}
             			break;
             			case (int)5124: {
-HXLINE( 271)				return HX_("GL_INT",75,a2,cd,64);
+HXLINE( 274)				return HX_("GL_INT",75,a2,cd,64);
             			}
             			break;
             			case (int)5125: {
-HXLINE( 272)				return HX_("GL_UNSIGNED_INT",df,9e,66,1c);
+HXLINE( 275)				return HX_("GL_UNSIGNED_INT",df,9e,66,1c);
             			}
             			break;
             			case (int)5126: {
-HXLINE( 270)				return HX_("GL_FLOAT",a2,2c,c9,b1);
+HXLINE( 273)				return HX_("GL_FLOAT",a2,2c,c9,b1);
             			}
             			break;
             			default:{
-HXLINE( 277)				return HX_("UNKNOWN",6a,f7,4e,61);
+HXLINE( 280)				return HX_("UNKNOWN",6a,f7,4e,61);
             			}
             		}
-HXLINE( 269)		return null();
+HXLINE( 272)		return null();
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC1(ProgramInfo_obj,getFormatName,return )
 
 int ProgramInfo_obj::getFormatSize(int format){
-            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_282_getFormatSize)
+            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_285_getFormatSize)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(format,"format")
-HXLINE( 282)
-HXDLIN( 282)		switch((int)(format)){
+HXLINE( 285)
+HXDLIN( 285)		switch((int)(format)){
             			case (int)5120: {
-HXLINE( 288)				return 1;
+HXLINE( 291)				return 1;
             			}
             			break;
             			case (int)5121: {
-HXLINE( 289)				return 1;
+HXLINE( 292)				return 1;
             			}
             			break;
             			case (int)5122: {
-HXLINE( 286)				return 2;
+HXLINE( 289)				return 2;
             			}
             			break;
             			case (int)5123: {
-HXLINE( 287)				return 2;
+HXLINE( 290)				return 2;
             			}
             			break;
             			case (int)5124: {
-HXLINE( 284)				return 4;
+HXLINE( 287)				return 4;
             			}
             			break;
             			case (int)5125: {
-HXLINE( 285)				return 4;
+HXLINE( 288)				return 4;
             			}
             			break;
             			case (int)5126: {
-HXLINE( 283)				return 4;
+HXLINE( 286)				return 4;
             			}
             			break;
             			default:{
-HXLINE( 290)				return 4;
+HXLINE( 293)				return 4;
             			}
             		}
-HXLINE( 282)		return 0;
+HXLINE( 285)		return 0;
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC1(ProgramInfo_obj,getFormatSize,return )
 
 int ProgramInfo_obj::calculateCurrentOffset(){
-            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_294_calculateCurrentOffset)
+            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_297_calculateCurrentOffset)
             	HX_STACK_THIS(this)
-HXLINE( 294)
-HXLINE( 295)		HX_VARI( int,offset) = 0;
-HXLINE( 296)		{
-HXLINE( 296)			int _g = 0;
-HXDLIN( 296)			::Array< ::Dynamic> _g1 = this->attributes;
-HXDLIN( 296)			while((_g < _g1->length)){
-HXLINE( 296)				HX_VARI(  ::Dynamic,attr) = _g1->__get(_g);
-HXDLIN( 296)				_g = (_g + 1);
-HXLINE( 297)				int attr1 = ( (int)(attr->__Field(HX_("size",c1,a0,53,4c),::hx::paccDynamic)) );
-HXDLIN( 297)				offset = (offset + (attr1 * this->getFormatSize(( (int)(attr->__Field(HX_("format",37,8f,8e,fd),::hx::paccDynamic)) ))));
+HXLINE( 297)
+HXLINE( 298)		HX_VARI( int,offset) = 0;
+HXLINE( 299)		{
+HXLINE( 299)			int _g = 0;
+HXDLIN( 299)			::Array< ::Dynamic> _g1 = this->attributes;
+HXDLIN( 299)			while((_g < _g1->length)){
+HXLINE( 299)				HX_VARI(  ::Dynamic,attr) = _g1->__get(_g);
+HXDLIN( 299)				_g = (_g + 1);
+HXLINE( 300)				int attr1 = ( (int)(attr->__Field(HX_("size",c1,a0,53,4c),::hx::paccDynamic)) );
+HXDLIN( 300)				offset = (offset + (attr1 * this->getFormatSize(( (int)(attr->__Field(HX_("format",37,8f,8e,fd),::hx::paccDynamic)) ))));
             			}
             		}
-HXLINE( 299)		return offset;
+HXLINE( 302)		return offset;
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC0(ProgramInfo_obj,calculateCurrentOffset,return )
 
 void ProgramInfo_obj::addUniform(::String name, ::UniformFormat format, ::Dynamic setter, ::Dynamic location){
-            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_303_addUniform)
+            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_306_addUniform)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(name,"name")
             	HX_STACK_ARG(format,"format")
             	HX_STACK_ARG(setter,"setter")
             	HX_STACK_ARG(location,"location")
-HXLINE( 303)
-HXDLIN( 303)		this->uniforms->push( ::Dynamic(::hx::Anon_obj::Create(4)
+HXLINE( 306)
+HXDLIN( 306)		this->uniforms->push( ::Dynamic(::hx::Anon_obj::Create(4)
             			->setFixed(0,HX_("location",35,6e,46,e5),location)
             			->setFixed(1,HX_("format",37,8f,8e,fd),format)
             			->setFixed(2,HX_("name",4b,72,ff,48),name)
@@ -513,14 +515,14 @@ HXDLIN( 303)		this->uniforms->push( ::Dynamic(::hx::Anon_obj::Create(4)
 HX_DEFINE_DYNAMIC_FUNC4(ProgramInfo_obj,addUniform,(void))
 
 void ProgramInfo_obj::addTexture(::String name, ::UniformFormat format, ::Dynamic setter, ::Dynamic location){
-            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_307_addTexture)
+            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_310_addTexture)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(name,"name")
             	HX_STACK_ARG(format,"format")
             	HX_STACK_ARG(setter,"setter")
             	HX_STACK_ARG(location,"location")
-HXLINE( 307)
-HXDLIN( 307)		this->textures->push( ::Dynamic(::hx::Anon_obj::Create(4)
+HXLINE( 310)
+HXDLIN( 310)		this->textures->push( ::Dynamic(::hx::Anon_obj::Create(4)
             			->setFixed(0,HX_("location",35,6e,46,e5),location)
             			->setFixed(1,HX_("format",37,8f,8e,fd),format)
             			->setFixed(2,HX_("name",4b,72,ff,48),name)
@@ -531,119 +533,119 @@ HXDLIN( 307)		this->textures->push( ::Dynamic(::hx::Anon_obj::Create(4)
 HX_DEFINE_DYNAMIC_FUNC4(ProgramInfo_obj,addTexture,(void))
 
 bool ProgramInfo_obj::compile(){
-            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_311_compile)
+            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_314_compile)
             	HX_STACK_THIS(this)
-HXLINE( 311)
-HXLINE( 312)		if (this->isCompiled) {
-HXLINE( 312)			return true;
+HXLINE( 314)
+HXLINE( 315)		if (this->isCompiled) {
+HXLINE( 315)			return true;
             		}
-HXLINE( 314)		::haxe::Log_obj::trace(HX_("Starting shader compilation...",66,11,d9,b2),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),314,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
-HXLINE( 317)		::haxe::Log_obj::trace(HX_("Creating vertex shader...",d4,ba,24,6c),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),317,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
-HXLINE( 318)		this->vertexShader = ( (unsigned int)(glCreateShader(GL_VERTEX_SHADER)) );
-HXLINE( 319)		 ::Dynamic _hx_tmp = ::haxe::Log_obj::trace;
-HXDLIN( 319)		::String _hx_tmp1 = (HX_("Vertex shader created: ",ef,69,e8,2d) + ::Std_obj::string(this->vertexShader));
-HXDLIN( 319)		_hx_tmp(_hx_tmp1,::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),319,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
-HXLINE( 321)		::haxe::Log_obj::trace(HX_("Setting vertex shader source...",c4,46,02,67),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),321,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
-HXLINE( 322)		
+HXLINE( 317)		::haxe::Log_obj::trace(HX_("Starting shader compilation...",66,11,d9,b2),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),317,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
+HXLINE( 320)		::haxe::Log_obj::trace(HX_("Creating vertex shader...",d4,ba,24,6c),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),320,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
+HXLINE( 321)		this->vertexShader = ( (unsigned int)(glCreateShader(GL_VERTEX_SHADER)) );
+HXLINE( 322)		 ::Dynamic _hx_tmp = ::haxe::Log_obj::trace;
+HXDLIN( 322)		::String _hx_tmp1 = (HX_("Vertex shader created: ",ef,69,e8,2d) + ::Std_obj::string(this->vertexShader));
+HXDLIN( 322)		_hx_tmp(_hx_tmp1,::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),322,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
+HXLINE( 324)		::haxe::Log_obj::trace(HX_("Setting vertex shader source...",c4,46,02,67),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),324,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
+HXLINE( 325)		
 			const char* vertexSource = this->vertexShaderSource.__s;
 			glShaderSource(this->vertexShader, 1, &vertexSource, NULL);
 		;
-HXLINE( 327)		::haxe::Log_obj::trace(HX_("Compiling vertex shader...",fd,e6,76,9e),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),327,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
-HXLINE( 328)		glCompileShader(( (int)(this->vertexShader) ));
-HXLINE( 331)		::haxe::Log_obj::trace(HX_("Checking vertex shader compilation...",90,34,78,9d),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),331,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
-HXLINE( 332)		if (!(this->checkShaderCompilation(this->vertexShader,HX_("Vertex",84,4f,dc,d5)))) {
-HXLINE( 333)			::haxe::Log_obj::trace(HX_("Vertex shader compilation failed!",08,f0,89,b6),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),333,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
-HXLINE( 334)			return false;
+HXLINE( 330)		::haxe::Log_obj::trace(HX_("Compiling vertex shader...",fd,e6,76,9e),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),330,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
+HXLINE( 331)		glCompileShader(( (int)(this->vertexShader) ));
+HXLINE( 334)		::haxe::Log_obj::trace(HX_("Checking vertex shader compilation...",90,34,78,9d),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),334,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
+HXLINE( 335)		if (!(this->checkShaderCompilation(this->vertexShader,HX_("Vertex",84,4f,dc,d5)))) {
+HXLINE( 336)			::haxe::Log_obj::trace(HX_("Vertex shader compilation failed!",08,f0,89,b6),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),336,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
+HXLINE( 337)			return false;
             		}
-HXLINE( 336)		::haxe::Log_obj::trace(HX_("Vertex shader compiled successfully!",0a,36,a9,a0),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),336,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
-HXLINE( 339)		::haxe::Log_obj::trace(HX_("Creating fragment shader...",00,36,dd,ae),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),339,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
-HXLINE( 340)		this->fragmentShader = ( (unsigned int)(glCreateShader(GL_FRAGMENT_SHADER)) );
-HXLINE( 341)		 ::Dynamic _hx_tmp2 = ::haxe::Log_obj::trace;
-HXDLIN( 341)		::String _hx_tmp3 = (HX_("Fragment shader created: ",03,e4,70,4f) + ::Std_obj::string(this->fragmentShader));
-HXDLIN( 341)		_hx_tmp2(_hx_tmp3,::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),341,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
-HXLINE( 343)		::haxe::Log_obj::trace(HX_("Setting fragment shader source...",d8,fc,46,a1),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),343,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
-HXLINE( 344)		
+HXLINE( 339)		::haxe::Log_obj::trace(HX_("Vertex shader compiled successfully!",0a,36,a9,a0),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),339,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
+HXLINE( 342)		::haxe::Log_obj::trace(HX_("Creating fragment shader...",00,36,dd,ae),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),342,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
+HXLINE( 343)		this->fragmentShader = ( (unsigned int)(glCreateShader(GL_FRAGMENT_SHADER)) );
+HXLINE( 344)		 ::Dynamic _hx_tmp2 = ::haxe::Log_obj::trace;
+HXDLIN( 344)		::String _hx_tmp3 = (HX_("Fragment shader created: ",03,e4,70,4f) + ::Std_obj::string(this->fragmentShader));
+HXDLIN( 344)		_hx_tmp2(_hx_tmp3,::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),344,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
+HXLINE( 346)		::haxe::Log_obj::trace(HX_("Setting fragment shader source...",d8,fc,46,a1),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),346,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
+HXLINE( 347)		
 			const char* fragmentSource = this->fragmentShaderSource.__s;
 			glShaderSource(this->fragmentShader, 1, &fragmentSource, NULL);
 		;
-HXLINE( 349)		::haxe::Log_obj::trace(HX_("Compiling fragment shader...",69,7e,31,bb),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),349,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
-HXLINE( 350)		glCompileShader(( (int)(this->fragmentShader) ));
-HXLINE( 353)		::haxe::Log_obj::trace(HX_("Checking fragment shader compilation...",7c,df,37,40),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),353,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
-HXLINE( 354)		if (!(this->checkShaderCompilation(this->fragmentShader,HX_("Fragment",f0,1b,97,87)))) {
-HXLINE( 355)			::haxe::Log_obj::trace(HX_("Fragment shader compilation failed!",1c,4b,8f,22),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),355,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
-HXLINE( 356)			return false;
+HXLINE( 352)		::haxe::Log_obj::trace(HX_("Compiling fragment shader...",69,7e,31,bb),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),352,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
+HXLINE( 353)		glCompileShader(( (int)(this->fragmentShader) ));
+HXLINE( 356)		::haxe::Log_obj::trace(HX_("Checking fragment shader compilation...",7c,df,37,40),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),356,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
+HXLINE( 357)		if (!(this->checkShaderCompilation(this->fragmentShader,HX_("Fragment",f0,1b,97,87)))) {
+HXLINE( 358)			::haxe::Log_obj::trace(HX_("Fragment shader compilation failed!",1c,4b,8f,22),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),358,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
+HXLINE( 359)			return false;
             		}
-HXLINE( 358)		::haxe::Log_obj::trace(HX_("Fragment shader compiled successfully!",76,ff,66,f9),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),358,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
-HXLINE( 361)		::haxe::Log_obj::trace(HX_("Creating shader program...",7e,fa,35,93),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),361,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
-HXLINE( 362)		this->program = ( (unsigned int)(glCreateProgram()) );
-HXLINE( 363)		 ::Dynamic _hx_tmp4 = ::haxe::Log_obj::trace;
-HXDLIN( 363)		::String _hx_tmp5 = (HX_("Shader program created: ",57,8a,2c,3d) + ::Std_obj::string(this->program));
-HXDLIN( 363)		_hx_tmp4(_hx_tmp5,::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),363,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
-HXLINE( 365)		glAttachShader(( (int)(this->program) ),( (int)(this->vertexShader) ));
-HXLINE( 366)		glAttachShader(( (int)(this->program) ),( (int)(this->fragmentShader) ));
-HXLINE( 367)		glLinkProgram(( (int)(this->program) ));
-HXLINE( 370)		::haxe::Log_obj::trace(HX_("Checking program linking...",08,07,93,9f),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),370,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
-HXLINE( 371)		if (!(this->checkProgramLinking())) {
-HXLINE( 372)			::haxe::Log_obj::trace(HX_("Program linking failed!",10,37,a0,d4),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),372,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
-HXLINE( 373)			return false;
+HXLINE( 361)		::haxe::Log_obj::trace(HX_("Fragment shader compiled successfully!",76,ff,66,f9),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),361,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
+HXLINE( 364)		::haxe::Log_obj::trace(HX_("Creating shader program...",7e,fa,35,93),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),364,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
+HXLINE( 365)		this->program = ( (unsigned int)(glCreateProgram()) );
+HXLINE( 366)		 ::Dynamic _hx_tmp4 = ::haxe::Log_obj::trace;
+HXDLIN( 366)		::String _hx_tmp5 = (HX_("Shader program created: ",57,8a,2c,3d) + ::Std_obj::string(this->program));
+HXDLIN( 366)		_hx_tmp4(_hx_tmp5,::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),366,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
+HXLINE( 368)		glAttachShader(( (int)(this->program) ),( (int)(this->vertexShader) ));
+HXLINE( 369)		glAttachShader(( (int)(this->program) ),( (int)(this->fragmentShader) ));
+HXLINE( 370)		glLinkProgram(( (int)(this->program) ));
+HXLINE( 373)		::haxe::Log_obj::trace(HX_("Checking program linking...",08,07,93,9f),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),373,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
+HXLINE( 374)		if (!(this->checkProgramLinking())) {
+HXLINE( 375)			::haxe::Log_obj::trace(HX_("Program linking failed!",10,37,a0,d4),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),375,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
+HXLINE( 376)			return false;
             		}
-HXLINE( 375)		::haxe::Log_obj::trace(HX_("Program linked successfully!",8f,d2,06,81),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),375,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
-HXLINE( 377)		this->isCompiled = true;
-HXLINE( 378)		::haxe::Log_obj::trace(HX_("Shader compilation complete!",90,80,64,42),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),378,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
-HXLINE( 379)		return true;
+HXLINE( 378)		::haxe::Log_obj::trace(HX_("Program linked successfully!",8f,d2,06,81),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),378,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
+HXLINE( 380)		this->isCompiled = true;
+HXLINE( 381)		::haxe::Log_obj::trace(HX_("Shader compilation complete!",90,80,64,42),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),381,HX_("ProgramInfo",f2,d8,11,a1),HX_("compile",73,25,6f,83)));
+HXLINE( 382)		return true;
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC0(ProgramInfo_obj,compile,return )
 
 void ProgramInfo_obj::introspectProgram(){
-            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_383_introspectProgram)
+            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_386_introspectProgram)
             	HX_STACK_THIS(this)
-HXLINE( 383)
-HXLINE( 384)		if (!(this->isCompiled)) {
-HXLINE( 385)			::haxe::Log_obj::trace(HX_("Warning: Cannot introspect program that is not compiled",0f,42,bd,8a),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),385,HX_("ProgramInfo",f2,d8,11,a1),HX_("introspectProgram",17,f6,8c,c5)));
-HXLINE( 386)			return;
+HXLINE( 386)
+HXLINE( 387)		if (!(this->isCompiled)) {
+HXLINE( 388)			::haxe::Log_obj::trace(HX_("Warning: Cannot introspect program that is not compiled",0f,42,bd,8a),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),388,HX_("ProgramInfo",f2,d8,11,a1),HX_("introspectProgram",17,f6,8c,c5)));
+HXLINE( 389)			return;
             		}
-HXLINE( 389)		::haxe::Log_obj::trace((HX_("Starting shader program introspection for: ",33,23,d8,5f) + this->_hx___name),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),389,HX_("ProgramInfo",f2,d8,11,a1),HX_("introspectProgram",17,f6,8c,c5)));
-HXLINE( 392)		this->attributes = ::Array_obj< ::Dynamic>::__new(0);
-HXLINE( 393)		this->uniforms = ::Array_obj< ::Dynamic>::__new(0);
-HXLINE( 396)		this->introspectAttributes();
-HXLINE( 399)		this->introspectUniforms();
-HXLINE( 401)		::haxe::Log_obj::trace(HX_("Introspection complete!",c3,68,bd,00),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),401,HX_("ProgramInfo",f2,d8,11,a1),HX_("introspectProgram",17,f6,8c,c5)));
+HXLINE( 392)		::haxe::Log_obj::trace((HX_("Starting shader program introspection for: ",33,23,d8,5f) + this->_hx___name),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),392,HX_("ProgramInfo",f2,d8,11,a1),HX_("introspectProgram",17,f6,8c,c5)));
+HXLINE( 395)		this->attributes = ::Array_obj< ::Dynamic>::__new(0);
+HXLINE( 396)		this->uniforms = ::Array_obj< ::Dynamic>::__new(0);
+HXLINE( 399)		this->introspectAttributes();
+HXLINE( 402)		this->introspectUniforms();
+HXLINE( 404)		::haxe::Log_obj::trace(HX_("Introspection complete!",c3,68,bd,00),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),404,HX_("ProgramInfo",f2,d8,11,a1),HX_("introspectProgram",17,f6,8c,c5)));
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC0(ProgramInfo_obj,introspectProgram,(void))
 
 void ProgramInfo_obj::introspectAttributes(){
-            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_405_introspectAttributes)
+            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_408_introspectAttributes)
             	HX_STACK_THIS(this)
-HXLINE( 405)
-HXLINE( 407)		HX_VARI( int,activeAttributes) = 0;
-HXLINE( 408)		glGetProgramiv(this->program, GL_ACTIVE_ATTRIBUTES, &activeAttributes);
-HXLINE( 409)		::haxe::Log_obj::trace(((HX_("Found ",be,6b,1f,34) + activeAttributes) + HX_(" active attributes",d1,14,1b,18)),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),409,HX_("ProgramInfo",f2,d8,11,a1),HX_("introspectAttributes",24,3b,65,2c)));
-HXLINE( 412)		HX_VARI( int,maxNameLength) = 0;
-HXLINE( 413)		glGetProgramiv(this->program, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxNameLength);
-HXLINE( 415)		{
-HXLINE( 415)			int _g = 0;
-HXDLIN( 415)			int _g1 = activeAttributes;
-HXDLIN( 415)			while((_g < _g1)){
-HXLINE( 415)				_g = (_g + 1);
-HXDLIN( 415)				HX_VARI( int,i) = (_g - 1);
-HXLINE( 416)				HX_VARI( int,nameLength) = 0;
-HXLINE( 417)				HX_VARI( int,size) = 0;
-HXLINE( 418)				HX_VARI( int,type) = 0;
-HXLINE( 419)				HX_VARI( ::String,name) = HX_("",00,00,00,00);
-HXLINE( 422)				
+HXLINE( 408)
+HXLINE( 410)		HX_VARI( int,activeAttributes) = 0;
+HXLINE( 411)		glGetProgramiv(this->program, GL_ACTIVE_ATTRIBUTES, &activeAttributes);
+HXLINE( 412)		::haxe::Log_obj::trace(((HX_("Found ",be,6b,1f,34) + activeAttributes) + HX_(" active attributes",d1,14,1b,18)),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),412,HX_("ProgramInfo",f2,d8,11,a1),HX_("introspectAttributes",24,3b,65,2c)));
+HXLINE( 415)		HX_VARI( int,maxNameLength) = 0;
+HXLINE( 416)		glGetProgramiv(this->program, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxNameLength);
+HXLINE( 418)		{
+HXLINE( 418)			int _g = 0;
+HXDLIN( 418)			int _g1 = activeAttributes;
+HXDLIN( 418)			while((_g < _g1)){
+HXLINE( 418)				_g = (_g + 1);
+HXDLIN( 418)				HX_VARI( int,i) = (_g - 1);
+HXLINE( 419)				HX_VARI( int,nameLength) = 0;
+HXLINE( 420)				HX_VARI( int,size) = 0;
+HXLINE( 421)				HX_VARI( int,type) = 0;
+HXLINE( 422)				HX_VARI( ::String,name) = HX_("",00,00,00,00);
+HXLINE( 425)				
 				char* nameBuffer = new char[maxNameLength];
 				glGetActiveAttrib(this->program, i, maxNameLength, &nameLength, &size, (GLenum*)&type, nameBuffer);
 				name = String(nameBuffer);
 				delete[] nameBuffer;
 			;
-HXLINE( 430)				HX_VARI( int,location) = glGetAttribLocation(this->program,name.utf8_str());
-HXLINE( 433)				HX_VARI( int,componentCount) = this->getComponentCount(type);
-HXLINE( 435)				::haxe::Log_obj::trace((((((((((((HX_("Attribute ",a4,ac,22,8e) + i) + HX_(": '",c1,1e,2c,00)) + name) + HX_("' location=",2f,53,8b,63)) + location) + HX_(" type=",23,fc,36,e6)) + type) + HX_(" size=",3c,94,44,48)) + size) + HX_(" components=",47,72,ad,b8)) + componentCount),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),435,HX_("ProgramInfo",f2,d8,11,a1),HX_("introspectAttributes",24,3b,65,2c)));
-HXLINE( 438)				this->attributes->push( ::Dynamic(::hx::Anon_obj::Create(6)
+HXLINE( 433)				HX_VARI( int,location) = glGetAttribLocation(this->program,name.utf8_str());
+HXLINE( 436)				HX_VARI( int,componentCount) = this->getComponentCount(type);
+HXLINE( 438)				::haxe::Log_obj::trace((((((((((((HX_("Attribute ",a4,ac,22,8e) + i) + HX_(": '",c1,1e,2c,00)) + name) + HX_("' location=",2f,53,8b,63)) + location) + HX_(" type=",23,fc,36,e6)) + type) + HX_(" size=",3c,94,44,48)) + size) + HX_(" components=",47,72,ad,b8)) + componentCount),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),438,HX_("ProgramInfo",f2,d8,11,a1),HX_("introspectAttributes",24,3b,65,2c)));
+HXLINE( 441)				this->attributes->push( ::Dynamic(::hx::Anon_obj::Create(6)
             					->setFixed(0,HX_("location",35,6e,46,e5),location)
             					->setFixed(1,HX_("format",37,8f,8e,fd),GL_FLOAT)
             					->setFixed(2,HX_("stride",19,20,30,11),0)
@@ -658,36 +660,36 @@ HXLINE( 438)				this->attributes->push( ::Dynamic(::hx::Anon_obj::Create(6)
 HX_DEFINE_DYNAMIC_FUNC0(ProgramInfo_obj,introspectAttributes,(void))
 
 void ProgramInfo_obj::introspectUniforms(){
-            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_450_introspectUniforms)
+            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_453_introspectUniforms)
             	HX_STACK_THIS(this)
-HXLINE( 450)
-HXLINE( 452)		HX_VARI( int,activeUniforms) = 0;
-HXLINE( 453)		glGetProgramiv(this->program, GL_ACTIVE_UNIFORMS, &activeUniforms);
-HXLINE( 454)		::haxe::Log_obj::trace(((HX_("Found ",be,6b,1f,34) + activeUniforms) + HX_(" active uniforms",39,66,89,d9)),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),454,HX_("ProgramInfo",f2,d8,11,a1),HX_("introspectUniforms",cc,41,f7,91)));
-HXLINE( 457)		HX_VARI( int,maxNameLength) = 0;
-HXLINE( 458)		glGetProgramiv(this->program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxNameLength);
-HXLINE( 460)		{
-HXLINE( 460)			int _g = 0;
-HXDLIN( 460)			int _g1 = activeUniforms;
-HXDLIN( 460)			while((_g < _g1)){
-HXLINE( 460)				_g = (_g + 1);
-HXDLIN( 460)				HX_VARI( int,i) = (_g - 1);
-HXLINE( 461)				HX_VARI( int,nameLength) = 0;
-HXLINE( 462)				HX_VARI( int,size) = 0;
-HXLINE( 463)				HX_VARI( int,type) = 0;
-HXLINE( 464)				HX_VARI( ::String,name) = HX_("",00,00,00,00);
-HXLINE( 467)				
+HXLINE( 453)
+HXLINE( 455)		HX_VARI( int,activeUniforms) = 0;
+HXLINE( 456)		glGetProgramiv(this->program, GL_ACTIVE_UNIFORMS, &activeUniforms);
+HXLINE( 457)		::haxe::Log_obj::trace(((HX_("Found ",be,6b,1f,34) + activeUniforms) + HX_(" active uniforms",39,66,89,d9)),::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),457,HX_("ProgramInfo",f2,d8,11,a1),HX_("introspectUniforms",cc,41,f7,91)));
+HXLINE( 460)		HX_VARI( int,maxNameLength) = 0;
+HXLINE( 461)		glGetProgramiv(this->program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxNameLength);
+HXLINE( 463)		{
+HXLINE( 463)			int _g = 0;
+HXDLIN( 463)			int _g1 = activeUniforms;
+HXDLIN( 463)			while((_g < _g1)){
+HXLINE( 463)				_g = (_g + 1);
+HXDLIN( 463)				HX_VARI( int,i) = (_g - 1);
+HXLINE( 464)				HX_VARI( int,nameLength) = 0;
+HXLINE( 465)				HX_VARI( int,size) = 0;
+HXLINE( 466)				HX_VARI( int,type) = 0;
+HXLINE( 467)				HX_VARI( ::String,name) = HX_("",00,00,00,00);
+HXLINE( 470)				
 				char* nameBuffer = new char[maxNameLength];
 				glGetActiveUniform(this->program, i, maxNameLength, &nameLength, &size, (GLenum*)&type, nameBuffer);
 				name = String(nameBuffer);
 				delete[] nameBuffer;
 			;
-HXLINE( 475)				HX_VARI( int,location) = glGetUniformLocation(this->program,name.utf8_str());
-HXLINE( 478)				HX_VARI(  ::UniformFormat,format) = this->convertGLTypeToUniformFormat(type);
-HXLINE( 480)				 ::Dynamic _hx_tmp = ::haxe::Log_obj::trace;
-HXDLIN( 480)				::String _hx_tmp1 = (((((((((HX_("Uniform ",8c,88,06,dc) + i) + HX_(": '",c1,1e,2c,00)) + name) + HX_("' location=",2f,53,8b,63)) + location) + HX_(" type=",23,fc,36,e6)) + type) + HX_(" format=",06,05,7d,05)) + ::Std_obj::string(format));
-HXDLIN( 480)				_hx_tmp(_hx_tmp1,::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),480,HX_("ProgramInfo",f2,d8,11,a1),HX_("introspectUniforms",cc,41,f7,91)));
-HXLINE( 483)				this->uniforms->push( ::Dynamic(::hx::Anon_obj::Create(4)
+HXLINE( 478)				HX_VARI( int,location) = glGetUniformLocation(this->program,name.utf8_str());
+HXLINE( 481)				HX_VARI(  ::UniformFormat,format) = this->convertGLTypeToUniformFormat(type);
+HXLINE( 483)				 ::Dynamic _hx_tmp = ::haxe::Log_obj::trace;
+HXDLIN( 483)				::String _hx_tmp1 = (((((((((HX_("Uniform ",8c,88,06,dc) + i) + HX_(": '",c1,1e,2c,00)) + name) + HX_("' location=",2f,53,8b,63)) + location) + HX_(" type=",23,fc,36,e6)) + type) + HX_(" format=",06,05,7d,05)) + ::Std_obj::string(format));
+HXDLIN( 483)				_hx_tmp(_hx_tmp1,::hx::SourceInfo(HX_("src/ProgramInfo.hx",17,1b,08,fb),483,HX_("ProgramInfo",f2,d8,11,a1),HX_("introspectUniforms",cc,41,f7,91)));
+HXLINE( 486)				this->uniforms->push( ::Dynamic(::hx::Anon_obj::Create(4)
             					->setFixed(0,HX_("location",35,6e,46,e5),location)
             					->setFixed(1,HX_("format",37,8f,8e,fd),format)
             					->setFixed(2,HX_("name",4b,72,ff,48),name)
@@ -700,172 +702,172 @@ HXLINE( 483)				this->uniforms->push( ::Dynamic(::hx::Anon_obj::Create(4)
 HX_DEFINE_DYNAMIC_FUNC0(ProgramInfo_obj,introspectUniforms,(void))
 
 int ProgramInfo_obj::getComponentCount(int glType){
-            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_494_getComponentCount)
+            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_497_getComponentCount)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(glType,"glType")
-HXLINE( 494)
-HXDLIN( 494)		switch((int)(glType)){
+HXLINE( 497)
+HXDLIN( 497)		switch((int)(glType)){
             			case (int)5124: {
-HXLINE( 499)				return 1;
+HXLINE( 502)				return 1;
             			}
             			break;
             			case (int)5126: {
-HXLINE( 495)				return 1;
+HXLINE( 498)				return 1;
             			}
             			break;
             			case (int)35664: {
-HXLINE( 496)				return 2;
+HXLINE( 499)				return 2;
             			}
             			break;
             			case (int)35665: {
-HXLINE( 497)				return 3;
+HXLINE( 500)				return 3;
             			}
             			break;
             			case (int)35666: {
-HXLINE( 498)				return 4;
+HXLINE( 501)				return 4;
             			}
             			break;
             			case (int)35667: {
-HXLINE( 500)				return 2;
+HXLINE( 503)				return 2;
             			}
             			break;
             			case (int)35668: {
-HXLINE( 501)				return 3;
+HXLINE( 504)				return 3;
             			}
             			break;
             			case (int)35669: {
-HXLINE( 502)				return 4;
+HXLINE( 505)				return 4;
             			}
             			break;
             			default:{
-HXLINE( 503)				return 1;
+HXLINE( 506)				return 1;
             			}
             		}
-HXLINE( 494)		return 0;
+HXLINE( 497)		return 0;
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC1(ProgramInfo_obj,getComponentCount,return )
 
  ::UniformFormat ProgramInfo_obj::convertGLTypeToUniformFormat(int glType){
-            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_509_convertGLTypeToUniformFormat)
+            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_512_convertGLTypeToUniformFormat)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(glType,"glType")
-HXLINE( 509)
-HXDLIN( 509)		switch((int)(glType)){
+HXLINE( 512)
+HXDLIN( 512)		switch((int)(glType)){
             			case (int)5124: {
-HXLINE( 515)				return ::UniformFormat_obj::_hx_Int_dyn();
+HXLINE( 518)				return ::UniformFormat_obj::_hx_Int_dyn();
             			}
             			break;
             			case (int)5126: {
-HXLINE( 510)				return ::UniformFormat_obj::_hx_Float_dyn();
+HXLINE( 513)				return ::UniformFormat_obj::_hx_Float_dyn();
             			}
             			break;
             			case (int)35664: {
-HXLINE( 511)				return ::UniformFormat_obj::Vec2_dyn();
+HXLINE( 514)				return ::UniformFormat_obj::Vec2_dyn();
             			}
             			break;
             			case (int)35665: {
-HXLINE( 512)				return ::UniformFormat_obj::Vec3_dyn();
+HXLINE( 515)				return ::UniformFormat_obj::Vec3_dyn();
             			}
             			break;
             			case (int)35666: {
-HXLINE( 513)				return ::UniformFormat_obj::Vec4_dyn();
+HXLINE( 516)				return ::UniformFormat_obj::Vec4_dyn();
             			}
             			break;
             			case (int)35676: {
-HXLINE( 514)				return ::UniformFormat_obj::Mat4_dyn();
+HXLINE( 517)				return ::UniformFormat_obj::Mat4_dyn();
             			}
             			break;
             			case (int)35678: {
-HXLINE( 516)				return ::UniformFormat_obj::Sampler2D_dyn();
+HXLINE( 519)				return ::UniformFormat_obj::Sampler2D_dyn();
             			}
             			break;
             			default:{
-HXLINE( 517)				return ::UniformFormat_obj::_hx_Float_dyn();
+HXLINE( 520)				return ::UniformFormat_obj::_hx_Float_dyn();
             			}
             		}
-HXLINE( 509)		return null();
+HXLINE( 512)		return null();
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC1(ProgramInfo_obj,convertGLTypeToUniformFormat,return )
 
 bool ProgramInfo_obj::checkShaderCompilation(unsigned int shader,::String type){
-            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_524_checkShaderCompilation)
+            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_527_checkShaderCompilation)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(shader,"shader")
             	HX_STACK_ARG(type,"type")
-HXLINE( 524)
-HXDLIN( 524)		return true;
+HXLINE( 527)
+HXDLIN( 527)		return true;
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC2(ProgramInfo_obj,checkShaderCompilation,return )
 
 bool ProgramInfo_obj::checkProgramLinking(){
-            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_530_checkProgramLinking)
+            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_533_checkProgramLinking)
             	HX_STACK_THIS(this)
-HXLINE( 530)
-HXDLIN( 530)		return true;
+HXLINE( 533)
+HXDLIN( 533)		return true;
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC0(ProgramInfo_obj,checkProgramLinking,return )
 
 ::String ProgramInfo_obj::getDefaultVertexShader(){
-            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_535_getDefaultVertexShader)
+            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_538_getDefaultVertexShader)
             	HX_STACK_THIS(this)
-HXLINE( 535)
-HXDLIN( 535)		return HX_("\r\n\t\t#version 330 core\r\n\t\tlayout (location = 0) in vec3 aPos;\r\n\t\tlayout (location = 1) in vec2 aTexCoord;\r\n\t\t\r\n\t\tout vec2 TexCoord;\r\n\t\t\r\n\t\tuniform mat4 uProjection;\r\n\t\tuniform mat4 uView;\r\n\t\tuniform mat4 uModel;\r\n\t\t\r\n\t\tvoid main() {\r\n\t\t\tgl_Position = uProjection * uView * uModel * vec4(aPos, 1.0);\r\n\t\t\tTexCoord = aTexCoord;\r\n\t\t}\r\n\t\t",de,d7,33,54);
+HXLINE( 538)
+HXDLIN( 538)		return HX_("\r\n\t\t#version 330 core\r\n\t\tlayout (location = 0) in vec3 aPos;\r\n\t\tlayout (location = 1) in vec2 aTexCoord;\r\n\t\t\r\n\t\tout vec2 TexCoord;\r\n\t\t\r\n\t\tuniform mat4 uProjection;\r\n\t\tuniform mat4 uView;\r\n\t\tuniform mat4 uModel;\r\n\t\t\r\n\t\tvoid main() {\r\n\t\t\tgl_Position = uProjection * uView * uModel * vec4(aPos, 1.0);\r\n\t\t\tTexCoord = aTexCoord;\r\n\t\t}\r\n\t\t",de,d7,33,54);
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC0(ProgramInfo_obj,getDefaultVertexShader,return )
 
 ::String ProgramInfo_obj::getDefaultFragmentShader(){
-            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_554_getDefaultFragmentShader)
+            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_557_getDefaultFragmentShader)
             	HX_STACK_THIS(this)
-HXLINE( 554)
-HXDLIN( 554)		return HX_("\r\n\t\t#version 330 core\r\n\t\tout vec4 FragColor;\r\n\t\t\r\n\t\tin vec2 TexCoord;\r\n\t\t\r\n\t\tuniform sampler2D uTexture;\r\n\t\tuniform vec4 uColor;\r\n\t\t\r\n\t\tvoid main() {\r\n\t\t\tFragColor = texture(uTexture, TexCoord) * uColor;\r\n\t\t}\r\n\t\t",7a,64,68,8a);
+HXLINE( 557)
+HXDLIN( 557)		return HX_("\r\n\t\t#version 330 core\r\n\t\tout vec4 FragColor;\r\n\t\t\r\n\t\tin vec2 TexCoord;\r\n\t\t\r\n\t\tuniform sampler2D uTexture;\r\n\t\tuniform vec4 uColor;\r\n\t\t\r\n\t\tvoid main() {\r\n\t\t\tFragColor = texture(uTexture, TexCoord) * uColor;\r\n\t\t}\r\n\t\t",7a,64,68,8a);
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC0(ProgramInfo_obj,getDefaultFragmentShader,return )
 
 void ProgramInfo_obj::dispose(){
-            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_570_dispose)
+            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_573_dispose)
             	HX_STACK_THIS(this)
-HXLINE( 570)
-HXLINE( 571)		if (this->isCompiled) {
-HXLINE( 574)			if ((this->vertexShader != 0)) {
-HXLINE( 574)				glDeleteShader(this->vertexShader);
+HXLINE( 573)
+HXLINE( 574)		if (this->isCompiled) {
+HXLINE( 577)			if ((this->vertexShader != 0)) {
+HXLINE( 577)				glDeleteShader(this->vertexShader);
             			}
-HXLINE( 575)			if ((this->fragmentShader != 0)) {
-HXLINE( 575)				glDeleteShader(this->fragmentShader);
+HXLINE( 578)			if ((this->fragmentShader != 0)) {
+HXLINE( 578)				glDeleteShader(this->fragmentShader);
             			}
             		}
-HXLINE( 577)		this->isCompiled = false;
+HXLINE( 580)		this->isCompiled = false;
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC0(ProgramInfo_obj,dispose,(void))
 
 ::String ProgramInfo_obj::get_name(){
-            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_583_get_name)
+            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_586_get_name)
             	HX_STACK_THIS(this)
-HXLINE( 583)
-HXDLIN( 583)		return this->_hx___name;
+HXLINE( 586)
+HXDLIN( 586)		return this->_hx___name;
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC0(ProgramInfo_obj,get_name,return )
 
 int ProgramInfo_obj::get_textureCount(){
-            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_587_get_textureCount)
+            	HX_STACKFRAME(&_hx_pos_95d8fdb7263ecd3b_590_get_textureCount)
             	HX_STACK_THIS(this)
-HXLINE( 587)
-HXDLIN( 587)		return this->textures->length;
+HXLINE( 590)
+HXDLIN( 590)		return this->textures->length;
             	}
 
 

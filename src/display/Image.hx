@@ -1,6 +1,7 @@
 package display;
 
 import DisplayObject;
+import math.Matrix;
 
 // Simple Vector4 for axis constants
 class Vector4 {

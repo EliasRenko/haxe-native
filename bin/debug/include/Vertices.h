@@ -6,7 +6,7 @@
 #include <hxcpp.h>
 #endif
 
-HX_DECLARE_STACK_FRAME(_hx_pos_b4700fbf10ad486b_17_new)
+HX_DECLARE_STACK_FRAME(_hx_pos_b4700fbf10ad486b_18_new)
 HX_DECLARE_CLASS0(Vertices)
 
 
@@ -37,11 +37,11 @@ class HXCPP_CLASS_ATTRIBUTES Vertices_obj : public ::hx::Object
 			Vertices_obj *__this = (Vertices_obj*)(::hx::Ctx::alloc(_hx_ctx, sizeof(Vertices_obj), true, "Vertices"));
 			*(void **)__this = Vertices_obj::_hx_vtable;
 {
-            	HX_STACKFRAME(&_hx_pos_b4700fbf10ad486b_17_new)
+            	HX_STACKFRAME(&_hx_pos_b4700fbf10ad486b_18_new)
             	HX_STACK_THIS(__this)
             	HX_STACK_ARG(data,"data")
-HXLINE(  17)
-HXDLIN(  17)		( ( ::Vertices)(__this) )->data = data;
+HXLINE(  18)
+HXDLIN(  18)		( ( ::Vertices)(__this) )->data = data;
             	}
 		
 			return __this;

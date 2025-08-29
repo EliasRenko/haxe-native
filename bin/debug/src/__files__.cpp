@@ -31,6 +31,7 @@ const char *__hxcpp_all_files[] = {
 "C:\\HaxeToolkit\\haxe\\std/haxe/io/Path.hx",
 "C:\\HaxeToolkit\\haxe\\std/haxe/iterators/ArrayIterator.hx",
 "C:\\HaxeToolkit\\haxe\\std/sys/thread/EventLoop.hx",
+"Camera.hx",
 "DisplayObject.hx",
 "EventDispacher.hx",
 "Main.hx",
@@ -43,6 +44,7 @@ const char *__hxcpp_all_files[] = {
 "display/Rectangle.hx",
 "display/Triangle.hx",
 "loaders/TGALoader.hx",
+"math/Matrix.hx",
 #endif
  0 };
 
@@ -75,6 +77,7 @@ const char *__hxcpp_all_files_fullpath[] = {
 "C:\\HaxeToolkit\\haxe\\std\\haxe\\io\\Path.hx",
 "C:\\HaxeToolkit\\haxe\\std\\haxe\\iterators\\ArrayIterator.hx",
 "C:\\HaxeToolkit\\haxe\\std\\sys\\thread\\EventLoop.hx",
+"C:\\Users\\efedorenko\\Desktop\\engine\\src\\Camera.hx",
 "C:\\Users\\efedorenko\\Desktop\\engine\\src\\DisplayObject.hx",
 "C:\\Users\\efedorenko\\Desktop\\engine\\src\\EventDispacher.hx",
 "C:\\Users\\efedorenko\\Desktop\\engine\\src\\Main.hx",
@@ -87,6 +90,7 @@ const char *__hxcpp_all_files_fullpath[] = {
 "C:\\Users\\efedorenko\\Desktop\\engine\\src\\display\\Rectangle.hx",
 "C:\\Users\\efedorenko\\Desktop\\engine\\src\\display\\Triangle.hx",
 "C:\\Users\\efedorenko\\Desktop\\engine\\src\\loaders\\TGALoader.hx",
+"C:\\Users\\efedorenko\\Desktop\\engine\\src\\math\\Matrix.hx",
 #endif
  0 };
 
@@ -94,9 +98,9 @@ const char *__hxcpp_all_classes[] = {
 #ifdef HXCPP_DEBUGGER
 "App",
 "_App.__Resources",
+"Camera",
 "Vertices",
 "Indices",
-"Matrix",
 "BlendFactor",
 "DisplayObject",
 "EventDispacher",
@@ -135,6 +139,7 @@ const char *__hxcpp_all_classes[] = {
 "haxe.io.Path",
 "haxe.iterators.ArrayIterator",
 "loaders.TGALoader",
+"math.Matrix",
 "sys.FileSystem",
 "sys.thread._EventLoop.RegularEvent",
 "sys.thread.Lock",

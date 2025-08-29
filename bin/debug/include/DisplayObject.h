@@ -8,11 +8,11 @@
 
 HX_DECLARE_CLASS0(DisplayObject)
 HX_DECLARE_CLASS0(Indices)
-HX_DECLARE_CLASS0(Matrix)
 HX_DECLARE_CLASS0(ProgramInfo)
 HX_DECLARE_CLASS0(Vertices)
 HX_DECLARE_CLASS1(haxe,IMap)
 HX_DECLARE_CLASS2(haxe,ds,StringMap)
+HX_DECLARE_CLASS1(math,Matrix)
 
 
 
@@ -55,7 +55,7 @@ class HXCPP_CLASS_ATTRIBUTES DisplayObject_obj : public ::hx::Object
 		 ::Vertices vertices;
 		 ::ProgramInfo programInfo;
 		::Array< int > textures;
-		 ::Matrix matrix;
+		 ::math::Matrix matrix;
 		 ::haxe::ds::StringMap uniforms;
 		bool visible;
 		::String signature;
@@ -85,10 +85,10 @@ class HXCPP_CLASS_ATTRIBUTES DisplayObject_obj : public ::hx::Object
 		void updateTransform();
 		::Dynamic updateTransform_dyn();
 
-		virtual void render( ::Matrix cameraMatrix);
+		virtual void render( ::math::Matrix cameraMatrix);
 		::Dynamic render_dyn();
 
-		void setUniforms();
+		void setUniforms( ::math::Matrix finalMatrix);
 		::Dynamic setUniforms_dyn();
 
 };

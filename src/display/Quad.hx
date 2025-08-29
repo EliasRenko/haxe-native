@@ -5,6 +5,7 @@ import SDL;
 import DisplayObject;
 import ProgramInfo;
 import data.TextureData;
+import math.Matrix;
 
 class Quad extends DisplayObject {
     // Quad-specific properties
@@ -13,12 +14,12 @@ class Quad extends DisplayObject {
     public var textureId:GlUInt = 0;
     public var hasTexture:Bool = false;
     
-    // UV coordinates for texture mapping
+    // UV coordinates for texture mapping (flipped V for 2D)
     public var uvs:Array<Float> = [
-        0.0, 1.0,  // Top-left
-        1.0, 1.0,  // Top-right
-        1.0, 0.0,  // Bottom-right
-        0.0, 0.0   // Bottom-left
+        0.0, 0.0,  // Top-left
+        1.0, 0.0,  // Top-right
+        1.0, 1.0,  // Bottom-right
+        0.0, 1.0   // Bottom-left
     ];
     
     public function new(programInfo:ProgramInfo, ?width:Float = 0.8, ?height:Float = 0.8) {
@@ -31,15 +32,17 @@ class Quad extends DisplayObject {
         
         var quadVertices = new Vertices([
             // Position (x, y, z) + UV coordinates (u, v)
-            // Top-left vertex - flip V coordinate
+            // Top-left vertex - flipped V for 2D (0,0 at top-left)
             -halfWidth,  halfHeight, 0.0,  0.0, 0.0,
-            // Top-right vertex - flip V coordinate
+            // Top-right vertex - flipped V for 2D
              halfWidth,  halfHeight, 0.0,  1.0, 0.0,
-            // Bottom-right vertex - flip V coordinate
+            // Bottom-right vertex - flipped V for 2D
              halfWidth, -halfHeight, 0.0,  1.0, 1.0,
-            // Bottom-left vertex - flip V coordinate
+            // Bottom-left vertex - flipped V for 2D
             -halfWidth, -halfHeight, 0.0,  0.0, 1.0
         ]);
+        
+        trace("Quad created: " + width + "x" + height + " with UV coordinates (0,0) to (1,1)");
         
         // Indices for two triangles to form a quad
         var quadIndices = new Indices([
@@ -168,6 +171,10 @@ class Quad extends DisplayObject {
         // Convert grayscale to RGB for better compatibility
         var processedTexture = textureData.toRGB();
         
+        // TEMP: Don't auto-resize for testing - keep manual size
+        // setSize(processedTexture.width, processedTexture.height);
+        trace("Texture size: " + processedTexture.width + "x" + processedTexture.height + ", Quad size: " + width + "x" + height);
+        
         textureId = untyped __cpp__("
             [](){ 
                 unsigned int texId;
@@ -206,18 +213,20 @@ class Quad extends DisplayObject {
         untyped __cpp__("glTexImage2D(GL_TEXTURE_2D, 0, {0}, {1}, {2}, 0, {3}, GL_UNSIGNED_BYTE, {4}->b->GetBase())", 
             glInternalFormat, processedTexture.width, processedTexture.height, glFormat, bytes);
         
+        trace("Texture uploaded: " + processedTexture.width + "x" + processedTexture.height + " pixels, mapped to " + this.width + "x" + this.height + " quad");
+        
         // Set texture parameters
         if (processedTexture.powerOfTwo) {
             // Power-of-two textures can use mipmaps and repeat wrapping
-            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR_MIPMAP_LINEAR);
-            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST_MIPMAP_NEAREST);
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST);
             GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.REPEAT);
             GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.REPEAT);
             GL.generateMipmap(GL.TEXTURE_2D);
         } else {
             // Non-power-of-two textures should use clamp and no mipmaps
-            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR);
-            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST);
             GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
             GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
         }
@@ -225,7 +234,6 @@ class Quad extends DisplayObject {
         GL.bindTexture(GL.TEXTURE_2D, 0);
         
         hasTexture = true;
-        trace("Texture uploaded to GPU with ID: " + textureId + " (" + processedTexture.width + "x" + processedTexture.height + ", " + processedTexture.bytesPerPixel + " BPP, converted from " + textureData.bytesPerPixel + " BPP)");
     }
     
     // Clean up texture resources
@@ -277,6 +285,13 @@ class Quad extends DisplayObject {
     public override function render(cameraMatrix:Matrix):Void {
         if (!visible || !initialized) return;
         
+        // Update transformation matrix based on current properties
+        updateTransform();
+        
+        // Create final matrix by combining camera matrix with object matrix
+        var finalMatrix = Matrix.copy(cameraMatrix);
+        finalMatrix.append(matrix);
+        
         // Use the program
         GL.useProgram(programInfo.program);
         
@@ -289,11 +304,15 @@ class Quad extends DisplayObject {
             var textureLoc = GL.getUniformLocation(programInfo.program, "uTexture");
             if (textureLoc >= 0) {
                 GL.uniform1i(textureLoc, 0); // Texture unit 0
+            } else {
+                trace("ERROR: uTexture uniform not found in shader!");
             }
+        } else {
+            trace("Quad render - no texture: hasTexture=" + hasTexture + ", textureId=" + textureId);
         }
         
-        // Set uniforms
-        setUniforms();
+        // Set uniforms with the final combined matrix
+        setUniforms(finalMatrix);
         
         // Bind VAO and draw
         GL.bindVertexArray(vao);
@@ -360,7 +379,8 @@ class Quad extends DisplayObject {
         uniform sampler2D uTexture;
         
         void main() {
-            FragColor = texture(uTexture, TexCoord);
+            vec4 texColor = texture(uTexture, TexCoord);
+            FragColor = texColor;
         }
         ';
     }

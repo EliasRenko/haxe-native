@@ -83,7 +83,7 @@ class App {
         
         // Create renderer
         trace("About to create renderer...");
-        renderer = new Renderer(this, 800, 600);
+        renderer = new Renderer(this, 640, 480);
         trace("Renderer created successfully!");
         
         // Test resource loading

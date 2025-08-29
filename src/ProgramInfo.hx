@@ -142,7 +142,10 @@ class ProgramInfo {
 			trace("Warning: Program not compiled yet, attributes may not be bound correctly");
 		}
 		
+		trace("Setting up " + attributes.length + " vertex attributes:");
 		for (attr in attributes) {
+			trace("  " + attr.name + ": location=" + attr.location + ", size=" + attr.size + ", stride=" + attr.stride + ", offset=" + attr.offset);
+			
 			// Enable the vertex attribute array
 			GL.enableVertexAttribArray(attr.location);
 			
