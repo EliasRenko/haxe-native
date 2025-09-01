@@ -109,6 +109,9 @@
 #ifndef INCLUDED_display_Image
 #include <display/Image.h>
 #endif
+#ifndef INCLUDED_display_Cube
+#include <display/Cube.h>
+#endif
 #ifndef INCLUDED_data_TextureData
 #include <data/TextureData.h>
 #endif
@@ -203,6 +206,7 @@ __files__boot();
 ::display::Rectangle_obj::__register();
 ::display::Quad_obj::__register();
 ::display::Image_obj::__register();
+::display::Cube_obj::__register();
 ::data::TextureData_obj::__register();
 ::haxe::IMap_obj::__register();
 ::Type_obj::__register();

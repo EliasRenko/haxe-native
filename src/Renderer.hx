@@ -7,6 +7,7 @@ import display.Image;
 import display.Triangle;
 import display.Rectangle;
 import display.Quad;
+import display.Cube;
 import data.TextureData;
 import Camera;
 import math.Matrix;
@@ -23,6 +24,9 @@ class Renderer {
     private var windowWidth:Int;
     private var windowHeight:Int;
     
+    // Frame counter for debug output
+    private var frameCount:Int = 0;
+    
     // DisplayObjects
     private var testTriangle:Triangle;
     private var triangleProgram:ProgramInfo;
@@ -35,6 +39,10 @@ class Renderer {
     private var testQuad:Quad;
     private var quadProgram:ProgramInfo;
     
+    // Test 3D cube using DisplayObject architecture
+    private var testCube:Cube;
+    private var cubeProgram:ProgramInfo;
+    
     // Test image using DisplayObject architecture
     private var testImage:Image;
     private var imageProgram:ProgramInfo;
@@ -45,33 +53,70 @@ class Renderer {
         this.windowWidth = windowWidth;
         this.windowHeight = windowHeight;
         
-        // Initialize camera
+        // Initialize camera with explicit values for debugging
         camera = new Camera();
         camera.ortho = true; // Use orthographic projection for 2D
+        camera.x = 0.0;
+        camera.y = 0.0; 
+        camera.z = 0.0;
+        camera.pitch = 0.0;
+        camera.yaw = 0.0;
+        camera.roll = 0.0;
         
         initializeTestTriangle();
         initializeTestRectangle();
         initializeTestQuad();
+        initializeTestCube();
         //initializeTestImage();
         trace("Clean renderer initialized!");
     }
     
     public function render():Void {
-        // Clear screen to gray
-        GL.glClearColor(0.6, 0.6, 0.6, 1.0);
-        GL.glClear(GL.COLOR_BUFFER_BIT);
+        frameCount++; // Increment frame counter for debug timing
+        
+        // Clear screen and depth buffer
+        GL.glClearColor(0.1, 0.1, 0.15, 1.0); // Very dark background for 3D focus
+        GL.glClear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
+        
+        // Enable depth testing for 3D
+        GL.glEnable(GL.DEPTH_TEST);
+        GL.glDepthFunc(GL.LESS);
+        
+        // Disable face culling to see all faces from all angles
+        GL.glDisable(GL.CULL_FACE);
 
-        // Render test textured quad using DisplayObject architecture
-        if (testQuad != null) {
-            // No rotation - render quad stationary for cleaner testing
-            renderDisplayObject(testQuad);
+        // Use perspective projection for 3D cube
+        camera.ortho = false;
+        camera.x = 0; // Center camera on X axis
+        camera.y = 0; // Center camera on Y axis  
+        camera.z = 5; // Move camera back to see the cube clearly
+        
+        // Render only the 3D cube at center with clean Y-axis rotation
+        if (testCube != null) {
+            // Center the cube
+            testCube.x = 0.0;
+            testCube.y = 0.0;
+            testCube.z = 0.0;
+            
+            // Simple Y-axis rotation like typical 3D demos (no X/Z rotation)
+            var time = haxe.Timer.stamp();
+            var rotY = (time * 0.3) % (2 * Math.PI); // Slower Y rotation, wrapped to 0-2π
+            
+            testCube.rotationX = 0.0; // No X rotation
+            testCube.rotationY = rotY; // Only Y-axis rotation
+            testCube.rotationZ = 0.0; // No Z rotation
+            
+            // Debug: Print current rotation values occasionally
+            if (frameCount % 300 == 0) { // Every 5 seconds
+                trace("Cube Y rotation: " + testCube.rotationY + " (clean Y-axis spin)");
+                trace("Raw time: " + time + " (wrapped rotation prevents precision issues)");
+                trace("Camera position: X=" + camera.x + ", Y=" + camera.y + ", Z=" + camera.z);
+                trace("Camera ortho=" + camera.ortho + ", fov=" + camera.fov);
+            } 
+            // testCube.rotationZ = 0.2; // Fixed small Z rotation
+            
+            renderDisplayObject(testCube);
         }
-
-        // Render test image using DisplayObject architecture
-        // Temporarily disabled to debug triangle
-        // if (testImage != null) {
-        //     renderDisplayObject(testImage);
-        // }
     }
     
     // ** New method to render display objects
@@ -106,8 +151,8 @@ class Renderer {
         testTriangle.y = 0.3;
         testTriangle.scaleX = 0.7;
         testTriangle.scaleY = 0.7;
-        testTriangle.setRotationSpeed(0.1);
-        testTriangle.setAutoRotate(true);
+        // testTriangle.setRotationSpeed(0.1); // Animation disabled for debugging
+        // testTriangle.setAutoRotate(true);   // Animation disabled for debugging
         
         trace("Test triangle initialized successfully!");
     }
@@ -170,6 +215,30 @@ class Renderer {
             });
         
         trace("Test textured quad initialized successfully!");
+    }
+    
+    private function initializeTestCube():Void {
+        trace("Initializing test 3D cube using DisplayObject architecture...");
+        
+        // Create ProgramInfo with cube shaders and automatic introspection
+        cubeProgram = new ProgramInfo("TestCube", Cube.getVertexShader(), Cube.getFragmentShader());
+        
+        // Print debug info about the introspected program
+        cubeProgram.printVertexLayout();
+        
+        // Create the 3D cube display object with larger size for better visibility
+        testCube = new Cube(cubeProgram, 2.0);
+        
+        // Position cube slightly to the right in 3D space
+        testCube.x = 1.5;
+        testCube.y = 0.0;
+        testCube.z = 0.0;
+        
+        // Configure animation - disabled for debugging
+        // testCube.autoRotate = true;
+        // testCube.rotationSpeed = 1.0;
+        
+        trace("Test 3D cube initialized successfully!");
     }
     
     private function initializeTestImage():Void {

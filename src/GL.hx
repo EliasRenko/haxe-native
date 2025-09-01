@@ -67,6 +67,15 @@ extern class GL {
     @:native("glEnable")
     static function glEnable(cap:Int):Void;
 
+    @:native("glDisable")
+    static function glDisable(cap:Int):Void;
+
+    @:native("glDepthFunc")
+    static function glDepthFunc(func:Int):Void;
+
+    @:native("glViewport")
+    static function viewport(x:Int, y:Int, width:Int, height:Int):Void;
+
     @:native("glCreateProgram")
     static function createProgram():UInt;
 
@@ -229,6 +238,13 @@ extern class GL {
 
     @:native("GL_CULL_FACE")
     static var CULL_FACE(default, null):Int;
+    
+    // Depth function constants
+    @:native("GL_LESS")
+    static var LESS(default, null):Int;
+    
+    @:native("GL_LEQUAL")  
+    static var LEQUAL(default, null):Int;
 
     @:native("GL_VERTEX_SHADER")
     static var VERTEX_SHADER(default, null):Int;

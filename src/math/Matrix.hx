@@ -56,24 +56,46 @@ class Matrix {
         this.append(m);
     }
     
-    public function appendRotationZ(angle:Float):Void {
-        var cos = Math.cos(angle);
-        var sin = Math.sin(angle);
-        var m = new Matrix();
-        m.identity();
-        m.data[0] = cos;   // [0,0]
-        m.data[1] = sin;   // [0,1]
-        m.data[4] = -sin;  // [1,0]
-        m.data[5] = cos;   // [1,1]
-        this.append(m);
-    }
-    
-    public function appendRotation(angle:Float, axis:Dynamic):Void {
-        // For now, just support Z-axis rotation
-        appendRotationZ(angle);
-    }
-    
-    public function append(other:Matrix):Void {
+	public function appendRotationZ(angle:Float):Void {
+		var cos = Math.cos(angle);
+		var sin = Math.sin(angle);
+		var m = new Matrix();
+		m.identity();
+		m.data[0] = cos;   // [0,0]
+		m.data[1] = sin;   // [0,1]
+		m.data[4] = -sin;  // [1,0]
+		m.data[5] = cos;   // [1,1]
+		this.append(m);
+	}
+	
+	public function appendRotationX(angle:Float):Void {
+		var cos = Math.cos(angle);
+		var sin = Math.sin(angle);
+		var m = new Matrix();
+		m.identity();
+		m.data[5] = cos;   // [1,1] 
+		m.data[6] = sin;   // [1,2]
+		m.data[9] = -sin;  // [2,1]
+		m.data[10] = cos;  // [2,2]
+		this.append(m);
+	}
+	
+	public function appendRotationY(angle:Float):Void {
+		var cos = Math.cos(angle);
+		var sin = Math.sin(angle);
+		var m = new Matrix();
+		m.identity();
+		m.data[0] = cos;   // [0,0]
+		m.data[2] = -sin;  // [0,2]
+		m.data[8] = sin;   // [2,0]
+		m.data[10] = cos;  // [2,2]
+		this.append(m);
+	}
+	
+	public function appendRotation(angle:Float, axis:Dynamic):Void {
+		// For now, just support Z-axis rotation for backwards compatibility
+		appendRotationZ(angle);
+	}    public function append(other:Matrix):Void {
         // Matrix multiplication: this = this * other
         var result = new Array<Float>();
         result.resize(16);
@@ -112,7 +134,7 @@ class Matrix {
     }
     
     // Static method to create perspective projection matrix
-    public static function createPerspectiveMatrix(fov:Float, aspect:Float, width:Float, height:Float, near:Float, far:Float):Matrix {
+    public static function createPerspectiveMatrix(fov:Float, aspect:Float, near:Float, far:Float):Matrix {
         var m = new Matrix();
         m.identity();
         

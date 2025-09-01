@@ -85,7 +85,6 @@ class Triangle extends DisplayObject {
         out vec3 vertexColor;
         
         void main() {
-            // Apply matrix transformation - DEBUGGING VERSION
             gl_Position = uMatrix * vec4(aPos, 1.0);
             vertexColor = aColor;
         }

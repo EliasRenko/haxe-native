@@ -12,6 +12,7 @@ HX_DECLARE_CLASS0(DisplayObject)
 HX_DECLARE_CLASS0(ProgramInfo)
 HX_DECLARE_CLASS0(Renderer)
 HX_DECLARE_CLASS1(data,TextureData)
+HX_DECLARE_CLASS1(display,Cube)
 HX_DECLARE_CLASS1(display,Image)
 HX_DECLARE_CLASS1(display,Quad)
 HX_DECLARE_CLASS1(display,Rectangle)
@@ -58,12 +59,15 @@ class HXCPP_CLASS_ATTRIBUTES Renderer_obj : public ::hx::Object
 		 ::Camera camera;
 		int windowWidth;
 		int windowHeight;
+		int frameCount;
 		 ::display::Triangle testTriangle;
 		 ::ProgramInfo triangleProgram;
 		 ::display::Rectangle testRectangle;
 		 ::ProgramInfo rectangleProgram;
 		 ::display::Quad testQuad;
 		 ::ProgramInfo quadProgram;
+		 ::display::Cube testCube;
+		 ::ProgramInfo cubeProgram;
 		 ::display::Image testImage;
 		 ::ProgramInfo imageProgram;
 		void render();
@@ -80,6 +84,9 @@ class HXCPP_CLASS_ATTRIBUTES Renderer_obj : public ::hx::Object
 
 		void initializeTestQuad();
 		::Dynamic initializeTestQuad_dyn();
+
+		void initializeTestCube();
+		::Dynamic initializeTestCube_dyn();
 
 		void initializeTestImage();
 		::Dynamic initializeTestImage_dyn();

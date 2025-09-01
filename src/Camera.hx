@@ -5,36 +5,53 @@ import math.Matrix;
 class Camera {
 
     public var ortho:Bool = false;
-    public var pitch(get, set):Int;
-    public var roll(get, set):Int;
-    public var x:Int = 0;
-    public var yaw(get, set):Int;
-    public var y:Int = 0;
-    public var z:Int = 0;
+    
+    // Position
+    public var x:Float = 0;
+    public var y:Float = 0;
+    public var z:Float = 0;
+    
+    // 3D Rotation (in degrees for easier use)
+    public var pitch(get, set):Float;  // X-axis rotation
+    public var yaw(get, set):Float;    // Y-axis rotation  
+    public var roll(get, set):Float;   // Z-axis rotation
+    
+    // 3D Camera properties
+    public var fov:Float = 45.0; // Field of view in degrees
+    public var nearPlane:Float = 0.1;
+    public var farPlane:Float = 1000.0;
 
     // ** Privates 
 
     private var __matrix:Matrix = new Matrix();
-    private var __pitch:Int = 0;
-    private var __roll:Int = 0;
-    private var __yaw:Int = 0;
+    private var __pitch:Float = 0.0;
+    private var __roll:Float = 0.0;
+    private var __yaw:Float = 0.0;
 
     public function new() {}
 
     public function renderMatrix(width:Float, height:Float):Void {
 
         __matrix.identity();
-        __matrix.appendTranslation(x, y, z);
-
+        
+        // Apply camera transformations first (view matrix)
+        // Apply camera rotations (convert degrees to radians)
+        if (__pitch != 0.0) __matrix.appendRotationX(__pitch * Math.PI / 180.0);
+        if (__yaw != 0.0) __matrix.appendRotationY(__yaw * Math.PI / 180.0);
+        if (__roll != 0.0) __matrix.appendRotationZ(__roll * Math.PI / 180.0);
+        
+        // Apply camera translation (negative because we move the world opposite to camera)
+        __matrix.appendTranslation(-x, -y, -z);
+        
         if (ortho) {
-            // Center-based orthographic projection: (-width/2, width/2, -height/2, height/2)
-            __matrix.append(Matrix.createOrthoMatrix(-width/2, width/2, -height/2, height/2, 1000, -1000));
+            // Orthographic projection for 2D objects with proper near/far for 2D
+            __matrix.append(Matrix.createOrthoMatrix(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0));
         }
         else {
-            __matrix.append(Matrix.createPerspectiveMatrix(45 * Math.PI / 180, 4 / 3, width, height, 10, 1000));
+            // Perspective projection with proper aspect ratio
+            var aspect = width / height;
+            __matrix.append(Matrix.createPerspectiveMatrix(fov * Math.PI / 180.0, aspect, nearPlane, farPlane));
         }
-
-        //trace("Came matrix: " + __matrix.toArray());
     }
 
     public function getMatrix() {
@@ -44,33 +61,27 @@ class Camera {
 
     // ** Getters and setters.
 
-    private function get_pitch():Int {
-
+    private function get_pitch():Float {
         return __pitch;
     }
 
-    private function set_pitch(value:Int):Int {
-
-        return __pitch = (value %= 360) >= 0 ? value : (value + 360);
+    private function set_pitch(value:Float):Float {
+        return __pitch = value % 360;
     }
 
-    private function get_roll():Int {
-
+    private function get_roll():Float {
         return __roll;
     }
 
-    private function set_roll(value:Int):Int {
-
-        return __roll = (value %= 360) >= 0 ? value : (value + 360);
+    private function set_roll(value:Float):Float {
+        return __roll = value % 360;
     }
 
-    private function get_yaw():Int {
-
+    private function get_yaw():Float {
         return __yaw;
     }
 
-    private function set_yaw(value:Int):Int {
-
-        return __yaw = (value %= 360) >= 0 ? value : (value + 360);
+    private function set_yaw(value:Float):Float {
+        return __yaw = value % 360;
     }
 }

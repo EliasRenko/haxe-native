@@ -81,6 +81,9 @@ class App {
         trace("OpenGL loaded successfully");
         trace("OpenGL Version: " + GL.version.major + "." + GL.version.minor);
         
+        // Set viewport to match window size
+        GL.viewport(0, 0, 640, 480);
+        
         // Create renderer
         trace("About to create renderer...");
         renderer = new Renderer(this, 640, 480);

@@ -43,7 +43,7 @@ HX_LOCAL_STACK_FRAME(_hx_pos_d903e98b577ce50d_54_updateVertexColors,"display.Tri
 HX_LOCAL_STACK_FRAME(_hx_pos_d903e98b577ce50d_68_setRotationSpeed,"display.Triangle","setRotationSpeed",0x438fdf81,"display.Triangle.setRotationSpeed","display/Triangle.hx",68,0xbf142e49)
 HX_LOCAL_STACK_FRAME(_hx_pos_d903e98b577ce50d_73_setAutoRotate,"display.Triangle","setAutoRotate",0x86f74212,"display.Triangle.setAutoRotate","display/Triangle.hx",73,0xbf142e49)
 HX_LOCAL_STACK_FRAME(_hx_pos_d903e98b577ce50d_78_getVertexShader,"display.Triangle","getVertexShader",0x1c74a985,"display.Triangle.getVertexShader","display/Triangle.hx",78,0xbf142e49)
-HX_LOCAL_STACK_FRAME(_hx_pos_d903e98b577ce50d_97_getFragmentShader,"display.Triangle","getFragmentShader",0x20adf5f1,"display.Triangle.getFragmentShader","display/Triangle.hx",97,0xbf142e49)
+HX_LOCAL_STACK_FRAME(_hx_pos_d903e98b577ce50d_96_getFragmentShader,"display.Triangle","getFragmentShader",0x20adf5f1,"display.Triangle.getFragmentShader","display/Triangle.hx",96,0xbf142e49)
 namespace display{
 
 void Triangle_obj::__construct( ::ProgramInfo programInfo){
@@ -158,16 +158,16 @@ HX_DEFINE_DYNAMIC_FUNC1(Triangle_obj,setAutoRotate,(void))
 ::String Triangle_obj::getVertexShader(){
             	HX_STACKFRAME(&_hx_pos_d903e98b577ce50d_78_getVertexShader)
 HXLINE(  78)
-HXDLIN(  78)		return HX_("\r\n        #version 330 core\r\n        layout (location = 0) in vec3 aPos;\r\n        layout (location = 1) in vec3 aColor;\r\n        \r\n        uniform mat4 uMatrix;\r\n        \r\n        out vec3 vertexColor;\r\n        \r\n        void main() {\r\n            // Apply matrix transformation - DEBUGGING VERSION\r\n            gl_Position = uMatrix * vec4(aPos, 1.0);\r\n            vertexColor = aColor;\r\n        }\r\n        ",d2,a8,d5,ba);
+HXDLIN(  78)		return HX_("\r\n        #version 330 core\r\n        layout (location = 0) in vec3 aPos;\r\n        layout (location = 1) in vec3 aColor;\r\n        \r\n        uniform mat4 uMatrix;\r\n        \r\n        out vec3 vertexColor;\r\n        \r\n        void main() {\r\n            gl_Position = uMatrix * vec4(aPos, 1.0);\r\n            vertexColor = aColor;\r\n        }\r\n        ",2c,5d,d6,f6);
             	}
 
 
 STATIC_HX_DEFINE_DYNAMIC_FUNC0(Triangle_obj,getVertexShader,return )
 
 ::String Triangle_obj::getFragmentShader(){
-            	HX_STACKFRAME(&_hx_pos_d903e98b577ce50d_97_getFragmentShader)
-HXLINE(  97)
-HXDLIN(  97)		return HX_("\r\n        #version 330 core\r\n        in vec3 vertexColor;\r\n        out vec4 FragColor;\r\n        \r\n        void main() {\r\n            FragColor = vec4(vertexColor, 1.0);\r\n        }\r\n        ",da,39,e4,75);
+            	HX_STACKFRAME(&_hx_pos_d903e98b577ce50d_96_getFragmentShader)
+HXLINE(  96)
+HXDLIN(  96)		return HX_("\r\n        #version 330 core\r\n        in vec3 vertexColor;\r\n        out vec4 FragColor;\r\n        \r\n        void main() {\r\n            FragColor = vec4(vertexColor, 1.0);\r\n        }\r\n        ",da,39,e4,75);
             	}
 
 
