@@ -43,6 +43,10 @@ class Renderer {
     private var testCube:Cube;
     private var cubeProgram:ProgramInfo;
     
+    // Background rectangle for 2D/3D testing
+    private var backgroundRect:Rectangle;
+    private var backgroundProgram:ProgramInfo;
+    
     // Test image using DisplayObject architecture
     private var testImage:Image;
     private var imageProgram:ProgramInfo;
@@ -67,6 +71,7 @@ class Renderer {
         initializeTestRectangle();
         initializeTestQuad();
         initializeTestCube();
+        initializeBackgroundRect();
         //initializeTestImage();
         trace("Clean renderer initialized!");
     }
@@ -90,6 +95,14 @@ class Renderer {
         camera.x = 0; // Center camera on X axis
         camera.y = 0; // Center camera on Y axis  
         camera.z = 5; // Move camera back to see the cube clearly
+        
+        // Render background rectangle first (behind the 3D cube)
+        if (backgroundRect != null) {
+            // Temporarily disable depth testing for the rectangle to ensure it's visible
+            GL.glDisable(GL.DEPTH_TEST);
+            renderDisplayObject(backgroundRect);
+            GL.glEnable(GL.DEPTH_TEST); // Re-enable for 3D cube
+        }
         
         // Render only the 3D cube at center with clean Y-axis rotation
         if (testCube != null) {
@@ -239,6 +252,27 @@ class Renderer {
         // testCube.rotationSpeed = 1.0;
         
         trace("Test 3D cube initialized successfully!");
+    }
+    
+    private function initializeBackgroundRect():Void {
+        trace("Initializing background rectangle for 2D/3D testing...");
+        
+        // Create ProgramInfo with rectangle shaders
+        backgroundProgram = new ProgramInfo("BackgroundRect", Rectangle.getVertexShader(), Rectangle.getFragmentShader());
+        
+        // Create a larger rectangle that covers more of the screen
+        backgroundRect = new Rectangle(backgroundProgram, 3.0, 2.0);
+        
+        // Position it in front of the cube for testing visibility
+        backgroundRect.x = 1.5; // Move it to the side
+        backgroundRect.y = 0.0;
+        backgroundRect.z = 0.5; // In front of the cube which is at z=0
+        
+        // Set a bright contrasting color for visibility testing
+        var brightGreen = [0.0, 1.0, 0.0]; // Bright green
+        backgroundRect.setCornerColors(brightGreen, brightGreen, brightGreen, brightGreen);
+        
+        trace("Background rectangle initialized successfully!");
     }
     
     private function initializeTestImage():Void {

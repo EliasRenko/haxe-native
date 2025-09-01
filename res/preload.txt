@@ -1,0 +1,12 @@
+# Preload configuration file
+# List assets to preload at startup
+# Supported formats: .tga (textures), .vert/.frag (shaders)
+
+# Textures
+textures/dev1.tga
+
+# Shaders
+shaders/basic.vert
+shaders/basic.frag
+shaders/textured.vert
+shaders/textured.frag

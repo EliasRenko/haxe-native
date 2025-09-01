@@ -21,13 +21,14 @@ typedef Resource = {
 class App {
 
     // Publics
+    public var active(get, null):Bool;
     public var resources(get, null):Resources;
 
     // Privates
-    private var active:Bool = false;
-    private var window:Window;
-    private var context:GLContext;
-    private var renderer:Renderer;
+    private var __active:Bool = false;
+    private var __window:Window;
+    private var __context:GLContext;
+    private var __renderer:Renderer;
 
     private var __resources:__Resources;
     
@@ -51,8 +52,8 @@ class App {
         SDL.setAttribute(SDL.GL_CONTEXT_PROFILE_MASK, SDL.GL_CONTEXT_PROFILE_CORE);
         
         // Create window
-        window = SDL.createWindow("Clean SDL Engine", 640, 480, SDL.WINDOW_OPENGL);
-        if (window == null) {
+        __window = SDL.createWindow("Clean SDL Engine", 640, 480, SDL.WINDOW_OPENGL);
+        if (__window == null) {
             trace("Failed to create window: " + SDL.getError());
             SDL.quit();
             return false;
@@ -61,14 +62,14 @@ class App {
         trace("Window created successfully");
         
         // Create OpenGL context
-        context = SDL.createContext(window);
-        if (context == null) {
+        __context = SDL.createContext(__window);
+        if (__context == null) {
             trace("Failed to create OpenGL context: " + SDL.getError());
             SDL.quit();
             return false;
         }
         
-        SDL.makeCurrent(window, context);
+        SDL.makeCurrent(__window, __context);
         
         // Load OpenGL functions
         var gladResult = GL.gladLoadGLLoader(SDL.getProcAddress);
@@ -86,41 +87,71 @@ class App {
         
         // Create renderer
         trace("About to create renderer...");
-        renderer = new Renderer(this, 640, 480);
+        __renderer = new Renderer(this, 640, 480);
         trace("Renderer created successfully!");
         
-        // Test resource loading
-        trace("Testing resource loading...");
-        resources.loadText("text/test.txt")
-            .then(function(content:String) {
-                trace("Successfully loaded test.txt:");
-                trace(content);
+        // Preload assets from preload.txt
+        trace("Preloading assets...");
+        resources.loadText("preload.txt")
+            .then(function(source:String) {
+                var files:Array<Promise<Dynamic>> = new Array<Promise<Dynamic>>();
+                var lines:Array<String> = source.split("\n");
+                var regex:EReg = ~/[^\s]+/;
+
+                for (line in lines) {
+                    // Skip empty lines and comments
+                    line = StringTools.trim(line);
+                    if (line.length == 0 || line.charAt(0) == "#") {
+                        continue;
+                    }
+                    
+                    if (regex.match(line)) {
+                        var path:String = regex.matched(0);
+                        var ext = haxe.io.Path.extension(path);
+                        switch (ext) {
+                            case "tga": {
+                                files.push(__resources.loadTexture(path));
+                            }
+                            case "vert" | "frag": {
+                                files.push(__resources.loadText(path));
+                            }
+                            default: {
+                                //files.push(__resources.loadText(path));
+                                throw 'Unsupported resource type: ' + ext + ' for file: ' + path;
+                            }
+                        }
+                    }
+                }
+                
+                // Wait for all assets to load
+                Promise.all(files)
+                    .then(function(results:Array<Dynamic>) {
+                        trace("Successfully preloaded " + results.length + " assets");
+                    })
+                    .onError(function(error:String) {
+                        trace("Failed to preload some assets: " + error);
+                    });
             })
             .onError(function(error:String) {
-                trace("Failed to load test.txt: " + error);
+                trace("Failed to load preload.txt: " + error);
             });
-        
-        // Run tests only in test builds
-        #if test
-        test.TestRunner.runSpecificTests();
-        #end
         
         trace("Application initialized successfully!");
         return true;
     }
     
     public function run():Void {
-        if (renderer == null) {
+        if (__renderer == null) {
             trace("Error: Application not initialized! Call init() first.");
             return;
         }
         
         trace("Starting main loop... (Close the window to exit)");
-        
-        active = true;
+
+        __active = true;
         var frameCount = 0;
-        
-        while (active) {
+
+        while (__active) {
             frameCount++;
             
             // Handle events
@@ -133,12 +164,7 @@ class App {
             render();
             
             // Swap buffers
-            SDL.swapWindow(window);
-            
-            // Show progress occasionally
-            if (frameCount % 60 == 0) {
-                trace("Frame: " + frameCount + " (Window should be visible - close it to exit)");
-            }
+            SDL.swapWindow(__window);
         }
         
         trace("Main loop ended");
@@ -150,10 +176,10 @@ class App {
         while (SDL.pollEvent(event)) {
             if (event.value.type == SDL.EVENT_QUIT) {
                 trace("Quit event received");
-                active = false;
+                __active = false;
             } else if (event.value.type == SDL.EVENT_WINDOW_CLOSE_REQUESTED) {
                 trace("Window close requested");
-                active = false;
+                __active = false;
             }
             // TODO: Add more event handling (keyboard, mouse, etc.)
         }
@@ -166,7 +192,7 @@ class App {
     
     private function render():Void {
         // Render the frame
-        renderer.render();
+        __renderer.render();
     }
     
     public function cleanup():Void {
@@ -178,9 +204,9 @@ class App {
             __resources = null;
         }
         
-        if (renderer != null) {
-            renderer.cleanup();
-            renderer = null;
+        if (__renderer != null) {
+            __renderer.cleanup();
+            __renderer = null;
         }
         
         SDL.quit();
@@ -188,21 +214,16 @@ class App {
         trace("Application cleanup complete");
     }
     
-    public function stop():Void {
-        active = false;
-    }
-    
-    // Getters for external access if needed
-    public function isRunning():Bool {
-        return active;
-    }
-    
     public function getRenderer():Renderer {
-        return renderer;
+        return __renderer;
     }
     
     public function getWindow():Dynamic {
-        return window;
+        return __window;
+    }
+    
+    private function get_active():Bool {
+        return __active;
     }
     
     private function get_resources():Resources {

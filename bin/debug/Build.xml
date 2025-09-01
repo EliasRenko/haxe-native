@@ -194,6 +194,9 @@
   <file name="src/Sys.cpp" >
    <depend name="include/Sys.h"/>
   </file>
+  <file name="src/StringTools.cpp" >
+   <depend name="include/StringTools.h"/>
+  </file>
   <file name="src/Std.cpp" >
    <depend name="include/Std.h"/>
   </file>
@@ -247,6 +250,9 @@
    <depend name="include/EventDispacher.h"/>
    <depend name="include/Reflect.h"/>
   </file>
+  <file name="src/EReg.cpp" >
+   <depend name="include/EReg.h"/>
+  </file>
   <file name="src/DisplayObject.cpp" >
    <depend name="include/BlendFactor.h"/>
    <depend name="include/DisplayObject.h"/>
@@ -290,10 +296,13 @@
   </file>
   <file name="src/App.cpp" >
    <depend name="include/App.h"/>
+   <depend name="include/EReg.h"/>
    <depend name="include/Promise.h"/>
    <depend name="include/Renderer.h"/>
+   <depend name="include/StringTools.h"/>
    <depend name="include/_App/__Resources.h"/>
    <depend name="include/haxe/Log.h"/>
+   <depend name="include/haxe/io/Path.h"/>
   </file>
   <file name="src/__boot__.cpp" >
    <depend name="include/haxe/io/Error.h"/>
@@ -332,6 +341,7 @@
 </files>
 <set name="HAXE_OUTPUT" value="Main" />
 <include name="${HXCPP}/build-tool/BuildCommon.xml"/>
+<include name="${HXCPP}/src/hx/libs/regexp/Build.xml"/>
 
 <files id="haxe">
   <compilerflag value="-Iinclude" />

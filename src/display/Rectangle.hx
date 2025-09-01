@@ -35,10 +35,10 @@ class Rectangle extends DisplayObject {
             -halfWidth, -halfHeight, 0.0,  0.0, 0.0, 1.0   // Blue
         ]);
         
-        // Indices for two triangles to form a rectangle
+        // Indices for two triangles to form a rectangle (counter-clockwise winding)
         var rectangleIndices = new Indices([
-            0, 1, 2,  // First triangle (top-left, top-right, bottom-right)
-            2, 3, 0   // Second triangle (bottom-right, bottom-left, top-left)
+            0, 2, 1,  // First triangle (top-left, bottom-right, top-right)
+            0, 3, 2   // Second triangle (top-left, bottom-left, bottom-right)
         ]);
         
         super(programInfo, rectangleVertices, rectangleIndices);

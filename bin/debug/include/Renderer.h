@@ -68,6 +68,8 @@ class HXCPP_CLASS_ATTRIBUTES Renderer_obj : public ::hx::Object
 		 ::ProgramInfo quadProgram;
 		 ::display::Cube testCube;
 		 ::ProgramInfo cubeProgram;
+		 ::display::Rectangle backgroundRect;
+		 ::ProgramInfo backgroundProgram;
 		 ::display::Image testImage;
 		 ::ProgramInfo imageProgram;
 		void render();
@@ -87,6 +89,9 @@ class HXCPP_CLASS_ATTRIBUTES Renderer_obj : public ::hx::Object
 
 		void initializeTestCube();
 		::Dynamic initializeTestCube_dyn();
+
+		void initializeBackgroundRect();
+		::Dynamic initializeBackgroundRect_dyn();
 
 		void initializeTestImage();
 		::Dynamic initializeTestImage_dyn();

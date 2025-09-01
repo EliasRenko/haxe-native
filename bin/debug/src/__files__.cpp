@@ -6,6 +6,8 @@ const char *__hxcpp_all_files[] = {
 #ifdef HXCPP_DEBUGGER
 "?",
 "App.hx",
+"C:\\HaxeToolkit\\haxe\\std/StringTools.hx",
+"C:\\HaxeToolkit\\haxe\\std/cpp/_std/EReg.hx",
 "C:\\HaxeToolkit\\haxe\\std/cpp/_std/Reflect.hx",
 "C:\\HaxeToolkit\\haxe\\std/cpp/_std/Std.hx",
 "C:\\HaxeToolkit\\haxe\\std/cpp/_std/Sys.hx",
@@ -53,6 +55,8 @@ const char *__hxcpp_all_files_fullpath[] = {
 #ifdef HXCPP_DEBUGGER
 "C:\\Users\\efedorenko\\Desktop\\engine\\?",
 "C:\\Users\\efedorenko\\Desktop\\engine\\src\\App.hx",
+"C:\\HaxeToolkit\\haxe\\std\\StringTools.hx",
+"C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\EReg.hx",
 "C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\Reflect.hx",
 "C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\Std.hx",
 "C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\Sys.hx",
@@ -105,6 +109,7 @@ const char *__hxcpp_all_classes[] = {
 "Indices",
 "BlendFactor",
 "DisplayObject",
+"EReg",
 "EventDispacher",
 "Main",
 "ProgramInfo",
@@ -112,6 +117,7 @@ const char *__hxcpp_all_classes[] = {
 "Reflect",
 "Renderer",
 "Std",
+"StringTools",
 "Sys",
 "Type",
 "data.TextureData",

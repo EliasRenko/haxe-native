@@ -124,6 +124,9 @@
 #ifndef INCLUDED_Sys
 #include <Sys.h>
 #endif
+#ifndef INCLUDED_StringTools
+#include <StringTools.h>
+#endif
 #ifndef INCLUDED_Std
 #include <Std.h>
 #endif
@@ -144,6 +147,9 @@
 #endif
 #ifndef INCLUDED_EventDispacher
 #include <EventDispacher.h>
+#endif
+#ifndef INCLUDED_EReg
+#include <EReg.h>
 #endif
 #ifndef INCLUDED_DisplayObject
 #include <DisplayObject.h>
@@ -211,6 +217,7 @@ __files__boot();
 ::haxe::IMap_obj::__register();
 ::Type_obj::__register();
 ::Sys_obj::__register();
+::StringTools_obj::__register();
 ::Std_obj::__register();
 ::Renderer_obj::__register();
 ::Reflect_obj::__register();
@@ -218,6 +225,7 @@ __files__boot();
 ::ProgramInfo_obj::__register();
 ::Main_obj::__register();
 ::EventDispacher_obj::__register();
+::EReg_obj::__register();
 ::DisplayObject_obj::__register();
 ::Indices_obj::__register();
 ::Vertices_obj::__register();
