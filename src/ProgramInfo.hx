@@ -60,20 +60,20 @@ class ProgramInfo {
 	// ** Privates
 	private var __name:String;
 	
-	public function new(name:String, ?vertexSource:String, ?fragmentSource:String) {
+	public function new(name:String, renderer:Renderer, ?vertexSource:String, ?fragmentSource:String) {
 		__name = name;
 		vertexShaderSource = vertexSource != null ? vertexSource : getDefaultVertexShader();
 		fragmentShaderSource = fragmentSource != null ? fragmentSource : getDefaultFragmentShader();
 		programId = -1;
 		
 		// Automatically compile and introspect the shader program
-		if (!compile()) {
+		if (!compile(renderer)) {
 			trace("Failed to compile shader program: " + name);
 			return;
 		}
 		
 		// Automatically discover attributes and uniforms from compiled program
-		introspectProgram();
+		introspectProgram(renderer);
 		
 		// Calculate vertex layout for interleaved data
 		finalizeVertexLayout();
@@ -137,7 +137,7 @@ class ProgramInfo {
 	}
 	
 	// ** Setup vertex attributes using glVertexAttribPointer
-	public function setupVertexAttributes():Void {
+	public function setupVertexAttributes(renderer:Renderer):Void {
 		if (!isCompiled) {
 			trace("Warning: Program not compiled yet, attributes may not be bound correctly");
 		}
@@ -147,22 +147,15 @@ class ProgramInfo {
 			trace("  " + attr.name + ": location=" + attr.location + ", size=" + attr.size + ", stride=" + attr.stride + ", offset=" + attr.offset);
 			
 			// Enable the vertex attribute array
-			GL.enableVertexAttribArray(attr.location);
+			renderer.enableVertexAttribArray(attr.location);
 			
 			// Set up the vertex attribute pointer  
-			// Use raw C++ call to avoid type conversion issues
-			untyped __cpp__("glVertexAttribPointer({0}, {1}, {2}, GL_FALSE, {3}, (void*)(intptr_t){4})", 
-				attr.location,     // attribute location in shader
-				attr.size,         // number of components (1, 2, 3, or 4)
-				attr.format,       // data type (GL_FLOAT, GL_INT, etc.)
-				attr.stride,       // stride: bytes between consecutive vertices
-				attr.offset        // offset: bytes from start of vertex to this attribute
-			);
+			renderer.vertexAttribPointer(attr.location, attr.size, attr.format, false, attr.stride, attr.offset);
 		}
 	}
 	
 	// ** Get uniform location and set value
-	public function setUniformFloat(name:String, value:Float):Void {
+	public function setUniformFloat(name:String, value:Float, renderer:Renderer):Void {
 		if (!isCompiled) {
 			trace("Warning: Program not compiled, cannot set uniform: " + name);
 			return;
@@ -172,7 +165,7 @@ class ProgramInfo {
 		for (uniform in uniforms) {
 			if (uniform.name == name) {
 				if (uniform.format == UniformFormat.Float) {
-					GL.uniform1f(uniform.location, value);
+					renderer.uniform1f(uniform.location, value);
 					return;
 				} else {
 					trace("Warning: Uniform '" + name + "' is not a float uniform");
@@ -182,16 +175,16 @@ class ProgramInfo {
 		}
 		
 		// Fallback to runtime lookup if not found in introspected uniforms
-		var location = GL.getUniformLocation(program, name);
+		var location = renderer.getUniformLocation(program, name);
 		if (location != -1) {
-			GL.uniform1f(location, value);
+			renderer.uniform1f(location, value);
 		} else {
 			trace("Warning: Uniform '" + name + "' not found in shader");
 		}
 	}
 	
 	// ** Set matrix4x4 uniform
-	public function setUniformMatrix4(name:String, matrix:Array<Float>):Void {
+	public function setUniformMatrix4(name:String, matrix:Array<Float>, renderer:Renderer):Void {
 		if (!isCompiled) {
 			trace("Warning: Program not compiled, cannot set uniform: " + name);
 			return;
@@ -201,22 +194,7 @@ class ProgramInfo {
 		for (uniform in uniforms) {
 			if (uniform.name == name) {
 				if (uniform.format == UniformFormat.Mat4) {
-					// CRITICAL FIX: Use proper matrix data conversion
-					// Create a copy to ensure proper memory layout
-					var matrixData = new Array<Float>();
-					for (i in 0...16) {
-						matrixData[i] = matrix[i];
-					}
-					
-					// Use transpose=false for column-major OpenGL matrix format
-					// Pass count=1 for a single 4x4 matrix
-					untyped __cpp__("
-						float matData[16];
-						for(int i = 0; i < 16; i++) {
-							matData[i] = {0}[i];
-						}
-						glUniformMatrix4fv({1}, 1, GL_FALSE, matData);
-					", matrixData, uniform.location);
+					renderer.uniformMatrix4fv(uniform.location, false, matrix);
 					return;
 				} else {
 					trace("Warning: Uniform '" + name + "' is not a Mat4 uniform");
@@ -226,22 +204,9 @@ class ProgramInfo {
 		}
 		
 		// Fallback to runtime lookup if not found in introspected uniforms
-		var location = GL.getUniformLocation(program, name);
+		var location = renderer.getUniformLocation(program, name);
 		if (location != -1) {
-			// Create a copy to ensure proper memory layout
-			var matrixData = new Array<Float>();
-			for (i in 0...16) {
-				matrixData[i] = matrix[i];
-			}
-			
-			// Use transpose=false for column-major OpenGL matrix format
-			untyped __cpp__("
-				float matData[16];
-				for(int i = 0; i < 16; i++) {
-					matData[i] = {0}[i];
-				}
-				glUniformMatrix4fv({1}, 1, GL_FALSE, matData);
-			", matrixData, location);
+			renderer.uniformMatrix4fv(location, false, matrix);
 		} else {
 			trace("Warning: Uniform '" + name + "' not found in shader");
 		}
@@ -311,24 +276,21 @@ class ProgramInfo {
 	}
 	
 	// ** Shader compilation and linking
-	public function compile():Bool {
+	public function compile(renderer:Renderer):Bool {
 		if (isCompiled) return true;
 		
 		trace("Starting shader compilation...");
 		
 		// Compile vertex shader
 		trace("Creating vertex shader...");
-		vertexShader = GL.createShader(GL.VERTEX_SHADER);
+		vertexShader = renderer.createShader(GL.VERTEX_SHADER);
 		trace("Vertex shader created: " + vertexShader);
 		
 		trace("Setting vertex shader source...");
-		untyped __cpp__("
-			const char* vertexSource = {0}.__s;
-			glShaderSource({1}, 1, &vertexSource, NULL);
-		", vertexShaderSource, vertexShader);
+		renderer.shaderSource(vertexShader, vertexShaderSource);
 		
 		trace("Compiling vertex shader...");
-		GL.compileShader(vertexShader);
+		renderer.compileShader(vertexShader);
 		
 		// Check vertex shader compilation
 		trace("Checking vertex shader compilation...");
@@ -340,17 +302,14 @@ class ProgramInfo {
 		
 		// Compile fragment shader
 		trace("Creating fragment shader...");
-		fragmentShader = GL.createShader(GL.FRAGMENT_SHADER);
+		fragmentShader = renderer.createShader(GL.FRAGMENT_SHADER);
 		trace("Fragment shader created: " + fragmentShader);
 		
 		trace("Setting fragment shader source...");
-		untyped __cpp__("
-			const char* fragmentSource = {0}.__s;
-			glShaderSource({1}, 1, &fragmentSource, NULL);
-		", fragmentShaderSource, fragmentShader);
+		renderer.shaderSource(fragmentShader, fragmentShaderSource);
 		
 		trace("Compiling fragment shader...");
-		GL.compileShader(fragmentShader);
+		renderer.compileShader(fragmentShader);
 		
 		// Check fragment shader compilation
 		trace("Checking fragment shader compilation...");
@@ -362,12 +321,12 @@ class ProgramInfo {
 		
 		// Create and link program
 		trace("Creating shader program...");
-		program = GL.createProgram();
+		program = renderer.createProgram();
 		trace("Shader program created: " + program);
 		
-		GL.attachShader(program, vertexShader);
-		GL.attachShader(program, fragmentShader);
-		GL.linkProgram(program);
+		renderer.attachShader(program, vertexShader);
+		renderer.attachShader(program, fragmentShader);
+		renderer.linkProgram(program);
 		
 		// Check program linking
 		trace("Checking program linking...");
@@ -383,7 +342,7 @@ class ProgramInfo {
 	}
 	
 	// ** Automatically discover attributes and uniforms from compiled shader program
-	private function introspectProgram():Void {
+	private function introspectProgram(renderer:Renderer):Void {
 		if (!isCompiled) {
 			trace("Warning: Cannot introspect program that is not compiled");
 			return;
@@ -396,16 +355,16 @@ class ProgramInfo {
 		uniforms = [];
 		
 		// Introspect active attributes
-		introspectAttributes();
+		introspectAttributes(renderer);
 		
 		// Introspect active uniforms  
-		introspectUniforms();
+		introspectUniforms(renderer);
 		
 		trace("Introspection complete!");
 	}
 	
 	// ** Discover all active vertex attributes
-	private function introspectAttributes():Void {
+	private function introspectAttributes(renderer:Renderer):Void {
 		// Get number of active attributes
 		var activeAttributes:Int = 0;
 		untyped __cpp__("glGetProgramiv({0}, GL_ACTIVE_ATTRIBUTES, &{1})", program, activeAttributes);
@@ -430,7 +389,7 @@ class ProgramInfo {
 			", maxNameLength, program, i, nameLength, size, type, name);
 			
 			// Get attribute location
-			var location:Int = GL.getAttribLocation(program, name);
+			var location:Int = renderer.getAttribLocation(program, name);
 			
 			// Determine component count based on OpenGL type
 			var componentCount = getComponentCount(type);
@@ -450,7 +409,7 @@ class ProgramInfo {
 	}
 	
 	// ** Discover all active uniforms
-	private function introspectUniforms():Void {
+	private function introspectUniforms(renderer:Renderer):Void {
 		// Get number of active uniforms
 		var activeUniforms:Int = 0;
 		untyped __cpp__("glGetProgramiv({0}, GL_ACTIVE_UNIFORMS, &{1})", program, activeUniforms);
@@ -475,7 +434,7 @@ class ProgramInfo {
 			", maxNameLength, program, i, nameLength, size, type, name);
 			
 			// Get uniform location
-			var location:Int = GL.getUniformLocation(program, name);
+			var location:Int = renderer.getUniformLocation(program, name);
 			
 			// Convert OpenGL type to our UniformFormat
 			var format = convertGLTypeToUniformFormat(type);
@@ -570,12 +529,11 @@ class ProgramInfo {
 	}
 	
 	// ** Cleanup
-	public function dispose():Void {
+	public function dispose(renderer:Renderer):Void {
 		if (isCompiled) {
-			// Note: deleteProgram doesn't exist in our GL bindings, skip for now
-			// if (program != 0) GL.deleteProgram(program);
-			if (vertexShader != 0) GL.deleteShader(vertexShader);
-			if (fragmentShader != 0) GL.deleteShader(fragmentShader);
+			// if (program != 0) renderer.deleteProgram(program);
+			if (vertexShader != 0) renderer.deleteShader(vertexShader);
+			if (fragmentShader != 0) renderer.deleteShader(fragmentShader);
 		}
 		isCompiled = false;
 	}

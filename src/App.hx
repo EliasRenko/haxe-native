@@ -3,6 +3,7 @@ package;
 import SDL;
 import GL;
 import Renderer;
+import State;
 import sys.FileSystem;
 import cpp.UInt64;
 import cpp.Pointer;
@@ -23,12 +24,21 @@ class App {
     // Publics
     public var active(get, null):Bool;
     public var resources(get, null):Resources;
+    public var renderer(get, null):Renderer;
+
+    // State Management
+    public var states:Array<State> = [];
+    public var currentState:State = null;
 
     // Privates
     private var __active:Bool = false;
     private var __window:Window;
     private var __context:GLContext;
     private var __renderer:Renderer;
+
+    // Timing variables for deltaTime calculation
+    private var __lastTime:Float = 0.0;
+    private var __currentTime:Float = 0.0;
 
     private var __resources:__Resources;
     
@@ -90,6 +100,12 @@ class App {
         __renderer = new Renderer(this, 640, 480);
         trace("Renderer created successfully!");
         
+        // Setup test state to demonstrate State/Entity system
+        trace("Setting up test state...");
+        var testState = new TestState(this);
+        addState(testState);
+        trace("Test state setup complete");
+
         // Preload assets from preload.txt
         trace("Preloading assets...");
         resources.loadText("preload.txt")
@@ -186,17 +202,182 @@ class App {
     }
     
     private function update():Void {
-        // TODO: Add application update logic here
-        // This is where game logic, physics, etc. would go
+        // Use a fixed deltaTime for stable animation (60 FPS target)
+        var deltaTime:Float = 1.0 / 60.0; // 0.0167 seconds per frame
+        
+        // Update current state if one is active
+        if (currentState != null && currentState.active) {
+            currentState.update(deltaTime);
+        }
     }
     
     private function render():Void {
-        // Render the frame
-        __renderer.render();
+        // Clear screen using renderer pipeline
+        __renderer.clearScreen();
+        __renderer.initializeRenderState();
+        
+        // Render current state if one is active
+        if (currentState != null && currentState.active) {
+            currentState.render(__renderer);
+        }
+        
+        // Note: Buffer swap is handled in the main loop
+    }
+
+    // ===== STATE MANAGEMENT METHODS =====
+
+    /**
+     * Add a state to the states array
+     */
+    public function addState(state:State):State {
+        if (state == null) {
+            trace("Warning: Attempted to add null state");
+            return null;
+        }
+        
+        states.push(state);
+        trace("Added state '" + state.name + "' to app (total states: " + states.length + ")");
+        
+        // If no current state, make this the current one
+        if (currentState == null) {
+            switchToState(state);
+        }
+        
+        return state;
+    }
+    
+    /**
+     * Remove a state from the states array
+     */
+    public function removeState(state:State):Bool {
+        if (state == null) return false;
+        
+        var removed = states.remove(state);
+        if (removed) {
+            trace("Removed state '" + state.name + "' from app");
+            
+            // If this was the current state, deactivate it
+            if (currentState == state) {
+                currentState.onDeactivate();
+                currentState = null;
+                
+                // Switch to first available state if any
+                if (states.length > 0) {
+                    switchToState(states[0]);
+                }
+            }
+            
+            // Clean up the state
+            state.clearEntities(__renderer);
+        }
+        
+        return removed;
+    }
+    
+    /**
+     * Remove state by name
+     */
+    public function removeStateByName(name:String):Bool {
+        for (state in states) {
+            if (state.name == name) {
+                return removeState(state);
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Switch to a specific state
+     */
+    public function switchToState(state:State):Bool {
+        if (state == null) {
+            trace("Warning: Attempted to switch to null state");
+            return false;
+        }
+        
+        // Check if state exists in our states array
+        var stateExists = false;
+        for (s in states) {
+            if (s == state) {
+                stateExists = true;
+                break;
+            }
+        }
+        
+        if (!stateExists) {
+            trace("Warning: Attempted to switch to state '" + state.name + "' that is not in states array");
+            return false;
+        }
+        
+        // Deactivate current state
+        if (currentState != null) {
+            currentState.onDeactivate();
+        }
+        
+        // Switch to new state
+        currentState = state;
+        currentState.onActivate();
+        
+        trace("Switched to state '" + state.name + "'");
+        return true;
+    }
+    
+    /**
+     * Switch to state by name
+     */
+    public function switchToStateByName(name:String):Bool {
+        for (state in states) {
+            if (state.name == name) {
+                return switchToState(state);
+            }
+        }
+        trace("Warning: State '" + name + "' not found");
+        return false;
+    }
+    
+    /**
+     * Get state by name
+     */
+    public function getState(name:String):State {
+        for (state in states) {
+            if (state.name == name) {
+                return state;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Get debug info about all states
+     */
+    public function getStatesDebugInfo():String {
+        var info = "=== STATES DEBUG INFO ===\n";
+        info += "Total states: " + states.length + "\n";
+        info += "Current state: " + (currentState != null ? currentState.name : "none") + "\n";
+        
+        for (i in 0...states.length) {
+            var state = states[i];
+            var current = (state == currentState) ? " [CURRENT]" : "";
+            info += "  " + i + ": " + state.getDebugInfo() + current + "\n";
+        }
+        
+        return info;
     }
     
     public function cleanup():Void {
         trace("Cleaning up application...");
+        
+        // Deactivate current state
+        if (currentState != null) {
+            currentState.onDeactivate();
+        }
+        
+        // Clean up all states
+        for (state in states) {
+            state.clearEntities(__renderer);
+        }
+        states = [];
+        currentState = null;
         
         // Cleanup resources first
         if (__resources != null) {
@@ -224,6 +405,10 @@ class App {
     
     private function get_active():Bool {
         return __active;
+    }
+    
+    private function get_renderer():Renderer {
+        return __renderer;
     }
     
     private function get_resources():Resources {

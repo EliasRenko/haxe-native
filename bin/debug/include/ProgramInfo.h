@@ -7,6 +7,7 @@
 #endif
 
 HX_DECLARE_CLASS0(ProgramInfo)
+HX_DECLARE_CLASS0(Renderer)
 HX_DECLARE_CLASS0(UniformFormat)
 
 
@@ -21,13 +22,13 @@ class HXCPP_CLASS_ATTRIBUTES ProgramInfo_obj : public ::hx::Object
 	public:
 		enum { _hx_ClassId = 0x540d1e32 };
 
-		void __construct(::String name,::String vertexSource,::String fragmentSource);
+		void __construct(::String name, ::Renderer renderer,::String vertexSource,::String fragmentSource);
 		inline void *operator new(size_t inSize, bool inContainer=true,const char *inName="ProgramInfo")
 			{ return ::hx::Object::operator new(inSize,inContainer,inName); }
 		inline void *operator new(size_t inSize, int extra)
 			{ return ::hx::Object::operator new(inSize+extra,true,"ProgramInfo"); }
-		static ::hx::ObjectPtr< ProgramInfo_obj > __new(::String name,::String vertexSource,::String fragmentSource);
-		static ::hx::ObjectPtr< ProgramInfo_obj > __alloc(::hx::Ctx *_hx_ctx,::String name,::String vertexSource,::String fragmentSource);
+		static ::hx::ObjectPtr< ProgramInfo_obj > __new(::String name, ::Renderer renderer,::String vertexSource,::String fragmentSource);
+		static ::hx::ObjectPtr< ProgramInfo_obj > __alloc(::hx::Ctx *_hx_ctx,::String name, ::Renderer renderer,::String vertexSource,::String fragmentSource);
 		static void * _hx_vtable;
 		static Dynamic __CreateEmpty();
 		static Dynamic __Create(::hx::DynamicArray inArgs);
@@ -66,13 +67,13 @@ class HXCPP_CLASS_ATTRIBUTES ProgramInfo_obj : public ::hx::Object
 		void finalizeVertexLayout();
 		::Dynamic finalizeVertexLayout_dyn();
 
-		void setupVertexAttributes();
+		void setupVertexAttributes( ::Renderer renderer);
 		::Dynamic setupVertexAttributes_dyn();
 
-		void setUniformFloat(::String name,Float value);
+		void setUniformFloat(::String name,Float value, ::Renderer renderer);
 		::Dynamic setUniformFloat_dyn();
 
-		void setUniformMatrix4(::String name,::Array< Float > matrix);
+		void setUniformMatrix4(::String name,::Array< Float > matrix, ::Renderer renderer);
 		::Dynamic setUniformMatrix4_dyn();
 
 		void printVertexLayout();
@@ -93,16 +94,16 @@ class HXCPP_CLASS_ATTRIBUTES ProgramInfo_obj : public ::hx::Object
 		void addTexture(::String name, ::UniformFormat format, ::Dynamic setter, ::Dynamic location);
 		::Dynamic addTexture_dyn();
 
-		bool compile();
+		bool compile( ::Renderer renderer);
 		::Dynamic compile_dyn();
 
-		void introspectProgram();
+		void introspectProgram( ::Renderer renderer);
 		::Dynamic introspectProgram_dyn();
 
-		void introspectAttributes();
+		void introspectAttributes( ::Renderer renderer);
 		::Dynamic introspectAttributes_dyn();
 
-		void introspectUniforms();
+		void introspectUniforms( ::Renderer renderer);
 		::Dynamic introspectUniforms_dyn();
 
 		int getComponentCount(int glType);
@@ -123,7 +124,7 @@ class HXCPP_CLASS_ATTRIBUTES ProgramInfo_obj : public ::hx::Object
 		::String getDefaultFragmentShader();
 		::Dynamic getDefaultFragmentShader_dyn();
 
-		void dispose();
+		void dispose( ::Renderer renderer);
 		::Dynamic dispose_dyn();
 
 		::String get_name();

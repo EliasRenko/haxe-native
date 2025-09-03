@@ -25,6 +25,12 @@
 #ifndef INCLUDED_display_Vector4
 #include <display/Vector4.h>
 #endif
+#ifndef INCLUDED_State
+#include <State.h>
+#endif
+#ifndef INCLUDED_Entity
+#include <Entity.h>
+#endif
 #ifndef INCLUDED_BlendFactor
 #include <BlendFactor.h>
 #endif
@@ -121,6 +127,9 @@
 #ifndef INCLUDED_Type
 #include <Type.h>
 #endif
+#ifndef INCLUDED_TestState
+#include <TestState.h>
+#endif
 #ifndef INCLUDED_Sys
 #include <Sys.h>
 #endif
@@ -184,6 +193,8 @@ __files__boot();
 ::haxe::Log_obj::__register();
 ::sys::thread::_Thread::HaxeThread_obj::__register();
 ::display::Vector4_obj::__register();
+::State_obj::__register();
+::Entity_obj::__register();
 ::BlendFactor_obj::__register();
 ::sys::thread::_Thread::Thread_Impl__obj::__register();
 ::sys::thread::Lock_obj::__register();
@@ -216,6 +227,7 @@ __files__boot();
 ::data::TextureData_obj::__register();
 ::haxe::IMap_obj::__register();
 ::Type_obj::__register();
+::TestState_obj::__register();
 ::Sys_obj::__register();
 ::StringTools_obj::__register();
 ::Std_obj::__register();
@@ -239,6 +251,8 @@ __files__boot();
 ::sys::thread::_Thread::HaxeThread_obj::__init__();
 ::haxe::Log_obj::__boot();
 ::BlendFactor_obj::__boot();
+::Entity_obj::__boot();
+::State_obj::__boot();
 ::display::Vector4_obj::__boot();
 ::sys::thread::_Thread::HaxeThread_obj::__boot();
 ::loaders::TGALoader_obj::__boot();

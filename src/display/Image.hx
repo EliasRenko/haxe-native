@@ -130,13 +130,13 @@ class Image extends DisplayObject {
 		vertices.set(14, height);// Top-right V
 		vertices.set(19, y);     // Bottom-right V
 		
-		// Update buffers if initialized
+		// Mark for buffer update on next render
 		if (initialized) {
-			updateBuffers();
+			needsBufferUpdate = true;
 		}
 	}
 
-	override function render(cameraMatrix:Matrix):Void {
+	override function render(cameraMatrix:Matrix, renderer:Renderer):Void {
 
 		this.matrix.identity();
 		this.matrix.appendScale(scaleX, scaleY, 1);
@@ -170,9 +170,9 @@ class Image extends DisplayObject {
 		__height = value;
 		__shouldTransform = true;
 		
-		// Update buffers if initialized
+		// Mark for buffer update on next render
 		if (initialized) {
-			updateBuffers();
+			needsBufferUpdate = true;
 		}
 
 		return value;
@@ -187,9 +187,9 @@ class Image extends DisplayObject {
 		__width = value;
 		__shouldTransform = true;
 		
-		// Update buffers if initialized
+		// Mark for buffer update on next render
 		if (initialized) {
-			updateBuffers();
+			needsBufferUpdate = true;
 		}
 
 		return value;

@@ -84,9 +84,9 @@ class Rectangle extends DisplayObject {
         // Bottom-left
         vertices.data[18] = -halfWidth; vertices.data[19] = -halfHeight; vertices.data[20] = 0.0;
         
-        // Update the GPU buffer
+        // Mark for buffer update on next render
         if (initialized) {
-            updateBuffers();
+            needsBufferUpdate = true;
         }
     }
     
@@ -102,9 +102,9 @@ class Rectangle extends DisplayObject {
         // Bottom-left color
         vertices.data[21] = bottomLeftColor[0]; vertices.data[22] = bottomLeftColor[1]; vertices.data[23] = bottomLeftColor[2];
         
-        // Update the GPU buffer
+        // Mark for buffer update on next render
         if (initialized) {
-            updateBuffers();
+            needsBufferUpdate = true;
         }
     }
     

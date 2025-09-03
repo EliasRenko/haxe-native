@@ -57,9 +57,9 @@ class Triangle extends DisplayObject {
         vertices.data[9] = leftColor[0];  vertices.data[10] = leftColor[1]; vertices.data[11] = leftColor[2]; // Left vertex color
         vertices.data[15] = rightColor[0]; vertices.data[16] = rightColor[1]; vertices.data[17] = rightColor[2]; // Right vertex color
         
-        // Update the GPU buffer
+        // Mark for buffer update on next render
         if (initialized) {
-            updateBuffers();
+            needsBufferUpdate = true;
         }
     }
     

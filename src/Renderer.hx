@@ -14,367 +14,336 @@ import math.Matrix;
 
 class Renderer {
     
-    private var app:App;
-    private var shaderProgram:GlUInt;
-    private var vbo:GlUInt;
-    private var vao:GlUInt;
+    // App reference with controlled access
+    public var app(get, null):App;
     
-    // Camera for world and projection matrices
-    private var camera:Camera;
-    private var windowWidth:Int;
-    private var windowHeight:Int;
+    // Window dimensions - exposed for camera calculations
+    public var windowWidth:Int;
+    public var windowHeight:Int;
     
-    // Frame counter for debug output
+    private var __app:App;
     private var frameCount:Int = 0;
     
-    // DisplayObjects
-    private var testTriangle:Triangle;
-    private var triangleProgram:ProgramInfo;
-    
-    // Test rectangle using DisplayObject architecture
-    private var testRectangle:Rectangle;
-    private var rectangleProgram:ProgramInfo;
-    
-    // Test textured quad using DisplayObject architecture
-    private var testQuad:Quad;
-    private var quadProgram:ProgramInfo;
-    
-    // Test 3D cube using DisplayObject architecture
-    private var testCube:Cube;
-    private var cubeProgram:ProgramInfo;
-    
-    // Background rectangle for 2D/3D testing
-    private var backgroundRect:Rectangle;
-    private var backgroundProgram:ProgramInfo;
-    
-    // Test image using DisplayObject architecture
-    private var testImage:Image;
-    private var imageProgram:ProgramInfo;
+    // ProgramInfo storage - managed by States, not Renderer
+    private var programInfos:Map<String, ProgramInfo> = new Map<String, ProgramInfo>();
     
     public function new(app:App, windowWidth:Int, windowHeight:Int) {
-        trace("Creating clean renderer...");
-        this.app = app;
+        this.__app = app;
         this.windowWidth = windowWidth;
         this.windowHeight = windowHeight;
-        
-        // Initialize camera with explicit values for debugging
-        camera = new Camera();
-        camera.ortho = true; // Use orthographic projection for 2D
-        camera.x = 0.0;
-        camera.y = 0.0; 
-        camera.z = 0.0;
-        camera.pitch = 0.0;
-        camera.yaw = 0.0;
-        camera.roll = 0.0;
-        
-        initializeTestTriangle();
-        initializeTestRectangle();
-        initializeTestQuad();
-        initializeTestCube();
-        initializeBackgroundRect();
-        //initializeTestImage();
-        trace("Clean renderer initialized!");
     }
     
     public function render():Void {
         frameCount++; // Increment frame counter for debug timing
         
         // Clear screen and depth buffer
+        clearScreen();
+        
+        // Initialize rendering state
+        initializeRenderState();
+        
+        // Debug: Print frame info occasionally
+        if (frameCount % 300 == 0) { // Every 5 seconds
+            trace("Frame: " + frameCount + ", Window: " + windowWidth + "x" + windowHeight);
+        }
+    }
+    
+    // ** New method to render display objects with provided view-projection matrix
+    public function renderDisplayObject(displayObject:DisplayObject, viewProjectionMatrix:math.Matrix):Void {
+        if (!displayObject.visible) return;
+        
+        // Update buffers if needed
+        if (displayObject.needsBufferUpdate) {
+            displayObject.updateBuffers(this);
+        }
+        
+        // Render the display object with the provided view-projection matrix
+        // The DisplayObject will combine this with its model matrix
+        displayObject.render(viewProjectionMatrix, this);
+    }
+    
+    /**
+     * Register a ProgramInfo with the renderer
+     * This allows States to create and register their ProgramInfos
+     */
+    public function registerProgramInfo(name:String, programInfo:ProgramInfo):Void {
+        if (programInfos.exists(name)) {
+            trace("Warning: ProgramInfo '" + name + "' already exists, replacing...");
+        }
+        programInfos.set(name, programInfo);
+        trace("Registered ProgramInfo: " + name);
+    }
+    
+    /**
+     * Create and register a ProgramInfo if it doesn't exist, or return existing one
+     * This is the proper way for States to request ProgramInfos from Renderer
+     */
+    public function createProgramInfo(name:String, vertexShader:String, fragmentShader:String):ProgramInfo {
+        // Check if this ProgramInfo already exists
+        if (programInfos.exists(name)) {
+            trace("ProgramInfo '" + name + "' already exists, reusing...");
+            return programInfos.get(name);
+        }
+        
+        // Create new ProgramInfo and register it
+        var programInfo = new ProgramInfo(name, this, vertexShader, fragmentShader);
+        programInfos.set(name, programInfo);
+        
+        trace("Created and registered ProgramInfo: " + name);
+        return programInfo;
+    }
+    
+    /**
+     * Get a ProgramInfo by name
+     * Used by States to retrieve ProgramInfos for creating DisplayObjects
+     */
+    public function getProgramInfo(name:String):ProgramInfo {
+        if (!programInfos.exists(name)) {
+            trace("Error: ProgramInfo '" + name + "' not found!");
+            return null;
+        }
+        return programInfos.get(name);
+    }
+    
+    /**
+     * Check if a ProgramInfo is already registered
+     */
+    public function hasProgramInfo(name:String):Bool {
+        return programInfos.exists(name);
+    }
+    
+    /**
+     * Get all registered ProgramInfo names
+     */
+    public function getProgramInfoNames():Array<String> {
+        var names:Array<String> = [];
+        for (name in programInfos.keys()) {
+            names.push(name);
+        }
+        return names;
+    }
+    // ===== RENDERING PIPELINE METHODS =====
+    // These methods encapsulate all GL operations and should be the only place GL calls are made
+
+    /**
+     * Create and manage OpenGL buffers for display objects
+     */
+    public function createBuffers(vertexCount:Int, indexCount:Int):{vao:UInt, vbo:UInt, ebo:UInt} {
+        var vao:UInt = 0;
+        var vbo:UInt = 0; 
+        var ebo:UInt = 0;
+
+        // Generate VAO
+        var vaoArray = [vao];
+        GL.genVertexArrays(1, untyped __cpp__("(unsigned int*)&{0}[0]", vaoArray));
+        vao = vaoArray[0];
+
+        // Generate VBO
+        var vboArray = [vbo];
+        GL.genBuffers(1, untyped __cpp__("(unsigned int*)&{0}[0]", vboArray));
+        vbo = vboArray[0];
+
+        // Generate EBO if we need indices
+        if (indexCount > 0) {
+            var eboArray = [ebo];
+            GL.genBuffers(1, untyped __cpp__("(unsigned int*)&{0}[0]", eboArray));
+            ebo = eboArray[0];
+        }
+
+        return {vao: vao, vbo: vbo, ebo: ebo};
+    }
+
+    /**
+     * Upload vertex data to GPU
+     */
+    public function uploadVertexData(vao:UInt, vbo:UInt, vertices:Array<Float>):Void {
+        GL.bindVertexArray(vao);
+        GL.bindBuffer(GL.ARRAY_BUFFER, vbo);
+        
+        // Convert vertex array to bytes
+        var vertexBytes = haxe.io.Bytes.alloc(vertices.length * 4);
+        for (i in 0...vertices.length) {
+            vertexBytes.setFloat(i * 4, vertices[i]);
+        }
+        GL.bufferData(GL.ARRAY_BUFFER, vertexBytes.length, vertexBytes.getData(), GL.DYNAMIC_DRAW);
+    }
+
+    /**
+     * Upload index data to GPU
+     */
+    public function uploadIndexData(ebo:UInt, indices:Array<Int>):Void {
+        if (ebo != 0 && indices.length > 0) {
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, ebo);
+            var indexBytes = haxe.io.Bytes.alloc(indices.length * 4);
+            for (i in 0...indices.length) {
+                indexBytes.setInt32(i * 4, indices[i]);
+            }
+            GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, indexBytes.length, indexBytes.getData(), GL.DYNAMIC_DRAW);
+        }
+    }
+
+    /**
+     * Set up vertex attributes and finalize buffer setup
+     */
+    public function setupVertexAttributes(programInfo:ProgramInfo):Void {
+        programInfo.setupVertexAttributes(this);
+        // Unbind buffers
+        GL.bindBuffer(GL.ARRAY_BUFFER, 0);
+        GL.bindVertexArray(0);
+    }
+
+    /**
+     * Delete OpenGL buffers - cleanup
+     */
+    public function deleteBuffers(vao:UInt, vbo:UInt, ebo:UInt):Void {
+        if (vao != 0) {
+            var vaoArray = [vao];
+            GL.deleteVertexArrays(1, untyped __cpp__("(const unsigned int*)&{0}[0]", vaoArray));
+        }
+        if (vbo != 0) {
+            var vboArray = [vbo];
+            GL.deleteBuffers(1, untyped __cpp__("(const unsigned int*)&{0}[0]", vboArray));
+        }
+        if (ebo != 0) {
+            var eboArray = [ebo];
+            GL.deleteBuffers(1, untyped __cpp__("(const unsigned int*)&{0}[0]", eboArray));
+        }
+    }
+
+    /**
+     * Set rendering state for 2D rendering
+     */
+    public function set2DRenderState():Void {
+        GL.glDisable(GL.DEPTH_TEST);
+    }
+
+    /**
+     * Set rendering state for 3D rendering  
+     */
+    public function set3DRenderState():Void {
+        GL.glEnable(GL.DEPTH_TEST);
+        GL.glDepthFunc(GL.LESS);
+    }
+
+    /**
+     * Clear the screen and prepare for rendering
+     */
+    public function clearScreen():Void {
         GL.glClearColor(0.1, 0.1, 0.15, 1.0); // Very dark background for 3D focus
         GL.glClear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
-        
+    }
+
+    /**
+     * Initialize rendering state
+     */
+    public function initializeRenderState():Void {
         // Enable depth testing for 3D
         GL.glEnable(GL.DEPTH_TEST);
         GL.glDepthFunc(GL.LESS);
         
         // Disable face culling to see all faces from all angles
         GL.glDisable(GL.CULL_FACE);
-
-        // Use perspective projection for 3D cube
-        camera.ortho = false;
-        camera.x = 0; // Center camera on X axis
-        camera.y = 0; // Center camera on Y axis  
-        camera.z = 5; // Move camera back to see the cube clearly
-        
-        // Render background rectangle first (behind the 3D cube)
-        if (backgroundRect != null) {
-            // Temporarily disable depth testing for the rectangle to ensure it's visible
-            GL.glDisable(GL.DEPTH_TEST);
-            renderDisplayObject(backgroundRect);
-            GL.glEnable(GL.DEPTH_TEST); // Re-enable for 3D cube
-        }
-        
-        // Render only the 3D cube at center with clean Y-axis rotation
-        if (testCube != null) {
-            // Center the cube
-            testCube.x = 0.0;
-            testCube.y = 0.0;
-            testCube.z = 0.0;
-            
-            // Simple Y-axis rotation like typical 3D demos (no X/Z rotation)
-            var time = haxe.Timer.stamp();
-            var rotY = (time * 0.3) % (2 * Math.PI); // Slower Y rotation, wrapped to 0-2π
-            
-            testCube.rotationX = 0.0; // No X rotation
-            testCube.rotationY = rotY; // Only Y-axis rotation
-            testCube.rotationZ = 0.0; // No Z rotation
-            
-            // Debug: Print current rotation values occasionally
-            if (frameCount % 300 == 0) { // Every 5 seconds
-                trace("Cube Y rotation: " + testCube.rotationY + " (clean Y-axis spin)");
-                trace("Raw time: " + time + " (wrapped rotation prevents precision issues)");
-                trace("Camera position: X=" + camera.x + ", Y=" + camera.y + ", Z=" + camera.z);
-                trace("Camera ortho=" + camera.ortho + ", fov=" + camera.fov);
-            } 
-            // testCube.rotationZ = 0.2; // Fixed small Z rotation
-            
-            renderDisplayObject(testCube);
-        }
-    }
-    
-    // ** New method to render display objects
-    public function renderDisplayObject(displayObject:DisplayObject):Void {
-        if (!displayObject.visible) return;
-        
-        // Initialize the display object if not already done
-        if (!displayObject.initialized) {
-            displayObject.init();
-        }
-        
-        // Calculate the camera matrix (world + projection)
-        camera.renderMatrix(windowWidth, windowHeight);
-        var cameraMatrix = camera.getMatrix();
-        
-        // Render the display object with the camera matrix
-        displayObject.render(cameraMatrix);
-    }    private function initializeTestTriangle():Void {
-        trace("Initializing test triangle using DisplayObject architecture...");
-        
-        // Create ProgramInfo with triangle shaders and automatic introspection
-        triangleProgram = new ProgramInfo("TestTriangle", Triangle.getVertexShader(), Triangle.getFragmentShader());
-        
-        // Print debug info about the introspected program
-        triangleProgram.printVertexLayout();
-        
-        // Create the triangle display object
-        testTriangle = new Triangle(triangleProgram);
-        
-        // Configure triangle properties - position it at left side
-        testTriangle.x = -0.5;
-        testTriangle.y = 0.3;
-        testTriangle.scaleX = 0.7;
-        testTriangle.scaleY = 0.7;
-        // testTriangle.setRotationSpeed(0.1); // Animation disabled for debugging
-        // testTriangle.setAutoRotate(true);   // Animation disabled for debugging
-        
-        trace("Test triangle initialized successfully!");
-    }
-    
-    private function initializeTestRectangle():Void {
-        trace("Initializing test rectangle using DisplayObject architecture...");
-        
-        // Create ProgramInfo with rectangle shaders and automatic introspection
-        rectangleProgram = new ProgramInfo("TestRectangle", Rectangle.getVertexShader(), Rectangle.getFragmentShader());
-        
-        // Print debug info about the introspected program
-        rectangleProgram.printVertexLayout();
-        
-        // Create the rectangle display object with custom size
-        testRectangle = new Rectangle(rectangleProgram, 0.6, 0.4);
-        
-        // Position rectangle at center-right
-        testRectangle.x = 0.5;
-        testRectangle.y = 0.3;
-        testRectangle.scaleX = 0.8;
-        testRectangle.scaleY = 0.8;
-        
-        // You can customize colors if desired
-        // testRectangle.setCornerColors([1.0, 0.5, 0.0], [0.5, 1.0, 0.0], [0.0, 0.5, 1.0], [1.0, 0.0, 0.5]);
-        
-        trace("Test rectangle initialized successfully!");
-    }
-    
-    private function initializeTestQuad():Void {
-        trace("Initializing test textured quad using DisplayObject architecture...");
-        
-        // Create ProgramInfo with quad shaders and automatic introspection
-        quadProgram = new ProgramInfo("TestQuad", Quad.getVertexShader(), Quad.getFragmentShader());
-        
-        // Print debug info about the introspected program
-        quadProgram.printVertexLayout();
-        
-        // Create the textured quad display object - smaller size for better texture detail visibility
-        testQuad = new Quad(quadProgram, 128, 128);
-        
-        // Center the quad for better visibility
-        testQuad.x = 0.0;
-        testQuad.y = 0.0;
-        // Remove scaling to see actual texture size after loading
-        // testQuad.scaleX = 0.6;
-        // testQuad.scaleY = 0.6;
-        
-        // Load dev1.tga texture instead of creating a gradient
-        trace("Loading dev1.tga texture...");
-        app.resources.loadTexture("textures/dev1.tga")
-            .then(function(textureData:data.TextureData) {
-                trace("Successfully loaded dev1.tga, uploading to GPU...");
-                testQuad.createTextureFromData(textureData);
-                trace("dev1.tga texture uploaded to quad!");
-            })
-            .onError(function(error:String) {
-                trace("Failed to load dev1.tga: " + error + ", falling back to checkerboard");
-                // Fallback to checkerboard texture if loading fails
-                testQuad.createCheckerboardTexture(64);
-            });
-        
-        trace("Test textured quad initialized successfully!");
-    }
-    
-    private function initializeTestCube():Void {
-        trace("Initializing test 3D cube using DisplayObject architecture...");
-        
-        // Create ProgramInfo with cube shaders and automatic introspection
-        cubeProgram = new ProgramInfo("TestCube", Cube.getVertexShader(), Cube.getFragmentShader());
-        
-        // Print debug info about the introspected program
-        cubeProgram.printVertexLayout();
-        
-        // Create the 3D cube display object with larger size for better visibility
-        testCube = new Cube(cubeProgram, 2.0);
-        
-        // Position cube slightly to the right in 3D space
-        testCube.x = 1.5;
-        testCube.y = 0.0;
-        testCube.z = 0.0;
-        
-        // Configure animation - disabled for debugging
-        // testCube.autoRotate = true;
-        // testCube.rotationSpeed = 1.0;
-        
-        trace("Test 3D cube initialized successfully!");
-    }
-    
-    private function initializeBackgroundRect():Void {
-        trace("Initializing background rectangle for 2D/3D testing...");
-        
-        // Create ProgramInfo with rectangle shaders
-        backgroundProgram = new ProgramInfo("BackgroundRect", Rectangle.getVertexShader(), Rectangle.getFragmentShader());
-        
-        // Create a larger rectangle that covers more of the screen
-        backgroundRect = new Rectangle(backgroundProgram, 3.0, 2.0);
-        
-        // Position it in front of the cube for testing visibility
-        backgroundRect.x = 1.5; // Move it to the side
-        backgroundRect.y = 0.0;
-        backgroundRect.z = 0.5; // In front of the cube which is at z=0
-        
-        // Set a bright contrasting color for visibility testing
-        var brightGreen = [0.0, 1.0, 0.0]; // Bright green
-        backgroundRect.setCornerColors(brightGreen, brightGreen, brightGreen, brightGreen);
-        
-        trace("Background rectangle initialized successfully!");
-    }
-    
-    private function initializeTestImage():Void {
-        trace("Initializing test image using DisplayObject architecture...");
-        
-        // Create a simple shader program for the image
-        imageProgram = new ProgramInfo("TestImage", getImageVertexShader(), getImageFragmentShader());
-        
-        // Create the image display object
-        testImage = new Image(imageProgram);
-        
-        // Set up the image properties
-        testImage.x = 100;
-        testImage.y = 100;
-        testImage.width = 200;
-        testImage.height = 200;
-        
-        trace("Test image initialized successfully!");
     }
 
-    private function getImageVertexShader():String {
-        return '
-        #version 330 core
-        layout (location = 0) in vec3 aPos;
-        layout (location = 1) in vec2 aTexCoord;
-        
-        out vec2 TexCoord;
-        
-        uniform mat4 uMatrix;
-        
-        void main() {
-            gl_Position = uMatrix * vec4(aPos, 1.0);
-            TexCoord = aTexCoord;
+    /**
+     * Shader compilation and management methods
+     */
+    public function createShader(type:Int):Int {
+        return GL.createShader(type);
+    }
+
+    public function shaderSource(shader:Int, source:String):Void {
+        untyped __cpp__("
+            const char* shaderSource = {1}.__s;
+            glShaderSource({0}, 1, &shaderSource, NULL);
+        ", shader, source);
+    }
+
+    public function compileShader(shader:Int):Void {
+        GL.compileShader(shader);
+    }
+
+    public function createProgram():Int {
+        return GL.createProgram();
+    }
+
+    public function attachShader(program:Int, shader:Int):Void {
+        GL.attachShader(program, shader);
+    }
+
+    public function linkProgram(program:Int):Void {
+        GL.linkProgram(program);
+    }
+
+    public function useProgram(program:Int):Void {
+        GL.useProgram(program);
+    }
+
+    public function deleteShader(shader:Int):Void {
+        GL.deleteShader(shader);
+    }
+
+    public function getAttribLocation(program:Int, name:String):Int {
+        return GL.getAttribLocation(program, name);
+    }
+
+    public function getUniformLocation(program:Int, name:String):Int {
+        return GL.getUniformLocation(program, name);
+    }
+
+    public function enableVertexAttribArray(index:Int):Void {
+        GL.enableVertexAttribArray(index);
+    }
+
+    public function vertexAttribPointer(index:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:Int):Void {
+        untyped __cpp__("glVertexAttribPointer({0}, {1}, {2}, {3} ? GL_TRUE : GL_FALSE, {4}, (void*)(intptr_t){5})", 
+            index, size, type, normalized, stride, offset);
+    }
+
+    public function uniform1i(location:Int, value:Int):Void {
+        GL.uniform1i(location, value);
+    }
+
+    public function uniform1f(location:Int, value:Float):Void {
+        GL.uniform1f(location, value);
+    }
+
+    public function uniformMatrix4fv(location:Int, transpose:Bool, value:Array<Float>):Void {
+        // Create a copy to ensure proper memory layout
+        var matrixData = new Array<Float>();
+        for (i in 0...16) {
+            matrixData[i] = value[i];
         }
-        ';
-    }
-    
-    private function getImageFragmentShader():String {
-        return'
-        #version 330 core
-        in vec2 TexCoord;
-        out vec4 FragColor;
         
-        uniform vec4 uColor;
-        
-        void main() {
-            // For now, just render a solid color since we don\'t have textures yet
-            FragColor = uColor;
-        }';
+        // Use transpose=false for column-major OpenGL matrix format
+        untyped __cpp__("
+            float matData[16];
+            for(int i = 0; i < 16; i++) {
+                matData[i] = {2}[i];
+            }
+            glUniformMatrix4fv({0}, 1, {1} ? GL_TRUE : GL_FALSE, matData);
+        ", location, transpose, matrixData);
     }
-    
+
     public function cleanup():Void {
-        // Cleanup DisplayObjects - they handle their own resource cleanup
-        if (testTriangle != null) {
-            // DisplayObjects automatically clean up their VAO/VBO in their cleanup
+        // Cleanup all registered ProgramInfos
+        for (name in programInfos.keys()) {
+            var programInfo = programInfos.get(name);
+            if (programInfo != null) {
+                programInfo.dispose(this);
+                trace("Disposed ProgramInfo: " + name);
+            }
         }
+        programInfos.clear();
         
-        if (testRectangle != null) {
-            // DisplayObjects automatically clean up their VAO/VBO in their cleanup
-        }
-        
-        if (testQuad != null) {
-            // DisplayObjects automatically clean up their VAO/VBO and textures in their cleanup
-            testQuad.remove();
-        }
-        
-        if (testImage != null) {
-            // DisplayObjects automatically clean up their VAO/VBO in their cleanup
-        }
-        
-        // Cleanup shader programs
-        if (triangleProgram != null) triangleProgram.dispose();
-        if (rectangleProgram != null) rectangleProgram.dispose();
-        if (quadProgram != null) quadProgram.dispose();
-        if (imageProgram != null) imageProgram.dispose();
-        
-        // Simple cleanup for now - just shader if it exists
-        if (shaderProgram != 0) {
-            GL.deleteShader(shaderProgram);
-        }
         trace("Renderer cleanup complete");
     }
 
-    // Create a gradient texture for testing TextureData upload
-    private function createGradientTexture(width:Int, height:Int):TextureData {
-        var pixels = new haxe.io.UInt8Array(width * height * 3); // RGB format
-        
-        for (y in 0...height) {
-            for (x in 0...width) {
-                var index = (y * width + x) * 3;
-                
-                // Create a simple red-green gradient
-                var red = Std.int((x / width) * 255);
-                var green = Std.int((y / height) * 255);
-                var blue = 128; // Constant blue
-                
-                pixels[index + 0] = red;   // R
-                pixels[index + 1] = green; // G
-                pixels[index + 2] = blue;  // B
-            }
-        }
-        
-        return new TextureData(pixels, 3, width, height, false);
+    /**
+     * Get app reference
+     */
+    private function get_app():App {
+        return __app;
     }
+
 }

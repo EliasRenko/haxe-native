@@ -9,6 +9,7 @@
 HX_DECLARE_CLASS0(DisplayObject)
 HX_DECLARE_CLASS0(Indices)
 HX_DECLARE_CLASS0(ProgramInfo)
+HX_DECLARE_CLASS0(Renderer)
 HX_DECLARE_CLASS0(Vertices)
 HX_DECLARE_CLASS1(haxe,IMap)
 HX_DECLARE_CLASS2(haxe,ds,StringMap)
@@ -77,26 +78,27 @@ class HXCPP_CLASS_ATTRIBUTES DisplayObject_obj : public ::hx::Object
 		int _hx___verticesToRender;
 		int _hx___indicesToRender;
 		int framesSinceLastMatrixDebug;
+		bool needsBufferUpdate;
 		unsigned int vao;
 		unsigned int vbo;
 		unsigned int ebo;
 		bool initialized;
-		void init();
+		void init( ::Renderer renderer);
 		::Dynamic init_dyn();
 
-		void updateBuffers();
+		void updateBuffers( ::Renderer renderer);
 		::Dynamic updateBuffers_dyn();
 
-		virtual void remove();
+		virtual void remove( ::Renderer renderer);
 		::Dynamic remove_dyn();
 
 		void updateTransform();
 		::Dynamic updateTransform_dyn();
 
-		virtual void render( ::math::Matrix cameraMatrix);
+		virtual void render( ::math::Matrix cameraMatrix, ::Renderer renderer);
 		::Dynamic render_dyn();
 
-		void setUniforms( ::math::Matrix finalMatrix);
+		void setUniforms( ::math::Matrix finalMatrix, ::Renderer renderer);
 		::Dynamic setUniforms_dyn();
 
 };

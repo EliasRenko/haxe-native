@@ -88,6 +88,9 @@ class DisplayObject {
 	// Debug frame counter
 	private var framesSinceLastMatrixDebug:Int = 0;
 	
+	// Flag to indicate buffers need updating
+	public var needsBufferUpdate:Bool = false;
+	
 	// VAO and VBO for this display object
 	private var vao:GlUInt = 0;
 	private var vbo:GlUInt = 0;
@@ -107,79 +110,39 @@ class DisplayObject {
 		};
 	}
 
-	public function init():Void {
+	public function init(renderer:Renderer):Void {
 		if (initialized) return;
 		
-		// Generate VAO and VBO
-		var vaoArray = new Array<GlUInt>();
-		vaoArray.resize(1);
-		GL.genVertexArrays(1, untyped __cpp__("(unsigned int*)&{0}[0]", vaoArray));
-		vao = vaoArray[0];
-		
-		var vboArray = new Array<GlUInt>();
-		vboArray.resize(1);
-		GL.genBuffers(1, untyped __cpp__("(unsigned int*)&{0}[0]", vboArray));
-		vbo = vboArray[0];
-		
-		// Generate EBO if we have indices
-		if (indices.data.length > 0) {
-			var eboArray = new Array<GlUInt>();
-			eboArray.resize(1);
-			GL.genBuffers(1, untyped __cpp__("(unsigned int*)&{0}[0]", eboArray));
-			ebo = eboArray[0];
-		}
+		// Use Renderer's buffer creation method
+		var buffers = renderer.createBuffers(vertices.data.length, indices.data.length);
+		vao = buffers.vao;
+		vbo = buffers.vbo;
+		ebo = buffers.ebo;
 		
 		// Set initialized to true BEFORE calling updateBuffers
 		initialized = true;
-		updateBuffers();
+		updateBuffers(renderer);
 	}
 	
-	public function updateBuffers():Void {
+	public function updateBuffers(renderer:Renderer):Void {
 		if (!initialized) return;
 		
-		// Bind VAO
-		GL.bindVertexArray(vao);
+		// Use Renderer's upload methods
+		renderer.uploadVertexData(vao, vbo, vertices.data);
+		renderer.uploadIndexData(ebo, indices.data);
+		renderer.setupVertexAttributes(programInfo);
 		
-		// Upload vertex data
-		GL.bindBuffer(GL.ARRAY_BUFFER, vbo);
-		var vertexBytes = haxe.io.Bytes.alloc(vertices.data.length * 4);
-		for (i in 0...vertices.data.length) {
-			vertexBytes.setFloat(i * 4, vertices.data[i]);
-		}
-		GL.bufferData(GL.ARRAY_BUFFER, vertexBytes.length, vertexBytes.getData(), GL.DYNAMIC_DRAW);
-		
-		// Upload index data if we have indices
-		if (indices.data.length > 0 && ebo != 0) {
-			GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, ebo);
-			var indexBytes = haxe.io.Bytes.alloc(indices.data.length * 4);
-			for (i in 0...indices.data.length) {
-				indexBytes.setInt32(i * 4, indices.data[i]);
-			}
-			GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, indexBytes.length, indexBytes.getData(), GL.DYNAMIC_DRAW);
-		}
-		
-		// Setup vertex attributes
-		programInfo.setupVertexAttributes();
-		
-		// Unbind
-		GL.bindBuffer(GL.ARRAY_BUFFER, 0);
-		GL.bindVertexArray(0);
+		// Clear the update flag
+		needsBufferUpdate = false;
 	}
 
-	public function remove():Void {
+	public function remove(renderer:Renderer):Void {
 		if (initialized) {
-			if (vao != 0) {
-				var vaoArray = [vao];
-				GL.deleteVertexArrays(1, untyped __cpp__("(const unsigned int*)&{0}[0]", vaoArray));
-			}
-			if (vbo != 0) {
-				var vboArray = [vbo];
-				GL.deleteBuffers(1, untyped __cpp__("(const unsigned int*)&{0}[0]", vboArray));
-			}
-			if (ebo != 0) {
-				var eboArray = [ebo];
-				GL.deleteBuffers(1, untyped __cpp__("(const unsigned int*)&{0}[0]", eboArray));
-			}
+			// Use Renderer's buffer cleanup method
+			renderer.deleteBuffers(vao, vbo, ebo);
+			vao = 0;
+			vbo = 0;
+			ebo = 0;
 			initialized = false;
 		}
 	}
@@ -214,7 +177,7 @@ class DisplayObject {
 		}
 	}
 
-	public function render(cameraMatrix:Matrix):Void {
+	public function render(cameraMatrix:Matrix, renderer:Renderer):Void {
 		if (!visible || !initialized) return;
 		
 		// Update transformation matrix based on current properties
@@ -229,7 +192,7 @@ class DisplayObject {
 		GL.useProgram(programInfo.program);
 		
 		// Set uniforms with the final combined matrix
-		setUniforms(finalMatrix);
+		setUniforms(finalMatrix, renderer);
 		
 		// Bind VAO and draw
 		GL.bindVertexArray(vao);
@@ -246,7 +209,7 @@ class DisplayObject {
 	}
 	
 	// Override this in subclasses to set specific uniforms
-	private function setUniforms(finalMatrix:Matrix):Void {
+	private function setUniforms(finalMatrix:Matrix, renderer:Renderer):Void {
 		// Debug: Print the final matrix being sent to shader occasionally (reduced frequency)
 		if (framesSinceLastMatrixDebug % 1800 == 0) { // Every 30 seconds instead of 2 seconds
 			trace("Final matrix for shader:");
@@ -260,7 +223,7 @@ class DisplayObject {
 		// Automatically set the uMatrix uniform if it exists in the shader
 		for (uniform in programInfo.uniforms) {
 			if (uniform.name == "uMatrix" && uniform.format == UniformFormat.Mat4) {
-				programInfo.setUniformMatrix4("uMatrix", finalMatrix.data);
+				programInfo.setUniformMatrix4("uMatrix", finalMatrix.data, renderer);
 				break;
 			}
 		}
@@ -270,10 +233,10 @@ class DisplayObject {
 			// Check if it's a Float using Type.typeof instead of Std.isOfType
 			switch(Type.typeof(value)) {
 				case TFloat:
-					programInfo.setUniformFloat(name, cast value);
+					programInfo.setUniformFloat(name, cast value, renderer);
 				case TInt:
 					// Convert Int to Float for uniform
-					programInfo.setUniformFloat(name, cast(value, Float));
+					programInfo.setUniformFloat(name, cast(value, Float), renderer);
 				default:
 					// TODO: Add support for other uniform types (Vec2, Vec3, Vec4, Mat4, etc.)
 			}

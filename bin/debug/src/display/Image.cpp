@@ -10,6 +10,9 @@
 #ifndef INCLUDED_ProgramInfo
 #include <ProgramInfo.h>
 #endif
+#ifndef INCLUDED_Renderer
+#include <Renderer.h>
+#endif
 #ifndef INCLUDED_Vertices
 #include <Vertices.h>
 #endif
@@ -160,17 +163,18 @@ HXLINE( 129)		this->vertices->set(9,height);
 HXLINE( 130)		this->vertices->set(14,height);
 HXLINE( 131)		this->vertices->set(19,y);
 HXLINE( 134)		if (this->initialized) {
-HXLINE( 135)			this->updateBuffers();
+HXLINE( 135)			this->needsBufferUpdate = true;
             		}
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC4(Image_obj,setUV,(void))
 
-void Image_obj::render( ::math::Matrix cameraMatrix){
+void Image_obj::render( ::math::Matrix cameraMatrix, ::Renderer renderer){
             	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_139_render)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(cameraMatrix,"cameraMatrix")
+            	HX_STACK_ARG(renderer,"renderer")
 HXLINE( 139)
 HXLINE( 141)		this->matrix->identity();
 HXLINE( 142)		this->matrix->appendScale(this->scaleX,this->scaleY,( (Float)(1) ));
@@ -222,7 +226,7 @@ HXDLIN( 168)		_hx_tmp5->set(16,(( (Float)(0) ) - this->get_originY()));
 HXLINE( 170)		this->_hx___height = value;
 HXLINE( 171)		this->_hx___shouldTransform = true;
 HXLINE( 174)		if (this->initialized) {
-HXLINE( 175)			this->updateBuffers();
+HXLINE( 175)			this->needsBufferUpdate = true;
             		}
 HXLINE( 178)		return value;
             	}
@@ -248,7 +252,7 @@ HXDLIN( 185)		_hx_tmp4->set(15,(_hx_tmp5 - this->get_originX()));
 HXLINE( 187)		this->_hx___width = value;
 HXLINE( 188)		this->_hx___shouldTransform = true;
 HXLINE( 191)		if (this->initialized) {
-HXLINE( 192)			this->updateBuffers();
+HXLINE( 192)			this->needsBufferUpdate = true;
             		}
 HXLINE( 195)		return value;
             	}

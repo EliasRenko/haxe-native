@@ -126,7 +126,7 @@ HXLINE(  58)		this->vertices->data[15] = this->rightColor->__get(0);
 HXDLIN(  58)		this->vertices->data[16] = this->rightColor->__get(1);
 HXDLIN(  58)		this->vertices->data[17] = this->rightColor->__get(2);
 HXLINE(  61)		if (this->initialized) {
-HXLINE(  62)			this->updateBuffers();
+HXLINE(  62)			this->needsBufferUpdate = true;
             		}
             	}
 

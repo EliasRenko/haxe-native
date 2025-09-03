@@ -275,14 +275,14 @@ class Quad extends DisplayObject {
         // Bottom-left
         vertices.data[15] = -halfWidth; vertices.data[16] = -halfHeight; vertices.data[17] = 0.0;
         
-        // Update the GPU buffer
+        // Mark for buffer update on next render
         if (initialized) {
-            updateBuffers();
+            needsBufferUpdate = true;
         }
     }
     
     // Override render to bind texture
-    public override function render(cameraMatrix:Matrix):Void {
+    public override function render(cameraMatrix:Matrix, renderer:Renderer):Void {
         if (!visible || !initialized) return;
         
         // Update transformation matrix based on current properties
@@ -312,7 +312,7 @@ class Quad extends DisplayObject {
         }
         
         // Set uniforms with the final combined matrix
-        setUniforms(finalMatrix);
+        setUniforms(finalMatrix, renderer);
         
         // Bind VAO and draw
         GL.bindVertexArray(vao);
@@ -334,7 +334,7 @@ class Quad extends DisplayObject {
     }
     
     // Cleanup texture
-    public override function remove():Void {
+    public override function remove(renderer:Renderer):Void {
         if (textureId != 0) {
             untyped __cpp__("
                 {
@@ -347,7 +347,7 @@ class Quad extends DisplayObject {
         }
         
         // Call parent cleanup
-        super.remove();
+        super.remove(renderer);
     }
     
     // Get shader source for quad vertex shader
