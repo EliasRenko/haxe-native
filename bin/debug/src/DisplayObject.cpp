@@ -5,6 +5,10 @@
 #define INCLUDED_955d0432c4bc13bc
 #include "glad/glad.h"
 #endif
+#ifndef INCLUDED_95f339a1d026d52c
+#define INCLUDED_95f339a1d026d52c
+#include "hxMath.h"
+#endif
 #ifndef INCLUDED_BlendFactor
 #include <BlendFactor.h>
 #endif
@@ -14,20 +18,11 @@
 #ifndef INCLUDED_Indices
 #include <Indices.h>
 #endif
-#ifndef INCLUDED_Matrix
-#include <Matrix.h>
-#endif
 #ifndef INCLUDED_ProgramInfo
 #include <ProgramInfo.h>
 #endif
-#ifndef INCLUDED_Type
-#include <Type.h>
-#endif
-#ifndef INCLUDED_UniformFormat
-#include <UniformFormat.h>
-#endif
-#ifndef INCLUDED_ValueType
-#include <ValueType.h>
+#ifndef INCLUDED_Renderer
+#include <Renderer.h>
 #endif
 #ifndef INCLUDED_Vertices
 #include <Vertices.h>
@@ -35,65 +30,79 @@
 #ifndef INCLUDED_haxe_IMap
 #include <haxe/IMap.h>
 #endif
+#ifndef INCLUDED_haxe_Log
+#include <haxe/Log.h>
+#endif
 #ifndef INCLUDED_haxe_ds_StringMap
 #include <haxe/ds/StringMap.h>
 #endif
-#ifndef INCLUDED_haxe_io_Bytes
-#include <haxe/io/Bytes.h>
+#ifndef INCLUDED_math_Matrix
+#include <math/Matrix.h>
 #endif
 
-HX_DEFINE_STACK_FRAME(_hx_pos_762d6b90114794ff_128_new,"DisplayObject","new",0x810bfff3,"DisplayObject.new","DisplayObject.hx",128,0x55877edd)
-HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_175_init,"DisplayObject","init",0x662cac1d,"DisplayObject.init","DisplayObject.hx",175,0x55877edd)
-HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_202_updateBuffers,"DisplayObject","updateBuffers",0xe91f8dbd,"DisplayObject.updateBuffers","DisplayObject.hx",202,0x55877edd)
-HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_235_remove,"DisplayObject","remove",0x39022a91,"DisplayObject.remove","DisplayObject.hx",235,0x55877edd)
-HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_252_updateTransform,"DisplayObject","updateTransform",0xae68be36,"DisplayObject.updateTransform","DisplayObject.hx",252,0x55877edd)
-HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_270_render,"DisplayObject","render",0x39a2f9a3,"DisplayObject.render","DisplayObject.hx",270,0x55877edd)
-HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_297_setUniforms,"DisplayObject","setUniforms",0x9e541114,"DisplayObject.setUniforms","DisplayObject.hx",297,0x55877edd)
+HX_DEFINE_STACK_FRAME(_hx_pos_762d6b90114794ff_46_new,"DisplayObject","new",0x810bfff3,"DisplayObject.new","DisplayObject.hx",46,0x55877edd)
+HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_113_init,"DisplayObject","init",0x662cac1d,"DisplayObject.init","DisplayObject.hx",113,0x55877edd)
+HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_127_updateBuffers,"DisplayObject","updateBuffers",0xe91f8dbd,"DisplayObject.updateBuffers","DisplayObject.hx",127,0x55877edd)
+HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_140_remove,"DisplayObject","remove",0x39022a91,"DisplayObject.remove","DisplayObject.hx",140,0x55877edd)
+HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_155_setTexture,"DisplayObject","setTexture",0x92f32626,"DisplayObject.setTexture","DisplayObject.hx",155,0x55877edd)
+HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_167_addTexture,"DisplayObject","addTexture",0xa79e2d87,"DisplayObject.addTexture","DisplayObject.hx",167,0x55877edd)
+HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_176_hasTextures,"DisplayObject","hasTextures",0xa4245745,"DisplayObject.hasTextures","DisplayObject.hx",176,0x55877edd)
+HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_179_updateTransform,"DisplayObject","updateTransform",0xae68be36,"DisplayObject.updateTransform","DisplayObject.hx",179,0x55877edd)
+HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_215_render,"DisplayObject","render",0x39a2f9a3,"DisplayObject.render","DisplayObject.hx",215,0x55877edd)
 
 void DisplayObject_obj::__construct( ::ProgramInfo programInfo, ::Vertices vertices, ::Indices indices){
-            	HX_GC_STACKFRAME(&_hx_pos_762d6b90114794ff_128_new)
+            	HX_GC_STACKFRAME(&_hx_pos_762d6b90114794ff_46_new)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(programInfo,"programInfo")
             	HX_STACK_ARG(vertices,"vertices")
             	HX_STACK_ARG(indices,"indices")
-HXLINE( 128)
-HXLINE( 160)		this->initialized = false;
-HXLINE( 159)		this->ebo = ( (unsigned int)(0) );
-HXLINE( 158)		this->vbo = ( (unsigned int)(0) );
-HXLINE( 157)		this->vao = ( (unsigned int)(0) );
-HXLINE( 154)		this->_hx___indicesToRender = 0;
-HXLINE( 153)		this->_hx___verticesToRender = 0;
-HXLINE( 152)		this->_hx___shouldTransform = false;
-HXLINE( 149)		this->scaleZ = ((Float)1.0);
-HXLINE( 148)		this->scaleY = ((Float)1.0);
-HXLINE( 147)		this->scaleX = ((Float)1.0);
-HXLINE( 146)		this->rotationZ = ((Float)0.0);
-HXLINE( 145)		this->z = ((Float)0.0);
-HXLINE( 144)		this->y = ((Float)0.0);
-HXLINE( 143)		this->x = ((Float)0.0);
-HXLINE( 140)		this->signature = HX_("",00,00,00,00);
-HXLINE( 139)		this->visible = true;
-HXLINE( 138)		this->uniforms =  ::haxe::ds::StringMap_obj::__alloc( HX_CTX );
-HXLINE( 137)		this->matrix =  ::Matrix_obj::__alloc( HX_CTX );
-HXLINE( 136)		this->textures = ::Array_obj< int >::__new();
-HXLINE( 134)		this->vertices =  ::Vertices_obj::__alloc( HX_CTX ,::Array_obj< Float >::__new(0));
-HXLINE( 133)		this->indices =  ::Indices_obj::__alloc( HX_CTX ,::Array_obj< int >::__new(0));
-HXLINE( 131)		this->mode = GL_TRIANGLES;
-HXLINE( 130)		this->bufferId = 0;
-HXLINE( 163)		if (::hx::IsNull( programInfo )) {
-HXLINE( 163)			HX_STACK_DO_THROW(HX_("programInfo cannot be null",35,9f,32,e7));
+HXLINE(  46)
+HXLINE(  98)		this->initialized = false;
+HXLINE(  97)		this->ebo = ( (unsigned int)(0) );
+HXLINE(  96)		this->vbo = ( (unsigned int)(0) );
+HXLINE(  95)		this->vao = ( (unsigned int)(0) );
+HXLINE(  92)		this->needsBufferUpdate = false;
+HXLINE(  89)		this->framesSinceLastMatrixDebug = 0;
+HXLINE(  86)		this->_hx___indicesToRender = 0;
+HXLINE(  85)		this->_hx___verticesToRender = 0;
+HXLINE(  84)		this->_hx___shouldTransform = false;
+HXLINE(  81)		this->cullFace = false;
+HXLINE(  80)		this->depthWrite = true;
+HXLINE(  79)		this->depthTest = true;
+HXLINE(  76)		this->children = ::Array_obj< ::Dynamic>::__new(0);
+HXLINE(  75)		this->parent = null();
+HXLINE(  72)		this->scaleZ = ((Float)1.0);
+HXLINE(  71)		this->scaleY = ((Float)1.0);
+HXLINE(  70)		this->scaleX = ((Float)1.0);
+HXLINE(  68)		this->rotationZ = ((Float)0.0);
+HXLINE(  67)		this->rotationY = ((Float)0.0);
+HXLINE(  66)		this->rotationX = ((Float)0.0);
+HXLINE(  63)		this->z = ((Float)0.0);
+HXLINE(  62)		this->y = ((Float)0.0);
+HXLINE(  61)		this->x = ((Float)0.0);
+HXLINE(  58)		this->signature = HX_("",00,00,00,00);
+HXLINE(  57)		this->visible = true;
+HXLINE(  56)		this->uniforms =  ::haxe::ds::StringMap_obj::__alloc( HX_CTX );
+HXLINE(  55)		this->matrix =  ::math::Matrix_obj::__alloc( HX_CTX );
+HXLINE(  54)		this->textures = ::Array_obj< int >::__new();
+HXLINE(  52)		this->vertices =  ::Vertices_obj::__alloc( HX_CTX ,::Array_obj< Float >::__new(0));
+HXLINE(  51)		this->indices =  ::Indices_obj::__alloc( HX_CTX ,::Array_obj< int >::__new(0));
+HXLINE(  49)		this->mode = GL_TRIANGLES;
+HXLINE(  48)		this->bufferId = 0;
+HXLINE( 101)		if (::hx::IsNull( programInfo )) {
+HXLINE( 101)			HX_STACK_DO_THROW(HX_("programInfo cannot be null",35,9f,32,e7));
             		}
-HXLINE( 164)		this->programInfo = programInfo;
-HXLINE( 166)		this->vertices = vertices;
-HXLINE( 167)		 ::Indices _hx_tmp;
-HXDLIN( 167)		if (::hx::IsNotNull( indices )) {
-HXLINE( 167)			_hx_tmp = indices;
+HXLINE( 102)		this->programInfo = programInfo;
+HXLINE( 104)		this->vertices = vertices;
+HXLINE( 105)		 ::Indices _hx_tmp;
+HXDLIN( 105)		if (::hx::IsNotNull( indices )) {
+HXLINE( 105)			_hx_tmp = indices;
             		}
             		else {
-HXLINE( 167)			_hx_tmp =  ::Indices_obj::__alloc( HX_CTX ,::Array_obj< int >::__new(0));
+HXLINE( 105)			_hx_tmp =  ::Indices_obj::__alloc( HX_CTX ,::Array_obj< int >::__new(0));
             		}
-HXDLIN( 167)		this->indices = _hx_tmp;
-HXLINE( 169)		this->blendFactors =  ::Dynamic(::hx::Anon_obj::Create(2)
+HXDLIN( 105)		this->indices = _hx_tmp;
+HXLINE( 107)		this->blendFactors =  ::Dynamic(::hx::Anon_obj::Create(2)
             			->setFixed(0,HX_("destination",8e,8a,fb,11),::BlendFactor_obj::ONE_MINUS_SRC_ALPHA)
             			->setFixed(1,HX_("source",db,b0,31,32),::BlendFactor_obj::SRC_ALPHA));
             	}
@@ -113,259 +122,229 @@ bool DisplayObject_obj::_hx_isInstanceOf(int inClassId) {
 	return inClassId==(int)0x00000001 || inClassId==(int)0x6749d015;
 }
 
-void DisplayObject_obj::init(){
-            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_175_init)
+void DisplayObject_obj::init( ::Renderer renderer){
+            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_113_init)
             	HX_STACK_THIS(this)
-HXLINE( 175)
-HXLINE( 176)		if (this->initialized) {
-HXLINE( 176)			return;
+            	HX_STACK_ARG(renderer,"renderer")
+HXLINE( 113)
+HXLINE( 114)		if (this->initialized) {
+HXLINE( 114)			return;
             		}
-HXLINE( 179)		HX_VARI( ::Array< unsigned int >,vaoArray) = ::Array_obj< unsigned int >::__new();
-HXLINE( 180)		vaoArray->resize(1);
-HXLINE( 181)		glGenVertexArrays(1,(unsigned int*)&vaoArray[0]);
-HXLINE( 182)		this->vao = vaoArray->__get(0);
-HXLINE( 184)		HX_VARI( ::Array< unsigned int >,vboArray) = ::Array_obj< unsigned int >::__new();
-HXLINE( 185)		vboArray->resize(1);
-HXLINE( 186)		glGenBuffers(1,(unsigned int*)&vboArray[0]);
-HXLINE( 187)		this->vbo = vboArray->__get(0);
-HXLINE( 190)		if ((this->indices->data->length > 0)) {
-HXLINE( 191)			HX_VARI( ::Array< unsigned int >,eboArray) = ::Array_obj< unsigned int >::__new();
-HXLINE( 192)			eboArray->resize(1);
-HXLINE( 193)			glGenBuffers(1,(unsigned int*)&eboArray[0]);
-HXLINE( 194)			this->ebo = eboArray->__get(0);
-            		}
-HXLINE( 198)		this->initialized = true;
-HXLINE( 199)		this->updateBuffers();
+HXLINE( 117)		HX_VARI(  ::Dynamic,buffers) = renderer->createBuffers(this->vertices->data->length,this->indices->data->length);
+HXLINE( 118)		this->vao = ( (unsigned int)(buffers->__Field(HX_("vao",e4,de,59,00),::hx::paccDynamic)) );
+HXLINE( 119)		this->vbo = ( (unsigned int)(buffers->__Field(HX_("vbo",c3,df,59,00),::hx::paccDynamic)) );
+HXLINE( 120)		this->ebo = ( (unsigned int)(buffers->__Field(HX_("ebo",72,f9,4c,00),::hx::paccDynamic)) );
+HXLINE( 123)		this->initialized = true;
+HXLINE( 124)		this->updateBuffers(renderer);
             	}
 
 
-HX_DEFINE_DYNAMIC_FUNC0(DisplayObject_obj,init,(void))
+HX_DEFINE_DYNAMIC_FUNC1(DisplayObject_obj,init,(void))
 
-void DisplayObject_obj::updateBuffers(){
-            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_202_updateBuffers)
+void DisplayObject_obj::updateBuffers( ::Renderer renderer){
+            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_127_updateBuffers)
             	HX_STACK_THIS(this)
-HXLINE( 202)
-HXLINE( 203)		if (!(this->initialized)) {
-HXLINE( 203)			return;
+            	HX_STACK_ARG(renderer,"renderer")
+HXLINE( 127)
+HXLINE( 128)		if (!(this->initialized)) {
+HXLINE( 128)			return;
             		}
-HXLINE( 206)		glBindVertexArray(this->vao);
-HXLINE( 209)		glBindBuffer(GL_ARRAY_BUFFER,( (int)(this->vbo) ));
-HXLINE( 210)		HX_VARI(  ::haxe::io::Bytes,vertexBytes) = ::haxe::io::Bytes_obj::alloc((this->vertices->data->length * 4));
-HXLINE( 211)		{
-HXLINE( 211)			int _g = 0;
-HXDLIN( 211)			int _g1 = this->vertices->data->length;
-HXDLIN( 211)			while((_g < _g1)){
-HXLINE( 211)				_g = (_g + 1);
-HXDLIN( 211)				HX_VARI( int,i) = (_g - 1);
-HXLINE( 212)				vertexBytes->setFloat((i * 4),this->vertices->data->__get(i));
-            			}
+HXLINE( 131)		renderer->uploadVertexData(( (int)(this->vao) ),( (int)(this->vbo) ),this->vertices->data);
+HXLINE( 132)		renderer->uploadIndexData(( (int)(this->ebo) ),this->indices->data);
+HXLINE( 133)		renderer->setupVertexAttributes(this->programInfo);
+HXLINE( 136)		this->needsBufferUpdate = false;
+            	}
+
+
+HX_DEFINE_DYNAMIC_FUNC1(DisplayObject_obj,updateBuffers,(void))
+
+void DisplayObject_obj::remove( ::Renderer renderer){
+            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_140_remove)
+            	HX_STACK_THIS(this)
+            	HX_STACK_ARG(renderer,"renderer")
+HXLINE( 140)
+HXDLIN( 140)		if (this->initialized) {
+HXLINE( 142)			renderer->deleteBuffers(( (int)(this->vao) ),( (int)(this->vbo) ),( (int)(this->ebo) ));
+HXLINE( 143)			this->vao = ( (unsigned int)(0) );
+HXLINE( 144)			this->vbo = ( (unsigned int)(0) );
+HXLINE( 145)			this->ebo = ( (unsigned int)(0) );
+HXLINE( 146)			this->initialized = false;
             		}
-HXLINE( 214)		{
-HXLINE( 214)			int target = GL_ARRAY_BUFFER;
-HXDLIN( 214)			int size = vertexBytes->length;
-HXDLIN( 214)			::Array< unsigned char > data = vertexBytes->b;
-HXDLIN( 214)			int usage = GL_DYNAMIC_DRAW;
-HXDLIN( 214)			glBufferData(target, size, (const void*)&(data[0]), usage);
-            		}
-HXLINE( 217)		bool _hx_tmp;
-HXDLIN( 217)		if ((this->indices->data->length > 0)) {
-HXLINE( 217)			_hx_tmp = (this->ebo != 0);
+            	}
+
+
+HX_DEFINE_DYNAMIC_FUNC1(DisplayObject_obj,remove,(void))
+
+void DisplayObject_obj::setTexture(unsigned int textureId){
+            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_155_setTexture)
+            	HX_STACK_THIS(this)
+            	HX_STACK_ARG(textureId,"textureId")
+HXLINE( 155)
+HXDLIN( 155)		if ((textureId == 0)) {
+HXLINE( 156)			this->textures = ::Array_obj< int >::__new(0);
             		}
             		else {
-HXLINE( 217)			_hx_tmp = false;
+HXLINE( 158)			this->textures = ::Array_obj< int >::__new(1)->init(0,textureId);
             		}
-HXDLIN( 217)		if (_hx_tmp) {
-HXLINE( 218)			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,( (int)(this->ebo) ));
-HXLINE( 219)			HX_VARI(  ::haxe::io::Bytes,indexBytes) = ::haxe::io::Bytes_obj::alloc((this->indices->data->length * 4));
-HXLINE( 220)			{
-HXLINE( 220)				int _g2 = 0;
-HXDLIN( 220)				int _g3 = this->indices->data->length;
-HXDLIN( 220)				while((_g2 < _g3)){
-HXLINE( 220)					_g2 = (_g2 + 1);
-HXDLIN( 220)					HX_VARI_NAME( int,i1,"i") = (_g2 - 1);
-HXLINE( 221)					{
-HXLINE( 221)						int pos = (i1 * 4);
-HXDLIN( 221)						int v = this->indices->data->__get(i1);
-HXDLIN( 221)						indexBytes->b[pos] = ( (unsigned char)(v) );
-HXDLIN( 221)						indexBytes->b[(pos + 1)] = ( (unsigned char)((v >> 8)) );
-HXDLIN( 221)						indexBytes->b[(pos + 2)] = ( (unsigned char)((v >> 16)) );
-HXDLIN( 221)						indexBytes->b[(pos + 3)] = ( (unsigned char)(::hx::UShr(v,24)) );
-            					}
-            				}
-            			}
-HXLINE( 223)			{
-HXLINE( 223)				int target1 = GL_ELEMENT_ARRAY_BUFFER;
-HXDLIN( 223)				int size1 = indexBytes->length;
-HXDLIN( 223)				::Array< unsigned char > data1 = indexBytes->b;
-HXDLIN( 223)				int usage1 = GL_DYNAMIC_DRAW;
-HXDLIN( 223)				glBufferData(target1, size1, (const void*)&(data1[0]), usage1);
-            			}
-            		}
-HXLINE( 227)		this->programInfo->setupVertexAttributes();
-HXLINE( 230)		glBindBuffer(GL_ARRAY_BUFFER,0);
-HXLINE( 231)		glBindVertexArray(( (unsigned int)(0) ));
             	}
 
 
-HX_DEFINE_DYNAMIC_FUNC0(DisplayObject_obj,updateBuffers,(void))
+HX_DEFINE_DYNAMIC_FUNC1(DisplayObject_obj,setTexture,(void))
 
-void DisplayObject_obj::remove(){
-            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_235_remove)
+int DisplayObject_obj::addTexture(unsigned int textureId){
+            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_167_addTexture)
             	HX_STACK_THIS(this)
-HXLINE( 235)
-HXDLIN( 235)		if (this->initialized) {
-HXLINE( 236)			if ((this->vao != 0)) {
-HXLINE( 237)				HX_VARI( ::Array< unsigned int >,vaoArray) = ::Array_obj< unsigned int >::__new(1)->init(0,this->vao);
-HXLINE( 238)				glDeleteVertexArrays(1,(const unsigned int*)&vaoArray[0]);
-            			}
-HXLINE( 240)			if ((this->vbo != 0)) {
-HXLINE( 241)				HX_VARI( ::Array< unsigned int >,vboArray) = ::Array_obj< unsigned int >::__new(1)->init(0,this->vbo);
-HXLINE( 242)				glDeleteBuffers(1,(const unsigned int*)&vboArray[0]);
-            			}
-HXLINE( 244)			if ((this->ebo != 0)) {
-HXLINE( 245)				HX_VARI( ::Array< unsigned int >,eboArray) = ::Array_obj< unsigned int >::__new(1)->init(0,this->ebo);
-HXLINE( 246)				glDeleteBuffers(1,(const unsigned int*)&eboArray[0]);
-            			}
-HXLINE( 248)			this->initialized = false;
-            		}
+            	HX_STACK_ARG(textureId,"textureId")
+HXLINE( 167)
+HXLINE( 168)		this->textures->push(textureId);
+HXLINE( 169)		return (this->textures->length - 1);
             	}
 
 
-HX_DEFINE_DYNAMIC_FUNC0(DisplayObject_obj,remove,(void))
+HX_DEFINE_DYNAMIC_FUNC1(DisplayObject_obj,addTexture,return )
+
+bool DisplayObject_obj::hasTextures(){
+            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_176_hasTextures)
+            	HX_STACK_THIS(this)
+HXLINE( 176)
+HXDLIN( 176)		if ((this->textures->length > 0)) {
+HXDLIN( 176)			return (this->textures->__get(0) != 0);
+            		}
+            		else {
+HXDLIN( 176)			return false;
+            		}
+HXDLIN( 176)		return false;
+            	}
+
+
+HX_DEFINE_DYNAMIC_FUNC0(DisplayObject_obj,hasTextures,return )
 
 void DisplayObject_obj::updateTransform(){
-            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_252_updateTransform)
+            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_179_updateTransform)
             	HX_STACK_THIS(this)
-HXLINE( 252)
-HXLINE( 254)		this->matrix->identity();
-HXLINE( 257)		bool _hx_tmp;
-HXDLIN( 257)		bool _hx_tmp1;
-HXDLIN( 257)		if ((this->scaleX == ((Float)1.0))) {
-HXLINE( 257)			_hx_tmp1 = (this->scaleY != ((Float)1.0));
+HXLINE( 179)
+HXLINE( 181)		this->matrix->identity();
+HXLINE( 184)		bool _hx_tmp;
+HXDLIN( 184)		bool _hx_tmp1;
+HXDLIN( 184)		bool _hx_tmp2;
+HXDLIN( 184)		bool _hx_tmp3;
+HXDLIN( 184)		bool _hx_tmp4;
+HXDLIN( 184)		bool _hx_tmp5;
+HXDLIN( 184)		if ((this->x == ((Float)0.0))) {
+HXLINE( 184)			_hx_tmp5 = (this->y != ((Float)0.0));
             		}
             		else {
-HXLINE( 257)			_hx_tmp1 = true;
+HXLINE( 184)			_hx_tmp5 = true;
             		}
-HXDLIN( 257)		if (!(_hx_tmp1)) {
-HXLINE( 257)			_hx_tmp = (this->scaleZ != ((Float)1.0));
-            		}
-            		else {
-HXLINE( 257)			_hx_tmp = true;
-            		}
-HXDLIN( 257)		if (_hx_tmp) {
-HXLINE( 258)			this->matrix->appendScale(this->scaleX,this->scaleY,this->scaleZ);
-            		}
-HXLINE( 261)		if ((this->rotationZ != ((Float)0.0))) {
-HXLINE( 262)			this->matrix->appendRotationZ(this->rotationZ);
-            		}
-HXLINE( 265)		bool _hx_tmp2;
-HXDLIN( 265)		bool _hx_tmp3;
-HXDLIN( 265)		if ((this->x == ((Float)0.0))) {
-HXLINE( 265)			_hx_tmp3 = (this->y != ((Float)0.0));
+HXDLIN( 184)		if (!(_hx_tmp5)) {
+HXLINE( 184)			_hx_tmp4 = (this->z != ((Float)0.0));
             		}
             		else {
-HXLINE( 265)			_hx_tmp3 = true;
+HXLINE( 184)			_hx_tmp4 = true;
             		}
-HXDLIN( 265)		if (!(_hx_tmp3)) {
-HXLINE( 265)			_hx_tmp2 = (this->z != ((Float)0.0));
+HXDLIN( 184)		if (!(_hx_tmp4)) {
+HXLINE( 184)			_hx_tmp3 = (this->rotationX != ((Float)0.0));
             		}
             		else {
-HXLINE( 265)			_hx_tmp2 = true;
+HXLINE( 184)			_hx_tmp3 = true;
             		}
-HXDLIN( 265)		if (_hx_tmp2) {
-HXLINE( 266)			this->matrix->appendTranslation(this->x,this->y,this->z);
+HXDLIN( 184)		if (!(_hx_tmp3)) {
+HXLINE( 184)			_hx_tmp2 = (this->rotationY != ((Float)0.0));
+            		}
+            		else {
+HXLINE( 184)			_hx_tmp2 = true;
+            		}
+HXDLIN( 184)		if (!(_hx_tmp2)) {
+HXLINE( 184)			_hx_tmp1 = (this->rotationZ != ((Float)0.0));
+            		}
+            		else {
+HXLINE( 184)			_hx_tmp1 = true;
+            		}
+HXDLIN( 184)		if (_hx_tmp1) {
+HXLINE( 184)			_hx_tmp = (::hx::Mod(this->framesSinceLastMatrixDebug,900) == 0);
+            		}
+            		else {
+HXLINE( 184)			_hx_tmp = false;
+            		}
+HXDLIN( 184)		if (_hx_tmp) {
+HXLINE( 185)			::haxe::Log_obj::trace(((((((((((((HX_("Transform - Pos: (",b5,da,fc,aa) + this->x) + HX_(", ",74,26,00,00)) + this->y) + HX_(", ",74,26,00,00)) + this->z) + HX_(") Rot: (",42,f8,59,5b)) + this->rotationX) + HX_(", ",74,26,00,00)) + this->rotationY) + HX_(", ",74,26,00,00)) + this->rotationZ) + HX_(")",29,00,00,00)),::hx::SourceInfo(HX_("src/DisplayObject.hx",a8,65,f9,bb),185,HX_("DisplayObject",81,8a,92,1e),HX_("updateTransform",23,fe,1d,95)));
+            		}
+HXLINE( 189)		bool _hx_tmp6;
+HXDLIN( 189)		bool _hx_tmp7;
+HXDLIN( 189)		if ((this->scaleX == ((Float)1.0))) {
+HXLINE( 189)			_hx_tmp7 = (this->scaleY != ((Float)1.0));
+            		}
+            		else {
+HXLINE( 189)			_hx_tmp7 = true;
+            		}
+HXDLIN( 189)		if (!(_hx_tmp7)) {
+HXLINE( 189)			_hx_tmp6 = (this->scaleZ != ((Float)1.0));
+            		}
+            		else {
+HXLINE( 189)			_hx_tmp6 = true;
+            		}
+HXDLIN( 189)		if (_hx_tmp6) {
+HXLINE( 190)			this->matrix->appendScale(this->scaleX,this->scaleY,this->scaleZ);
+            		}
+HXLINE( 194)		if ((this->rotationX != ((Float)0.0))) {
+HXLINE( 195)			this->matrix->appendRotationX(this->rotationX);
+            		}
+HXLINE( 197)		if ((this->rotationY != ((Float)0.0))) {
+HXLINE( 198)			this->matrix->appendRotationY(this->rotationY);
+            		}
+HXLINE( 200)		if ((this->rotationZ != ((Float)0.0))) {
+HXLINE( 202)			this->matrix->appendRotationZ(((-(this->rotationZ) * ::Math_obj::PI) / ((Float)180.0)));
+            		}
+HXLINE( 205)		bool _hx_tmp8;
+HXDLIN( 205)		bool _hx_tmp9;
+HXDLIN( 205)		if ((this->x == ((Float)0.0))) {
+HXLINE( 205)			_hx_tmp9 = (this->y != ((Float)0.0));
+            		}
+            		else {
+HXLINE( 205)			_hx_tmp9 = true;
+            		}
+HXDLIN( 205)		if (!(_hx_tmp9)) {
+HXLINE( 205)			_hx_tmp8 = (this->z != ((Float)0.0));
+            		}
+            		else {
+HXLINE( 205)			_hx_tmp8 = true;
+            		}
+HXDLIN( 205)		if (_hx_tmp8) {
+HXLINE( 206)			this->matrix->appendTranslation(this->x,this->y,this->z);
+HXLINE( 207)			if ((::hx::Mod(this->framesSinceLastMatrixDebug,900) == 0)) {
+HXLINE( 208)				::haxe::Log_obj::trace(((((((HX_("Applied translation: (",14,82,31,44) + this->x) + HX_(", ",74,26,00,00)) + this->y) + HX_(", ",74,26,00,00)) + this->z) + HX_(")",29,00,00,00)),::hx::SourceInfo(HX_("src/DisplayObject.hx",a8,65,f9,bb),208,HX_("DisplayObject",81,8a,92,1e),HX_("updateTransform",23,fe,1d,95)));
+            			}
             		}
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC0(DisplayObject_obj,updateTransform,(void))
 
-void DisplayObject_obj::render( ::Matrix cameraMatrix){
-            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_270_render)
+void DisplayObject_obj::render( ::math::Matrix cameraMatrix, ::Renderer renderer){
+            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_215_render)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(cameraMatrix,"cameraMatrix")
-HXLINE( 270)
-HXLINE( 271)		bool _hx_tmp;
-HXDLIN( 271)		if (this->visible) {
-HXLINE( 271)			_hx_tmp = !(this->initialized);
+            	HX_STACK_ARG(renderer,"renderer")
+HXLINE( 215)
+HXLINE( 216)		bool _hx_tmp;
+HXDLIN( 216)		if (this->visible) {
+HXLINE( 216)			_hx_tmp = !(this->initialized);
             		}
             		else {
-HXLINE( 271)			_hx_tmp = true;
+HXLINE( 216)			_hx_tmp = true;
             		}
-HXDLIN( 271)		if (_hx_tmp) {
-HXLINE( 271)			return;
+HXDLIN( 216)		if (_hx_tmp) {
+HXLINE( 216)			return;
             		}
-HXLINE( 274)		this->updateTransform();
-HXLINE( 277)		glUseProgram(( (int)(this->programInfo->program) ));
-HXLINE( 280)		this->setUniforms();
-HXLINE( 283)		glBindVertexArray(this->vao);
-HXLINE( 285)		if ((this->indices->data->length > 0)) {
-HXLINE( 287)			unsigned int mode = ( (unsigned int)(this->mode) );
-HXDLIN( 287)			int count = this->_hx___indicesToRender;
-HXDLIN( 287)			unsigned int type = ( (unsigned int)(GL_UNSIGNED_INT) );
-HXDLIN( 287)			glDrawElements(mode, count, type, 0);
-            		}
-            		else {
-HXLINE( 290)			glDrawArrays(this->mode,0,this->_hx___verticesToRender);
-            		}
-HXLINE( 293)		glBindVertexArray(( (unsigned int)(0) ));
+HXLINE( 219)		this->updateTransform();
+HXLINE( 223)		HX_VARI(  ::math::Matrix,finalMatrix) = ::math::Matrix_obj::copy(this->matrix);
+HXLINE( 224)		finalMatrix->append(cameraMatrix);
+HXLINE( 227)		this->uniforms->set(HX_("uMatrix",96,f0,ab,f1),finalMatrix->data);
+HXLINE( 230)		renderer->renderObject(::hx::ObjectPtr<OBJ_>(this));
             	}
 
 
-HX_DEFINE_DYNAMIC_FUNC1(DisplayObject_obj,render,(void))
-
-void DisplayObject_obj::setUniforms(){
-            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_297_setUniforms)
-            	HX_STACK_THIS(this)
-HXLINE( 297)
-HXLINE( 299)		{
-HXLINE( 299)			int _g = 0;
-HXDLIN( 299)			::Array< ::Dynamic> _g1 = this->programInfo->uniforms;
-HXDLIN( 299)			while((_g < _g1->length)){
-HXLINE( 299)				HX_VARI(  ::Dynamic,uniform) = _g1->__get(_g);
-HXDLIN( 299)				_g = (_g + 1);
-HXLINE( 300)				bool _hx_tmp;
-HXDLIN( 300)				if (::hx::IsEq( uniform->__Field(HX_("name",4b,72,ff,48),::hx::paccDynamic),HX_("uMatrix",96,f0,ab,f1) )) {
-HXLINE( 300)					_hx_tmp = ::hx::IsPointerEq( uniform->__Field(HX_("format",37,8f,8e,fd),::hx::paccDynamic),::UniformFormat_obj::Mat4_dyn() );
-            				}
-            				else {
-HXLINE( 300)					_hx_tmp = false;
-            				}
-HXDLIN( 300)				if (_hx_tmp) {
-HXLINE( 301)					this->programInfo->setUniformMatrix4(HX_("uMatrix",96,f0,ab,f1),this->matrix->data);
-HXLINE( 302)					goto _hx_goto_8;
-            				}
-            			}
-            			_hx_goto_8:;
-            		}
-HXLINE( 307)		{
-HXLINE( 307)			::Dynamic map = this->uniforms;
-HXDLIN( 307)			::Dynamic _g_map = map;
-HXDLIN( 307)			 ::Dynamic _g_keys = ::haxe::IMap_obj::keys(map);
-HXDLIN( 307)			while(( (bool)(_g_keys->__Field(HX_("hasNext",6d,a5,46,18),::hx::paccDynamic)()) )){
-HXLINE( 307)				::String key = ( (::String)(_g_keys->__Field(HX_("next",f3,84,02,49),::hx::paccDynamic)()) );
-HXDLIN( 307)				 ::Dynamic _g_value = ::haxe::IMap_obj::get(_g_map,key);
-HXDLIN( 307)				::String _g_key = key;
-HXDLIN( 307)				HX_VARI( ::String,name) = _g_key;
-HXDLIN( 307)				HX_VARI(  ::Dynamic,value) = _g_value;
-HXLINE( 309)				switch((int)(::Type_obj::_hx_typeof(value)->_hx_getIndex())){
-            					case (int)1: {
-HXLINE( 314)						this->programInfo->setUniformFloat(name,::hx::TCast< Float >::cast(value));
-            					}
-            					break;
-            					case (int)2: {
-HXLINE( 311)						this->programInfo->setUniformFloat(name,( (Float)(value) ));
-            					}
-            					break;
-            					default:{
-            					}
-            				}
-            			}
-            		}
-            	}
-
-
-HX_DEFINE_DYNAMIC_FUNC0(DisplayObject_obj,setUniforms,(void))
+HX_DEFINE_DYNAMIC_FUNC2(DisplayObject_obj,render,(void))
 
 
 ::hx::ObjectPtr< DisplayObject_obj > DisplayObject_obj::__new( ::ProgramInfo programInfo, ::Vertices vertices, ::Indices indices) {
@@ -402,13 +381,22 @@ void DisplayObject_obj::__Mark(HX_MARK_PARAMS)
 	HX_MARK_MEMBER_NAME(x,"x");
 	HX_MARK_MEMBER_NAME(y,"y");
 	HX_MARK_MEMBER_NAME(z,"z");
+	HX_MARK_MEMBER_NAME(rotationX,"rotationX");
+	HX_MARK_MEMBER_NAME(rotationY,"rotationY");
 	HX_MARK_MEMBER_NAME(rotationZ,"rotationZ");
 	HX_MARK_MEMBER_NAME(scaleX,"scaleX");
 	HX_MARK_MEMBER_NAME(scaleY,"scaleY");
 	HX_MARK_MEMBER_NAME(scaleZ,"scaleZ");
+	HX_MARK_MEMBER_NAME(parent,"parent");
+	HX_MARK_MEMBER_NAME(children,"children");
+	HX_MARK_MEMBER_NAME(depthTest,"depthTest");
+	HX_MARK_MEMBER_NAME(depthWrite,"depthWrite");
+	HX_MARK_MEMBER_NAME(cullFace,"cullFace");
 	HX_MARK_MEMBER_NAME(_hx___shouldTransform,"__shouldTransform");
 	HX_MARK_MEMBER_NAME(_hx___verticesToRender,"__verticesToRender");
 	HX_MARK_MEMBER_NAME(_hx___indicesToRender,"__indicesToRender");
+	HX_MARK_MEMBER_NAME(framesSinceLastMatrixDebug,"framesSinceLastMatrixDebug");
+	HX_MARK_MEMBER_NAME(needsBufferUpdate,"needsBufferUpdate");
 	HX_MARK_MEMBER_NAME(vao,"vao");
 	HX_MARK_MEMBER_NAME(vbo,"vbo");
 	HX_MARK_MEMBER_NAME(ebo,"ebo");
@@ -432,13 +420,22 @@ void DisplayObject_obj::__Visit(HX_VISIT_PARAMS)
 	HX_VISIT_MEMBER_NAME(x,"x");
 	HX_VISIT_MEMBER_NAME(y,"y");
 	HX_VISIT_MEMBER_NAME(z,"z");
+	HX_VISIT_MEMBER_NAME(rotationX,"rotationX");
+	HX_VISIT_MEMBER_NAME(rotationY,"rotationY");
 	HX_VISIT_MEMBER_NAME(rotationZ,"rotationZ");
 	HX_VISIT_MEMBER_NAME(scaleX,"scaleX");
 	HX_VISIT_MEMBER_NAME(scaleY,"scaleY");
 	HX_VISIT_MEMBER_NAME(scaleZ,"scaleZ");
+	HX_VISIT_MEMBER_NAME(parent,"parent");
+	HX_VISIT_MEMBER_NAME(children,"children");
+	HX_VISIT_MEMBER_NAME(depthTest,"depthTest");
+	HX_VISIT_MEMBER_NAME(depthWrite,"depthWrite");
+	HX_VISIT_MEMBER_NAME(cullFace,"cullFace");
 	HX_VISIT_MEMBER_NAME(_hx___shouldTransform,"__shouldTransform");
 	HX_VISIT_MEMBER_NAME(_hx___verticesToRender,"__verticesToRender");
 	HX_VISIT_MEMBER_NAME(_hx___indicesToRender,"__indicesToRender");
+	HX_VISIT_MEMBER_NAME(framesSinceLastMatrixDebug,"framesSinceLastMatrixDebug");
+	HX_VISIT_MEMBER_NAME(needsBufferUpdate,"needsBufferUpdate");
 	HX_VISIT_MEMBER_NAME(vao,"vao");
 	HX_VISIT_MEMBER_NAME(vbo,"vbo");
 	HX_VISIT_MEMBER_NAME(ebo,"ebo");
@@ -467,6 +464,7 @@ void DisplayObject_obj::__Visit(HX_VISIT_PARAMS)
 		if (HX_FIELD_EQ(inName,"scaleX") ) { return ::hx::Val( scaleX ); }
 		if (HX_FIELD_EQ(inName,"scaleY") ) { return ::hx::Val( scaleY ); }
 		if (HX_FIELD_EQ(inName,"scaleZ") ) { return ::hx::Val( scaleZ ); }
+		if (HX_FIELD_EQ(inName,"parent") ) { return ::hx::Val( parent ); }
 		if (HX_FIELD_EQ(inName,"remove") ) { return ::hx::Val( remove_dyn() ); }
 		if (HX_FIELD_EQ(inName,"render") ) { return ::hx::Val( render_dyn() ); }
 		break;
@@ -479,15 +477,25 @@ void DisplayObject_obj::__Visit(HX_VISIT_PARAMS)
 		if (HX_FIELD_EQ(inName,"vertices") ) { return ::hx::Val( vertices ); }
 		if (HX_FIELD_EQ(inName,"textures") ) { return ::hx::Val( textures ); }
 		if (HX_FIELD_EQ(inName,"uniforms") ) { return ::hx::Val( uniforms ); }
+		if (HX_FIELD_EQ(inName,"children") ) { return ::hx::Val( children ); }
+		if (HX_FIELD_EQ(inName,"cullFace") ) { return ::hx::Val( cullFace ); }
 		break;
 	case 9:
 		if (HX_FIELD_EQ(inName,"signature") ) { return ::hx::Val( signature ); }
+		if (HX_FIELD_EQ(inName,"rotationX") ) { return ::hx::Val( rotationX ); }
+		if (HX_FIELD_EQ(inName,"rotationY") ) { return ::hx::Val( rotationY ); }
 		if (HX_FIELD_EQ(inName,"rotationZ") ) { return ::hx::Val( rotationZ ); }
+		if (HX_FIELD_EQ(inName,"depthTest") ) { return ::hx::Val( depthTest ); }
+		break;
+	case 10:
+		if (HX_FIELD_EQ(inName,"depthWrite") ) { return ::hx::Val( depthWrite ); }
+		if (HX_FIELD_EQ(inName,"setTexture") ) { return ::hx::Val( setTexture_dyn() ); }
+		if (HX_FIELD_EQ(inName,"addTexture") ) { return ::hx::Val( addTexture_dyn() ); }
 		break;
 	case 11:
 		if (HX_FIELD_EQ(inName,"programInfo") ) { return ::hx::Val( programInfo ); }
 		if (HX_FIELD_EQ(inName,"initialized") ) { return ::hx::Val( initialized ); }
-		if (HX_FIELD_EQ(inName,"setUniforms") ) { return ::hx::Val( setUniforms_dyn() ); }
+		if (HX_FIELD_EQ(inName,"hasTextures") ) { return ::hx::Val( hasTextures_dyn() ); }
 		break;
 	case 12:
 		if (HX_FIELD_EQ(inName,"blendFactors") ) { return ::hx::Val( blendFactors ); }
@@ -501,9 +509,13 @@ void DisplayObject_obj::__Visit(HX_VISIT_PARAMS)
 	case 17:
 		if (HX_FIELD_EQ(inName,"__shouldTransform") ) { return ::hx::Val( _hx___shouldTransform ); }
 		if (HX_FIELD_EQ(inName,"__indicesToRender") ) { return ::hx::Val( _hx___indicesToRender ); }
+		if (HX_FIELD_EQ(inName,"needsBufferUpdate") ) { return ::hx::Val( needsBufferUpdate ); }
 		break;
 	case 18:
 		if (HX_FIELD_EQ(inName,"__verticesToRender") ) { return ::hx::Val( _hx___verticesToRender ); }
+		break;
+	case 26:
+		if (HX_FIELD_EQ(inName,"framesSinceLastMatrixDebug") ) { return ::hx::Val( framesSinceLastMatrixDebug ); }
 	}
 	return super::__Field(inName,inCallProp);
 }
@@ -525,10 +537,11 @@ void DisplayObject_obj::__Visit(HX_VISIT_PARAMS)
 		if (HX_FIELD_EQ(inName,"mode") ) { mode=inValue.Cast< int >(); return inValue; }
 		break;
 	case 6:
-		if (HX_FIELD_EQ(inName,"matrix") ) { matrix=inValue.Cast<  ::Matrix >(); return inValue; }
+		if (HX_FIELD_EQ(inName,"matrix") ) { matrix=inValue.Cast<  ::math::Matrix >(); return inValue; }
 		if (HX_FIELD_EQ(inName,"scaleX") ) { scaleX=inValue.Cast< Float >(); return inValue; }
 		if (HX_FIELD_EQ(inName,"scaleY") ) { scaleY=inValue.Cast< Float >(); return inValue; }
 		if (HX_FIELD_EQ(inName,"scaleZ") ) { scaleZ=inValue.Cast< Float >(); return inValue; }
+		if (HX_FIELD_EQ(inName,"parent") ) { parent=inValue.Cast<  ::DisplayObject >(); return inValue; }
 		break;
 	case 7:
 		if (HX_FIELD_EQ(inName,"indices") ) { indices=inValue.Cast<  ::Indices >(); return inValue; }
@@ -539,10 +552,18 @@ void DisplayObject_obj::__Visit(HX_VISIT_PARAMS)
 		if (HX_FIELD_EQ(inName,"vertices") ) { vertices=inValue.Cast<  ::Vertices >(); return inValue; }
 		if (HX_FIELD_EQ(inName,"textures") ) { textures=inValue.Cast< ::Array< int > >(); return inValue; }
 		if (HX_FIELD_EQ(inName,"uniforms") ) { uniforms=inValue.Cast<  ::haxe::ds::StringMap >(); return inValue; }
+		if (HX_FIELD_EQ(inName,"children") ) { children=inValue.Cast< ::Array< ::Dynamic> >(); return inValue; }
+		if (HX_FIELD_EQ(inName,"cullFace") ) { cullFace=inValue.Cast< bool >(); return inValue; }
 		break;
 	case 9:
 		if (HX_FIELD_EQ(inName,"signature") ) { signature=inValue.Cast< ::String >(); return inValue; }
+		if (HX_FIELD_EQ(inName,"rotationX") ) { rotationX=inValue.Cast< Float >(); return inValue; }
+		if (HX_FIELD_EQ(inName,"rotationY") ) { rotationY=inValue.Cast< Float >(); return inValue; }
 		if (HX_FIELD_EQ(inName,"rotationZ") ) { rotationZ=inValue.Cast< Float >(); return inValue; }
+		if (HX_FIELD_EQ(inName,"depthTest") ) { depthTest=inValue.Cast< bool >(); return inValue; }
+		break;
+	case 10:
+		if (HX_FIELD_EQ(inName,"depthWrite") ) { depthWrite=inValue.Cast< bool >(); return inValue; }
 		break;
 	case 11:
 		if (HX_FIELD_EQ(inName,"programInfo") ) { programInfo=inValue.Cast<  ::ProgramInfo >(); return inValue; }
@@ -554,9 +575,13 @@ void DisplayObject_obj::__Visit(HX_VISIT_PARAMS)
 	case 17:
 		if (HX_FIELD_EQ(inName,"__shouldTransform") ) { _hx___shouldTransform=inValue.Cast< bool >(); return inValue; }
 		if (HX_FIELD_EQ(inName,"__indicesToRender") ) { _hx___indicesToRender=inValue.Cast< int >(); return inValue; }
+		if (HX_FIELD_EQ(inName,"needsBufferUpdate") ) { needsBufferUpdate=inValue.Cast< bool >(); return inValue; }
 		break;
 	case 18:
 		if (HX_FIELD_EQ(inName,"__verticesToRender") ) { _hx___verticesToRender=inValue.Cast< int >(); return inValue; }
+		break;
+	case 26:
+		if (HX_FIELD_EQ(inName,"framesSinceLastMatrixDebug") ) { framesSinceLastMatrixDebug=inValue.Cast< int >(); return inValue; }
 	}
 	return super::__SetField(inName,inValue,inCallProp);
 }
@@ -577,13 +602,22 @@ void DisplayObject_obj::__GetFields(Array< ::String> &outFields)
 	outFields->push(HX_("x",78,00,00,00));
 	outFields->push(HX_("y",79,00,00,00));
 	outFields->push(HX_("z",7a,00,00,00));
+	outFields->push(HX_("rotationX",5a,59,ef,6c));
+	outFields->push(HX_("rotationY",5b,59,ef,6c));
 	outFields->push(HX_("rotationZ",5c,59,ef,6c));
 	outFields->push(HX_("scaleX",8e,ea,25,3c));
 	outFields->push(HX_("scaleY",8f,ea,25,3c));
 	outFields->push(HX_("scaleZ",90,ea,25,3c));
+	outFields->push(HX_("parent",2a,05,7e,ed));
+	outFields->push(HX_("children",3f,19,6a,70));
+	outFields->push(HX_("depthTest",f5,22,7d,a3));
+	outFields->push(HX_("depthWrite",dc,60,c5,2c));
+	outFields->push(HX_("cullFace",6f,e7,31,ac));
 	outFields->push(HX_("__shouldTransform",99,77,12,34));
 	outFields->push(HX_("__verticesToRender",6a,43,e6,c2));
 	outFields->push(HX_("__indicesToRender",58,46,ae,f7));
+	outFields->push(HX_("framesSinceLastMatrixDebug",c8,51,71,f2));
+	outFields->push(HX_("needsBufferUpdate",26,32,24,57));
 	outFields->push(HX_("vao",e4,de,59,00));
 	outFields->push(HX_("vbo",c3,df,59,00));
 	outFields->push(HX_("ebo",72,f9,4c,00));
@@ -600,20 +634,29 @@ static ::hx::StorageInfo DisplayObject_obj_sMemberStorageInfo[] = {
 	{::hx::fsObject /*  ::Vertices */ ,(int)offsetof(DisplayObject_obj,vertices),HX_("vertices",f9,bf,15,6a)},
 	{::hx::fsObject /*  ::ProgramInfo */ ,(int)offsetof(DisplayObject_obj,programInfo),HX_("programInfo",12,41,df,bc)},
 	{::hx::fsObject /* ::Array< int > */ ,(int)offsetof(DisplayObject_obj,textures),HX_("textures",38,f7,ce,65)},
-	{::hx::fsObject /*  ::Matrix */ ,(int)offsetof(DisplayObject_obj,matrix),HX_("matrix",41,36,c8,bb)},
+	{::hx::fsObject /*  ::math::Matrix */ ,(int)offsetof(DisplayObject_obj,matrix),HX_("matrix",41,36,c8,bb)},
 	{::hx::fsObject /*  ::haxe::ds::StringMap */ ,(int)offsetof(DisplayObject_obj,uniforms),HX_("uniforms",bf,cc,54,02)},
 	{::hx::fsBool,(int)offsetof(DisplayObject_obj,visible),HX_("visible",72,78,24,a3)},
 	{::hx::fsString,(int)offsetof(DisplayObject_obj,signature),HX_("signature",f8,a2,6b,15)},
 	{::hx::fsFloat,(int)offsetof(DisplayObject_obj,x),HX_("x",78,00,00,00)},
 	{::hx::fsFloat,(int)offsetof(DisplayObject_obj,y),HX_("y",79,00,00,00)},
 	{::hx::fsFloat,(int)offsetof(DisplayObject_obj,z),HX_("z",7a,00,00,00)},
+	{::hx::fsFloat,(int)offsetof(DisplayObject_obj,rotationX),HX_("rotationX",5a,59,ef,6c)},
+	{::hx::fsFloat,(int)offsetof(DisplayObject_obj,rotationY),HX_("rotationY",5b,59,ef,6c)},
 	{::hx::fsFloat,(int)offsetof(DisplayObject_obj,rotationZ),HX_("rotationZ",5c,59,ef,6c)},
 	{::hx::fsFloat,(int)offsetof(DisplayObject_obj,scaleX),HX_("scaleX",8e,ea,25,3c)},
 	{::hx::fsFloat,(int)offsetof(DisplayObject_obj,scaleY),HX_("scaleY",8f,ea,25,3c)},
 	{::hx::fsFloat,(int)offsetof(DisplayObject_obj,scaleZ),HX_("scaleZ",90,ea,25,3c)},
+	{::hx::fsObject /*  ::DisplayObject */ ,(int)offsetof(DisplayObject_obj,parent),HX_("parent",2a,05,7e,ed)},
+	{::hx::fsObject /* ::Array< ::Dynamic> */ ,(int)offsetof(DisplayObject_obj,children),HX_("children",3f,19,6a,70)},
+	{::hx::fsBool,(int)offsetof(DisplayObject_obj,depthTest),HX_("depthTest",f5,22,7d,a3)},
+	{::hx::fsBool,(int)offsetof(DisplayObject_obj,depthWrite),HX_("depthWrite",dc,60,c5,2c)},
+	{::hx::fsBool,(int)offsetof(DisplayObject_obj,cullFace),HX_("cullFace",6f,e7,31,ac)},
 	{::hx::fsBool,(int)offsetof(DisplayObject_obj,_hx___shouldTransform),HX_("__shouldTransform",99,77,12,34)},
 	{::hx::fsInt,(int)offsetof(DisplayObject_obj,_hx___verticesToRender),HX_("__verticesToRender",6a,43,e6,c2)},
 	{::hx::fsInt,(int)offsetof(DisplayObject_obj,_hx___indicesToRender),HX_("__indicesToRender",58,46,ae,f7)},
+	{::hx::fsInt,(int)offsetof(DisplayObject_obj,framesSinceLastMatrixDebug),HX_("framesSinceLastMatrixDebug",c8,51,71,f2)},
+	{::hx::fsBool,(int)offsetof(DisplayObject_obj,needsBufferUpdate),HX_("needsBufferUpdate",26,32,24,57)},
 	{::hx::fsUnknown /* unsigned int */ ,(int)offsetof(DisplayObject_obj,vao),HX_("vao",e4,de,59,00)},
 	{::hx::fsUnknown /* unsigned int */ ,(int)offsetof(DisplayObject_obj,vbo),HX_("vbo",c3,df,59,00)},
 	{::hx::fsUnknown /* unsigned int */ ,(int)offsetof(DisplayObject_obj,ebo),HX_("ebo",72,f9,4c,00)},
@@ -638,13 +681,22 @@ static ::String DisplayObject_obj_sMemberFields[] = {
 	HX_("x",78,00,00,00),
 	HX_("y",79,00,00,00),
 	HX_("z",7a,00,00,00),
+	HX_("rotationX",5a,59,ef,6c),
+	HX_("rotationY",5b,59,ef,6c),
 	HX_("rotationZ",5c,59,ef,6c),
 	HX_("scaleX",8e,ea,25,3c),
 	HX_("scaleY",8f,ea,25,3c),
 	HX_("scaleZ",90,ea,25,3c),
+	HX_("parent",2a,05,7e,ed),
+	HX_("children",3f,19,6a,70),
+	HX_("depthTest",f5,22,7d,a3),
+	HX_("depthWrite",dc,60,c5,2c),
+	HX_("cullFace",6f,e7,31,ac),
 	HX_("__shouldTransform",99,77,12,34),
 	HX_("__verticesToRender",6a,43,e6,c2),
 	HX_("__indicesToRender",58,46,ae,f7),
+	HX_("framesSinceLastMatrixDebug",c8,51,71,f2),
+	HX_("needsBufferUpdate",26,32,24,57),
 	HX_("vao",e4,de,59,00),
 	HX_("vbo",c3,df,59,00),
 	HX_("ebo",72,f9,4c,00),
@@ -652,9 +704,11 @@ static ::String DisplayObject_obj_sMemberFields[] = {
 	HX_("init",10,3b,bb,45),
 	HX_("updateBuffers",6a,08,ff,7c),
 	HX_("remove",44,9c,88,04),
+	HX_("setTexture",59,ed,bf,f1),
+	HX_("addTexture",ba,f4,6a,06),
+	HX_("hasTextures",b2,dc,85,38),
 	HX_("updateTransform",23,fe,1d,95),
 	HX_("render",56,6b,29,05),
-	HX_("setUniforms",81,96,b5,32),
 	::String(null()) };
 
 ::hx::Class DisplayObject_obj::__mClass;

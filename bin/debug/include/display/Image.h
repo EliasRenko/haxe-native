@@ -10,9 +10,10 @@
 #include <DisplayObject.h>
 #endif
 HX_DECLARE_CLASS0(DisplayObject)
-HX_DECLARE_CLASS0(Matrix)
 HX_DECLARE_CLASS0(ProgramInfo)
+HX_DECLARE_CLASS0(Renderer)
 HX_DECLARE_CLASS1(display,Image)
+HX_DECLARE_CLASS1(math,Matrix)
 
 namespace display{
 
@@ -27,13 +28,13 @@ class HXCPP_CLASS_ATTRIBUTES Image_obj : public  ::DisplayObject_obj
 	public:
 		enum { _hx_ClassId = 0x76c26939 };
 
-		void __construct( ::ProgramInfo programInfo,::Array< int > textureIds);
+		void __construct( ::ProgramInfo programInfo, ::Dynamic texture);
 		inline void *operator new(size_t inSize, bool inContainer=true,const char *inName="display.Image")
 			{ return ::hx::Object::operator new(inSize,inContainer,inName); }
 		inline void *operator new(size_t inSize, int extra)
 			{ return ::hx::Object::operator new(inSize+extra,true,"display.Image"); }
-		static ::hx::ObjectPtr< Image_obj > __new( ::ProgramInfo programInfo,::Array< int > textureIds);
-		static ::hx::ObjectPtr< Image_obj > __alloc(::hx::Ctx *_hx_ctx, ::ProgramInfo programInfo,::Array< int > textureIds);
+		static ::hx::ObjectPtr< Image_obj > __new( ::ProgramInfo programInfo, ::Dynamic texture);
+		static ::hx::ObjectPtr< Image_obj > __alloc(::hx::Ctx *_hx_ctx, ::ProgramInfo programInfo, ::Dynamic texture);
 		static void * _hx_vtable;
 		static Dynamic __CreateEmpty();
 		static Dynamic __Create(::hx::DynamicArray inArgs);
@@ -61,7 +62,7 @@ class HXCPP_CLASS_ATTRIBUTES Image_obj : public  ::DisplayObject_obj
 		void setUV(Float x,Float y,Float width,Float height);
 		::Dynamic setUV_dyn();
 
-		void render( ::Matrix cameraMatrix);
+		void render( ::math::Matrix cameraMatrix, ::Renderer renderer);
 
 		Float set_angle(Float value);
 		::Dynamic set_angle_dyn();

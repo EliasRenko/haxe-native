@@ -57,8 +57,14 @@ class HXCPP_CLASS_ATTRIBUTES StringMap_obj : public ::hx::Object
 		 ::Dynamic get(::String key);
 		::Dynamic get_dyn();
 
+		bool exists(::String key);
+		::Dynamic exists_dyn();
+
 		 ::Dynamic keys();
 		::Dynamic keys_dyn();
+
+		void clear();
+		::Dynamic clear_dyn();
 
 
   inline void set(String key, ::null value) { __string_hash_set(HX_MAP_THIS,key,value); }

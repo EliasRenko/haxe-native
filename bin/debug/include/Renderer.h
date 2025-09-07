@@ -6,13 +6,14 @@
 #include <hxcpp.h>
 #endif
 
+HX_DECLARE_CLASS0(App)
 HX_DECLARE_CLASS0(DisplayObject)
 HX_DECLARE_CLASS0(ProgramInfo)
 HX_DECLARE_CLASS0(Renderer)
-HX_DECLARE_CLASS1(display,Image)
-HX_DECLARE_CLASS1(display,Quad)
-HX_DECLARE_CLASS1(display,Rectangle)
-HX_DECLARE_CLASS1(display,Triangle)
+HX_DECLARE_CLASS1(data,TextureData)
+HX_DECLARE_CLASS1(haxe,IMap)
+HX_DECLARE_CLASS2(haxe,ds,StringMap)
+HX_DECLARE_CLASS1(math,Matrix)
 
 
 
@@ -26,13 +27,13 @@ class HXCPP_CLASS_ATTRIBUTES Renderer_obj : public ::hx::Object
 	public:
 		enum { _hx_ClassId = 0x3f005987 };
 
-		void __construct(int windowWidth,int windowHeight);
+		void __construct( ::App app,int windowWidth,int windowHeight);
 		inline void *operator new(size_t inSize, bool inContainer=true,const char *inName="Renderer")
 			{ return ::hx::Object::operator new(inSize,inContainer,inName); }
 		inline void *operator new(size_t inSize, int extra)
 			{ return ::hx::Object::operator new(inSize+extra,true,"Renderer"); }
-		static ::hx::ObjectPtr< Renderer_obj > __new(int windowWidth,int windowHeight);
-		static ::hx::ObjectPtr< Renderer_obj > __alloc(::hx::Ctx *_hx_ctx,int windowWidth,int windowHeight);
+		static ::hx::ObjectPtr< Renderer_obj > __new( ::App app,int windowWidth,int windowHeight);
+		static ::hx::ObjectPtr< Renderer_obj > __alloc(::hx::Ctx *_hx_ctx, ::App app,int windowWidth,int windowHeight);
 		static void * _hx_vtable;
 		static Dynamic __CreateEmpty();
 		static Dynamic __Create(::hx::DynamicArray inArgs);
@@ -48,43 +49,149 @@ class HXCPP_CLASS_ATTRIBUTES Renderer_obj : public ::hx::Object
 		bool _hx_isInstanceOf(int inClassId);
 		::String __ToString() const { return HX_("Renderer",63,81,8d,8c); }
 
-		unsigned int shaderProgram;
-		unsigned int vbo;
-		unsigned int vao;
-		 ::display::Triangle testTriangle;
-		 ::ProgramInfo triangleProgram;
-		 ::display::Rectangle testRectangle;
-		 ::ProgramInfo rectangleProgram;
-		 ::display::Quad testQuad;
-		 ::ProgramInfo quadProgram;
-		 ::display::Image testImage;
-		 ::ProgramInfo imageProgram;
+		 ::App app;
+		int windowWidth;
+		int windowHeight;
+		 ::App _hx___app;
+		bool _hx___currentDepthTest;
+		bool _hx___currentDepthWrite;
+		bool _hx___currentBlendMode;
+		int frameCount;
+		 ::haxe::ds::StringMap programInfos;
 		void render();
 		::Dynamic render_dyn();
 
-		void renderDisplayObject( ::DisplayObject displayObject);
+		void renderDisplayObject( ::DisplayObject displayObject, ::math::Matrix viewProjectionMatrix);
 		::Dynamic renderDisplayObject_dyn();
 
-		void initializeTestTriangle();
-		::Dynamic initializeTestTriangle_dyn();
+		void renderObject( ::DisplayObject displayObject);
+		::Dynamic renderObject_dyn();
 
-		void initializeTestRectangle();
-		::Dynamic initializeTestRectangle_dyn();
+		void _hx___render( ::DisplayObject drawable);
+		::Dynamic _hx___render_dyn();
 
-		void initializeTestQuad();
-		::Dynamic initializeTestQuad_dyn();
+		void _hx___renderUniforms( ::ProgramInfo programInfo, ::haxe::ds::StringMap uniforms);
+		::Dynamic _hx___renderUniforms_dyn();
 
-		void initializeTestImage();
-		::Dynamic initializeTestImage_dyn();
+		void _hx___renderAttributes( ::ProgramInfo programInfo);
+		::Dynamic _hx___renderAttributes_dyn();
 
-		::String getImageVertexShader();
-		::Dynamic getImageVertexShader_dyn();
+		void _hx___renderTextures( ::ProgramInfo programInfo, ::DisplayObject drawable);
+		::Dynamic _hx___renderTextures_dyn();
 
-		::String getImageFragmentShader();
-		::Dynamic getImageFragmentShader_dyn();
+		void registerProgramInfo(::String name, ::ProgramInfo programInfo);
+		::Dynamic registerProgramInfo_dyn();
+
+		 ::ProgramInfo createProgramInfo(::String name,::String vertexShader,::String fragmentShader);
+		::Dynamic createProgramInfo_dyn();
+
+		 ::ProgramInfo getProgramInfo(::String name);
+		::Dynamic getProgramInfo_dyn();
+
+		bool hasProgramInfo(::String name);
+		::Dynamic hasProgramInfo_dyn();
+
+		 ::ProgramInfo createProgramInfoFromFiles(::String name,::String vertexShaderPath,::String fragmentShaderPath);
+		::Dynamic createProgramInfoFromFiles_dyn();
+
+		::Array< ::String > getProgramInfoNames();
+		::Dynamic getProgramInfoNames_dyn();
+
+		 ::Dynamic createBuffers(int vertexCount,int indexCount);
+		::Dynamic createBuffers_dyn();
+
+		void uploadVertexData(int vao,int vbo,::Array< Float > vertices);
+		::Dynamic uploadVertexData_dyn();
+
+		void uploadIndexData(int ebo,::Array< int > indices);
+		::Dynamic uploadIndexData_dyn();
+
+		void setupVertexAttributes( ::ProgramInfo programInfo);
+		::Dynamic setupVertexAttributes_dyn();
+
+		void deleteBuffers(int vao,int vbo,int ebo);
+		::Dynamic deleteBuffers_dyn();
+
+		void set2DRenderState();
+		::Dynamic set2DRenderState_dyn();
+
+		void set3DRenderState();
+		::Dynamic set3DRenderState_dyn();
+
+		void clearScreen();
+		::Dynamic clearScreen_dyn();
+
+		void initializeRenderState();
+		::Dynamic initializeRenderState_dyn();
+
+		int createShader(int type);
+		::Dynamic createShader_dyn();
+
+		void shaderSource(int shader,::String source);
+		::Dynamic shaderSource_dyn();
+
+		void compileShader(int shader);
+		::Dynamic compileShader_dyn();
+
+		int createProgram();
+		::Dynamic createProgram_dyn();
+
+		void attachShader(int program,int shader);
+		::Dynamic attachShader_dyn();
+
+		void linkProgram(int program);
+		::Dynamic linkProgram_dyn();
+
+		void useProgram(int program);
+		::Dynamic useProgram_dyn();
+
+		void deleteShader(int shader);
+		::Dynamic deleteShader_dyn();
+
+		int getAttribLocation(int program,::String name);
+		::Dynamic getAttribLocation_dyn();
+
+		int getUniformLocation(int program,::String name);
+		::Dynamic getUniformLocation_dyn();
+
+		void enableVertexAttribArray(int index);
+		::Dynamic enableVertexAttribArray_dyn();
+
+		void vertexAttribPointer(int index,int size,int type,bool normalized,int stride,int offset);
+		::Dynamic vertexAttribPointer_dyn();
+
+		void uniform1i(int location,int value);
+		::Dynamic uniform1i_dyn();
+
+		void uniform1f(int location,Float value);
+		::Dynamic uniform1f_dyn();
+
+		void uniformMatrix4fv(int location,bool transpose,::Array< Float > value);
+		::Dynamic uniformMatrix4fv_dyn();
+
+		 ::Dynamic uploadTexture( ::data::TextureData textureData);
+		::Dynamic uploadTexture_dyn();
 
 		void cleanup();
 		::Dynamic cleanup_dyn();
+
+		void setDepthTest(bool enabled);
+		::Dynamic setDepthTest_dyn();
+
+		void setDepthWrite(bool enabled);
+		::Dynamic setDepthWrite_dyn();
+
+		void setBlendMode(bool enabled);
+		::Dynamic setBlendMode_dyn();
+
+		 ::Dynamic pushRenderState();
+		::Dynamic pushRenderState_dyn();
+
+		void popRenderState( ::Dynamic state);
+		::Dynamic popRenderState_dyn();
+
+		 ::App get_app();
+		::Dynamic get_app_dyn();
 
 };
 

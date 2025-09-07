@@ -11,7 +11,9 @@
 #endif
 HX_DECLARE_CLASS0(DisplayObject)
 HX_DECLARE_CLASS0(ProgramInfo)
+HX_DECLARE_CLASS0(Renderer)
 HX_DECLARE_CLASS1(display,Triangle)
+HX_DECLARE_CLASS1(math,Matrix)
 
 namespace display{
 
@@ -40,7 +42,6 @@ class HXCPP_CLASS_ATTRIBUTES Triangle_obj : public  ::DisplayObject_obj
 
 		HX_DO_RTTI_ALL;
 		::hx::Val __Field(const ::String &inString, ::hx::PropertyAccess inCallProp);
-		static bool __GetStatic(const ::String &inString, Dynamic &outValue, ::hx::PropertyAccess inCallProp);
 		::hx::Val __SetField(const ::String &inString,const ::hx::Val &inValue, ::hx::PropertyAccess inCallProp);
 		void __GetFields(Array< ::String> &outFields);
 		static void __register();
@@ -48,12 +49,6 @@ class HXCPP_CLASS_ATTRIBUTES Triangle_obj : public  ::DisplayObject_obj
 		void __Visit(HX_VISIT_PARAMS);
 		bool _hx_isInstanceOf(int inClassId);
 		::String __ToString() const { return HX_("Triangle",e8,7a,77,67); }
-
-		static ::String getVertexShader();
-		static ::Dynamic getVertexShader_dyn();
-
-		static ::String getFragmentShader();
-		static ::Dynamic getFragmentShader_dyn();
 
 		Float rotationSpeed;
 		bool autoRotate;
@@ -74,6 +69,8 @@ class HXCPP_CLASS_ATTRIBUTES Triangle_obj : public  ::DisplayObject_obj
 
 		void setAutoRotate(bool enabled);
 		::Dynamic setAutoRotate_dyn();
+
+		void render( ::math::Matrix cameraMatrix, ::Renderer renderer);
 
 };
 

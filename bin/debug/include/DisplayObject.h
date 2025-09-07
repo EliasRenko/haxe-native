@@ -8,11 +8,12 @@
 
 HX_DECLARE_CLASS0(DisplayObject)
 HX_DECLARE_CLASS0(Indices)
-HX_DECLARE_CLASS0(Matrix)
 HX_DECLARE_CLASS0(ProgramInfo)
+HX_DECLARE_CLASS0(Renderer)
 HX_DECLARE_CLASS0(Vertices)
 HX_DECLARE_CLASS1(haxe,IMap)
 HX_DECLARE_CLASS2(haxe,ds,StringMap)
+HX_DECLARE_CLASS1(math,Matrix)
 
 
 
@@ -55,41 +56,56 @@ class HXCPP_CLASS_ATTRIBUTES DisplayObject_obj : public ::hx::Object
 		 ::Vertices vertices;
 		 ::ProgramInfo programInfo;
 		::Array< int > textures;
-		 ::Matrix matrix;
+		 ::math::Matrix matrix;
 		 ::haxe::ds::StringMap uniforms;
 		bool visible;
 		::String signature;
 		Float x;
 		Float y;
 		Float z;
+		Float rotationX;
+		Float rotationY;
 		Float rotationZ;
 		Float scaleX;
 		Float scaleY;
 		Float scaleZ;
+		 ::DisplayObject parent;
+		::Array< ::Dynamic> children;
+		bool depthTest;
+		bool depthWrite;
+		bool cullFace;
 		bool _hx___shouldTransform;
 		int _hx___verticesToRender;
 		int _hx___indicesToRender;
+		int framesSinceLastMatrixDebug;
+		bool needsBufferUpdate;
 		unsigned int vao;
 		unsigned int vbo;
 		unsigned int ebo;
 		bool initialized;
-		void init();
+		void init( ::Renderer renderer);
 		::Dynamic init_dyn();
 
-		void updateBuffers();
+		virtual void updateBuffers( ::Renderer renderer);
 		::Dynamic updateBuffers_dyn();
 
-		virtual void remove();
+		virtual void remove( ::Renderer renderer);
 		::Dynamic remove_dyn();
+
+		void setTexture(unsigned int textureId);
+		::Dynamic setTexture_dyn();
+
+		int addTexture(unsigned int textureId);
+		::Dynamic addTexture_dyn();
+
+		bool hasTextures();
+		::Dynamic hasTextures_dyn();
 
 		void updateTransform();
 		::Dynamic updateTransform_dyn();
 
-		virtual void render( ::Matrix cameraMatrix);
+		virtual void render( ::math::Matrix cameraMatrix, ::Renderer renderer);
 		::Dynamic render_dyn();
-
-		void setUniforms();
-		::Dynamic setUniforms_dyn();
 
 };
 

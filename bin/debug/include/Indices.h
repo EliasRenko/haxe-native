@@ -6,7 +6,7 @@
 #include <hxcpp.h>
 #endif
 
-HX_DECLARE_STACK_FRAME(_hx_pos_946b09801cf56202_35_new)
+HX_DECLARE_STACK_FRAME(_hx_pos_946b09801cf56202_36_new)
 HX_DECLARE_CLASS0(Indices)
 
 
@@ -37,11 +37,11 @@ class HXCPP_CLASS_ATTRIBUTES Indices_obj : public ::hx::Object
 			Indices_obj *__this = (Indices_obj*)(::hx::Ctx::alloc(_hx_ctx, sizeof(Indices_obj), true, "Indices"));
 			*(void **)__this = Indices_obj::_hx_vtable;
 {
-            	HX_STACKFRAME(&_hx_pos_946b09801cf56202_35_new)
+            	HX_STACKFRAME(&_hx_pos_946b09801cf56202_36_new)
             	HX_STACK_THIS(__this)
             	HX_STACK_ARG(data,"data")
-HXLINE(  35)
-HXDLIN(  35)		( ( ::Indices)(__this) )->data = data;
+HXLINE(  36)
+HXDLIN(  36)		( ( ::Indices)(__this) )->data = data;
             	}
 		
 			return __this;
