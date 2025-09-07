@@ -4,6 +4,8 @@ import GL;
 import SDL;
 import DisplayObject;
 import ProgramInfo;
+import data.TextureData;
+import math.Matrix;
 
 class Quad extends DisplayObject {
     // Quad-specific properties
@@ -12,12 +14,12 @@ class Quad extends DisplayObject {
     public var textureId:GlUInt = 0;
     public var hasTexture:Bool = false;
     
-    // UV coordinates for texture mapping
+    // UV coordinates for texture mapping (flipped V for 2D)
     public var uvs:Array<Float> = [
-        0.0, 1.0,  // Top-left
-        1.0, 1.0,  // Top-right
-        1.0, 0.0,  // Bottom-right
-        0.0, 0.0   // Bottom-left
+        0.0, 0.0,  // Top-left
+        1.0, 0.0,  // Top-right
+        1.0, 1.0,  // Bottom-right
+        0.0, 1.0   // Bottom-left
     ];
     
     public function new(programInfo:ProgramInfo, ?width:Float = 0.8, ?height:Float = 0.8) {
@@ -30,15 +32,17 @@ class Quad extends DisplayObject {
         
         var quadVertices = new Vertices([
             // Position (x, y, z) + UV coordinates (u, v)
-            // Top-left vertex
-            -halfWidth,  halfHeight, 0.0,  0.0, 1.0,
-            // Top-right vertex
-             halfWidth,  halfHeight, 0.0,  1.0, 1.0,
-            // Bottom-right vertex
-             halfWidth, -halfHeight, 0.0,  1.0, 0.0,
-            // Bottom-left vertex
-            -halfWidth, -halfHeight, 0.0,  0.0, 0.0
+            // Top-left vertex - flipped V for 2D (0,0 at top-left)
+            -halfWidth,  halfHeight, 0.0,  0.0, 0.0,
+            // Top-right vertex - flipped V for 2D
+             halfWidth,  halfHeight, 0.0,  1.0, 0.0,
+            // Bottom-right vertex - flipped V for 2D
+             halfWidth, -halfHeight, 0.0,  1.0, 1.0,
+            // Bottom-left vertex - flipped V for 2D
+            -halfWidth, -halfHeight, 0.0,  0.0, 1.0
         ]);
+        
+        trace("Quad created: " + width + "x" + height + " with UV coordinates (0,0) to (1,1)");
         
         // Indices for two triangles to form a quad
         var quadIndices = new Indices([
@@ -151,6 +155,86 @@ class Quad extends DisplayObject {
         hasTexture = true;
         trace("Checkerboard texture created with ID: " + textureId + " (size: " + size + "x" + size + ")");
     }
+
+    // Create OpenGL texture from TextureData
+    public function createTextureFromData(textureData:data.TextureData):Void {
+        if (textureId != 0) {
+            // Delete old texture
+            untyped __cpp__("
+                {
+                    unsigned int texId = {0};
+                    glDeleteTextures(1, &texId);
+                }
+            ", textureId);
+        }
+        
+        // Convert grayscale to RGB for better compatibility
+        var processedTexture = textureData.toRGB();
+        
+        // TEMP: Don't auto-resize for testing - keep manual size
+        // setSize(processedTexture.width, processedTexture.height);
+        trace("Texture size: " + processedTexture.width + "x" + processedTexture.height + ", Quad size: " + width + "x" + height);
+        
+        textureId = untyped __cpp__("
+            [](){ 
+                unsigned int texId;
+                glGenTextures(1, &texId);
+                return texId;
+            }()
+        ");
+        
+        GL.bindTexture(GL.TEXTURE_2D, textureId);
+        
+        // Determine OpenGL format based on bytes per pixel
+        var glFormat:Int;
+        var glInternalFormat:Int;
+        
+        switch (processedTexture.bytesPerPixel) {
+            case 1: // Grayscale - use GL_RED and handle in shader
+                glFormat = 0x1903; // GL_RED
+                glInternalFormat = 0x8229; // GL_R8
+            case 3: // RGB
+                glFormat = 0x1907; // GL_RGB
+                glInternalFormat = 0x1907; // GL_RGB
+            case 4: // RGBA
+                glFormat = GL.RGBA;
+                glInternalFormat = GL.RGBA;
+            default:
+                throw "Unsupported texture format: " + processedTexture.bytesPerPixel + " bytes per pixel";
+        }
+        
+        // Upload texture data to GPU
+        // Convert UInt8Array to Bytes for OpenGL upload
+        var bytes = haxe.io.Bytes.alloc(processedTexture.width * processedTexture.height * processedTexture.bytesPerPixel);
+        for (i in 0...bytes.length) {
+            bytes.set(i, processedTexture.bytes[i]);
+        }
+        
+        untyped __cpp__("glTexImage2D(GL_TEXTURE_2D, 0, {0}, {1}, {2}, 0, {3}, GL_UNSIGNED_BYTE, {4}->b->GetBase())", 
+            glInternalFormat, processedTexture.width, processedTexture.height, glFormat, bytes);
+        
+        trace("Texture uploaded: " + processedTexture.width + "x" + processedTexture.height + " pixels, mapped to " + this.width + "x" + this.height + " quad");
+        
+        // Set texture parameters
+        if (processedTexture.powerOfTwo) {
+            // Power-of-two textures can use mipmaps and repeat wrapping
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST_MIPMAP_NEAREST);
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST);
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.REPEAT);
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.REPEAT);
+            GL.generateMipmap(GL.TEXTURE_2D);
+        } else {
+            // Non-power-of-two textures should use clamp and no mipmaps
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST);
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
+            GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
+        }
+        
+        GL.bindTexture(GL.TEXTURE_2D, 0);
+        
+        hasTexture = true;
+    }
     
     // Clean up texture resources
     public function dispose():Void {
@@ -191,15 +275,22 @@ class Quad extends DisplayObject {
         // Bottom-left
         vertices.data[15] = -halfWidth; vertices.data[16] = -halfHeight; vertices.data[17] = 0.0;
         
-        // Update the GPU buffer
+        // Mark for buffer update on next render
         if (initialized) {
-            updateBuffers();
+            needsBufferUpdate = true;
         }
     }
     
     // Override render to bind texture
-    public override function render(cameraMatrix:Matrix):Void {
+    public override function render(cameraMatrix:Matrix, renderer:Renderer):Void {
         if (!visible || !initialized) return;
+        
+        // Update transformation matrix based on current properties
+        updateTransform();
+        
+        // Create final matrix by combining camera matrix with object matrix
+        var finalMatrix = Matrix.copy(cameraMatrix);
+        finalMatrix.append(matrix);
         
         // Use the program
         GL.useProgram(programInfo.program);
@@ -213,11 +304,14 @@ class Quad extends DisplayObject {
             var textureLoc = GL.getUniformLocation(programInfo.program, "uTexture");
             if (textureLoc >= 0) {
                 GL.uniform1i(textureLoc, 0); // Texture unit 0
+            } else {
+                trace("ERROR: uTexture uniform not found in shader!");
             }
+        } else {
+            trace("Quad render - no texture: hasTexture=" + hasTexture + ", textureId=" + textureId);
         }
         
-        // Set uniforms
-        setUniforms();
+
         
         // Bind VAO and draw
         GL.bindVertexArray(vao);
@@ -239,7 +333,7 @@ class Quad extends DisplayObject {
     }
     
     // Cleanup texture
-    public override function remove():Void {
+    public override function remove(renderer:Renderer):Void {
         if (textureId != 0) {
             untyped __cpp__("
                 {
@@ -252,40 +346,6 @@ class Quad extends DisplayObject {
         }
         
         // Call parent cleanup
-        super.remove();
-    }
-    
-    // Get shader source for quad vertex shader
-    public static function getVertexShader():String {
-        return '
-        #version 330 core
-        layout (location = 0) in vec3 aPos;
-        layout (location = 1) in vec2 aTexCoord;
-        
-        out vec2 TexCoord;
-        
-        uniform mat4 uMatrix;
-        
-        void main() {
-            // Apply matrix transformation
-            gl_Position = uMatrix * vec4(aPos, 1.0);
-            TexCoord = aTexCoord;
-        }
-        ';
-    }
-    
-    // Get shader source for quad fragment shader
-    public static function getFragmentShader():String {
-        return '
-        #version 330 core
-        in vec2 TexCoord;
-        out vec4 FragColor;
-        
-        uniform sampler2D uTexture;
-        
-        void main() {
-            FragColor = texture(uTexture, TexCoord);
-        }
-        ';
+        super.remove(renderer);
     }
 }

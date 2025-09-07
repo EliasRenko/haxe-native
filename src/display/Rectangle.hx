@@ -35,10 +35,10 @@ class Rectangle extends DisplayObject {
             -halfWidth, -halfHeight, 0.0,  0.0, 0.0, 1.0   // Blue
         ]);
         
-        // Indices for two triangles to form a rectangle
+        // Indices for two triangles to form a rectangle (counter-clockwise winding)
         var rectangleIndices = new Indices([
-            0, 1, 2,  // First triangle (top-left, top-right, bottom-right)
-            2, 3, 0   // Second triangle (bottom-right, bottom-left, top-left)
+            0, 2, 1,  // First triangle (top-left, bottom-right, top-right)
+            0, 3, 2   // Second triangle (top-left, bottom-left, bottom-right)
         ]);
         
         super(programInfo, rectangleVertices, rectangleIndices);
@@ -84,9 +84,9 @@ class Rectangle extends DisplayObject {
         // Bottom-left
         vertices.data[18] = -halfWidth; vertices.data[19] = -halfHeight; vertices.data[20] = 0.0;
         
-        // Update the GPU buffer
+        // Mark for buffer update on next render
         if (initialized) {
-            updateBuffers();
+            needsBufferUpdate = true;
         }
     }
     
@@ -102,41 +102,9 @@ class Rectangle extends DisplayObject {
         // Bottom-left color
         vertices.data[21] = bottomLeftColor[0]; vertices.data[22] = bottomLeftColor[1]; vertices.data[23] = bottomLeftColor[2];
         
-        // Update the GPU buffer
+        // Mark for buffer update on next render
         if (initialized) {
-            updateBuffers();
+            needsBufferUpdate = true;
         }
-    }
-    
-    // Get shader source for rectangle vertex shader (same as triangle)
-    public static function getVertexShader():String {
-        return '
-        #version 330 core
-        layout (location = 0) in vec3 aPos;
-        layout (location = 1) in vec3 aColor;
-        
-        out vec3 vertexColor;
-        
-        uniform mat4 uMatrix;
-        
-        void main() {
-            // Apply matrix transformation
-            gl_Position = uMatrix * vec4(aPos, 1.0);
-            vertexColor = aColor;
-        }
-        ';
-    }
-    
-    // Get shader source for rectangle fragment shader (same as triangle)
-    public static function getFragmentShader():String {
-        return '
-        #version 330 core
-        in vec3 vertexColor;
-        out vec4 FragColor;
-        
-        void main() {
-            FragColor = vec4(vertexColor, 1.0);
-        }
-        ';
     }
 }

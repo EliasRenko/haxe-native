@@ -3,10 +3,12 @@ package display;
 import GL;
 import SDL;
 import DisplayObject;
+import Renderer;
+import math.Matrix;
 
 class Triangle extends DisplayObject {
     // Triangle-specific properties
-    public var rotationSpeed:Float = 2.0;
+    public var rotationSpeed:Float = 0.1;
     public var autoRotate:Bool = true;
     
     // Color properties for each vertex
@@ -57,9 +59,9 @@ class Triangle extends DisplayObject {
         vertices.data[9] = leftColor[0];  vertices.data[10] = leftColor[1]; vertices.data[11] = leftColor[2]; // Left vertex color
         vertices.data[15] = rightColor[0]; vertices.data[16] = rightColor[1]; vertices.data[17] = rightColor[2]; // Right vertex color
         
-        // Update the GPU buffer
+        // Mark for buffer update on next render
         if (initialized) {
-            updateBuffers();
+            needsBufferUpdate = true;
         }
     }
     
@@ -73,35 +75,21 @@ class Triangle extends DisplayObject {
         autoRotate = enabled;
     }
     
-    // Get shader source for triangle vertex shader
-    public static function getVertexShader():String {
-        return '
-        #version 330 core
-        layout (location = 0) in vec3 aPos;
-        layout (location = 1) in vec3 aColor;
-        
-        uniform mat4 uMatrix;
-        
-        out vec3 vertexColor;
-        
-        void main() {
-            // Apply matrix transformation - DEBUGGING VERSION
-            gl_Position = uMatrix * vec4(aPos, 1.0);
-            vertexColor = aColor;
+    // Custom render method for triangle
+    public override function render(cameraMatrix:Matrix, renderer:Renderer):Void {
+        if (!visible || !initialized) {
+            return;
         }
-        ';
-    }
-    
-    // Get shader source for triangle fragment shader
-    public static function getFragmentShader():String {
-        return '
-        #version 330 core
-        in vec3 vertexColor;
-        out vec4 FragColor;
         
-        void main() {
-            FragColor = vec4(vertexColor, 1.0);
-        }
-        ';
+        // Update transformation matrix based on current properties
+        updateTransform();
+        
+        // Create final matrix by combining object matrix with camera matrix
+        var finalMatrix = Matrix.copy(matrix);
+        finalMatrix.append(cameraMatrix);
+        
+        // Set uniforms and delegate rendering to renderer
+        uniforms.set("uMatrix", finalMatrix.data);
+        renderer.renderObject(this);
     }
 }
