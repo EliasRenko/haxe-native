@@ -23,14 +23,34 @@ class UniformFormat_obj : public ::hx::EnumBase_obj
 		::String GetEnumName( ) const { return HX_("UniformFormat",6b,73,fa,b7); }
 		::String __ToString() const { return HX_("UniformFormat.",63,8a,2a,43) + _hx_tag; }
 
+		static ::UniformFormat _hx_Bool;
+		static inline ::UniformFormat _hx_Bool_dyn() { return _hx_Bool; }
+		static ::UniformFormat BoolVec2;
+		static inline ::UniformFormat BoolVec2_dyn() { return BoolVec2; }
+		static ::UniformFormat BoolVec3;
+		static inline ::UniformFormat BoolVec3_dyn() { return BoolVec3; }
+		static ::UniformFormat BoolVec4;
+		static inline ::UniformFormat BoolVec4_dyn() { return BoolVec4; }
 		static ::UniformFormat _hx_Float;
 		static inline ::UniformFormat _hx_Float_dyn() { return _hx_Float; }
 		static ::UniformFormat _hx_Int;
 		static inline ::UniformFormat _hx_Int_dyn() { return _hx_Int; }
+		static ::UniformFormat IntVec2;
+		static inline ::UniformFormat IntVec2_dyn() { return IntVec2; }
+		static ::UniformFormat IntVec3;
+		static inline ::UniformFormat IntVec3_dyn() { return IntVec3; }
+		static ::UniformFormat IntVec4;
+		static inline ::UniformFormat IntVec4_dyn() { return IntVec4; }
+		static ::UniformFormat Mat2;
+		static inline ::UniformFormat Mat2_dyn() { return Mat2; }
+		static ::UniformFormat Mat3;
+		static inline ::UniformFormat Mat3_dyn() { return Mat3; }
 		static ::UniformFormat Mat4;
 		static inline ::UniformFormat Mat4_dyn() { return Mat4; }
 		static ::UniformFormat Sampler2D;
 		static inline ::UniformFormat Sampler2D_dyn() { return Sampler2D; }
+		static ::UniformFormat SamplerCube;
+		static inline ::UniformFormat SamplerCube_dyn() { return SamplerCube; }
 		static ::UniformFormat Vec2;
 		static inline ::UniformFormat Vec2_dyn() { return Vec2; }
 		static ::UniformFormat Vec3;

@@ -62,8 +62,8 @@ class Matrix {
 		var m = new Matrix();
 		m.identity();
 		m.data[0] = cos;   // [0,0]
-		m.data[1] = sin;   // [0,1]
-		m.data[4] = -sin;  // [1,0]
+		m.data[1] = -sin;  // [0,1] - Changed sign for clockwise
+		m.data[4] = sin;   // [1,0] - Changed sign for clockwise
 		m.data[5] = cos;   // [1,1]
 		this.append(m);
 	}

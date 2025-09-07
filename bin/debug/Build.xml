@@ -17,6 +17,20 @@
    <depend name="include/haxe/io/Path.h"/>
    <depend name="include/sys/FileSystem.h"/>
   </file>
+  <file name="src/states/ImageTestState.cpp" >
+   <depend name="include/App.h"/>
+   <depend name="include/Camera.h"/>
+   <depend name="include/DisplayObject.h"/>
+   <depend name="include/Entity.h"/>
+   <depend name="include/ProgramInfo.h"/>
+   <depend name="include/Renderer.h"/>
+   <depend name="include/State.h"/>
+   <depend name="include/_App/__Resources.h"/>
+   <depend name="include/data/TextureData.h"/>
+   <depend name="include/display/Image.h"/>
+   <depend name="include/haxe/Log.h"/>
+   <depend name="include/states/ImageTestState.h"/>
+  </file>
   <file name="src/math/Matrix.cpp" >
    <depend name="include/Std.h"/>
    <depend name="include/math/Matrix.h"/>
@@ -128,9 +142,26 @@
    <depend name="include/DisplayObject.h"/>
    <depend name="include/Indices.h"/>
    <depend name="include/ProgramInfo.h"/>
+   <depend name="include/Renderer.h"/>
    <depend name="include/Vertices.h"/>
    <depend name="include/display/Triangle.h"/>
+   <depend name="include/haxe/IMap.h"/>
    <depend name="include/haxe/Log.h"/>
+   <depend name="include/haxe/ds/StringMap.h"/>
+   <depend name="include/math/Matrix.h"/>
+  </file>
+  <file name="src/display/Tilemap.cpp" >
+   <depend name="include/DisplayObject.h"/>
+   <depend name="include/Indices.h"/>
+   <depend name="include/ProgramInfo.h"/>
+   <depend name="include/Renderer.h"/>
+   <depend name="include/Std.h"/>
+   <depend name="include/Vertices.h"/>
+   <depend name="include/display/Tilemap.h"/>
+   <depend name="include/haxe/IMap.h"/>
+   <depend name="include/haxe/Log.h"/>
+   <depend name="include/haxe/ds/StringMap.h"/>
+   <depend name="include/math/Matrix.h"/>
   </file>
   <file name="src/display/Rectangle.cpp" >
    <depend name="include/DisplayObject.h"/>
@@ -160,23 +191,23 @@
    <depend name="include/Renderer.h"/>
    <depend name="include/Vertices.h"/>
    <depend name="include/display/Image.h"/>
-   <depend name="include/display/Vector4.h"/>
    <depend name="include/haxe/IMap.h"/>
    <depend name="include/haxe/Log.h"/>
    <depend name="include/haxe/ds/StringMap.h"/>
    <depend name="include/math/Matrix.h"/>
   </file>
-  <file name="src/display/Vector4.cpp" >
-   <depend name="include/display/Vector4.h"/>
-  </file>
   <file name="src/display/Cube.cpp" >
    <depend name="include/DisplayObject.h"/>
    <depend name="include/Indices.h"/>
    <depend name="include/ProgramInfo.h"/>
+   <depend name="include/Renderer.h"/>
    <depend name="include/Std.h"/>
    <depend name="include/Vertices.h"/>
    <depend name="include/display/Cube.h"/>
+   <depend name="include/haxe/IMap.h"/>
    <depend name="include/haxe/Log.h"/>
+   <depend name="include/haxe/ds/StringMap.h"/>
+   <depend name="include/math/Matrix.h"/>
   </file>
   <file name="src/data/TextureData.cpp" >
    <depend name="include/data/TextureData.h"/>
@@ -185,27 +216,6 @@
   </file>
   <file name="src/haxe/IMap.cpp" >
    <depend name="include/haxe/IMap.h"/>
-  </file>
-  <file name="src/Type.cpp" >
-   <depend name="include/Type.h"/>
-   <depend name="include/ValueType.h"/>
-  </file>
-  <file name="src/ValueType.cpp" >
-   <depend name="include/ValueType.h"/>
-  </file>
-  <file name="src/TestState.cpp" >
-   <depend name="include/App.h"/>
-   <depend name="include/Camera.h"/>
-   <depend name="include/DisplayObject.h"/>
-   <depend name="include/Entity.h"/>
-   <depend name="include/ProgramInfo.h"/>
-   <depend name="include/Renderer.h"/>
-   <depend name="include/State.h"/>
-   <depend name="include/Std.h"/>
-   <depend name="include/TestState.h"/>
-   <depend name="include/display/Cube.h"/>
-   <depend name="include/display/Triangle.h"/>
-   <depend name="include/haxe/Log.h"/>
   </file>
   <file name="src/Sys.cpp" >
    <depend name="include/Sys.h"/>
@@ -232,9 +242,14 @@
    <depend name="include/DisplayObject.h"/>
    <depend name="include/ProgramInfo.h"/>
    <depend name="include/Renderer.h"/>
+   <depend name="include/Std.h"/>
+   <depend name="include/Vertices.h"/>
+   <depend name="include/_App/__Resources.h"/>
+   <depend name="include/data/TextureData.h"/>
    <depend name="include/haxe/IMap.h"/>
    <depend name="include/haxe/Log.h"/>
    <depend name="include/haxe/ds/StringMap.h"/>
+   <depend name="include/haxe/io/ArrayBufferViewImpl.h"/>
    <depend name="include/haxe/io/Bytes.h"/>
    <depend name="include/math/Matrix.h"/>
   </file>
@@ -251,14 +266,25 @@
    <depend name="include/haxe/Log.h"/>
   </file>
   <file name="src/ProgramInfo.cpp" >
+   <depend name="include/AttributeFormat.h"/>
+   <depend name="include/AttributeFormatHelper.h"/>
    <depend name="include/ProgramInfo.h"/>
    <depend name="include/Renderer.h"/>
    <depend name="include/Std.h"/>
    <depend name="include/UniformFormat.h"/>
+   <depend name="include/haxe/IMap.h"/>
    <depend name="include/haxe/Log.h"/>
+   <depend name="include/haxe/ds/StringMap.h"/>
   </file>
   <file name="src/UniformFormat.cpp" >
    <depend name="include/UniformFormat.h"/>
+  </file>
+  <file name="src/AttributeFormatHelper.cpp" >
+   <depend name="include/AttributeFormat.h"/>
+   <depend name="include/AttributeFormatHelper.h"/>
+  </file>
+  <file name="src/AttributeFormat.cpp" >
+   <depend name="include/AttributeFormat.h"/>
   </file>
   <file name="src/Main.cpp" >
    <depend name="include/App.h"/>
@@ -287,9 +313,6 @@
    <depend name="include/Indices.h"/>
    <depend name="include/ProgramInfo.h"/>
    <depend name="include/Renderer.h"/>
-   <depend name="include/Type.h"/>
-   <depend name="include/UniformFormat.h"/>
-   <depend name="include/ValueType.h"/>
    <depend name="include/Vertices.h"/>
    <depend name="include/haxe/IMap.h"/>
    <depend name="include/haxe/Log.h"/>
@@ -307,6 +330,7 @@
   </file>
   <file name="src/Camera.cpp" >
    <depend name="include/Camera.h"/>
+   <depend name="include/haxe/Log.h"/>
    <depend name="include/math/Matrix.h"/>
   </file>
   <file name="src/_App/__Resources.cpp" >
@@ -329,23 +353,23 @@
    <depend name="include/Renderer.h"/>
    <depend name="include/State.h"/>
    <depend name="include/StringTools.h"/>
-   <depend name="include/TestState.h"/>
    <depend name="include/_App/__Resources.h"/>
    <depend name="include/haxe/Log.h"/>
    <depend name="include/haxe/io/Path.h"/>
+   <depend name="include/states/ImageTestState.h"/>
   </file>
   <file name="src/__boot__.cpp" >
    <depend name="include/haxe/io/Error.h"/>
-   <depend name="include/ValueType.h"/>
    <depend name="include/PromiseState.h"/>
    <depend name="include/UniformFormat.h"/>
+   <depend name="include/AttributeFormat.h"/>
    <depend name="include/loaders/TGALoader.h"/>
    <depend name="include/haxe/Log.h"/>
    <depend name="include/sys/thread/_Thread/HaxeThread.h"/>
-   <depend name="include/display/Vector4.h"/>
    <depend name="include/State.h"/>
    <depend name="include/Entity.h"/>
    <depend name="include/BlendFactor.h"/>
+   <depend name="include/App.h"/>
   </file>
   <file name="src/__files__.cpp" if='HXCPP_DEBUGGER'>
   </file>

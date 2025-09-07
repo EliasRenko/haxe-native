@@ -14,17 +14,29 @@
 #ifndef INCLUDED_ProgramInfo
 #include <ProgramInfo.h>
 #endif
+#ifndef INCLUDED_Renderer
+#include <Renderer.h>
+#endif
 #ifndef INCLUDED_Vertices
 #include <Vertices.h>
 #endif
 #ifndef INCLUDED_display_Triangle
 #include <display/Triangle.h>
 #endif
+#ifndef INCLUDED_haxe_IMap
+#include <haxe/IMap.h>
+#endif
 #ifndef INCLUDED_haxe_Log
 #include <haxe/Log.h>
 #endif
+#ifndef INCLUDED_haxe_ds_StringMap
+#include <haxe/ds/StringMap.h>
+#endif
+#ifndef INCLUDED_math_Matrix
+#include <math/Matrix.h>
+#endif
 
-HX_DEFINE_STACK_FRAME(_hx_pos_d903e98b577ce50d_7_new,"display.Triangle","new",0x2cd85186,"display.Triangle.new","display/Triangle.hx",7,0xbf142e49)
+HX_DEFINE_STACK_FRAME(_hx_pos_d903e98b577ce50d_9_new,"display.Triangle","new",0x2cd85186,"display.Triangle.new","display/Triangle.hx",9,0xbf142e49)
 static const Float _hx_array_data_a52bd694_1[] = {
 	0.0,0.0,1.0,
 };
@@ -37,30 +49,29 @@ static const Float _hx_array_data_a52bd694_3[] = {
 static const Float _hx_array_data_a52bd694_4[] = {
 	0.0,0.5,0.0,1.0,0.0,0.0,-0.5,-0.5,0.0,0.0,1.0,0.0,0.5,-0.5,0.0,0.0,0.0,1.0,
 };
-HX_LOCAL_STACK_FRAME(_hx_pos_d903e98b577ce50d_38_update,"display.Triangle","update",0x62a5c0a3,"display.Triangle.update","display/Triangle.hx",38,0xbf142e49)
-HX_LOCAL_STACK_FRAME(_hx_pos_d903e98b577ce50d_44_setVertexColors,"display.Triangle","setVertexColors",0xc1a62d1c,"display.Triangle.setVertexColors","display/Triangle.hx",44,0xbf142e49)
-HX_LOCAL_STACK_FRAME(_hx_pos_d903e98b577ce50d_54_updateVertexColors,"display.Triangle","updateVertexColors",0x3c83ad77,"display.Triangle.updateVertexColors","display/Triangle.hx",54,0xbf142e49)
-HX_LOCAL_STACK_FRAME(_hx_pos_d903e98b577ce50d_68_setRotationSpeed,"display.Triangle","setRotationSpeed",0x438fdf81,"display.Triangle.setRotationSpeed","display/Triangle.hx",68,0xbf142e49)
-HX_LOCAL_STACK_FRAME(_hx_pos_d903e98b577ce50d_73_setAutoRotate,"display.Triangle","setAutoRotate",0x86f74212,"display.Triangle.setAutoRotate","display/Triangle.hx",73,0xbf142e49)
-HX_LOCAL_STACK_FRAME(_hx_pos_d903e98b577ce50d_78_getVertexShader,"display.Triangle","getVertexShader",0x1c74a985,"display.Triangle.getVertexShader","display/Triangle.hx",78,0xbf142e49)
-HX_LOCAL_STACK_FRAME(_hx_pos_d903e98b577ce50d_96_getFragmentShader,"display.Triangle","getFragmentShader",0x20adf5f1,"display.Triangle.getFragmentShader","display/Triangle.hx",96,0xbf142e49)
+HX_LOCAL_STACK_FRAME(_hx_pos_d903e98b577ce50d_40_update,"display.Triangle","update",0x62a5c0a3,"display.Triangle.update","display/Triangle.hx",40,0xbf142e49)
+HX_LOCAL_STACK_FRAME(_hx_pos_d903e98b577ce50d_46_setVertexColors,"display.Triangle","setVertexColors",0xc1a62d1c,"display.Triangle.setVertexColors","display/Triangle.hx",46,0xbf142e49)
+HX_LOCAL_STACK_FRAME(_hx_pos_d903e98b577ce50d_56_updateVertexColors,"display.Triangle","updateVertexColors",0x3c83ad77,"display.Triangle.updateVertexColors","display/Triangle.hx",56,0xbf142e49)
+HX_LOCAL_STACK_FRAME(_hx_pos_d903e98b577ce50d_70_setRotationSpeed,"display.Triangle","setRotationSpeed",0x438fdf81,"display.Triangle.setRotationSpeed","display/Triangle.hx",70,0xbf142e49)
+HX_LOCAL_STACK_FRAME(_hx_pos_d903e98b577ce50d_75_setAutoRotate,"display.Triangle","setAutoRotate",0x86f74212,"display.Triangle.setAutoRotate","display/Triangle.hx",75,0xbf142e49)
+HX_LOCAL_STACK_FRAME(_hx_pos_d903e98b577ce50d_79_render,"display.Triangle","render",0xe0c9a5f0,"display.Triangle.render","display/Triangle.hx",79,0xbf142e49)
 namespace display{
 
 void Triangle_obj::__construct( ::ProgramInfo programInfo){
-            	HX_GC_STACKFRAME(&_hx_pos_d903e98b577ce50d_7_new)
+            	HX_GC_STACKFRAME(&_hx_pos_d903e98b577ce50d_9_new)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(programInfo,"programInfo")
-HXLINE(   7)
-HXLINE(  15)		this->rightColor = ::Array_obj< Float >::fromData( _hx_array_data_a52bd694_1,3);
-HXLINE(  14)		this->leftColor = ::Array_obj< Float >::fromData( _hx_array_data_a52bd694_2,3);
-HXLINE(  13)		this->topColor = ::Array_obj< Float >::fromData( _hx_array_data_a52bd694_3,3);
-HXLINE(  10)		this->autoRotate = true;
-HXLINE(   9)		this->rotationSpeed = ((Float)0.1);
-HXLINE(  19)		HX_VARI(  ::Vertices,triangleVertices) =  ::Vertices_obj::__alloc( HX_CTX ,::Array_obj< Float >::fromData( _hx_array_data_a52bd694_4,18));
-HXLINE(  27)		super::__construct(programInfo,triangleVertices,null());
-HXLINE(  30)		this->mode = GL_TRIANGLES;
-HXLINE(  31)		this->_hx___verticesToRender = 3;
-HXLINE(  33)		::haxe::Log_obj::trace(HX_("TRIANGLE: Created with coordinates in range -0.5 to 0.5",83,30,da,00),::hx::SourceInfo(HX_("src/display/Triangle.hx",5e,58,84,c2),33,HX_("display.Triangle",94,d6,2b,a5),HX_("new",60,d0,53,00)));
+HXLINE(   9)
+HXLINE(  17)		this->rightColor = ::Array_obj< Float >::fromData( _hx_array_data_a52bd694_1,3);
+HXLINE(  16)		this->leftColor = ::Array_obj< Float >::fromData( _hx_array_data_a52bd694_2,3);
+HXLINE(  15)		this->topColor = ::Array_obj< Float >::fromData( _hx_array_data_a52bd694_3,3);
+HXLINE(  12)		this->autoRotate = true;
+HXLINE(  11)		this->rotationSpeed = ((Float)0.1);
+HXLINE(  21)		HX_VARI(  ::Vertices,triangleVertices) =  ::Vertices_obj::__alloc( HX_CTX ,::Array_obj< Float >::fromData( _hx_array_data_a52bd694_4,18));
+HXLINE(  29)		super::__construct(programInfo,triangleVertices,null());
+HXLINE(  32)		this->mode = GL_TRIANGLES;
+HXLINE(  33)		this->_hx___verticesToRender = 3;
+HXLINE(  35)		::haxe::Log_obj::trace(HX_("TRIANGLE: Created with coordinates in range -0.5 to 0.5",83,30,da,00),::hx::SourceInfo(HX_("src/display/Triangle.hx",5e,58,84,c2),35,HX_("display.Triangle",94,d6,2b,a5),HX_("new",60,d0,53,00)));
             	}
 
 Dynamic Triangle_obj::__CreateEmpty() { return new Triangle_obj; }
@@ -83,13 +94,13 @@ bool Triangle_obj::_hx_isInstanceOf(int inClassId) {
 }
 
 void Triangle_obj::update(Float deltaTime){
-            	HX_STACKFRAME(&_hx_pos_d903e98b577ce50d_38_update)
+            	HX_STACKFRAME(&_hx_pos_d903e98b577ce50d_40_update)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(deltaTime,"deltaTime")
-HXLINE(  38)
-HXDLIN(  38)		if (this->autoRotate) {
-HXLINE(  39)			 ::display::Triangle _hx_tmp = ::hx::ObjectPtr<OBJ_>(this);
-HXDLIN(  39)			_hx_tmp->rotationZ = (_hx_tmp->rotationZ + (this->rotationSpeed * deltaTime));
+HXLINE(  40)
+HXDLIN(  40)		if (this->autoRotate) {
+HXLINE(  41)			 ::display::Triangle _hx_tmp = ::hx::ObjectPtr<OBJ_>(this);
+HXDLIN(  41)			_hx_tmp->rotationZ = (_hx_tmp->rotationZ + (this->rotationSpeed * deltaTime));
             		}
             	}
 
@@ -97,36 +108,36 @@ HXDLIN(  39)			_hx_tmp->rotationZ = (_hx_tmp->rotationZ + (this->rotationSpeed *
 HX_DEFINE_DYNAMIC_FUNC1(Triangle_obj,update,(void))
 
 void Triangle_obj::setVertexColors(::Array< Float > top,::Array< Float > left,::Array< Float > right){
-            	HX_STACKFRAME(&_hx_pos_d903e98b577ce50d_44_setVertexColors)
+            	HX_STACKFRAME(&_hx_pos_d903e98b577ce50d_46_setVertexColors)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(top,"top")
             	HX_STACK_ARG(left,"left")
             	HX_STACK_ARG(right,"right")
-HXLINE(  44)
-HXLINE(  45)		this->topColor = top->copy();
-HXLINE(  46)		this->leftColor = left->copy();
-HXLINE(  47)		this->rightColor = right->copy();
-HXLINE(  50)		this->updateVertexColors();
+HXLINE(  46)
+HXLINE(  47)		this->topColor = top->copy();
+HXLINE(  48)		this->leftColor = left->copy();
+HXLINE(  49)		this->rightColor = right->copy();
+HXLINE(  52)		this->updateVertexColors();
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC3(Triangle_obj,setVertexColors,(void))
 
 void Triangle_obj::updateVertexColors(){
-            	HX_STACKFRAME(&_hx_pos_d903e98b577ce50d_54_updateVertexColors)
+            	HX_STACKFRAME(&_hx_pos_d903e98b577ce50d_56_updateVertexColors)
             	HX_STACK_THIS(this)
-HXLINE(  54)
-HXLINE(  56)		this->vertices->data[3] = this->topColor->__get(0);
-HXDLIN(  56)		this->vertices->data[4] = this->topColor->__get(1);
-HXDLIN(  56)		this->vertices->data[5] = this->topColor->__get(2);
-HXLINE(  57)		this->vertices->data[9] = this->leftColor->__get(0);
-HXDLIN(  57)		this->vertices->data[10] = this->leftColor->__get(1);
-HXDLIN(  57)		this->vertices->data[11] = this->leftColor->__get(2);
-HXLINE(  58)		this->vertices->data[15] = this->rightColor->__get(0);
-HXDLIN(  58)		this->vertices->data[16] = this->rightColor->__get(1);
-HXDLIN(  58)		this->vertices->data[17] = this->rightColor->__get(2);
-HXLINE(  61)		if (this->initialized) {
-HXLINE(  62)			this->needsBufferUpdate = true;
+HXLINE(  56)
+HXLINE(  58)		this->vertices->data[3] = this->topColor->__get(0);
+HXDLIN(  58)		this->vertices->data[4] = this->topColor->__get(1);
+HXDLIN(  58)		this->vertices->data[5] = this->topColor->__get(2);
+HXLINE(  59)		this->vertices->data[9] = this->leftColor->__get(0);
+HXDLIN(  59)		this->vertices->data[10] = this->leftColor->__get(1);
+HXDLIN(  59)		this->vertices->data[11] = this->leftColor->__get(2);
+HXLINE(  60)		this->vertices->data[15] = this->rightColor->__get(0);
+HXDLIN(  60)		this->vertices->data[16] = this->rightColor->__get(1);
+HXDLIN(  60)		this->vertices->data[17] = this->rightColor->__get(2);
+HXLINE(  63)		if (this->initialized) {
+HXLINE(  64)			this->needsBufferUpdate = true;
             		}
             	}
 
@@ -134,44 +145,50 @@ HXLINE(  62)			this->needsBufferUpdate = true;
 HX_DEFINE_DYNAMIC_FUNC0(Triangle_obj,updateVertexColors,(void))
 
 void Triangle_obj::setRotationSpeed(Float speed){
-            	HX_STACKFRAME(&_hx_pos_d903e98b577ce50d_68_setRotationSpeed)
+            	HX_STACKFRAME(&_hx_pos_d903e98b577ce50d_70_setRotationSpeed)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(speed,"speed")
-HXLINE(  68)
-HXDLIN(  68)		this->rotationSpeed = speed;
+HXLINE(  70)
+HXDLIN(  70)		this->rotationSpeed = speed;
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC1(Triangle_obj,setRotationSpeed,(void))
 
 void Triangle_obj::setAutoRotate(bool enabled){
-            	HX_STACKFRAME(&_hx_pos_d903e98b577ce50d_73_setAutoRotate)
+            	HX_STACKFRAME(&_hx_pos_d903e98b577ce50d_75_setAutoRotate)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(enabled,"enabled")
-HXLINE(  73)
-HXDLIN(  73)		this->autoRotate = enabled;
+HXLINE(  75)
+HXDLIN(  75)		this->autoRotate = enabled;
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC1(Triangle_obj,setAutoRotate,(void))
 
-::String Triangle_obj::getVertexShader(){
-            	HX_STACKFRAME(&_hx_pos_d903e98b577ce50d_78_getVertexShader)
-HXLINE(  78)
-HXDLIN(  78)		return HX_("\r\n        #version 330 core\r\n        layout (location = 0) in vec3 aPos;\r\n        layout (location = 1) in vec3 aColor;\r\n        \r\n        uniform mat4 uMatrix;\r\n        \r\n        out vec3 vertexColor;\r\n        \r\n        void main() {\r\n            gl_Position = uMatrix * vec4(aPos, 1.0);\r\n            vertexColor = aColor;\r\n        }\r\n        ",2c,5d,d6,f6);
+void Triangle_obj::render( ::math::Matrix cameraMatrix, ::Renderer renderer){
+            	HX_STACKFRAME(&_hx_pos_d903e98b577ce50d_79_render)
+            	HX_STACK_THIS(this)
+            	HX_STACK_ARG(cameraMatrix,"cameraMatrix")
+            	HX_STACK_ARG(renderer,"renderer")
+HXLINE(  79)
+HXLINE(  80)		bool _hx_tmp;
+HXDLIN(  80)		if (this->visible) {
+HXLINE(  80)			_hx_tmp = !(this->initialized);
+            		}
+            		else {
+HXLINE(  80)			_hx_tmp = true;
+            		}
+HXDLIN(  80)		if (_hx_tmp) {
+HXLINE(  81)			return;
+            		}
+HXLINE(  85)		this->updateTransform();
+HXLINE(  88)		HX_VARI(  ::math::Matrix,finalMatrix) = ::math::Matrix_obj::copy(this->matrix);
+HXLINE(  89)		finalMatrix->append(cameraMatrix);
+HXLINE(  92)		this->uniforms->set(HX_("uMatrix",96,f0,ab,f1),finalMatrix->data);
+HXLINE(  93)		renderer->renderObject(::hx::ObjectPtr<OBJ_>(this));
             	}
 
-
-STATIC_HX_DEFINE_DYNAMIC_FUNC0(Triangle_obj,getVertexShader,return )
-
-::String Triangle_obj::getFragmentShader(){
-            	HX_STACKFRAME(&_hx_pos_d903e98b577ce50d_96_getFragmentShader)
-HXLINE(  96)
-HXDLIN(  96)		return HX_("\r\n        #version 330 core\r\n        in vec3 vertexColor;\r\n        out vec4 FragColor;\r\n        \r\n        void main() {\r\n            FragColor = vec4(vertexColor, 1.0);\r\n        }\r\n        ",da,39,e4,75);
-            	}
-
-
-STATIC_HX_DEFINE_DYNAMIC_FUNC0(Triangle_obj,getFragmentShader,return )
 
 
 ::hx::ObjectPtr< Triangle_obj > Triangle_obj::__new( ::ProgramInfo programInfo) {
@@ -218,6 +235,7 @@ void Triangle_obj::__Visit(HX_VISIT_PARAMS)
 	switch(inName.length) {
 	case 6:
 		if (HX_FIELD_EQ(inName,"update") ) { return ::hx::Val( update_dyn() ); }
+		if (HX_FIELD_EQ(inName,"render") ) { return ::hx::Val( render_dyn() ); }
 		break;
 	case 8:
 		if (HX_FIELD_EQ(inName,"topColor") ) { return ::hx::Val( topColor ); }
@@ -243,18 +261,6 @@ void Triangle_obj::__Visit(HX_VISIT_PARAMS)
 		if (HX_FIELD_EQ(inName,"updateVertexColors") ) { return ::hx::Val( updateVertexColors_dyn() ); }
 	}
 	return super::__Field(inName,inCallProp);
-}
-
-bool Triangle_obj::__GetStatic(const ::String &inName, Dynamic &outValue, ::hx::PropertyAccess inCallProp)
-{
-	switch(inName.length) {
-	case 15:
-		if (HX_FIELD_EQ(inName,"getVertexShader") ) { outValue = getVertexShader_dyn(); return true; }
-		break;
-	case 17:
-		if (HX_FIELD_EQ(inName,"getFragmentShader") ) { outValue = getFragmentShader_dyn(); return true; }
-	}
-	return false;
 }
 
 ::hx::Val Triangle_obj::__SetField(const ::String &inName,const ::hx::Val &inValue,::hx::PropertyAccess inCallProp)
@@ -309,15 +315,10 @@ static ::String Triangle_obj_sMemberFields[] = {
 	HX_("updateVertexColors",dd,f3,a8,de),
 	HX_("setRotationSpeed",67,a0,d6,b5),
 	HX_("setAutoRotate",6c,95,63,d8),
+	HX_("render",56,6b,29,05),
 	::String(null()) };
 
 ::hx::Class Triangle_obj::__mClass;
-
-static ::String Triangle_obj_sStaticFields[] = {
-	HX_("getVertexShader",5f,07,20,e0),
-	HX_("getFragmentShader",4b,fe,4f,ac),
-	::String(null())
-};
 
 void Triangle_obj::__register()
 {
@@ -328,9 +329,9 @@ void Triangle_obj::__register()
 	__mClass->mSuper = &super::__SGetClass();
 	__mClass->mConstructEmpty = &__CreateEmpty;
 	__mClass->mConstructArgs = &__Create;
-	__mClass->mGetStaticField = &Triangle_obj::__GetStatic;
+	__mClass->mGetStaticField = &::hx::Class_obj::GetNoStaticField;
 	__mClass->mSetStaticField = &::hx::Class_obj::SetNoStaticField;
-	__mClass->mStatics = ::hx::Class_obj::dupFunctions(Triangle_obj_sStaticFields);
+	__mClass->mStatics = ::hx::Class_obj::dupFunctions(0 /* sStaticFields */);
 	__mClass->mMembers = ::hx::Class_obj::dupFunctions(Triangle_obj_sMemberFields);
 	__mClass->mCanCast = ::hx::TCanCast< Triangle_obj >;
 #ifdef HXCPP_SCRIPTABLE

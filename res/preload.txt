@@ -4,9 +4,12 @@
 
 # Textures
 textures/dev1.tga
+textures/dev_tiles.tga
 
 # Shaders
 shaders/basic.vert
 shaders/basic.frag
+shaders/simple.vert
+shaders/simple.frag
 shaders/textured.vert
 shaders/textured.frag

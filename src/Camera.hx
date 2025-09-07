@@ -44,10 +44,21 @@ class Camera {
         __matrix.appendTranslation(-x, -y, -z);
         
         if (ortho) {
-            // Orthographic projection for 2D objects with proper near/far for 2D
-            __matrix.append(Matrix.createOrthoMatrix(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0));
+            // Pixel-perfect orthographic projection 
+            // (0,0) at top-left, (width, height) at bottom-right
+            trace("Camera: Using PIXEL-PERFECT ORTHOGRAPHIC projection");
+            var left = 0.0;
+            var right = width;
+            var top = 0.0;        // Top is 0 (reversed Y)
+            var bottom = height;  // Bottom is screen height
+            var near = -10.0; // Allow objects behind the camera
+            var far = 10.0;   // Allow objects in front of the camera
+            trace("Camera pixel bounds: left=" + left + " right=" + right + " top=" + top + " bottom=" + bottom);
+            trace("Screen size: " + width + "x" + height + " pixels");
+            __matrix.append(Matrix.createOrthoMatrix(left, right, bottom, top, near, far));
         }
         else {
+            trace("Camera: Using PERSPECTIVE projection");
             // Perspective projection with proper aspect ratio
             var aspect = width / height;
             __matrix.append(Matrix.createPerspectiveMatrix(fov * Math.PI / 180.0, aspect, nearPlane, farPlane));

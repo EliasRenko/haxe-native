@@ -311,8 +311,6 @@ class Quad extends DisplayObject {
             trace("Quad render - no texture: hasTexture=" + hasTexture + ", textureId=" + textureId);
         }
         
-        // Set uniforms with the final combined matrix
-        setUniforms(finalMatrix, renderer);
         
         // Bind VAO and draw
         GL.bindVertexArray(vao);
@@ -348,40 +346,5 @@ class Quad extends DisplayObject {
         
         // Call parent cleanup
         super.remove(renderer);
-    }
-    
-    // Get shader source for quad vertex shader
-    public static function getVertexShader():String {
-        return '
-        #version 330 core
-        layout (location = 0) in vec3 aPos;
-        layout (location = 1) in vec2 aTexCoord;
-        
-        out vec2 TexCoord;
-        
-        uniform mat4 uMatrix;
-        
-        void main() {
-            // Apply matrix transformation
-            gl_Position = uMatrix * vec4(aPos, 1.0);
-            TexCoord = aTexCoord;
-        }
-        ';
-    }
-    
-    // Get shader source for quad fragment shader
-    public static function getFragmentShader():String {
-        return '
-        #version 330 core
-        in vec2 TexCoord;
-        out vec4 FragColor;
-        
-        uniform sampler2D uTexture;
-        
-        void main() {
-            vec4 texColor = texture(uTexture, TexCoord);
-            FragColor = texColor;
-        }
-        ';
     }
 }

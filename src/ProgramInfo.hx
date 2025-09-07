@@ -7,24 +7,71 @@ typedef UniformLocation = GlUInt;
 typedef Program = GlUInt;
 typedef Shader = GlUInt;
 
+// Attribute data formats
+enum AttributeFormat {
+	Float;
+	Vec2;
+	Vec3;
+	Vec4;
+	Int;
+	UnsignedInt;
+	Byte;
+	UnsignedByte;
+	Short;
+	UnsignedShort;
+}
+
+class AttributeFormatHelper {
+	public static function getValuesPerVertex(format:AttributeFormat):Int {
+		return switch (format) {
+			case Float: 1;
+			case Vec2: 2;
+			case Vec3: 3;
+			case Vec4: 4;
+			case Int | UnsignedInt | Byte | UnsignedByte | Short | UnsignedShort: 1;
+		}
+	}
+	
+	public static function getBytesPerVertex(format:AttributeFormat):Int {
+		return switch (format) {
+			case Float | Int | UnsignedInt: 4;
+			case Vec2: 8;
+			case Vec3: 12;
+			case Vec4: 16;
+			case Short | UnsignedShort: 2;
+			case Byte | UnsignedByte: 1;
+		}
+	}
+}
+
 // Uniform data formats
 enum UniformFormat {
 	Float;
 	Vec2;
 	Vec3;
 	Vec4;
+	Mat2;
+	Mat3;
 	Mat4;
 	Int;
+	IntVec2;
+	IntVec3;
+	IntVec4;
+	Bool;
+	BoolVec2;
+	BoolVec3;
+	BoolVec4;
 	Sampler2D;
+	SamplerCube;
 }
 
 typedef Attribute = {
 	var name:String;
-	var format:Int;          // GL_FLOAT, GL_INT, etc.
-	var size:Int;            // Number of components (1, 2, 3, or 4)
-	var stride:Int;          // Byte offset between consecutive attributes
-	var offset:Int;          // Byte offset from start of vertex data
-	var ?location:Int;       // Shader attribute location
+	var format:AttributeFormat;  // Use our AttributeFormat enum
+	var size:Int;               // Number of components (1, 2, 3, or 4)
+	var stride:Int;             // Byte offset between consecutive attributes
+	var offset:Int;             // Byte offset from start of vertex data
+	var location:Int;           // Shader attribute location (required)
 }
 
 typedef Uniform = {
@@ -50,6 +97,9 @@ class ProgramInfo {
 	public var attributes:Array<Attribute> = new Array<Attribute>();
 	public var uniforms:Array<Uniform> = new Array<Uniform>();
 	public var textures:Array<Uniform> = new Array<Uniform>();
+	
+	// ** Performance optimization: O(1) uniform lookup map
+	private var uniformMap:Map<String, Uniform> = new Map<String, Uniform>();
 	
 	// ** Rendering properties
 	public var name(get, null):String;
@@ -81,7 +131,14 @@ class ProgramInfo {
 		trace("ProgramInfo '" + name + "' created and introspected successfully!");
 	}
 
-	public function addAttribute(name:String, format:Int, size:Int, stride:Int, offset:Int, location:Int):Void {
+	/**
+	 * Get uniform by name with O(1) lookup performance
+	 */
+	public function getUniform(name:String):Uniform {
+		return uniformMap.get(name);
+	}
+
+	public function addAttribute(name:String, format:AttributeFormat, size:Int, stride:Int, offset:Int, location:Int):Void {
 		attributes.push({
 			name: name, 
 			format: format, 
@@ -93,7 +150,7 @@ class ProgramInfo {
 	}
 	
 	// Convenience method for calculating stride automatically (INTERLEAVED DATA)
-	public function addAttributeAuto(name:String, format:Int, size:Int, location:Int):Void {
+	public function addAttributeAuto(name:String, format:AttributeFormat, size:Int, location:Int):Void {
 		var currentOffset = calculateCurrentOffset();
 		
 		attributes.push({
@@ -120,8 +177,8 @@ class ProgramInfo {
 		var currentOffset = 0;
 		for (attr in attributes) {
 			attr.offset = currentOffset;
-			// Size in bytes = components * sizeof(float) - assuming float attributes
-			var sizeInBytes = attr.size * 4; // 4 bytes per float
+			// Size in bytes using our AttributeFormat system
+			var sizeInBytes = AttributeFormatHelper.getBytesPerVertex(attr.format);
 			currentOffset += sizeInBytes;
 		}
 		
@@ -150,7 +207,7 @@ class ProgramInfo {
 			renderer.enableVertexAttribArray(attr.location);
 			
 			// Set up the vertex attribute pointer  
-			renderer.vertexAttribPointer(attr.location, attr.size, attr.format, false, attr.stride, attr.offset);
+			renderer.vertexAttribPointer(attr.location, attr.size, getGLFormat(attr.format), false, attr.stride, attr.offset);
 		}
 	}
 	
@@ -221,7 +278,7 @@ class ProgramInfo {
 		for (i in 0...attributes.length) {
 			var attr = attributes[i];
 			var formatName = getFormatName(attr.format);
-			var sizeInBytes = attr.size * getFormatSize(attr.format);
+			var sizeInBytes = AttributeFormatHelper.getBytesPerVertex(attr.format);
 			
 			trace('  [$i] ${attr.name}:');
 			trace('      Location: ${attr.location}');
@@ -233,46 +290,80 @@ class ProgramInfo {
 		trace("========================");
 	}
 	
-	private function getFormatName(format:Int):String {
+	// ** Helper: Convert OpenGL type to AttributeFormat
+	private function convertGLTypeToAttributeFormat(glType:Int):AttributeFormat {
+		return switch (glType) {
+			case 5126: AttributeFormat.Float;        // GL_FLOAT
+			case 35664: AttributeFormat.Vec2;        // GL_FLOAT_VEC2
+			case 35665: AttributeFormat.Vec3;        // GL_FLOAT_VEC3
+			case 35666: AttributeFormat.Vec4;        // GL_FLOAT_VEC4
+			case 5124: AttributeFormat.Int;          // GL_INT
+			case 5125: AttributeFormat.UnsignedInt;  // GL_UNSIGNED_INT
+			case 5120: AttributeFormat.Byte;         // GL_BYTE
+			case 5121: AttributeFormat.UnsignedByte; // GL_UNSIGNED_BYTE
+			case 5122: AttributeFormat.Short;        // GL_SHORT
+			case 5123: AttributeFormat.UnsignedShort;// GL_UNSIGNED_SHORT
+			default: AttributeFormat.Float;          // Default fallback
+		}
+	}
+
+	private function getFormatName(format:AttributeFormat):String {
 		return switch (format) {
-			case 5126: "GL_FLOAT";           // GL_FLOAT
-			case 5124: "GL_INT";             // GL_INT  
-			case 5125: "GL_UNSIGNED_INT";    // GL_UNSIGNED_INT
-			case 5122: "GL_SHORT";           // GL_SHORT
-			case 5123: "GL_UNSIGNED_SHORT";  // GL_UNSIGNED_SHORT
-			case 5120: "GL_BYTE";            // GL_BYTE
-			case 5121: "GL_UNSIGNED_BYTE";   // GL_UNSIGNED_BYTE
-			default: "UNKNOWN";
+			case AttributeFormat.Float: "FLOAT";
+			case AttributeFormat.Vec2: "VEC2";
+			case AttributeFormat.Vec3: "VEC3";
+			case AttributeFormat.Vec4: "VEC4";
+			case AttributeFormat.Int: "INT";
+			case AttributeFormat.UnsignedInt: "UNSIGNED_INT";
+			case AttributeFormat.Byte: "BYTE";
+			case AttributeFormat.UnsignedByte: "UNSIGNED_BYTE";
+			case AttributeFormat.Short: "SHORT";
+			case AttributeFormat.UnsignedShort: "UNSIGNED_SHORT";
 		}
 	}
 	
-	private function getFormatSize(format:Int):Int {
+	private function getFormatSize(format:AttributeFormat):Int {
 		return switch (format) {
-			case 5126: 4;  // GL_FLOAT - 4 bytes per float
-			case 5124: 4;  // GL_INT - 4 bytes per int
-			case 5125: 4;  // GL_UNSIGNED_INT - 4 bytes per uint
-			case 5122: 2;  // GL_SHORT - 2 bytes per short
-			case 5123: 2;  // GL_UNSIGNED_SHORT - 2 bytes per ushort
-			case 5120: 1;  // GL_BYTE - 1 byte per byte
-			case 5121: 1;  // GL_UNSIGNED_BYTE - 1 byte per ubyte
-			default: 4;    // Default to 4 bytes
+			case AttributeFormat.Float | AttributeFormat.Int | AttributeFormat.UnsignedInt: 4;
+			case AttributeFormat.Short | AttributeFormat.UnsignedShort: 2;
+			case AttributeFormat.Byte | AttributeFormat.UnsignedByte: 1;
+			case AttributeFormat.Vec2: 8;  // 2 * 4 bytes
+			case AttributeFormat.Vec3: 12; // 3 * 4 bytes  
+			case AttributeFormat.Vec4: 16; // 4 * 4 bytes
+		}
+	}
+	
+	// ** Helper: Convert AttributeFormat to GL constant for rendering
+	private function getGLFormat(format:AttributeFormat):Int {
+		return switch (format) {
+			case AttributeFormat.Float | AttributeFormat.Vec2 | AttributeFormat.Vec3 | AttributeFormat.Vec4: 5126; // GL_FLOAT
+			case AttributeFormat.Int: 5124;          // GL_INT
+			case AttributeFormat.UnsignedInt: 5125;  // GL_UNSIGNED_INT
+			case AttributeFormat.Byte: 5120;         // GL_BYTE
+			case AttributeFormat.UnsignedByte: 5121; // GL_UNSIGNED_BYTE
+			case AttributeFormat.Short: 5122;        // GL_SHORT
+			case AttributeFormat.UnsignedShort: 5123;// GL_UNSIGNED_SHORT
 		}
 	}
 	
 	private function calculateCurrentOffset():Int {
 		var offset = 0;
 		for (attr in attributes) {
-			offset += attr.size * getFormatSize(attr.format);
+			offset += AttributeFormatHelper.getBytesPerVertex(attr.format);
 		}
 		return offset;
 	}
 	
 	public function addUniform(name:String, format:UniformFormat, setter:Dynamic, ?location:UniformLocation):Void {
-		uniforms.push({name:name, format:format, setter:setter, location:location});
+		var uniformData = {name:name, format:format, setter:setter, location:location};
+		uniforms.push(uniformData);
+		uniformMap.set(name, uniformData);
 	}
 
 	public function addTexture(name:String, format:UniformFormat, setter:Dynamic, ?location:UniformLocation):Void {
-		textures.push({name:name, format:format, setter:setter, location:location});
+		var textureData = {name:name, format:format, setter:setter, location:location};
+		textures.push(textureData);
+		uniformMap.set(name, textureData); // Also add to uniform map for consistent lookup
 	}
 	
 	// ** Shader compilation and linking
@@ -391,15 +482,16 @@ class ProgramInfo {
 			// Get attribute location
 			var location:Int = renderer.getAttribLocation(program, name);
 			
-			// Determine component count based on OpenGL type
-			var componentCount = getComponentCount(type);
+			// Convert OpenGL type to our AttributeFormat
+			var format = convertGLTypeToAttributeFormat(type);
+			var componentCount = AttributeFormatHelper.getValuesPerVertex(format);
 			
-			trace("Attribute " + i + ": '" + name + "' location=" + location + " type=" + type + " size=" + size + " components=" + componentCount);
+			trace("Attribute " + i + ": '" + name + "' location=" + location + " type=" + type + " format=" + format + " components=" + componentCount);
 			
 			// Add to attributes array (offset and stride will be calculated later)
 			attributes.push({
 				name: name,
-				format: GL.FLOAT, // Assume float for now - could be enhanced
+				format: format,
 				size: componentCount,
 				stride: 0,  // Will be calculated in finalizeVertexLayout
 				offset: 0,  // Will be calculated in finalizeVertexLayout  
@@ -441,13 +533,33 @@ class ProgramInfo {
 			
 			trace("Uniform " + i + ": '" + name + "' location=" + location + " type=" + type + " format=" + format);
 			
-			// Add to uniforms array
-			uniforms.push({
+			// Create the uniform data with pre-computed setter function
+			var setter = createUniformSetter(format, location);
+			var uniformData = {
 				name: name,
 				format: format,
-				setter: null, // No setter needed for introspected uniforms
-				location: location
-			});
+				setter: setter, // Pre-computed setter function for O(1) uniform setting
+				location: (location : UniformLocation)
+			};
+			
+			// Add to uniforms array
+			uniforms.push(uniformData);
+			
+			// Add to uniform map for O(1) lookup performance
+			uniformMap.set(name, uniformData);
+			
+			// If it's a texture sampler, also add to textures array with proper setter
+			if (format == UniformFormat.Sampler2D) {
+				var textureData = {
+					name: name,
+					format: format,
+					setter: function(slot:Int) {
+						GL.uniform1i(location, slot);
+					},
+					location: (location : UniformLocation)
+				};
+				textures.push(textureData);
+			}
 		}
 	}
 	
@@ -466,6 +578,222 @@ class ProgramInfo {
 		}
 	}
 	
+	// ** Pre-computed uniform setter creation for optimal performance
+	private function createUniformSetter(format:UniformFormat, location:UniformLocation):Dynamic {
+		return switch (format) {
+			case UniformFormat.Float:
+				floatSetter(location);
+			case UniformFormat.Vec2:
+				floatVec2Setter(location);
+			case UniformFormat.Vec3:
+				floatVec3Setter(location);
+			case UniformFormat.Vec4:
+				floatVec4Setter(location);
+			case UniformFormat.Mat2:
+				floatMat2Setter(location);
+			case UniformFormat.Mat3:
+				floatMat3Setter(location);
+			case UniformFormat.Mat4:
+				floatMat4Setter(location);
+			case UniformFormat.Int:
+				intSetter(location);
+			case UniformFormat.IntVec2:
+				intVec2Setter(location);
+			case UniformFormat.IntVec3:
+				intVec3Setter(location);
+			case UniformFormat.IntVec4:
+				intVec4Setter(location);
+			case UniformFormat.Bool:
+				boolSetter(location);
+			case UniformFormat.BoolVec2:
+				boolVec2Setter(location);
+			case UniformFormat.BoolVec3:
+				boolVec3Setter(location);
+			case UniformFormat.BoolVec4:
+				boolVec4Setter(location);
+			case UniformFormat.Sampler2D:
+				sampler2DSetter(location);
+			case UniformFormat.SamplerCube:
+				samplerCubeSetter(location);
+			default:
+				throw "Unknown uniform format: " + format;
+		}
+	}
+	
+	// ** Individual setter function factories
+	private function floatSetter(location:UniformLocation):Dynamic {
+		return function(value:Dynamic):Void {
+			var floatValue:Float = cast value;
+			GL.uniform1f(location, floatValue);
+		};
+	}
+	
+	private function intSetter(location:UniformLocation):Dynamic {
+		return function(value:Dynamic):Void {
+			var intValue:Int = cast value;
+			GL.uniform1i(location, intValue);
+		};
+	}
+	
+	private function floatVec2Setter(location:UniformLocation):Dynamic {
+		return function(value:Dynamic):Void {
+			var vec2Data:Array<Float> = cast value;
+			if (vec2Data.length >= 2) {
+				untyped __cpp__("glUniform2f({0}, {1}, {2})", location, vec2Data[0], vec2Data[1]);
+			}
+		};
+	}
+	
+	private function floatVec3Setter(location:UniformLocation):Dynamic {
+		return function(value:Dynamic):Void {
+			var vec3Data:Array<Float> = cast value;
+			if (vec3Data.length >= 3) {
+				untyped __cpp__("glUniform3f({0}, {1}, {2}, {3})", location, vec3Data[0], vec3Data[1], vec3Data[2]);
+			}
+		};
+	}
+	
+	private function floatVec4Setter(location:UniformLocation):Dynamic {
+		return function(value:Dynamic):Void {
+			var vec4Data:Array<Float> = cast value;
+			if (vec4Data.length >= 4) {
+				untyped __cpp__("glUniform4f({0}, {1}, {2}, {3}, {4})", location, vec4Data[0], vec4Data[1], vec4Data[2], vec4Data[3]);
+			}
+		};
+	}
+	
+	private function floatMat4Setter(location:UniformLocation):Dynamic {
+		return function(value:Dynamic):Void {
+			var matrixData:Array<Float> = cast value;
+			// Create a copy to ensure proper memory layout
+			var matrixArray = new Array<Float>();
+			for (i in 0...16) {
+				matrixArray[i] = matrixData[i];
+			}
+			// Use transpose=false for column-major OpenGL matrix format
+			untyped __cpp__("
+				float matData[16];
+				for(int i = 0; i < 16; i++) {
+					matData[i] = {1}[i];
+				}
+				glUniformMatrix4fv({0}, 1, GL_FALSE, matData);
+			", location, matrixArray);
+		};
+	}
+	
+	private function sampler2DSetter(location:UniformLocation):Dynamic {
+		return function(value:Dynamic):Void {
+			var textureSlot:Int = cast value;
+			GL.uniform1i(location, textureSlot);
+		};
+	}
+	
+	private function floatMat2Setter(location:UniformLocation):Dynamic {
+		return function(value:Dynamic):Void {
+			var matrixData:Array<Float> = cast value;
+			// Create a copy to ensure proper memory layout
+			var matrixArray = new Array<Float>();
+			for (i in 0...4) {
+				matrixArray[i] = matrixData[i];
+			}
+			// Use transpose=false for column-major OpenGL matrix format
+			untyped __cpp__("
+				float matData[4];
+				for(int i = 0; i < 4; i++) {
+					matData[i] = {1}[i];
+				}
+				glUniformMatrix2fv({0}, 1, GL_FALSE, matData);
+			", location, matrixArray);
+		};
+	}
+	
+	private function floatMat3Setter(location:UniformLocation):Dynamic {
+		return function(value:Dynamic):Void {
+			var matrixData:Array<Float> = cast value;
+			// Create a copy to ensure proper memory layout
+			var matrixArray = new Array<Float>();
+			for (i in 0...9) {
+				matrixArray[i] = matrixData[i];
+			}
+			// Use transpose=false for column-major OpenGL matrix format
+			untyped __cpp__("
+				float matData[9];
+				for(int i = 0; i < 9; i++) {
+					matData[i] = {1}[i];
+				}
+				glUniformMatrix3fv({0}, 1, GL_FALSE, matData);
+			", location, matrixArray);
+		};
+	}
+	
+	private function intVec2Setter(location:UniformLocation):Dynamic {
+		return function(value:Dynamic):Void {
+			var vec2Data:Array<Int> = cast value;
+			if (vec2Data.length >= 2) {
+				untyped __cpp__("glUniform2i({0}, {1}, {2})", location, vec2Data[0], vec2Data[1]);
+			}
+		};
+	}
+	
+	private function intVec3Setter(location:UniformLocation):Dynamic {
+		return function(value:Dynamic):Void {
+			var vec3Data:Array<Int> = cast value;
+			if (vec3Data.length >= 3) {
+				untyped __cpp__("glUniform3i({0}, {1}, {2}, {3})", location, vec3Data[0], vec3Data[1], vec3Data[2]);
+			}
+		};
+	}
+	
+	private function intVec4Setter(location:UniformLocation):Dynamic {
+		return function(value:Dynamic):Void {
+			var vec4Data:Array<Int> = cast value;
+			if (vec4Data.length >= 4) {
+				untyped __cpp__("glUniform4i({0}, {1}, {2}, {3}, {4})", location, vec4Data[0], vec4Data[1], vec4Data[2], vec4Data[3]);
+			}
+		};
+	}
+	
+	private function boolSetter(location:UniformLocation):Dynamic {
+		return function(value:Dynamic):Void {
+			var boolValue:Bool = cast value;
+			GL.uniform1i(location, boolValue ? 1 : 0);
+		};
+	}
+	
+	private function boolVec2Setter(location:UniformLocation):Dynamic {
+		return function(value:Dynamic):Void {
+			var vec2Data:Array<Bool> = cast value;
+			if (vec2Data.length >= 2) {
+				untyped __cpp__("glUniform2i({0}, {1}, {2})", location, vec2Data[0] ? 1 : 0, vec2Data[1] ? 1 : 0);
+			}
+		};
+	}
+	
+	private function boolVec3Setter(location:UniformLocation):Dynamic {
+		return function(value:Dynamic):Void {
+			var vec3Data:Array<Bool> = cast value;
+			if (vec3Data.length >= 3) {
+				untyped __cpp__("glUniform3i({0}, {1}, {2}, {3})", location, vec3Data[0] ? 1 : 0, vec3Data[1] ? 1 : 0, vec3Data[2] ? 1 : 0);
+			}
+		};
+	}
+	
+	private function boolVec4Setter(location:UniformLocation):Dynamic {
+		return function(value:Dynamic):Void {
+			var vec4Data:Array<Bool> = cast value;
+			if (vec4Data.length >= 4) {
+				untyped __cpp__("glUniform4i({0}, {1}, {2}, {3}, {4})", location, vec4Data[0] ? 1 : 0, vec4Data[1] ? 1 : 0, vec4Data[2] ? 1 : 0, vec4Data[3] ? 1 : 0);
+			}
+		};
+	}
+	
+	private function samplerCubeSetter(location:UniformLocation):Dynamic {
+		return function(value:Dynamic):Void {
+			var textureSlot:Int = cast value;
+			GL.uniform1i(location, textureSlot);
+		};
+	}
+	
 	// ** Helper: Convert OpenGL type to UniformFormat
 	private function convertGLTypeToUniformFormat(glType:Int):UniformFormat {
 		return switch (glType) {
@@ -473,9 +801,19 @@ class ProgramInfo {
 			case 35664: UniformFormat.Vec2;     // GL_FLOAT_VEC2
 			case 35665: UniformFormat.Vec3;     // GL_FLOAT_VEC3
 			case 35666: UniformFormat.Vec4;     // GL_FLOAT_VEC4
+			case 35674: UniformFormat.Mat2;     // GL_FLOAT_MAT2
+			case 35675: UniformFormat.Mat3;     // GL_FLOAT_MAT3
 			case 35676: UniformFormat.Mat4;     // GL_FLOAT_MAT4
 			case 5124: UniformFormat.Int;       // GL_INT
+			case 35667: UniformFormat.IntVec2;  // GL_INT_VEC2
+			case 35668: UniformFormat.IntVec3;  // GL_INT_VEC3
+			case 35669: UniformFormat.IntVec4;  // GL_INT_VEC4
+			case 35670: UniformFormat.Bool;     // GL_BOOL
+			case 35671: UniformFormat.BoolVec2; // GL_BOOL_VEC2
+			case 35672: UniformFormat.BoolVec3; // GL_BOOL_VEC3
+			case 35673: UniformFormat.BoolVec4; // GL_BOOL_VEC4
 			case 35678: UniformFormat.Sampler2D; // GL_SAMPLER_2D
+			case 35680: UniformFormat.SamplerCube; // GL_SAMPLER_CUBE
 			default: UniformFormat.Float;       // Default fallback
 		}
 	}

@@ -2,15 +2,25 @@ package;
 
 import GL;
 import ProgramInfo;
+import ProgramInfo.UniformFormat;
+import ProgramInfo.Uniform;
 import DisplayObject;
 import display.Image;
 import display.Triangle;
 import display.Rectangle;
 import display.Quad;
 import display.Cube;
+import display.Tilemap;
 import data.TextureData;
+import Texture;
 import Camera;
 import math.Matrix;
+
+typedef RenderState = {
+    depthTest:Bool,
+    depthWrite:Bool,
+    blendMode:Bool
+}
 
 class Renderer {
     
@@ -22,6 +32,11 @@ class Renderer {
     public var windowHeight:Int;
     
     private var __app:App;
+    
+    // Current render state tracking
+    private var __currentDepthTest:Bool = true;
+    private var __currentDepthWrite:Bool = true;
+    private var __currentBlendMode:Bool = false;
     private var frameCount:Int = 0;
     
     // ProgramInfo storage - managed by States, not Renderer
@@ -60,6 +75,78 @@ class Renderer {
         // Render the display object with the provided view-projection matrix
         // The DisplayObject will combine this with its model matrix
         displayObject.render(viewProjectionMatrix, this);
+    }
+    
+    /**
+     * Render a DisplayObject using the cleaner architecture pattern
+     * All GL operations are centralized here in the Renderer
+     */
+    public function renderObject(displayObject:DisplayObject):Void {
+        if (displayObject.vertices.data.length == 0) {
+            return;
+        }
+
+        __render(displayObject);
+    }
+
+    private function __render(drawable:DisplayObject):Void {
+        // Use the program
+        GL.useProgram(drawable.programInfo.program);
+
+        // Bind VAO
+        GL.bindVertexArray(drawable.vao);
+        
+        // Render uniforms, attributes, and textures
+        __renderUniforms(drawable.programInfo, drawable.uniforms);
+        __renderAttributes(drawable.programInfo);
+        __renderTextures(drawable.programInfo, drawable);
+
+        // Draw the object
+        if (drawable.__indicesToRender == 0) {
+            GL.drawArrays(drawable.mode, 0, drawable.__verticesToRender);
+        } else {
+            GL.drawElements(drawable.mode, drawable.__indicesToRender, GL.UNSIGNED_INT, 0);
+        }
+
+        GL.bindVertexArray(0);
+    }
+
+    private function __renderUniforms(programInfo:ProgramInfo, uniforms:Map<String, Dynamic>):Void {
+        // Use pre-computed uniform setters for optimal performance - no more switch/case in render loop!
+        for (name => value in uniforms) {
+            // O(1) lookup using pre-computed uniform map
+            var uniformInfo = programInfo.getUniform(name);
+            
+            if (uniformInfo == null) {
+                trace("Warning: Uniform '" + name + "' not found in shader");
+                continue; // Uniform doesn't exist in shader
+            }
+            
+            // Use pre-computed setter function - direct function call, no branching!
+            // This eliminates the switch/case overhead completely
+            uniformInfo.setter(value);
+        }
+    }
+
+    private function __renderAttributes(programInfo:ProgramInfo):Void {
+        // Attributes are already set up in VAO, so this is essentially a no-op
+        // for our current VAO-based implementation, but kept for compatibility
+    }
+
+    private function __renderTextures(programInfo:ProgramInfo, drawable:DisplayObject):Void {
+        for (i in 0...programInfo.textures.length) {
+            var x = GL.TEXTURE0 + i;
+            GL.activeTexture(x);
+
+            if (i < drawable.textures.length) {
+                var textureId = drawable.textures[i];
+                GL.bindTexture(GL.TEXTURE_2D, textureId);
+            }
+
+            GL.blendFunc(drawable.blendFactors.source, drawable.blendFactors.destination);
+            
+            drawable.programInfo.textures[i].setter(i);
+        }
     }
     
     /**
@@ -113,6 +200,39 @@ class Renderer {
     }
     
     /**
+     * Create and register a ProgramInfo from preloaded shader files
+     * This method uses the App's resource system to load shader files
+     */
+    public function createProgramInfoFromFiles(name:String, vertexShaderPath:String, fragmentShaderPath:String):ProgramInfo {
+        // Check if this ProgramInfo already exists
+        if (programInfos.exists(name)) {
+            trace("ProgramInfo '" + name + "' already exists, reusing...");
+            return programInfos.get(name);
+        }
+        
+        // Get shader source from preloaded resources
+        var vertexShader = app.resources.getText(vertexShaderPath);
+        var fragmentShader = app.resources.getText(fragmentShaderPath);
+        
+        if (vertexShader == null) {
+            trace("Error: Vertex shader '" + vertexShaderPath + "' not found in preloaded resources!");
+            return null;
+        }
+        
+        if (fragmentShader == null) {
+            trace("Error: Fragment shader '" + fragmentShaderPath + "' not found in preloaded resources!");
+            return null;
+        }
+        
+        // Create new ProgramInfo and register it
+        var programInfo = new ProgramInfo(name, this, vertexShader, fragmentShader);
+        programInfos.set(name, programInfo);
+        
+        trace("Created ProgramInfo '" + name + "' from preloaded shaders: " + vertexShaderPath + ", " + fragmentShaderPath);
+        return programInfo;
+    }
+    
+    /**
      * Get all registered ProgramInfo names
      */
     public function getProgramInfoNames():Array<String> {
@@ -143,12 +263,11 @@ class Renderer {
         GL.genBuffers(1, untyped __cpp__("(unsigned int*)&{0}[0]", vboArray));
         vbo = vboArray[0];
 
-        // Generate EBO if we need indices
-        if (indexCount > 0) {
-            var eboArray = [ebo];
-            GL.genBuffers(1, untyped __cpp__("(unsigned int*)&{0}[0]", eboArray));
-            ebo = eboArray[0];
-        }
+        // Always generate EBO - even if we don't need indices initially, we might later
+        // This is needed for tilemaps that start empty but get indices when atlas is set
+        var eboArray = [ebo];
+        GL.genBuffers(1, untyped __cpp__("(unsigned int*)&{0}[0]", eboArray));
+        ebo = eboArray[0];
 
         return {vao: vao, vbo: vbo, ebo: ebo};
     }
@@ -157,6 +276,11 @@ class Renderer {
      * Upload vertex data to GPU
      */
     public function uploadVertexData(vao:UInt, vbo:UInt, vertices:Array<Float>):Void {
+        trace("Renderer.uploadVertexData: vao=" + vao + " vbo=" + vbo + " vertices.length=" + vertices.length);
+        if (vertices.length > 0) {
+            trace("  First 15 vertex values: " + vertices.slice(0, 15));
+        }
+        
         GL.bindVertexArray(vao);
         GL.bindBuffer(GL.ARRAY_BUFFER, vbo);
         
@@ -165,20 +289,31 @@ class Renderer {
         for (i in 0...vertices.length) {
             vertexBytes.setFloat(i * 4, vertices[i]);
         }
+        
+        trace("  Uploading " + vertexBytes.length + " bytes to VBO " + vbo);
         GL.bufferData(GL.ARRAY_BUFFER, vertexBytes.length, vertexBytes.getData(), GL.DYNAMIC_DRAW);
+        trace("  Buffer upload complete");
     }
 
     /**
      * Upload index data to GPU
      */
     public function uploadIndexData(ebo:UInt, indices:Array<Int>):Void {
+        trace("Renderer.uploadIndexData: ebo=" + ebo + " indices.length=" + indices.length);
+        if (indices.length > 0) {
+            trace("  First 15 index values: " + indices.slice(0, 15));
+        }
+        
         if (ebo != 0 && indices.length > 0) {
             GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, ebo);
             var indexBytes = haxe.io.Bytes.alloc(indices.length * 4);
             for (i in 0...indices.length) {
                 indexBytes.setInt32(i * 4, indices[i]);
             }
+            
+            trace("  Uploading " + indexBytes.length + " bytes to EBO " + ebo);
             GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, indexBytes.length, indexBytes.getData(), GL.DYNAMIC_DRAW);
+            trace("  Index buffer upload complete");
         }
     }
 
@@ -324,8 +459,62 @@ class Renderer {
             glUniformMatrix4fv({0}, 1, {1} ? GL_TRUE : GL_FALSE, matData);
         ", location, transpose, matrixData);
     }
+    
+    /**
+     * Upload TextureData to OpenGL and return Texture object
+     */
+    public function uploadTexture(textureData:TextureData):Texture {
+        if (textureData == null) {
+            trace("Error: Cannot upload null texture data");
+            return null;
+        }
+        
+        var textureArray:Array<UInt> = [0];
+        GL.genTextures(1, untyped __cpp__("(unsigned int*)&{0}[0]", textureArray));
+        var textureId:UInt = textureArray[0];
+        
+        GL.bindTexture(GL.TEXTURE_2D, textureId);
+        
+        // Set texture parameters
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST);
+        
+        // Upload actual texture data
+        var format = GL.RGBA;
+        var internalFormat = GL.RGBA;
+        
+        // Convert UInt8Array to Bytes for OpenGL upload
+        var bytes = haxe.io.Bytes.alloc(textureData.width * textureData.height * textureData.bytesPerPixel);
+        for (i in 0...bytes.length) {
+            bytes.set(i, textureData.bytes[i]);
+        }
+        
+        untyped __cpp__("glTexImage2D(GL_TEXTURE_2D, 0, {0}, {1}, {2}, 0, {3}, GL_UNSIGNED_BYTE, {4}->b->GetBase())", 
+            internalFormat, textureData.width, textureData.height, format, bytes);
+        
+        // Unbind texture
+        GL.bindTexture(GL.TEXTURE_2D, 0);
+        
+        // Create and return Texture object
+        var texture:Texture = {
+            id: textureId,
+            width: textureData.width,
+            height: textureData.height,
+            bpp: textureData.bytesPerPixel,
+            target: GL.TEXTURE_2D
+        };
+        trace("Uploaded texture: ID=" + texture.id + " Size=" + texture.width + "x" + texture.height);
+        return texture;
+    }
 
     public function cleanup():Void {
+        // Reset render state
+        setDepthTest(true);
+        setDepthWrite(true);
+        setBlendMode(false);
+        
         // Cleanup all registered ProgramInfos
         for (name in programInfos.keys()) {
             var programInfo = programInfos.get(name);
@@ -337,6 +526,55 @@ class Renderer {
         programInfos.clear();
         
         trace("Renderer cleanup complete");
+    }
+    
+    /**
+     * Render state management methods
+     */
+    public function setDepthTest(enabled:Bool):Void {
+        if (__currentDepthTest != enabled) {
+            if (enabled) {
+                GL.glEnable(GL.DEPTH_TEST);
+            } else {
+                GL.glDisable(GL.DEPTH_TEST);
+            }
+            __currentDepthTest = enabled;
+        }
+    }
+    
+    public function setDepthWrite(enabled:Bool):Void {
+        if (__currentDepthWrite != enabled) {
+            // For now, skip depth mask as it's not in GL.hx yet
+            // GL.depthMask(enabled);
+            __currentDepthWrite = enabled;
+        }
+    }
+    
+    public function setBlendMode(enabled:Bool):Void {
+        if (__currentBlendMode != enabled) {
+            if (enabled) {
+                // For now, use direct call until BLEND constant is added
+                untyped __cpp__("glEnable(GL_BLEND)");
+                GL.blendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA);
+            } else {
+                untyped __cpp__("glDisable(GL_BLEND)");
+            }
+            __currentBlendMode = enabled;
+        }
+    }
+    
+    public function pushRenderState():RenderState {
+        return {
+            depthTest: __currentDepthTest,
+            depthWrite: __currentDepthWrite,
+            blendMode: __currentBlendMode
+        };
+    }
+    
+    public function popRenderState(state:RenderState):Void {
+        setDepthTest(state.depthTest);
+        setDepthWrite(state.depthWrite);
+        setBlendMode(state.blendMode);
     }
 
     /**

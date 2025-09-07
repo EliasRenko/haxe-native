@@ -4,6 +4,7 @@ import SDL;
 import GL;
 import Renderer;
 import State;
+import states.ImageTestState;
 import sys.FileSystem;
 import cpp.UInt64;
 import cpp.Pointer;
@@ -20,6 +21,10 @@ typedef Resource = {
 }
 
 class App {
+
+    // Window dimensions - change these to adjust window size
+    public static inline var WINDOW_WIDTH:Int = 640;
+    public static inline var WINDOW_HEIGHT:Int = 480;
 
     // Publics
     public var active(get, null):Bool;
@@ -62,7 +67,7 @@ class App {
         SDL.setAttribute(SDL.GL_CONTEXT_PROFILE_MASK, SDL.GL_CONTEXT_PROFILE_CORE);
         
         // Create window
-        __window = SDL.createWindow("Clean SDL Engine", 640, 480, SDL.WINDOW_OPENGL);
+        __window = SDL.createWindow("Clean SDL Engine", WINDOW_WIDTH, WINDOW_HEIGHT, SDL.WINDOW_OPENGL);
         if (__window == null) {
             trace("Failed to create window: " + SDL.getError());
             SDL.quit();
@@ -93,20 +98,14 @@ class App {
         trace("OpenGL Version: " + GL.version.major + "." + GL.version.minor);
         
         // Set viewport to match window size
-        GL.viewport(0, 0, 640, 480);
+        GL.viewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
         
         // Create renderer
         trace("About to create renderer...");
-        __renderer = new Renderer(this, 640, 480);
+        __renderer = new Renderer(this, WINDOW_WIDTH, WINDOW_HEIGHT);
         trace("Renderer created successfully!");
         
-        // Setup test state to demonstrate State/Entity system
-        trace("Setting up test state...");
-        var testState = new TestState(this);
-        addState(testState);
-        trace("Test state setup complete");
-
-        // Preload assets from preload.txt
+        // Preload assets from preload.txt BEFORE creating states
         trace("Preloading assets...");
         resources.loadText("preload.txt")
             .then(function(source:String) {
@@ -143,6 +142,12 @@ class App {
                 Promise.all(files)
                     .then(function(results:Array<Dynamic>) {
                         trace("Successfully preloaded " + results.length + " assets");
+                        
+                        // NOW create and setup image test state after assets are loaded
+                        trace("Setting up image test state with preloaded assets...");
+                        var imageTestState = new ImageTestState(this);
+                        addState(imageTestState);
+                        trace("Image test state setup complete");
                     })
                     .onError(function(error:String) {
                         trace("Failed to preload some assets: " + error);

@@ -58,7 +58,9 @@ class Entity {
      * Now accepts the view-projection matrix from the State's camera
      */
     public function render(renderer:Dynamic, viewProjectionMatrix:math.Matrix):Void {
-        if (!active || !visible || displayObject == null) return;
+        if (!active || !visible || displayObject == null) {
+            return;
+        }
         
         // Delegate rendering to the displayObject with the view-projection matrix
         renderer.renderDisplayObject(displayObject, viewProjectionMatrix);

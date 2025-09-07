@@ -75,6 +75,10 @@ class State {
         // Render all active entities in this state with the camera matrix
         for (entity in entities) {
             if (entity != null && entity.active && entity.visible) {
+                if (entity.displayObject == null) {
+                    trace("ERROR: Entity '" + entity.id + "' has null displayObject!");
+                    continue;
+                }
                 entity.render(renderer, viewProjectionMatrix);
             }
         }

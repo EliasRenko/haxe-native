@@ -6,9 +6,12 @@
 #include <hxcpp.h>
 #endif
 
+HX_DECLARE_CLASS0(AttributeFormat)
 HX_DECLARE_CLASS0(ProgramInfo)
 HX_DECLARE_CLASS0(Renderer)
 HX_DECLARE_CLASS0(UniformFormat)
+HX_DECLARE_CLASS1(haxe,IMap)
+HX_DECLARE_CLASS2(haxe,ds,StringMap)
 
 
 
@@ -53,15 +56,19 @@ class HXCPP_CLASS_ATTRIBUTES ProgramInfo_obj : public ::hx::Object
 		::Array< ::Dynamic> attributes;
 		::Array< ::Dynamic> uniforms;
 		::Array< ::Dynamic> textures;
+		 ::haxe::ds::StringMap uniformMap;
 		::String name;
 		int dataPerVertex;
 		int textureCount;
 		bool isCompiled;
 		::String _hx___name;
-		void addAttribute(::String name,int format,int size,int stride,int offset,int location);
+		 ::Dynamic getUniform(::String name);
+		::Dynamic getUniform_dyn();
+
+		void addAttribute(::String name, ::AttributeFormat format,int size,int stride,int offset,int location);
 		::Dynamic addAttribute_dyn();
 
-		void addAttributeAuto(::String name,int format,int size,int location);
+		void addAttributeAuto(::String name, ::AttributeFormat format,int size,int location);
 		::Dynamic addAttributeAuto_dyn();
 
 		void finalizeVertexLayout();
@@ -79,11 +86,17 @@ class HXCPP_CLASS_ATTRIBUTES ProgramInfo_obj : public ::hx::Object
 		void printVertexLayout();
 		::Dynamic printVertexLayout_dyn();
 
-		::String getFormatName(int format);
+		 ::AttributeFormat convertGLTypeToAttributeFormat(int glType);
+		::Dynamic convertGLTypeToAttributeFormat_dyn();
+
+		::String getFormatName( ::AttributeFormat format);
 		::Dynamic getFormatName_dyn();
 
-		int getFormatSize(int format);
+		int getFormatSize( ::AttributeFormat format);
 		::Dynamic getFormatSize_dyn();
+
+		int getGLFormat( ::AttributeFormat format);
+		::Dynamic getGLFormat_dyn();
 
 		int calculateCurrentOffset();
 		::Dynamic calculateCurrentOffset_dyn();
@@ -108,6 +121,60 @@ class HXCPP_CLASS_ATTRIBUTES ProgramInfo_obj : public ::hx::Object
 
 		int getComponentCount(int glType);
 		::Dynamic getComponentCount_dyn();
+
+		 ::Dynamic createUniformSetter( ::UniformFormat format,unsigned int location);
+		::Dynamic createUniformSetter_dyn();
+
+		 ::Dynamic floatSetter(unsigned int location);
+		::Dynamic floatSetter_dyn();
+
+		 ::Dynamic intSetter(unsigned int location);
+		::Dynamic intSetter_dyn();
+
+		 ::Dynamic floatVec2Setter(unsigned int location);
+		::Dynamic floatVec2Setter_dyn();
+
+		 ::Dynamic floatVec3Setter(unsigned int location);
+		::Dynamic floatVec3Setter_dyn();
+
+		 ::Dynamic floatVec4Setter(unsigned int location);
+		::Dynamic floatVec4Setter_dyn();
+
+		 ::Dynamic floatMat4Setter(unsigned int location);
+		::Dynamic floatMat4Setter_dyn();
+
+		 ::Dynamic sampler2DSetter(unsigned int location);
+		::Dynamic sampler2DSetter_dyn();
+
+		 ::Dynamic floatMat2Setter(unsigned int location);
+		::Dynamic floatMat2Setter_dyn();
+
+		 ::Dynamic floatMat3Setter(unsigned int location);
+		::Dynamic floatMat3Setter_dyn();
+
+		 ::Dynamic intVec2Setter(unsigned int location);
+		::Dynamic intVec2Setter_dyn();
+
+		 ::Dynamic intVec3Setter(unsigned int location);
+		::Dynamic intVec3Setter_dyn();
+
+		 ::Dynamic intVec4Setter(unsigned int location);
+		::Dynamic intVec4Setter_dyn();
+
+		 ::Dynamic boolSetter(unsigned int location);
+		::Dynamic boolSetter_dyn();
+
+		 ::Dynamic boolVec2Setter(unsigned int location);
+		::Dynamic boolVec2Setter_dyn();
+
+		 ::Dynamic boolVec3Setter(unsigned int location);
+		::Dynamic boolVec3Setter_dyn();
+
+		 ::Dynamic boolVec4Setter(unsigned int location);
+		::Dynamic boolVec4Setter_dyn();
+
+		 ::Dynamic samplerCubeSetter(unsigned int location);
+		::Dynamic samplerCubeSetter_dyn();
 
 		 ::UniformFormat convertGLTypeToUniformFormat(int glType);
 		::Dynamic convertGLTypeToUniformFormat_dyn();

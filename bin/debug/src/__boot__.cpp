@@ -4,14 +4,14 @@
 #ifndef INCLUDED_haxe_io_Error
 #include <haxe/io/Error.h>
 #endif
-#ifndef INCLUDED_ValueType
-#include <ValueType.h>
-#endif
 #ifndef INCLUDED_PromiseState
 #include <PromiseState.h>
 #endif
 #ifndef INCLUDED_UniformFormat
 #include <UniformFormat.h>
+#endif
+#ifndef INCLUDED_AttributeFormat
+#include <AttributeFormat.h>
 #endif
 #ifndef INCLUDED_loaders_TGALoader
 #include <loaders/TGALoader.h>
@@ -22,9 +22,6 @@
 #ifndef INCLUDED_sys_thread__Thread_HaxeThread
 #include <sys/thread/_Thread/HaxeThread.h>
 #endif
-#ifndef INCLUDED_display_Vector4
-#include <display/Vector4.h>
-#endif
 #ifndef INCLUDED_State
 #include <State.h>
 #endif
@@ -33,6 +30,9 @@
 #endif
 #ifndef INCLUDED_BlendFactor
 #include <BlendFactor.h>
+#endif
+#ifndef INCLUDED_App
+#include <App.h>
 #endif
 #ifndef INCLUDED_sys_thread__Thread_Thread_Impl_
 #include <sys/thread/_Thread/Thread_Impl_.h>
@@ -45,6 +45,9 @@
 #endif
 #ifndef INCLUDED_sys_FileSystem
 #include <sys/FileSystem.h>
+#endif
+#ifndef INCLUDED_states_ImageTestState
+#include <states/ImageTestState.h>
 #endif
 #ifndef INCLUDED_math_Matrix
 #include <math/Matrix.h>
@@ -106,6 +109,9 @@
 #ifndef INCLUDED_display_Triangle
 #include <display/Triangle.h>
 #endif
+#ifndef INCLUDED_display_Tilemap
+#include <display/Tilemap.h>
+#endif
 #ifndef INCLUDED_display_Rectangle
 #include <display/Rectangle.h>
 #endif
@@ -123,12 +129,6 @@
 #endif
 #ifndef INCLUDED_haxe_IMap
 #include <haxe/IMap.h>
-#endif
-#ifndef INCLUDED_Type
-#include <Type.h>
-#endif
-#ifndef INCLUDED_TestState
-#include <TestState.h>
 #endif
 #ifndef INCLUDED_Sys
 #include <Sys.h>
@@ -150,6 +150,9 @@
 #endif
 #ifndef INCLUDED_ProgramInfo
 #include <ProgramInfo.h>
+#endif
+#ifndef INCLUDED_AttributeFormatHelper
+#include <AttributeFormatHelper.h>
 #endif
 #ifndef INCLUDED_Main
 #include <Main.h>
@@ -175,9 +178,6 @@
 #ifndef INCLUDED__App___Resources
 #include <_App/__Resources.h>
 #endif
-#ifndef INCLUDED_App
-#include <App.h>
-#endif
 
 void __files__boot();
 
@@ -186,20 +186,21 @@ void __boot_all()
 __files__boot();
 ::hx::RegisterResources( ::hx::GetResources() );
 ::haxe::io::Error_obj::__register();
-::ValueType_obj::__register();
 ::PromiseState_obj::__register();
 ::UniformFormat_obj::__register();
+::AttributeFormat_obj::__register();
 ::loaders::TGALoader_obj::__register();
 ::haxe::Log_obj::__register();
 ::sys::thread::_Thread::HaxeThread_obj::__register();
-::display::Vector4_obj::__register();
 ::State_obj::__register();
 ::Entity_obj::__register();
 ::BlendFactor_obj::__register();
+::App_obj::__register();
 ::sys::thread::_Thread::Thread_Impl__obj::__register();
 ::sys::thread::Lock_obj::__register();
 ::sys::thread::_EventLoop::RegularEvent_obj::__register();
 ::sys::FileSystem_obj::__register();
+::states::ImageTestState_obj::__register();
 ::math::Matrix_obj::__register();
 ::haxe::iterators::ArrayIterator_obj::__register();
 ::haxe::io::Path_obj::__register();
@@ -220,14 +221,13 @@ __files__boot();
 ::sys::thread::EventLoop_obj::__register();
 ::sys::thread::Mutex_obj::__register();
 ::display::Triangle_obj::__register();
+::display::Tilemap_obj::__register();
 ::display::Rectangle_obj::__register();
 ::display::Quad_obj::__register();
 ::display::Image_obj::__register();
 ::display::Cube_obj::__register();
 ::data::TextureData_obj::__register();
 ::haxe::IMap_obj::__register();
-::Type_obj::__register();
-::TestState_obj::__register();
 ::Sys_obj::__register();
 ::StringTools_obj::__register();
 ::Std_obj::__register();
@@ -235,6 +235,7 @@ __files__boot();
 ::Reflect_obj::__register();
 ::Promise_obj::__register();
 ::ProgramInfo_obj::__register();
+::AttributeFormatHelper_obj::__register();
 ::Main_obj::__register();
 ::EventDispacher_obj::__register();
 ::EReg_obj::__register();
@@ -243,17 +244,16 @@ __files__boot();
 ::Vertices_obj::__register();
 ::Camera_obj::__register();
 ::_App::__Resources_obj::__register();
-::App_obj::__register();
 ::haxe::io::Error_obj::__boot();
-::ValueType_obj::__boot();
 ::PromiseState_obj::__boot();
 ::UniformFormat_obj::__boot();
+::AttributeFormat_obj::__boot();
 ::sys::thread::_Thread::HaxeThread_obj::__init__();
 ::haxe::Log_obj::__boot();
+::App_obj::__boot();
 ::BlendFactor_obj::__boot();
 ::Entity_obj::__boot();
 ::State_obj::__boot();
-::display::Vector4_obj::__boot();
 ::sys::thread::_Thread::HaxeThread_obj::__boot();
 ::loaders::TGALoader_obj::__boot();
 }

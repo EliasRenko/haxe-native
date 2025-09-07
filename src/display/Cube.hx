@@ -3,6 +3,8 @@ package display;
 import GL;
 import DisplayObject;
 import ProgramInfo;
+import Renderer;
+import math.Matrix;
 
 class Cube extends DisplayObject {
     
@@ -104,34 +106,21 @@ class Cube extends DisplayObject {
         }
     }
     
-    // Get shader source for cube vertex shader
-    public static function getVertexShader():String {
-        return '
-        #version 330 core
-        layout (location = 0) in vec3 aPos;
-        layout (location = 1) in vec3 aColor;
-        
-        uniform mat4 uMatrix;
-        
-        out vec3 vertexColor;
-        
-        void main() {
-            gl_Position = uMatrix * vec4(aPos, 1.0);
-            vertexColor = aColor;
+    // Custom render method for cube
+    public override function render(cameraMatrix:Matrix, renderer:Renderer):Void {
+        if (!visible || !initialized) {
+            return;
         }
-        ';
-    }
-    
-    // Get shader source for cube fragment shader
-    public static function getFragmentShader():String {
-        return '
-        #version 330 core
-        in vec3 vertexColor;
-        out vec4 FragColor;
         
-        void main() {
-            FragColor = vec4(vertexColor, 1.0);
-        }
-        ';
+        // Update transformation matrix based on current properties
+        updateTransform();
+        
+        // Create final matrix by combining object matrix with camera matrix
+        var finalMatrix = Matrix.copy(matrix);
+        finalMatrix.append(cameraMatrix);
+        
+        // Set uniforms and delegate rendering to renderer
+        uniforms.set("uMatrix", finalMatrix.data);
+        renderer.renderObject(this);
     }
 }

@@ -10,6 +10,7 @@ HX_DECLARE_CLASS0(App)
 HX_DECLARE_CLASS0(DisplayObject)
 HX_DECLARE_CLASS0(ProgramInfo)
 HX_DECLARE_CLASS0(Renderer)
+HX_DECLARE_CLASS1(data,TextureData)
 HX_DECLARE_CLASS1(haxe,IMap)
 HX_DECLARE_CLASS2(haxe,ds,StringMap)
 HX_DECLARE_CLASS1(math,Matrix)
@@ -49,9 +50,12 @@ class HXCPP_CLASS_ATTRIBUTES Renderer_obj : public ::hx::Object
 		::String __ToString() const { return HX_("Renderer",63,81,8d,8c); }
 
 		 ::App app;
-		 ::App _hx___app;
 		int windowWidth;
 		int windowHeight;
+		 ::App _hx___app;
+		bool _hx___currentDepthTest;
+		bool _hx___currentDepthWrite;
+		bool _hx___currentBlendMode;
 		int frameCount;
 		 ::haxe::ds::StringMap programInfos;
 		void render();
@@ -59,6 +63,21 @@ class HXCPP_CLASS_ATTRIBUTES Renderer_obj : public ::hx::Object
 
 		void renderDisplayObject( ::DisplayObject displayObject, ::math::Matrix viewProjectionMatrix);
 		::Dynamic renderDisplayObject_dyn();
+
+		void renderObject( ::DisplayObject displayObject);
+		::Dynamic renderObject_dyn();
+
+		void _hx___render( ::DisplayObject drawable);
+		::Dynamic _hx___render_dyn();
+
+		void _hx___renderUniforms( ::ProgramInfo programInfo, ::haxe::ds::StringMap uniforms);
+		::Dynamic _hx___renderUniforms_dyn();
+
+		void _hx___renderAttributes( ::ProgramInfo programInfo);
+		::Dynamic _hx___renderAttributes_dyn();
+
+		void _hx___renderTextures( ::ProgramInfo programInfo, ::DisplayObject drawable);
+		::Dynamic _hx___renderTextures_dyn();
 
 		void registerProgramInfo(::String name, ::ProgramInfo programInfo);
 		::Dynamic registerProgramInfo_dyn();
@@ -71,6 +90,9 @@ class HXCPP_CLASS_ATTRIBUTES Renderer_obj : public ::hx::Object
 
 		bool hasProgramInfo(::String name);
 		::Dynamic hasProgramInfo_dyn();
+
+		 ::ProgramInfo createProgramInfoFromFiles(::String name,::String vertexShaderPath,::String fragmentShaderPath);
+		::Dynamic createProgramInfoFromFiles_dyn();
 
 		::Array< ::String > getProgramInfoNames();
 		::Dynamic getProgramInfoNames_dyn();
@@ -147,8 +169,26 @@ class HXCPP_CLASS_ATTRIBUTES Renderer_obj : public ::hx::Object
 		void uniformMatrix4fv(int location,bool transpose,::Array< Float > value);
 		::Dynamic uniformMatrix4fv_dyn();
 
+		 ::Dynamic uploadTexture( ::data::TextureData textureData);
+		::Dynamic uploadTexture_dyn();
+
 		void cleanup();
 		::Dynamic cleanup_dyn();
+
+		void setDepthTest(bool enabled);
+		::Dynamic setDepthTest_dyn();
+
+		void setDepthWrite(bool enabled);
+		::Dynamic setDepthWrite_dyn();
+
+		void setBlendMode(bool enabled);
+		::Dynamic setBlendMode_dyn();
+
+		 ::Dynamic pushRenderState();
+		::Dynamic pushRenderState_dyn();
+
+		void popRenderState( ::Dynamic state);
+		::Dynamic popRenderState_dyn();
 
 		 ::App get_app();
 		::Dynamic get_app_dyn();

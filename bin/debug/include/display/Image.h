@@ -28,13 +28,13 @@ class HXCPP_CLASS_ATTRIBUTES Image_obj : public  ::DisplayObject_obj
 	public:
 		enum { _hx_ClassId = 0x76c26939 };
 
-		void __construct( ::ProgramInfo programInfo,::Array< int > textureIds);
+		void __construct( ::ProgramInfo programInfo, ::Dynamic texture);
 		inline void *operator new(size_t inSize, bool inContainer=true,const char *inName="display.Image")
 			{ return ::hx::Object::operator new(inSize,inContainer,inName); }
 		inline void *operator new(size_t inSize, int extra)
 			{ return ::hx::Object::operator new(inSize+extra,true,"display.Image"); }
-		static ::hx::ObjectPtr< Image_obj > __new( ::ProgramInfo programInfo,::Array< int > textureIds);
-		static ::hx::ObjectPtr< Image_obj > __alloc(::hx::Ctx *_hx_ctx, ::ProgramInfo programInfo,::Array< int > textureIds);
+		static ::hx::ObjectPtr< Image_obj > __new( ::ProgramInfo programInfo, ::Dynamic texture);
+		static ::hx::ObjectPtr< Image_obj > __alloc(::hx::Ctx *_hx_ctx, ::ProgramInfo programInfo, ::Dynamic texture);
 		static void * _hx_vtable;
 		static Dynamic __CreateEmpty();
 		static Dynamic __Create(::hx::DynamicArray inArgs);

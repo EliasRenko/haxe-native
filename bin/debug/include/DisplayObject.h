@@ -86,20 +86,26 @@ class HXCPP_CLASS_ATTRIBUTES DisplayObject_obj : public ::hx::Object
 		void init( ::Renderer renderer);
 		::Dynamic init_dyn();
 
-		void updateBuffers( ::Renderer renderer);
+		virtual void updateBuffers( ::Renderer renderer);
 		::Dynamic updateBuffers_dyn();
 
 		virtual void remove( ::Renderer renderer);
 		::Dynamic remove_dyn();
+
+		void setTexture(unsigned int textureId);
+		::Dynamic setTexture_dyn();
+
+		int addTexture(unsigned int textureId);
+		::Dynamic addTexture_dyn();
+
+		bool hasTextures();
+		::Dynamic hasTextures_dyn();
 
 		void updateTransform();
 		::Dynamic updateTransform_dyn();
 
 		virtual void render( ::math::Matrix cameraMatrix, ::Renderer renderer);
 		::Dynamic render_dyn();
-
-		void setUniforms( ::math::Matrix finalMatrix, ::Renderer renderer);
-		::Dynamic setUniforms_dyn();
 
 };
 

@@ -107,36 +107,4 @@ class Rectangle extends DisplayObject {
             needsBufferUpdate = true;
         }
     }
-    
-    // Get shader source for rectangle vertex shader (same as triangle)
-    public static function getVertexShader():String {
-        return '
-        #version 330 core
-        layout (location = 0) in vec3 aPos;
-        layout (location = 1) in vec3 aColor;
-        
-        out vec3 vertexColor;
-        
-        uniform mat4 uMatrix;
-        
-        void main() {
-            // Apply matrix transformation
-            gl_Position = uMatrix * vec4(aPos, 1.0);
-            vertexColor = aColor;
-        }
-        ';
-    }
-    
-    // Get shader source for rectangle fragment shader (same as triangle)
-    public static function getFragmentShader():String {
-        return '
-        #version 330 core
-        in vec3 vertexColor;
-        out vec4 FragColor;
-        
-        void main() {
-            FragColor = vec4(vertexColor, 1.0);
-        }
-        ';
-    }
 }

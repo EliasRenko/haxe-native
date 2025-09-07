@@ -1,12 +1,11 @@
 package display;
 
+import GL;
 import DisplayObject;
+import ProgramInfo;
+import Renderer;
 import math.Matrix;
-
-// Simple Vector4 for axis constants
-class Vector4 {
-	public static var Z_AXIS = {x: 0.0, y: 0.0, z: 1.0};
-}
+import Texture;
 
 class Image extends DisplayObject {
 	
@@ -49,36 +48,40 @@ class Image extends DisplayObject {
 
 	private var __originY:Float = 0;
 
-	public function new(programInfo:ProgramInfo, ?textureIds:Array<Int>) {
-		var w = 256.0;
-		var h = 256.0;
+	public function new(programInfo:ProgramInfo, texture:Texture) {
+		// Use texture dimensions directly
+		var w = texture.width;
+		var h = texture.height;
+		
+		// Create quad vertices (position + UV coordinates)
+		// Format: x, y, z, u, v (5 floats per vertex)
+		// Origin at top-left (0,0), extending right (+X) and down (+Y)
 		var vertices = [
-			// Position (x,y,z) + UV (u,v) - interleaved
-			// Bottom-left
-			0,    0,    0,  0, 0,
-			// Top-left
-			0,    h,    0,  0, 1,
-			// Top-right
-			w,    h,    0,  1, 1,
-			// Bottom-right
-			w,    0,    0,  1, 0
+			// Top-left (origin) - UV (0,0) maps to top of texture
+			0.0,  0.0,  0.0,  0.0, 0.0,
+			// Top-right - UV (1,0) maps to top-right of texture
+			w,    0.0,  0.0,  1.0, 0.0,
+			// Bottom-right - UV (1,1) maps to bottom-right of texture
+			w,    h,    0.0,  1.0, 1.0,
+			// Bottom-left - UV (0,1) maps to bottom-left of texture
+			0.0,  h,    0.0,  0.0, 1.0
 		];
 
-		var v = new Vertices(vertices);
 		var indices = [0, 1, 2, 0, 2, 3]; // Two triangles to make a quad
 
-		super(programInfo, v, new Indices(indices));
+		super(programInfo, new Vertices(vertices), new Indices(indices));
 
-		if (textureIds != null && textureIds.length > 0) {
-			this.textures = textureIds;
-		}
-
+		// Set OpenGL properties
+		mode = GL.TRIANGLES;
 		__verticesToRender = 4;
 		__indicesToRender = 6;
 		
-		// Set default size
-		__width = w;
-		__height = h;
+		// Set the texture using the Texture object
+		setTexture(texture.id);
+		
+		// Initialize dimensions from texture
+		__width = texture.width;
+		__height = texture.height;
 	}
 
 	public function centerOrigin():Void {
@@ -91,44 +94,33 @@ class Image extends DisplayObject {
 	public function setTextures(textures:Array<Int>, width:Int, height:Int) {
 		
 		if (textures.length == 0) {
-
 			trace("No textures to set!");
-
 			return;
 		}
-		else {
 
-			if (textures.length == programInfo.textureCount) {
-
-				this.textures = textures;
-			}
-			else {
-
-				throw "Invalid number of textures!";
-			}
-
-			// ** Set the width of the texture.
-
-			this.width = width;
-			
-			// ** Set the height of the texture.
-
-			this.height = height;
-		}
+		// Set the first texture (Image only supports single texture for now)
+		setTexture(textures[0]);
+		
+		// Set the width and height
+		this.width = width;
+		this.height = height;
 
 		setUV(0, 0, 1, 1); // Always pass 0 - 1 values
 	}
 	
 	public function setUV(x:Float, y:Float, width:Float, height:Float):Void {
-		vertices.set(3, x);      // Bottom-left U
-		vertices.set(8, x);      // Top-left U
-		vertices.set(13, width); // Top-right U
-		vertices.set(18, width); // Bottom-right U
+		// Update UV coordinates - vertex order: [top-left, top-right, bottom-right, bottom-left]
+		// Flip V coordinates to compensate for OpenGL texture coordinate system
+		// where (0,0) is bottom-left but we want (0,0) to be top-left visually
+		vertices.set(3, x);              // Top-left U
+		vertices.set(8, x + width);      // Top-right U  
+		vertices.set(13, x + width);     // Bottom-right U
+		vertices.set(18, x);             // Bottom-left U
 		
-		vertices.set(4, y);      // Bottom-left V
-		vertices.set(9, height); // Top-left V
-		vertices.set(14, height);// Top-right V
-		vertices.set(19, y);     // Bottom-right V
+		vertices.set(4, 1.0 - y);        // Top-left V (flipped)
+		vertices.set(9, 1.0 - y);        // Top-right V (flipped)
+		vertices.set(14, 1.0 - (y + height)); // Bottom-right V (flipped)
+		vertices.set(19, 1.0 - (y + height)); // Bottom-left V (flipped)
 		
 		// Mark for buffer update on next render
 		if (initialized) {
@@ -137,17 +129,20 @@ class Image extends DisplayObject {
 	}
 
 	override function render(cameraMatrix:Matrix, renderer:Renderer):Void {
-
-		this.matrix.identity();
-		this.matrix.appendScale(scaleX, scaleY, 1);
-		this.matrix.appendRotation(__angle, Vector4.Z_AXIS);
-		this.matrix.appendTranslation(x, y, z);
-		this.matrix.append(cameraMatrix);
-
-		uniforms.set("matrix", this.matrix);
-        uniforms.set("color", [1.0, 1.0, 1.0, 1.0]);
-
-		__shouldTransform = false;
+		if (!visible || !initialized) return;
+		
+		// Update transformation matrix based on current properties
+		updateTransform();
+		
+		// Create final matrix by combining object matrix with camera matrix
+		var finalMatrix = Matrix.copy(matrix);
+		finalMatrix.append(cameraMatrix);
+		
+		// Set the transform matrix uniform (using correct uniform name for textured shader)
+		uniforms.set("uMatrix", finalMatrix.data);
+		
+		// Let the Renderer handle all GL operations
+		renderer.renderObject(this);
 	}
 
 	//** Getters and setters.
@@ -162,10 +157,12 @@ class Image extends DisplayObject {
 	}
 
 	private function set_height(value:Float):Float {
-		vertices.set(1, 0 - originY);                  // Bottom-left Y
-		vertices.set(6, (value * scaleY) - originY);   // Top-left Y
-		vertices.set(11, (value * scaleY) - originY);  // Top-right Y
-		vertices.set(16, 0 - originY);                 // Bottom-right Y
+		// Update vertex positions for new coordinate system (origin at top-left)
+		// Vertices: [top-left, top-right, bottom-right, bottom-left]
+		vertices.set(1, 0 - originY);                        // Top-left Y
+		vertices.set(6, 0 - originY);                        // Top-right Y  
+		vertices.set(11, -(value * scaleY) - originY);       // Bottom-right Y
+		vertices.set(16, -(value * scaleY) - originY);       // Bottom-left Y
 		
 		__height = value;
 		__shouldTransform = true;
@@ -179,10 +176,12 @@ class Image extends DisplayObject {
 	}
 	
 	private function set_width(value:Float):Float {
-		vertices.set(0, 0 - originX);                  // Bottom-left X
-		vertices.set(5, 0 - originX);                  // Top-left X
-		vertices.set(10, (value * scaleX) - originX); // Top-right X
-		vertices.set(15, (value * scaleX) - originX); // Bottom-right X
+		// Update vertex positions for new coordinate system (origin at top-left)
+		// Vertices: [top-left, top-right, bottom-right, bottom-left]
+		vertices.set(0, 0 - originX);                        // Top-left X
+		vertices.set(5, (value * scaleX) - originX);         // Top-right X
+		vertices.set(10, (value * scaleX) - originX);        // Bottom-right X
+		vertices.set(15, 0 - originX);                       // Bottom-left X
 		
 		__width = value;
 		__shouldTransform = true;

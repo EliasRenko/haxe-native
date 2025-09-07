@@ -92,9 +92,9 @@ class DisplayObject {
 	public var needsBufferUpdate:Bool = false;
 	
 	// VAO and VBO for this display object
-	private var vao:GlUInt = 0;
-	private var vbo:GlUInt = 0;
-	private var ebo:GlUInt = 0; // Element buffer for indices
+	public var vao:GlUInt = 0;
+	public var vbo:GlUInt = 0;
+	public var ebo:GlUInt = 0; // Element buffer for indices
 	public var initialized:Bool = false;
 	
 	public function new(programInfo:ProgramInfo, vertices:Vertices, ?indices:Indices) {
@@ -146,6 +146,35 @@ class DisplayObject {
 			initialized = false;
 		}
 	}
+	
+	/**
+	 * Convenience method to set the primary texture
+	 * @param textureId OpenGL texture ID (0 to remove texture)
+	 */
+	public function setTexture(textureId:GlUInt):Void {
+		if (textureId == 0) {
+			textures = [];
+		} else {
+			textures = [textureId];
+		}
+	}
+	
+	/**
+	 * Add an additional texture to the texture array
+	 * @param textureId OpenGL texture ID
+	 * @return The texture slot index
+	 */
+	public function addTexture(textureId:GlUInt):Int {
+		textures.push(textureId);
+		return textures.length - 1;
+	}
+	
+	/**
+	 * Check if this object has any textures assigned
+	 */
+	public function hasTextures():Bool {
+		return textures.length > 0 && textures[0] != 0;
+	}
 
 	public function updateTransform():Void {
 		// Reset matrix to identity
@@ -169,14 +198,20 @@ class DisplayObject {
 			matrix.appendRotationY(rotationY);
 		}
 		if (rotationZ != 0.0) {
-			matrix.appendRotationZ(rotationZ);
+			// Negate angle to make positive values rotate clockwise (standard 2D behavior)
+			matrix.appendRotationZ(-rotationZ * Math.PI / 180.0);
 		}
 		
 		if (x != 0.0 || y != 0.0 || z != 0.0) {
 			matrix.appendTranslation(x, y, z);
+			if (framesSinceLastMatrixDebug % 900 == 0) {
+				trace("Applied translation: (" + x + ", " + y + ", " + z + ")");
+			}
 		}
 	}
 
+	// Fallback/default rendering implementation
+	// This method can be overridden by specific display objects for custom rendering behavior
 	public function render(cameraMatrix:Matrix, renderer:Renderer):Void {
 		if (!visible || !initialized) return;
 		
@@ -188,58 +223,10 @@ class DisplayObject {
 		var finalMatrix = Matrix.copy(matrix);
 		finalMatrix.append(cameraMatrix);
 		
-		// Use the program
-		GL.useProgram(programInfo.program);
+		// Set the transform matrix in uniforms map
+		uniforms.set("uMatrix", finalMatrix.data);
 		
-		// Set uniforms with the final combined matrix
-		setUniforms(finalMatrix, renderer);
-		
-		// Bind VAO and draw
-		GL.bindVertexArray(vao);
-		
-		if (indices.data.length > 0) {
-			// Draw with indices
-			GL.drawElements(mode, __indicesToRender, GL.UNSIGNED_INT, 0);
-		} else {
-			// Draw arrays
-			GL.drawArrays(mode, 0, __verticesToRender);
-		}
-		
-		GL.bindVertexArray(0);
-	}
-	
-	// Override this in subclasses to set specific uniforms
-	private function setUniforms(finalMatrix:Matrix, renderer:Renderer):Void {
-		// Debug: Print the final matrix being sent to shader occasionally (reduced frequency)
-		if (framesSinceLastMatrixDebug % 1800 == 0) { // Every 30 seconds instead of 2 seconds
-			trace("Final matrix for shader:");
-			trace("  [" + finalMatrix.data[0] + ", " + finalMatrix.data[1] + ", " + finalMatrix.data[2] + ", " + finalMatrix.data[3] + "]");
-			trace("  [" + finalMatrix.data[4] + ", " + finalMatrix.data[5] + ", " + finalMatrix.data[6] + ", " + finalMatrix.data[7] + "]");
-			trace("  [" + finalMatrix.data[8] + ", " + finalMatrix.data[9] + ", " + finalMatrix.data[10] + ", " + finalMatrix.data[11] + "]");
-			trace("  [" + finalMatrix.data[12] + ", " + finalMatrix.data[13] + ", " + finalMatrix.data[14] + ", " + finalMatrix.data[15] + "]");
-		}
-		framesSinceLastMatrixDebug++;
-		
-		// Automatically set the uMatrix uniform if it exists in the shader
-		for (uniform in programInfo.uniforms) {
-			if (uniform.name == "uMatrix" && uniform.format == UniformFormat.Mat4) {
-				programInfo.setUniformMatrix4("uMatrix", finalMatrix.data, renderer);
-				break;
-			}
-		}
-		
-		// Set any uniforms stored in the uniforms map
-		for (name => value in uniforms) {
-			// Check if it's a Float using Type.typeof instead of Std.isOfType
-			switch(Type.typeof(value)) {
-				case TFloat:
-					programInfo.setUniformFloat(name, cast value, renderer);
-				case TInt:
-					// Convert Int to Float for uniform
-					programInfo.setUniformFloat(name, cast(value, Float), renderer);
-				default:
-					// TODO: Add support for other uniform types (Vec2, Vec3, Vec4, Mat4, etc.)
-			}
-		}
+		// Let the Renderer handle all GL operations
+		renderer.renderObject(this);
 	}
 }
