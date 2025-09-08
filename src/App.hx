@@ -4,7 +4,7 @@ import SDL;
 import GL;
 import Renderer;
 import State;
-import states.ImageTestState;
+import states.TilemapTestState;
 import sys.FileSystem;
 import cpp.UInt64;
 import cpp.Pointer;
@@ -143,11 +143,11 @@ class App {
                     .then(function(results:Array<Dynamic>) {
                         trace("Successfully preloaded " + results.length + " assets");
                         
-                        // NOW create and setup image test state after assets are loaded
-                        trace("Setting up image test state with preloaded assets...");
-                        var imageTestState = new ImageTestState(this);
-                        addState(imageTestState);
-                        trace("Image test state setup complete");
+                        // NOW create and setup tilemap test state after assets are loaded
+                        trace("Setting up tilemap test state with preloaded assets...");
+                        var tilemapTestState = new TilemapTestState(this);
+                        addState(tilemapTestState);
+                        trace("Tilemap test state setup complete");
                     })
                     .onError(function(error:String) {
                         trace("Failed to preload some assets: " + error);

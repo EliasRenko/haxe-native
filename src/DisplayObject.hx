@@ -4,6 +4,7 @@ import GL;
 import ProgramInfo;
 import ProgramInfo.UniformFormat;
 import math.Matrix;
+import Texture;
 
 typedef BlendFactors = {
 	source:Int,
@@ -51,7 +52,7 @@ class DisplayObject {
 	public var indices:Indices = new Indices([]);
 	public var vertices:Vertices = new Vertices([]);
 	public var programInfo:ProgramInfo;
-	public var textures:Array<Int> = new Array<Int>();
+	public var textures:Array<Texture> = new Array<Texture>();
 	public var matrix:Matrix = new Matrix();
 	public var uniforms:Map<String, Dynamic> = new Map<String, Dynamic>();
 	public var visible:Bool = true;
@@ -149,23 +150,23 @@ class DisplayObject {
 	
 	/**
 	 * Convenience method to set the primary texture
-	 * @param textureId OpenGL texture ID (0 to remove texture)
+	 * @param texture Texture object (null to remove texture)
 	 */
-	public function setTexture(textureId:GlUInt):Void {
-		if (textureId == 0) {
+	public function setTexture(texture:Texture):Void {
+		if (texture == null) {
 			textures = [];
 		} else {
-			textures = [textureId];
+			textures = [texture];
 		}
 	}
 	
 	/**
 	 * Add an additional texture to the texture array
-	 * @param textureId OpenGL texture ID
+	 * @param texture Texture object
 	 * @return The texture slot index
 	 */
-	public function addTexture(textureId:GlUInt):Int {
-		textures.push(textureId);
+	public function addTexture(texture:Texture):Int {
+		textures.push(texture);
 		return textures.length - 1;
 	}
 	
@@ -173,15 +174,22 @@ class DisplayObject {
 	 * Check if this object has any textures assigned
 	 */
 	public function hasTextures():Bool {
-		return textures.length > 0 && textures[0] != 0;
+		return textures.length > 0 && textures[0] != null;
+	}
+	
+	/**
+	 * Get the primary texture ID for OpenGL operations
+	 */
+	public function getTextureId():Int {
+		return (textures.length > 0 && textures[0] != null) ? textures[0].id : 0;
 	}
 
 	public function updateTransform():Void {
 		// Reset matrix to identity
 		matrix.identity();
 		
-		// Debug: Log transformation values occasionally (reduced frequency)
-		if ((x != 0.0 || y != 0.0 || z != 0.0 || rotationX != 0.0 || rotationY != 0.0 || rotationZ != 0.0) && framesSinceLastMatrixDebug % 900 == 0) {
+		// Debug: Log transformation values occasionally (reduced frequency) - DISABLED
+		if (false && (x != 0.0 || y != 0.0 || z != 0.0 || rotationX != 0.0 || rotationY != 0.0 || rotationZ != 0.0) && framesSinceLastMatrixDebug % 900 == 0) {
 			trace("Transform - Pos: (" + x + ", " + y + ", " + z + ") Rot: (" + rotationX + ", " + rotationY + ", " + rotationZ + ")");
 		}
 		
@@ -204,7 +212,7 @@ class DisplayObject {
 		
 		if (x != 0.0 || y != 0.0 || z != 0.0) {
 			matrix.appendTranslation(x, y, z);
-			if (framesSinceLastMatrixDebug % 900 == 0) {
+			if (false && framesSinceLastMatrixDebug % 900 == 0) {
 				trace("Applied translation: (" + x + ", " + y + ", " + z + ")");
 			}
 		}

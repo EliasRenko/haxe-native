@@ -56,7 +56,7 @@ class HXCPP_CLASS_ATTRIBUTES Image_obj : public  ::DisplayObject_obj
 		void centerOrigin();
 		::Dynamic centerOrigin_dyn();
 
-		void setTextures(::Array< int > textures,int width,int height);
+		void setTextures(::Array< ::Dynamic> textureObjects,int width,int height);
 		::Dynamic setTextures_dyn();
 
 		void setUV(Float x,Float y,Float width,Float height);

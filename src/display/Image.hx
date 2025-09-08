@@ -76,8 +76,8 @@ class Image extends DisplayObject {
 		__verticesToRender = 4;
 		__indicesToRender = 6;
 		
-		// Set the texture using the Texture object
-		setTexture(texture.id);
+		// Set the texture using the full Texture object
+		setTexture(texture);
 		
 		// Initialize dimensions from texture
 		__width = texture.width;
@@ -91,15 +91,15 @@ class Image extends DisplayObject {
 		originY = __height / 2;
 	}
 
-	public function setTextures(textures:Array<Int>, width:Int, height:Int) {
+	public function setTextures(textureObjects:Array<Texture>, width:Int, height:Int) {
 		
-		if (textures.length == 0) {
+		if (textureObjects.length == 0) {
 			trace("No textures to set!");
 			return;
 		}
 
 		// Set the first texture (Image only supports single texture for now)
-		setTexture(textures[0]);
+		setTexture(textureObjects[0]);
 		
 		// Set the width and height
 		this.width = width;

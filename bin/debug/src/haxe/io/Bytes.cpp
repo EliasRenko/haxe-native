@@ -4,13 +4,19 @@
 #ifndef INCLUDED_haxe_io_Bytes
 #include <haxe/io/Bytes.h>
 #endif
+#ifndef INCLUDED_haxe_io_Encoding
+#include <haxe/io/Encoding.h>
+#endif
 #ifndef INCLUDED_haxe_io_Error
 #include <haxe/io/Error.h>
 #endif
 
 HX_DEFINE_STACK_FRAME(_hx_pos_464b3142acc6d207_34_new,"haxe.io.Bytes","new",0x3938d57d,"haxe.io.Bytes.new","C:\\HaxeToolkit\\haxe\\std/haxe/io/Bytes.hx",34,0x20b05d0c)
 HX_LOCAL_STACK_FRAME(_hx_pos_464b3142acc6d207_319_setFloat,"haxe.io.Bytes","setFloat",0xdaed805d,"haxe.io.Bytes.setFloat","C:\\HaxeToolkit\\haxe\\std/haxe/io/Bytes.hx",319,0x20b05d0c)
+HX_LOCAL_STACK_FRAME(_hx_pos_464b3142acc6d207_415_getString,"haxe.io.Bytes","getString",0xa16beae4,"haxe.io.Bytes.getString","C:\\HaxeToolkit\\haxe\\std/haxe/io/Bytes.hx",415,0x20b05d0c)
+HX_LOCAL_STACK_FRAME(_hx_pos_464b3142acc6d207_516_toString,"haxe.io.Bytes","toString",0x0291226f,"haxe.io.Bytes.toString","C:\\HaxeToolkit\\haxe\\std/haxe/io/Bytes.hx",516,0x20b05d0c)
 HX_LOCAL_STACK_FRAME(_hx_pos_464b3142acc6d207_549_alloc,"haxe.io.Bytes","alloc",0x2199ead2,"haxe.io.Bytes.alloc","C:\\HaxeToolkit\\haxe\\std/haxe/io/Bytes.hx",549,0x20b05d0c)
+HX_LOCAL_STACK_FRAME(_hx_pos_464b3142acc6d207_580_ofString,"haxe.io.Bytes","ofString",0x6e53bb0b,"haxe.io.Bytes.ofString","C:\\HaxeToolkit\\haxe\\std/haxe/io/Bytes.hx",580,0x20b05d0c)
 namespace haxe{
 namespace io{
 
@@ -61,6 +67,49 @@ HXLINE( 330)		 ::__hxcpp_memory_set_float(this->b,pos,v);
 
 HX_DEFINE_DYNAMIC_FUNC2(Bytes_obj,setFloat,(void))
 
+::String Bytes_obj::getString(int pos,int len, ::haxe::io::Encoding encoding){
+            	HX_STACKFRAME(&_hx_pos_464b3142acc6d207_415_getString)
+            	HX_STACK_THIS(this)
+            	HX_STACK_ARG(pos,"pos")
+            	HX_STACK_ARG(len,"len")
+            	HX_STACK_ARG(encoding,"encoding")
+HXLINE( 415)
+HXLINE( 416)		bool _hx_tmp = ::hx::IsNull( encoding );
+HXLINE( 419)		bool _hx_tmp1;
+HXDLIN( 419)		bool _hx_tmp2;
+HXDLIN( 419)		if ((pos >= 0)) {
+HXLINE( 419)			_hx_tmp2 = (len < 0);
+            		}
+            		else {
+HXLINE( 419)			_hx_tmp2 = true;
+            		}
+HXDLIN( 419)		if (!(_hx_tmp2)) {
+HXLINE( 419)			_hx_tmp1 = ((pos + len) > this->length);
+            		}
+            		else {
+HXLINE( 419)			_hx_tmp1 = true;
+            		}
+HXDLIN( 419)		if (_hx_tmp1) {
+HXLINE( 420)			HX_STACK_DO_THROW(::haxe::io::Error_obj::OutsideBounds_dyn());
+            		}
+HXLINE( 428)		HX_VARI( ::String,result) = HX_("",00,00,00,00);
+HXLINE( 429)		 ::__hxcpp_string_of_bytes(this->b,result,pos,len);
+HXLINE( 430)		return result;
+            	}
+
+
+HX_DEFINE_DYNAMIC_FUNC3(Bytes_obj,getString,return )
+
+::String Bytes_obj::toString(){
+            	HX_STACKFRAME(&_hx_pos_464b3142acc6d207_516_toString)
+            	HX_STACK_THIS(this)
+HXLINE( 516)
+HXDLIN( 516)		return this->getString(0,this->length,null());
+            	}
+
+
+HX_DEFINE_DYNAMIC_FUNC0(Bytes_obj,toString,return )
+
  ::haxe::io::Bytes Bytes_obj::alloc(int length){
             	HX_GC_STACKFRAME(&_hx_pos_464b3142acc6d207_549_alloc)
             	HX_STACK_ARG(length,"length")
@@ -74,6 +123,19 @@ HXLINE( 560)		return  ::haxe::io::Bytes_obj::__alloc( HX_CTX ,length,a);
 
 
 STATIC_HX_DEFINE_DYNAMIC_FUNC1(Bytes_obj,alloc,return )
+
+ ::haxe::io::Bytes Bytes_obj::ofString(::String s, ::haxe::io::Encoding encoding){
+            	HX_GC_STACKFRAME(&_hx_pos_464b3142acc6d207_580_ofString)
+            	HX_STACK_ARG(s,"s")
+            	HX_STACK_ARG(encoding,"encoding")
+HXLINE( 580)
+HXLINE( 591)		HX_VARI( ::Array< unsigned char >,a) = ::Array_obj< unsigned char >::__new();
+HXLINE( 592)		 ::__hxcpp_bytes_of_string(a,s);
+HXLINE( 593)		return  ::haxe::io::Bytes_obj::__alloc( HX_CTX ,a->length,a);
+            	}
+
+
+STATIC_HX_DEFINE_DYNAMIC_FUNC2(Bytes_obj,ofString,return )
 
 
 ::hx::ObjectPtr< Bytes_obj > Bytes_obj::__new(int length,::Array< unsigned char > b) {
@@ -118,6 +180,10 @@ void Bytes_obj::__Visit(HX_VISIT_PARAMS)
 		break;
 	case 8:
 		if (HX_FIELD_EQ(inName,"setFloat") ) { return ::hx::Val( setFloat_dyn() ); }
+		if (HX_FIELD_EQ(inName,"toString") ) { return ::hx::Val( toString_dyn() ); }
+		break;
+	case 9:
+		if (HX_FIELD_EQ(inName,"getString") ) { return ::hx::Val( getString_dyn() ); }
 	}
 	return super::__Field(inName,inCallProp);
 }
@@ -127,6 +193,9 @@ bool Bytes_obj::__GetStatic(const ::String &inName, Dynamic &outValue, ::hx::Pro
 	switch(inName.length) {
 	case 5:
 		if (HX_FIELD_EQ(inName,"alloc") ) { outValue = alloc_dyn(); return true; }
+		break;
+	case 8:
+		if (HX_FIELD_EQ(inName,"ofString") ) { outValue = ofString_dyn(); return true; }
 	}
 	return false;
 }
@@ -163,12 +232,15 @@ static ::String Bytes_obj_sMemberFields[] = {
 	HX_("length",e6,94,07,9f),
 	HX_("b",62,00,00,00),
 	HX_("setFloat",9a,2e,cb,10),
+	HX_("getString",07,b2,86,8d),
+	HX_("toString",ac,d0,6e,38),
 	::String(null()) };
 
 ::hx::Class Bytes_obj::__mClass;
 
 static ::String Bytes_obj_sStaticFields[] = {
 	HX_("alloc",75,a4,93,21),
+	HX_("ofString",48,69,31,a4),
 	::String(null())
 };
 

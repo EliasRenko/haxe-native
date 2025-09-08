@@ -310,3 +310,5 @@ class Quad extends DisplayObject {
         } else {
             trace("Quad render - no texture: hasTexture=" + hasTexture + ", textureId=" + textureId);
         }
+    }
+}

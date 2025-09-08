@@ -5,16 +5,16 @@
 #include <Vertices.h>
 #endif
 
-HX_DEFINE_STACK_FRAME(_hx_pos_b4700fbf10ad486b_18_new,"Vertices","new",0x66f59d8b,"Vertices.new","DisplayObject.hx",18,0x55877edd)
-HX_LOCAL_STACK_FRAME(_hx_pos_b4700fbf10ad486b_23_get,"Vertices","get",0x66f04dc1,"Vertices.get","DisplayObject.hx",23,0x55877edd)
-HX_LOCAL_STACK_FRAME(_hx_pos_b4700fbf10ad486b_27_set,"Vertices","set",0x66f968cd,"Vertices.set","DisplayObject.hx",27,0x55877edd)
+HX_DEFINE_STACK_FRAME(_hx_pos_b4700fbf10ad486b_19_new,"Vertices","new",0x66f59d8b,"Vertices.new","DisplayObject.hx",19,0x55877edd)
+HX_LOCAL_STACK_FRAME(_hx_pos_b4700fbf10ad486b_24_get,"Vertices","get",0x66f04dc1,"Vertices.get","DisplayObject.hx",24,0x55877edd)
+HX_LOCAL_STACK_FRAME(_hx_pos_b4700fbf10ad486b_28_set,"Vertices","set",0x66f968cd,"Vertices.set","DisplayObject.hx",28,0x55877edd)
 
 void Vertices_obj::__construct(::Array< Float > data){
-            	HX_STACKFRAME(&_hx_pos_b4700fbf10ad486b_18_new)
+            	HX_STACKFRAME(&_hx_pos_b4700fbf10ad486b_19_new)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(data,"data")
-HXLINE(  18)
-HXDLIN(  18)		this->data = data;
+HXLINE(  19)
+HXDLIN(  19)		this->data = data;
             	}
 
 Dynamic Vertices_obj::__CreateEmpty() { return new Vertices_obj; }
@@ -33,23 +33,23 @@ bool Vertices_obj::_hx_isInstanceOf(int inClassId) {
 }
 
 Float Vertices_obj::get(int index){
-            	HX_STACKFRAME(&_hx_pos_b4700fbf10ad486b_23_get)
+            	HX_STACKFRAME(&_hx_pos_b4700fbf10ad486b_24_get)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(index,"index")
-HXLINE(  23)
-HXDLIN(  23)		return this->data->__get(index);
+HXLINE(  24)
+HXDLIN(  24)		return this->data->__get(index);
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC1(Vertices_obj,get,return )
 
 Float Vertices_obj::set(int index,Float value){
-            	HX_STACKFRAME(&_hx_pos_b4700fbf10ad486b_27_set)
+            	HX_STACKFRAME(&_hx_pos_b4700fbf10ad486b_28_set)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(index,"index")
             	HX_STACK_ARG(value,"value")
-HXLINE(  27)
-HXDLIN(  27)		return (this->data[index] = value);
+HXLINE(  28)
+HXDLIN(  28)		return (this->data[index] = value);
             	}
 
 

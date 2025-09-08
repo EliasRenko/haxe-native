@@ -76,7 +76,7 @@ HXDLIN(  72)		super::__construct(programInfo,_hx_tmp, ::Indices_obj::__alloc( HX
 HXLINE(  75)		this->mode = GL_TRIANGLES;
 HXLINE(  76)		this->_hx___verticesToRender = 4;
 HXLINE(  77)		this->_hx___indicesToRender = 6;
-HXLINE(  80)		this->setTexture(( (unsigned int)(texture->__Field(HX_("id",db,5b,00,00),::hx::paccDynamic)) ));
+HXLINE(  80)		this->setTexture(texture);
 HXLINE(  83)		this->_hx___width = ( (Float)(texture->__Field(HX_("width",06,b6,62,ca),::hx::paccDynamic)) );
 HXLINE(  84)		this->_hx___height = ( (Float)(texture->__Field(HX_("height",e7,07,4c,02),::hx::paccDynamic)) );
             	}
@@ -111,18 +111,18 @@ HXLINE(  91)		this->set_originY((this->_hx___height / ( (Float)(2) )));
 
 HX_DEFINE_DYNAMIC_FUNC0(Image_obj,centerOrigin,(void))
 
-void Image_obj::setTextures(::Array< int > textures,int width,int height){
+void Image_obj::setTextures(::Array< ::Dynamic> textureObjects,int width,int height){
             	HX_STACKFRAME(&_hx_pos_707cb44249f20c30_94_setTextures)
             	HX_STACK_THIS(this)
-            	HX_STACK_ARG(textures,"textures")
+            	HX_STACK_ARG(textureObjects,"textureObjects")
             	HX_STACK_ARG(width,"width")
             	HX_STACK_ARG(height,"height")
 HXLINE(  94)
-HXLINE(  96)		if ((textures->length == 0)) {
+HXLINE(  96)		if ((textureObjects->length == 0)) {
 HXLINE(  97)			::haxe::Log_obj::trace(HX_("No textures to set!",bb,30,80,ef),::hx::SourceInfo(HX_("src/display/Image.hx",db,55,e7,d4),97,HX_("display.Image",0f,70,cf,41),HX_("setTextures",fa,c0,2f,96)));
 HXLINE(  98)			return;
             		}
-HXLINE( 102)		this->setTexture(( (unsigned int)(textures->__get(0)) ));
+HXLINE( 102)		this->setTexture(textureObjects->__get(0));
 HXLINE( 105)		this->set_width(( (Float)(width) ));
 HXLINE( 106)		this->set_height(( (Float)(height) ));
 HXLINE( 108)		this->setUV(( (Float)(0) ),( (Float)(0) ),( (Float)(1) ),( (Float)(1) ));

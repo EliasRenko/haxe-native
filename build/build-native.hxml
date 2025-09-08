@@ -18,5 +18,7 @@
 -D HXCPP_NO_PRECOMPILED_HEADERS
 -D no-deprecation-warnings
 
+-lib hxcpp-debug-server
+
 -debug 
 -dce std

@@ -25,7 +25,7 @@ class Tilemap extends DisplayObject {
     public var tileData:Array<Array<Int>>;  // 2D array of tile IDs [y][x]
     
     // Texture atlas configuration
-    public var atlasTexture:GlUInt = 0;     // OpenGL texture ID for atlas
+    public var atlasTexture:Texture = null;     // Atlas texture object
     public var atlasWidth:Int = 0;          // Atlas texture width in pixels
     public var atlasHeight:Int = 0;         // Atlas texture height in pixels
     public var tilePixelSize:Int = 32;      // Size of each tile in the atlas (pixels)
@@ -73,23 +73,21 @@ class Tilemap extends DisplayObject {
     
     /**
      * Set the texture atlas for this tilemap
-     * @param textureId OpenGL texture ID
-     * @param atlasWidth Atlas width in pixels
-     * @param atlasHeight Atlas height in pixels
+     * @param texture Texture object containing atlas data
      * @param tilePixelSize Size of each tile in atlas (pixels)
      */
-    public function setAtlas(textureId:GlUInt, atlasWidth:Int, atlasHeight:Int, tilePixelSize:Int = 32):Void {
-        this.atlasTexture = textureId;
-        this.atlasWidth = atlasWidth;
-        this.atlasHeight = atlasHeight;
+    public function setAtlas(texture:Texture, tilePixelSize:Int = 32):Void {
+        this.atlasTexture = texture;
+        this.atlasWidth = texture.width;
+        this.atlasHeight = texture.height;
         this.tilePixelSize = tilePixelSize;
         
         // Calculate atlas layout
         this.tilesPerRow = Std.int(atlasWidth / tilePixelSize);
         this.tilesPerColumn = Std.int(atlasHeight / tilePixelSize);
         
-        // Use the new convenience method for texture assignment
-        setTexture(textureId);
+        // Use the inherited texture system
+        setTexture(texture);
         
         // Mark entire map as dirty to rebuild mesh
         __entireMapDirty = true;
@@ -97,8 +95,9 @@ class Tilemap extends DisplayObject {
             needsBufferUpdate = true;
         }
         
-        trace("Tilemap atlas set: " + atlasWidth + "x" + atlasHeight + ", " + 
-              tilesPerRow + "x" + tilesPerColumn + " tiles");
+        trace("TILEMAP ATLAS DEBUG: Setting atlas texture ID=" + texture.id + " size=" + atlasWidth + "x" + atlasHeight);
+        trace("TILEMAP ATLAS DEBUG: Tile pixel size=" + tilePixelSize + ", Grid=" + tilesPerRow + "x" + tilesPerColumn + " tiles");
+        trace("TILEMAP ATLAS DEBUG: UV tile size=" + (tilePixelSize/atlasWidth) + "x" + (tilePixelSize/atlasHeight));
         
         // Debug: Check how many non-empty tiles we have
         var nonEmptyTiles = 0;
@@ -158,23 +157,69 @@ class Tilemap extends DisplayObject {
     private function getTileUVs(tileId:Int):Array<Float> {
         if (tileId <= 0 || tilesPerRow <= 0) {
             // Return UVs for empty/invalid tile (could be transparent area)
+            trace("WARNING: getTileUVs called with invalid tileId=" + tileId + " or tilesPerRow=" + tilesPerRow);
             return [0.0, 0.0, 0.0, 0.0];
+        }
+        
+        // TEMPORARY: Hardcode UV coordinates for testing different atlas positions
+        // For a 4x4 atlas (128x128 with 32x32 tiles), let's test different positions
+        if (tileId == 1) {
+            // Tile 1 should be at atlas position (0,0) - top-left tile
+            trace("HARDCODED: Tile 1 -> UVs (0.0, 1.0) to (0.25, 0.75)");
+            return [0.0, 1.0, 0.25, 0.75];
+        }
+        if (tileId == 2) {
+            // Tile 2 should be at atlas position (0,1) - second row, first column
+            // Raw UV coordinates: (0,0.25) to (0.25,0.5)
+            // After Image-style flipping: top V should be 1.0-0.25=0.75, bottom V should be 1.0-0.5=0.5
+            trace("HARDCODED: Tile 2 -> UVs (0.0, 0.75) to (0.25, 0.5)");
+            return [0.0, 0.75, 0.25, 0.5];
+        }
+        if (tileId == 3) {
+            // Tile 3 should be at atlas position (0,2) - third row, first column
+            // Raw UV coordinates: (0,0.5) to (0.25,0.75) 
+            // After Image-style flipping: top V should be 1.0-0.5=0.5, bottom V should be 1.0-0.75=0.25
+            trace("HARDCODED: Tile 3 -> UVs (0.0, 0.5) to (0.25, 0.25)");
+            return [0.0, 0.5, 0.25, 0.25];
+        }
+        if (tileId == 4) {
+            // Tile 4 should be at atlas position (0,3) - fourth row, first column  
+            // Raw UV coordinates: (0,0.75) to (0.25,1.0)
+            // After Image-style flipping: top V should be 1.0-0.75=0.25, bottom V should be 1.0-1.0=0.0
+            trace("HARDCODED: Tile 4 -> UVs (0.0, 0.25) to (0.25, 0.0)");
+            return [0.0, 0.25, 0.25, 0.0];
         }
         
         // Calculate tile position in atlas grid
         var tileX = (tileId - 1) % tilesPerRow;  // -1 because tileId 1 = first tile
         var tileY = Std.int((tileId - 1) / tilesPerRow);
         
-        // Convert to UV coordinates (0.0 to 1.0)
-        var pixelSize = 1.0 / atlasWidth;  // Size of one pixel in UV space
-        var tileUVSize = tilePixelSize / atlasWidth;  // Size of one tile in UV space
+        trace("TILEMAP UV DEBUG: tileId=" + tileId + " -> atlasPos(" + tileX + "," + tileY + ")");
+        trace("TILEMAP UV DEBUG: Atlas=" + atlasWidth + "x" + atlasHeight + ", TileSize=" + tilePixelSize + ", TilesPerRow=" + tilesPerRow);
         
-        var u1 = tileX * tileUVSize;
-        var v1 = tileY * tileUVSize;
-        var u2 = u1 + tileUVSize;
-        var v2 = v1 + tileUVSize;
+        // Convert to UV coordinates (0.0 to 1.0) - RAW coordinates first
+        var tileUVWidth = tilePixelSize / atlasWidth;   // Width of one tile in UV space
+        var tileUVHeight = tilePixelSize / atlasHeight; // Height of one tile in UV space
         
-        return [u1, v1, u2, v2];
+        var u1 = tileX * tileUVWidth;
+        var rawV1 = tileY * tileUVHeight;  // V=0 at top of atlas
+        var u2 = u1 + tileUVWidth;
+        var rawV2 = rawV1 + tileUVHeight;     // V increases downward
+        
+        trace("TILEMAP UV DEBUG: RAW UVs: (" + u1 + "," + rawV1 + ") to (" + u2 + "," + rawV2 + ")");
+        
+        // Apply V-coordinate flipping using EXACT same method as Image class
+        // Image.setUV() uses: 1.0 - y for top vertices, 1.0 - (y + height) for bottom vertices
+        // Our tile is at (tileX * tileUVWidth, tileY * tileUVHeight) with size (tileUVWidth, tileUVHeight)
+        var topV = 1.0 - rawV1;                // Top edge (Image style: 1.0 - y)  
+        var bottomV = 1.0 - (rawV1 + tileUVHeight); // Bottom edge (Image style: 1.0 - (y + height))
+        
+        trace("TILEMAP UV DEBUG: FLIPPED UVs: (" + u1 + "," + topV + ") to (" + u2 + "," + bottomV + ")");
+        
+        // Return coordinates in the SAME order as Tilemap vertex generation expects
+        // Our vertices are: top-left, top-right, bottom-right, bottom-left
+        // So we need: [u1, topV, u2, bottomV] where topV is for top vertices, bottomV for bottom vertices
+        return [u1, topV, u2, bottomV];
     }
     
     /**
@@ -203,17 +248,16 @@ class Tilemap extends DisplayObject {
                 var uvs = getTileUVs(tileId);
                 var u1 = uvs[0], v1 = uvs[1], u2 = uvs[2], v2 = uvs[3];
                 
+                // Log first few tiles for debugging
+                if (vertexIndex < 12) { // Only log first 3 tiles to avoid spam
+                    trace("TILEMAP VERTEX DEBUG: Tile(" + x + "," + y + ") ID=" + tileId + " WorldPos(" + worldX + "," + worldY + ") UVs(" + u1 + "," + v1 + "," + u2 + "," + v2 + ")");
+                }
+                
                 // Create quad vertices for this tile
                 // Format: [x, y, z, u, v] per vertex
+                // Vertex order should match Image class: top-left, top-right, bottom-right, bottom-left
                 
-                // Bottom-left
-                __vertexCache.push(worldX);
-                __vertexCache.push(worldY);
-                __vertexCache.push(0.0);
-                __vertexCache.push(u1);
-                __vertexCache.push(v2);  // Flipped V for 2D
-                
-                // Top-left  
+                // Top-left
                 __vertexCache.push(worldX);
                 __vertexCache.push(worldY + tileSize);
                 __vertexCache.push(0.0);
@@ -234,14 +278,22 @@ class Tilemap extends DisplayObject {
                 __vertexCache.push(u2);
                 __vertexCache.push(v2);
                 
-                // Create indices for two triangles (quad)
-                __indexCache.push(vertexIndex + 0);  // Bottom-left
-                __indexCache.push(vertexIndex + 1);  // Top-left
-                __indexCache.push(vertexIndex + 2);  // Top-right
+                // Bottom-left
+                __vertexCache.push(worldX);
+                __vertexCache.push(worldY);
+                __vertexCache.push(0.0);
+                __vertexCache.push(u1);
+                __vertexCache.push(v2);
                 
-                __indexCache.push(vertexIndex + 0);  // Bottom-left
-                __indexCache.push(vertexIndex + 2);  // Top-right
-                __indexCache.push(vertexIndex + 3);  // Bottom-right
+                // Create indices for two triangles (quad)
+                // Using same winding order as Image class
+                __indexCache.push(vertexIndex + 0);  // Top-left
+                __indexCache.push(vertexIndex + 1);  // Top-right
+                __indexCache.push(vertexIndex + 2);  // Bottom-right
+                
+                __indexCache.push(vertexIndex + 0);  // Top-left
+                __indexCache.push(vertexIndex + 2);  // Bottom-right
+                __indexCache.push(vertexIndex + 3);  // Bottom-left
                 
                 vertexIndex += 4;  // Move to next quad
             }
@@ -260,7 +312,7 @@ class Tilemap extends DisplayObject {
      * Override updateBuffers to implement efficient buffer management
      */
     override public function updateBuffers(renderer:Renderer):Void {
-        if (!initialized || atlasTexture == 0) return;
+        if (!initialized || atlasTexture == null) return;
         
         // If entire map is dirty, regenerate everything
         if (__entireMapDirty) {
@@ -299,7 +351,7 @@ class Tilemap extends DisplayObject {
      * Override render to manage 2D rendering state
      */
     override public function render(cameraMatrix:math.Matrix, renderer:Renderer):Void {
-        if (!visible || !initialized || atlasTexture == 0) {
+        if (!visible || !initialized || atlasTexture == null) {
             return;
         }
         
@@ -321,9 +373,6 @@ class Tilemap extends DisplayObject {
         
         // Set uniforms for tilemap rendering
         uniforms.set("uMatrix", finalMatrix.data);
-        
-        // Set the atlas texture for rendering
-        setTexture(atlasTexture);
         
         // Let the Renderer handle all GL operations including texture binding
         renderer.renderObject(this);

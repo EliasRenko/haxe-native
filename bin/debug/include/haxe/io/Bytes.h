@@ -7,6 +7,7 @@
 #endif
 
 HX_DECLARE_CLASS2(haxe,io,Bytes)
+HX_DECLARE_CLASS2(haxe,io,Encoding)
 
 namespace haxe{
 namespace io{
@@ -48,10 +49,19 @@ class HXCPP_CLASS_ATTRIBUTES Bytes_obj : public ::hx::Object
 		static  ::haxe::io::Bytes alloc(int length);
 		static ::Dynamic alloc_dyn();
 
+		static  ::haxe::io::Bytes ofString(::String s, ::haxe::io::Encoding encoding);
+		static ::Dynamic ofString_dyn();
+
 		int length;
 		::Array< unsigned char > b;
 		void setFloat(int pos,Float v);
 		::Dynamic setFloat_dyn();
+
+		::String getString(int pos,int len, ::haxe::io::Encoding encoding);
+		::Dynamic getString_dyn();
+
+		virtual ::String toString();
+		::Dynamic toString_dyn();
 
 };
 

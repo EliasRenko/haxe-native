@@ -139,7 +139,8 @@ class Renderer {
             GL.activeTexture(x);
 
             if (i < drawable.textures.length) {
-                var textureId = drawable.textures[i];
+                var texture = drawable.textures[i];
+                var textureId = texture != null ? texture.id : 0;
                 GL.bindTexture(GL.TEXTURE_2D, textureId);
             }
 

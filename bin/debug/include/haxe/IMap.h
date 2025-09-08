@@ -26,6 +26,16 @@ class HXCPP_CLASS_ATTRIBUTES IMap_obj {
 			#endif
 			return (_hx_.mPtr->*( ::hx::interface_cast< ::haxe::IMap_obj *>(_hx_.mPtr->_hx_getInterface(0x09c2bd39)))->_hx_get)(k);
 		}
+		void (::hx::Object :: *_hx_set)( ::Dynamic k, ::Dynamic v); 
+		static inline void set( ::Dynamic _hx_, ::Dynamic k, ::Dynamic v) {
+			#ifdef HXCPP_CHECK_POINTER
+			if (::hx::IsNull(_hx_)) ::hx::NullReference("Object", false);
+			#ifdef HXCPP_GC_CHECK_POINTER
+				GCCheckPointer(_hx_.mPtr);
+			#endif
+			#endif
+			(_hx_.mPtr->*( ::hx::interface_cast< ::haxe::IMap_obj *>(_hx_.mPtr->_hx_getInterface(0x09c2bd39)))->_hx_set)(k,v);
+		}
 		 ::Dynamic (::hx::Object :: *_hx_keys)(); 
 		static inline  ::Dynamic keys( ::Dynamic _hx_) {
 			#ifdef HXCPP_CHECK_POINTER

@@ -55,7 +55,7 @@ class HXCPP_CLASS_ATTRIBUTES DisplayObject_obj : public ::hx::Object
 		 ::Indices indices;
 		 ::Vertices vertices;
 		 ::ProgramInfo programInfo;
-		::Array< int > textures;
+		::Array< ::Dynamic> textures;
 		 ::math::Matrix matrix;
 		 ::haxe::ds::StringMap uniforms;
 		bool visible;
@@ -89,17 +89,20 @@ class HXCPP_CLASS_ATTRIBUTES DisplayObject_obj : public ::hx::Object
 		virtual void updateBuffers( ::Renderer renderer);
 		::Dynamic updateBuffers_dyn();
 
-		virtual void remove( ::Renderer renderer);
+		void remove( ::Renderer renderer);
 		::Dynamic remove_dyn();
 
-		void setTexture(unsigned int textureId);
+		void setTexture( ::Dynamic texture);
 		::Dynamic setTexture_dyn();
 
-		int addTexture(unsigned int textureId);
+		int addTexture( ::Dynamic texture);
 		::Dynamic addTexture_dyn();
 
 		bool hasTextures();
 		::Dynamic hasTextures_dyn();
+
+		int getTextureId();
+		::Dynamic getTextureId_dyn();
 
 		void updateTransform();
 		::Dynamic updateTransform_dyn();

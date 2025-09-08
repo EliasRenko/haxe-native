@@ -10,6 +10,7 @@ namespace haxe{
 
 static ::String IMap_obj_sMemberFields[] = {
 	HX_("get",96,80,4e,00),
+	HX_("set",a2,9b,57,00),
 	HX_("keys",f4,e1,06,47),
 	::String(null()) };
 

@@ -3,9 +3,16 @@
 <files id="haxe">
 <compilerflag value="-Iinclude"/>
   <file name="src/sys/thread/_Thread/Thread_Impl_.cpp" >
+   <depend name="include/haxe/Exception.h"/>
+   <depend name="include/sys/thread/Deque.h"/>
    <depend name="include/sys/thread/EventLoop.h"/>
+   <depend name="include/sys/thread/NoEventLoopException.h"/>
    <depend name="include/sys/thread/_Thread/HaxeThread.h"/>
    <depend name="include/sys/thread/_Thread/Thread_Impl_.h"/>
+  </file>
+  <file name="src/sys/thread/NoEventLoopException.cpp" >
+   <depend name="include/haxe/Exception.h"/>
+   <depend name="include/sys/thread/NoEventLoopException.h"/>
   </file>
   <file name="src/sys/thread/Lock.cpp" >
    <depend name="include/sys/thread/Lock.h"/>
@@ -13,11 +20,42 @@
   <file name="src/sys/thread/_EventLoop/RegularEvent.cpp" >
    <depend name="include/sys/thread/_EventLoop/RegularEvent.h"/>
   </file>
+  <file name="src/sys/net/Socket.cpp" >
+   <depend name="include/Reflect.h"/>
+   <depend name="include/Std.h"/>
+   <depend name="include/Type.h"/>
+   <depend name="include/cpp/Lib.h"/>
+   <depend name="include/haxe/Exception.h"/>
+   <depend name="include/haxe/ValueException.h"/>
+   <depend name="include/haxe/io/Input.h"/>
+   <depend name="include/haxe/io/Output.h"/>
+   <depend name="include/sys/net/Host.h"/>
+   <depend name="include/sys/net/Socket.h"/>
+   <depend name="include/sys/net/_Socket/SocketInput.h"/>
+   <depend name="include/sys/net/_Socket/SocketOutput.h"/>
+  </file>
+  <file name="src/sys/net/_Socket/SocketOutput.cpp" >
+   <depend name="include/haxe/io/Bytes.h"/>
+   <depend name="include/haxe/io/Eof.h"/>
+   <depend name="include/haxe/io/Error.h"/>
+   <depend name="include/haxe/io/Output.h"/>
+   <depend name="include/sys/net/_Socket/SocketOutput.h"/>
+  </file>
+  <file name="src/sys/net/_Socket/SocketInput.cpp" >
+   <depend name="include/haxe/io/Bytes.h"/>
+   <depend name="include/haxe/io/Eof.h"/>
+   <depend name="include/haxe/io/Error.h"/>
+   <depend name="include/haxe/io/Input.h"/>
+   <depend name="include/sys/net/_Socket/SocketInput.h"/>
+  </file>
+  <file name="src/sys/net/Host.cpp" >
+   <depend name="include/sys/net/Host.h"/>
+  </file>
   <file name="src/sys/FileSystem.cpp" >
    <depend name="include/haxe/io/Path.h"/>
    <depend name="include/sys/FileSystem.h"/>
   </file>
-  <file name="src/states/ImageTestState.cpp" >
+  <file name="src/states/TilemapTestState.cpp" >
    <depend name="include/App.h"/>
    <depend name="include/Camera.h"/>
    <depend name="include/DisplayObject.h"/>
@@ -27,9 +65,9 @@
    <depend name="include/State.h"/>
    <depend name="include/_App/__Resources.h"/>
    <depend name="include/data/TextureData.h"/>
-   <depend name="include/display/Image.h"/>
+   <depend name="include/display/Tilemap.h"/>
    <depend name="include/haxe/Log.h"/>
-   <depend name="include/states/ImageTestState.h"/>
+   <depend name="include/states/TilemapTestState.h"/>
   </file>
   <file name="src/math/Matrix.cpp" >
    <depend name="include/Std.h"/>
@@ -44,8 +82,172 @@
    <depend name="include/haxe/io/Input.h"/>
    <depend name="include/loaders/TGALoader.h"/>
   </file>
+  <file name="src/hxcpp/debug/jsonrpc/eval/Tools.cpp" >
+   <depend name="include/hxcpp/debug/jsonrpc/eval/CType.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Const.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Expr.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Tools.h"/>
+  </file>
+  <file name="src/hxcpp/debug/jsonrpc/eval/Token.cpp" >
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Const.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Token.h"/>
+  </file>
+  <file name="src/hxcpp/debug/jsonrpc/eval/Interp.cpp" >
+   <depend name="include/IntIterator.h"/>
+   <depend name="include/Reflect.h"/>
+   <depend name="include/Std.h"/>
+   <depend name="include/Type.h"/>
+   <depend name="include/haxe/Exception.h"/>
+   <depend name="include/haxe/IMap.h"/>
+   <depend name="include/haxe/ValueException.h"/>
+   <depend name="include/haxe/ds/BalancedTree.h"/>
+   <depend name="include/haxe/ds/EnumValueMap.h"/>
+   <depend name="include/haxe/ds/IntMap.h"/>
+   <depend name="include/haxe/ds/ObjectMap.h"/>
+   <depend name="include/haxe/ds/StringMap.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/CType.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Const.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Error.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Expr.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Interp.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/_Interp/Stop.h"/>
+  </file>
+  <file name="src/hxcpp/debug/jsonrpc/eval/_Interp/Stop.cpp" >
+   <depend name="include/hxcpp/debug/jsonrpc/eval/_Interp/Stop.h"/>
+  </file>
+  <file name="src/hxcpp/debug/jsonrpc/eval/FieldKind.cpp" >
+   <depend name="include/hxcpp/debug/jsonrpc/eval/FieldKind.h"/>
+  </file>
+  <file name="src/hxcpp/debug/jsonrpc/eval/FieldAccess.cpp" >
+   <depend name="include/hxcpp/debug/jsonrpc/eval/FieldAccess.h"/>
+  </file>
+  <file name="src/hxcpp/debug/jsonrpc/eval/ModuleDecl.cpp" >
+   <depend name="include/hxcpp/debug/jsonrpc/eval/ModuleDecl.h"/>
+  </file>
+  <file name="src/hxcpp/debug/jsonrpc/eval/Error.cpp" >
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Error.h"/>
+  </file>
+  <file name="src/hxcpp/debug/jsonrpc/eval/CType.cpp" >
+   <depend name="include/hxcpp/debug/jsonrpc/eval/CType.h"/>
+  </file>
+  <file name="src/hxcpp/debug/jsonrpc/eval/Expr.cpp" >
+   <depend name="include/hxcpp/debug/jsonrpc/eval/CType.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Const.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Expr.h"/>
+  </file>
+  <file name="src/hxcpp/debug/jsonrpc/eval/Const.cpp" >
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Const.h"/>
+  </file>
+  <file name="src/hxcpp/debug/jsonrpc/VariablesPrinter.cpp" >
+   <depend name="include/Reflect.h"/>
+   <depend name="include/Std.h"/>
+   <depend name="include/Type.h"/>
+   <depend name="include/ValueType.h"/>
+   <depend name="include/cpp/vm/Debugger.h"/>
+   <depend name="include/haxe/IMap.h"/>
+   <depend name="include/haxe/Log.h"/>
+   <depend name="include/haxe/ds/IntMap.h"/>
+   <depend name="include/haxe/ds/StringMap.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/Value.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/VarType.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/VariablesPrinter.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Expr.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Interp.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Parser.h"/>
+  </file>
+  <file name="src/hxcpp/debug/jsonrpc/Value.cpp" >
+   <depend name="include/hxcpp/debug/jsonrpc/Value.h"/>
+  </file>
+  <file name="src/hxcpp/debug/jsonrpc/VarType.cpp" >
+   <depend name="include/hxcpp/debug/jsonrpc/VarType.h"/>
+  </file>
+  <file name="src/hxcpp/debug/jsonrpc/Server.cpp" >
+   <depend name="include/EReg.h"/>
+   <depend name="include/Reflect.h"/>
+   <depend name="include/Std.h"/>
+   <depend name="include/Sys.h"/>
+   <depend name="include/Type.h"/>
+   <depend name="include/cpp/vm/Debugger.h"/>
+   <depend name="include/cpp/vm/StackFrame.h"/>
+   <depend name="include/cpp/vm/ThreadInfo.h"/>
+   <depend name="include/haxe/IMap.h"/>
+   <depend name="include/haxe/Log.h"/>
+   <depend name="include/haxe/Timer.h"/>
+   <depend name="include/haxe/ds/IntMap.h"/>
+   <depend name="include/haxe/ds/StringMap.h"/>
+   <depend name="include/haxe/format/JsonParser.h"/>
+   <depend name="include/haxe/format/JsonPrinter.h"/>
+   <depend name="include/haxe/io/Encoding.h"/>
+   <depend name="include/haxe/io/Input.h"/>
+   <depend name="include/haxe/io/Output.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/Server.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/Value.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/VariablesPrinter.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/_Server/References.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Expr.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Interp.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Parser.h"/>
+   <depend name="include/sys/net/Host.h"/>
+   <depend name="include/sys/net/Socket.h"/>
+   <depend name="include/sys/thread/Deque.h"/>
+   <depend name="include/sys/thread/Mutex.h"/>
+   <depend name="include/sys/thread/_Thread/HaxeThread.h"/>
+   <depend name="include/sys/thread/_Thread/Thread_Impl_.h"/>
+  </file>
+  <file name="src/sys/thread/Deque.cpp" >
+   <depend name="include/sys/thread/Deque.h"/>
+  </file>
+  <file name="src/hxcpp/debug/jsonrpc/eval/Parser.cpp" >
+   <depend name="include/Std.h"/>
+   <depend name="include/Type.h"/>
+   <depend name="include/haxe/IMap.h"/>
+   <depend name="include/haxe/ds/GenericCell_hxcpp_debug_jsonrpc_eval_Token.h"/>
+   <depend name="include/haxe/ds/GenericStack_hxcpp_debug_jsonrpc_eval_Token.h"/>
+   <depend name="include/haxe/ds/StringMap.h"/>
+   <depend name="include/haxe/io/Bytes.h"/>
+   <depend name="include/haxe/io/BytesInput.h"/>
+   <depend name="include/haxe/io/BytesOutput.h"/>
+   <depend name="include/haxe/io/Encoding.h"/>
+   <depend name="include/haxe/io/Input.h"/>
+   <depend name="include/haxe/io/Output.h"/>
+   <depend name="include/haxe/io/StringInput.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/CType.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Const.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Error.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Expr.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/FieldAccess.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/FieldKind.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/ModuleDecl.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Parser.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Token.h"/>
+  </file>
+  <file name="src/hxcpp/debug/jsonrpc/_Server/References.cpp" >
+   <depend name="include/haxe/IMap.h"/>
+   <depend name="include/haxe/ds/IntMap.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/Value.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/_Server/References.h"/>
+  </file>
+  <file name="src/hxcpp/debug/jsonrpc/Protocol.cpp" >
+   <depend name="include/hxcpp/debug/jsonrpc/Protocol.h"/>
+  </file>
+  <file name="src/hxcpp/debug/jsonrpc/_Protocol/NotificationMethod_Impl_.cpp" >
+   <depend name="include/hxcpp/debug/jsonrpc/_Protocol/NotificationMethod_Impl_.h"/>
+  </file>
+  <file name="src/hxcpp/debug/jsonrpc/_Protocol/RequestMethod_Impl_.cpp" >
+   <depend name="include/hxcpp/debug/jsonrpc/_Protocol/RequestMethod_Impl_.h"/>
+  </file>
+  <file name="src/hxcpp/debug/jsonrpc/Macro.cpp" >
+   <depend name="include/hxcpp/debug/jsonrpc/Macro.h"/>
+  </file>
   <file name="src/haxe/iterators/ArrayIterator.cpp" >
    <depend name="include/haxe/iterators/ArrayIterator.h"/>
+  </file>
+  <file name="src/haxe/io/StringInput.cpp" >
+   <depend name="include/haxe/io/Bytes.h"/>
+   <depend name="include/haxe/io/BytesInput.h"/>
+   <depend name="include/haxe/io/Encoding.h"/>
+   <depend name="include/haxe/io/Input.h"/>
+   <depend name="include/haxe/io/StringInput.h"/>
   </file>
   <file name="src/haxe/io/Path.cpp" >
    <depend name="include/haxe/io/Path.h"/>
@@ -55,6 +257,25 @@
   </file>
   <file name="src/haxe/io/Eof.cpp" >
    <depend name="include/haxe/io/Eof.h"/>
+  </file>
+  <file name="src/haxe/io/Encoding.cpp" >
+   <depend name="include/haxe/io/Encoding.h"/>
+  </file>
+  <file name="src/haxe/io/BytesOutput.cpp" >
+   <depend name="include/haxe/io/Bytes.h"/>
+   <depend name="include/haxe/io/BytesBuffer.h"/>
+   <depend name="include/haxe/io/BytesOutput.h"/>
+   <depend name="include/haxe/io/Error.h"/>
+   <depend name="include/haxe/io/Output.h"/>
+  </file>
+  <file name="src/haxe/io/Output.cpp" >
+   <depend name="include/haxe/Exception.h"/>
+   <depend name="include/haxe/exceptions/NotImplementedException.h"/>
+   <depend name="include/haxe/exceptions/PosException.h"/>
+   <depend name="include/haxe/io/Bytes.h"/>
+   <depend name="include/haxe/io/Encoding.h"/>
+   <depend name="include/haxe/io/Error.h"/>
+   <depend name="include/haxe/io/Output.h"/>
   </file>
   <file name="src/haxe/io/BytesInput.cpp" >
    <depend name="include/haxe/io/Bytes.h"/>
@@ -70,17 +291,41 @@
    <depend name="include/haxe/exceptions/NotImplementedException.h"/>
    <depend name="include/haxe/exceptions/PosException.h"/>
    <depend name="include/haxe/io/Bytes.h"/>
+   <depend name="include/haxe/io/Encoding.h"/>
    <depend name="include/haxe/io/Eof.h"/>
    <depend name="include/haxe/io/Error.h"/>
    <depend name="include/haxe/io/Input.h"/>
   </file>
+  <file name="src/haxe/io/BytesBuffer.cpp" >
+   <depend name="include/haxe/io/Bytes.h"/>
+   <depend name="include/haxe/io/BytesBuffer.h"/>
+  </file>
   <file name="src/haxe/io/Bytes.cpp" >
    <depend name="include/haxe/io/Bytes.h"/>
+   <depend name="include/haxe/io/Encoding.h"/>
    <depend name="include/haxe/io/Error.h"/>
   </file>
   <file name="src/haxe/io/ArrayBufferViewImpl.cpp" >
    <depend name="include/haxe/io/ArrayBufferViewImpl.h"/>
    <depend name="include/haxe/io/Bytes.h"/>
+  </file>
+  <file name="src/haxe/format/JsonPrinter.cpp" >
+   <depend name="include/Date.h"/>
+   <depend name="include/Reflect.h"/>
+   <depend name="include/Std.h"/>
+   <depend name="include/StringBuf.h"/>
+   <depend name="include/StringTools.h"/>
+   <depend name="include/Type.h"/>
+   <depend name="include/ValueType.h"/>
+   <depend name="include/haxe/IMap.h"/>
+   <depend name="include/haxe/ds/StringMap.h"/>
+   <depend name="include/haxe/format/JsonPrinter.h"/>
+  </file>
+  <file name="src/haxe/format/JsonParser.cpp" >
+   <depend name="include/Reflect.h"/>
+   <depend name="include/Std.h"/>
+   <depend name="include/StringBuf.h"/>
+   <depend name="include/haxe/format/JsonParser.h"/>
   </file>
   <file name="src/haxe/exceptions/NotImplementedException.cpp" >
    <depend name="include/haxe/Exception.h"/>
@@ -91,15 +336,72 @@
    <depend name="include/haxe/Exception.h"/>
    <depend name="include/haxe/exceptions/PosException.h"/>
   </file>
+  <file name="src/haxe/ds/_GenericStack/GenericStackIterator_hxcpp_debug_jsonrpc_eval_Token.cpp" >
+   <depend name="include/haxe/ds/GenericCell_hxcpp_debug_jsonrpc_eval_Token.h"/>
+   <depend name="include/haxe/ds/_GenericStack/GenericStackIterator_hxcpp_debug_jsonrpc_eval_Token.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Token.h"/>
+  </file>
   <file name="src/haxe/ds/StringMap.cpp" >
    <depend name="include/haxe/IMap.h"/>
    <depend name="include/haxe/ds/StringMap.h"/>
+   <depend name="include/haxe/iterators/ArrayIterator.h"/>
+  </file>
+  <file name="src/haxe/ds/ObjectMap.cpp" >
+   <depend name="include/haxe/IMap.h"/>
+   <depend name="include/haxe/ds/ObjectMap.h"/>
+   <depend name="include/haxe/iterators/ArrayIterator.h"/>
+  </file>
+  <file name="src/haxe/ds/IntMap.cpp" >
+   <depend name="include/haxe/IMap.h"/>
+   <depend name="include/haxe/ds/IntMap.h"/>
+   <depend name="include/haxe/iterators/ArrayIterator.h"/>
+  </file>
+  <file name="src/haxe/ds/GenericStack_hxcpp_debug_jsonrpc_eval_Token.cpp" >
+   <depend name="include/haxe/ds/GenericCell_hxcpp_debug_jsonrpc_eval_Token.h"/>
+   <depend name="include/haxe/ds/GenericStack_hxcpp_debug_jsonrpc_eval_Token.h"/>
+   <depend name="include/haxe/ds/_GenericStack/GenericStackIterator_hxcpp_debug_jsonrpc_eval_Token.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Token.h"/>
+  </file>
+  <file name="src/haxe/ds/_GenericStack/GenericStackIterator.cpp" >
+   <depend name="include/haxe/ds/GenericCell.h"/>
+   <depend name="include/haxe/ds/_GenericStack/GenericStackIterator.h"/>
+  </file>
+  <file name="src/haxe/ds/GenericCell.cpp" >
+   <depend name="include/haxe/ds/GenericCell.h"/>
+  </file>
+  <file name="src/haxe/ds/GenericCell_hxcpp_debug_jsonrpc_eval_Token.cpp" >
+   <depend name="include/haxe/ds/GenericCell_hxcpp_debug_jsonrpc_eval_Token.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Token.h"/>
+  </file>
+  <file name="src/haxe/ds/EnumValueMap.cpp" >
+   <depend name="include/Reflect.h"/>
+   <depend name="include/Std.h"/>
+   <depend name="include/Type.h"/>
+   <depend name="include/haxe/IMap.h"/>
+   <depend name="include/haxe/ds/BalancedTree.h"/>
+   <depend name="include/haxe/ds/EnumValueMap.h"/>
+  </file>
+  <file name="src/haxe/ds/TreeNode.cpp" >
+   <depend name="include/haxe/ds/TreeNode.h"/>
+  </file>
+  <file name="src/haxe/ds/BalancedTree.cpp" >
+   <depend name="include/Reflect.h"/>
+   <depend name="include/haxe/IMap.h"/>
+   <depend name="include/haxe/ds/BalancedTree.h"/>
+   <depend name="include/haxe/ds/TreeNode.h"/>
    <depend name="include/haxe/iterators/ArrayIterator.h"/>
   </file>
   <file name="src/haxe/ValueException.cpp" >
    <depend name="include/Std.h"/>
    <depend name="include/haxe/Exception.h"/>
    <depend name="include/haxe/ValueException.h"/>
+  </file>
+  <file name="src/haxe/Timer.cpp" >
+   <depend name="include/haxe/Timer.h"/>
+   <depend name="include/sys/thread/EventLoop.h"/>
+   <depend name="include/sys/thread/_EventLoop/RegularEvent.h"/>
+   <depend name="include/sys/thread/_Thread/HaxeThread.h"/>
+   <depend name="include/sys/thread/_Thread/Thread_Impl_.h"/>
   </file>
   <file name="src/haxe/NativeStackTrace.cpp" >
    <depend name="include/haxe/NativeStackTrace.h"/>
@@ -116,13 +418,17 @@
    <depend name="include/haxe/Log.h"/>
   </file>
   <file name="src/haxe/Exception.cpp" >
+   <depend name="include/Std.h"/>
    <depend name="include/haxe/Exception.h"/>
    <depend name="include/haxe/NativeStackTrace.h"/>
+   <depend name="include/haxe/ValueException.h"/>
   </file>
   <file name="src/haxe/EntryPoint.cpp" >
    <depend name="include/haxe/EntryPoint.h"/>
   </file>
   <file name="src/sys/thread/_Thread/HaxeThread.cpp" >
+   <depend name="include/haxe/Exception.h"/>
+   <depend name="include/sys/thread/Deque.h"/>
    <depend name="include/sys/thread/EventLoop.h"/>
    <depend name="include/sys/thread/Mutex.h"/>
    <depend name="include/sys/thread/_Thread/HaxeThread.h"/>
@@ -214,14 +520,47 @@
    <depend name="include/haxe/io/ArrayBufferViewImpl.h"/>
    <depend name="include/haxe/io/Bytes.h"/>
   </file>
+  <file name="src/cpp/vm/Debugger.cpp" >
+   <depend name="include/cpp/vm/Debugger.h"/>
+   <depend name="include/cpp/vm/Parameter.h"/>
+   <depend name="include/cpp/vm/StackFrame.h"/>
+   <depend name="include/cpp/vm/ThreadInfo.h"/>
+  </file>
+  <file name="src/cpp/vm/ThreadInfo.cpp" >
+   <depend name="include/cpp/vm/StackFrame.h"/>
+   <depend name="include/cpp/vm/ThreadInfo.h"/>
+  </file>
+  <file name="src/cpp/vm/StackFrame.cpp" >
+   <depend name="include/cpp/vm/Parameter.h"/>
+   <depend name="include/cpp/vm/StackFrame.h"/>
+  </file>
+  <file name="src/cpp/vm/Parameter.cpp" >
+   <depend name="include/cpp/vm/Parameter.h"/>
+  </file>
+  <file name="src/cpp/Lib.cpp" >
+   <depend name="include/cpp/Lib.h"/>
+  </file>
   <file name="src/haxe/IMap.cpp" >
    <depend name="include/haxe/IMap.h"/>
+  </file>
+  <file name="src/Type.cpp" >
+   <depend name="include/Reflect.h"/>
+   <depend name="include/Type.h"/>
+   <depend name="include/ValueType.h"/>
+  </file>
+  <file name="src/ValueType.cpp" >
+   <depend name="include/ValueType.h"/>
   </file>
   <file name="src/Sys.cpp" >
    <depend name="include/Sys.h"/>
   </file>
   <file name="src/StringTools.cpp" >
+   <depend name="include/Std.h"/>
+   <depend name="include/StringBuf.h"/>
    <depend name="include/StringTools.h"/>
+  </file>
+  <file name="src/StringBuf.cpp" >
+   <depend name="include/StringBuf.h"/>
   </file>
   <file name="src/Std.cpp" >
    <depend name="include/Std.h"/>
@@ -291,6 +630,9 @@
    <depend name="include/Main.h"/>
    <depend name="include/haxe/Log.h"/>
   </file>
+  <file name="src/IntIterator.cpp" >
+   <depend name="include/IntIterator.h"/>
+  </file>
   <file name="src/EventDispacher.cpp" >
    <depend name="include/EventDispacher.h"/>
    <depend name="include/Reflect.h"/>
@@ -315,7 +657,6 @@
    <depend name="include/Renderer.h"/>
    <depend name="include/Vertices.h"/>
    <depend name="include/haxe/IMap.h"/>
-   <depend name="include/haxe/Log.h"/>
    <depend name="include/haxe/ds/StringMap.h"/>
    <depend name="include/math/Matrix.h"/>
   </file>
@@ -328,9 +669,11 @@
   <file name="src/Vertices.cpp" >
    <depend name="include/Vertices.h"/>
   </file>
+  <file name="src/Date.cpp" >
+   <depend name="include/Date.h"/>
+  </file>
   <file name="src/Camera.cpp" >
    <depend name="include/Camera.h"/>
-   <depend name="include/haxe/Log.h"/>
    <depend name="include/math/Matrix.h"/>
   </file>
   <file name="src/_App/__Resources.cpp" >
@@ -356,16 +699,35 @@
    <depend name="include/_App/__Resources.h"/>
    <depend name="include/haxe/Log.h"/>
    <depend name="include/haxe/io/Path.h"/>
-   <depend name="include/states/ImageTestState.h"/>
+   <depend name="include/states/TilemapTestState.h"/>
   </file>
   <file name="src/__boot__.cpp" >
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Token.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/_Interp/Stop.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/FieldKind.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/FieldAccess.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/ModuleDecl.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Error.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/CType.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Expr.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Const.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/Value.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/VarType.h"/>
    <depend name="include/haxe/io/Error.h"/>
+   <depend name="include/haxe/io/Encoding.h"/>
+   <depend name="include/ValueType.h"/>
    <depend name="include/PromiseState.h"/>
    <depend name="include/UniformFormat.h"/>
    <depend name="include/AttributeFormat.h"/>
+   <depend name="include/sys/net/Host.h"/>
    <depend name="include/loaders/TGALoader.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/Server.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/eval/Parser.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/_Server/References.h"/>
+   <depend name="include/hxcpp/debug/jsonrpc/Protocol.h"/>
    <depend name="include/haxe/Log.h"/>
    <depend name="include/sys/thread/_Thread/HaxeThread.h"/>
+   <depend name="include/cpp/vm/Debugger.h"/>
    <depend name="include/State.h"/>
    <depend name="include/Entity.h"/>
    <depend name="include/BlendFactor.h"/>
@@ -422,6 +784,7 @@
     <compilerflag value="-DHXCPP_NO_PCH"/>
     <compilerflag value="-DHXCPP_NO_PRECOMPILED_HEADERS"/>
 </files>
+<include name="${HXCPP}/src/hx/libs/std/Build.xml"/>
 <include name="${HXCPP}/src/hx/libs/std/Build.xml"/>
 <include name="${HXCPP}/src/hx/libs/std/Build.xml"/>
 <include name="${HXCPP}/src/hx/libs/std/Build.xml"/>
