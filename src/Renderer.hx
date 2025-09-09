@@ -2,18 +2,9 @@ package;
 
 import GL;
 import ProgramInfo;
-import ProgramInfo.UniformFormat;
-import ProgramInfo.Uniform;
 import DisplayObject;
-import display.Image;
-import display.Triangle;
-import display.Rectangle;
-import display.Quad;
-import display.Cube;
-import display.Tilemap;
 import data.TextureData;
 import Texture;
-import Camera;
 import math.Matrix;
 
 typedef RenderState = {
@@ -59,7 +50,8 @@ class Renderer {
         
         // Debug: Print frame info occasionally
         if (frameCount % 300 == 0) { // Every 5 seconds
-            trace("Frame: " + frameCount + ", Window: " + windowWidth + "x" + windowHeight);
+            // TODO: Convert to proper logging system once cross-class access is resolved
+            // trace("Frame: " + frameCount + ", Window: " + windowWidth + "x" + windowHeight);
         }
     }
     
@@ -118,6 +110,7 @@ class Renderer {
             var uniformInfo = programInfo.getUniform(name);
             
             if (uniformInfo == null) {
+                // TODO: Convert to proper logging - __app.trace(21, "Warning: Uniform '" + name + "' not found in shader");
                 trace("Warning: Uniform '" + name + "' not found in shader");
                 continue; // Uniform doesn't exist in shader
             }
@@ -156,10 +149,12 @@ class Renderer {
      */
     public function registerProgramInfo(name:String, programInfo:ProgramInfo):Void {
         if (programInfos.exists(name)) {
-            trace("Warning: ProgramInfo '" + name + "' already exists, replacing...");
+            // TODO: Convert to proper logging system once cross-class access is resolved
+            // trace("Warning: ProgramInfo '" + name + "' already exists, replacing...");
         }
         programInfos.set(name, programInfo);
-        trace("Registered ProgramInfo: " + name);
+        // TODO: Convert to proper logging system once cross-class access is resolved
+        // trace("Registered ProgramInfo: " + name);
     }
     
     /**
@@ -315,6 +310,63 @@ class Renderer {
             trace("  Uploading " + indexBytes.length + " bytes to EBO " + ebo);
             GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, indexBytes.length, indexBytes.getData(), GL.DYNAMIC_DRAW);
             trace("  Index buffer upload complete");
+        }
+    }
+
+    /**
+     * Upload partial vertex data to GPU using bufferSubData for optimal performance
+     * Perfect for tilemap updates, particle effects, and dynamic content
+     * @param vbo Vertex buffer object
+     * @param offsetInFloats Offset in floats (not bytes)
+     * @param vertices Vertex data to upload
+     */
+    public function uploadVertexDataPartial(vbo:UInt, offsetInFloats:Int, vertices:Array<Float>):Void {
+        trace("Renderer.uploadVertexDataPartial: vbo=" + vbo + " offset=" + offsetInFloats + " vertices.length=" + vertices.length);
+        if (vertices.length > 0) {
+            trace("  Partial update - first 5 values: " + vertices.slice(0, 5));
+        }
+        
+        if (vbo != 0 && vertices.length > 0) {
+            GL.bindBuffer(GL.ARRAY_BUFFER, vbo);
+            
+            // Calculate byte offset (floats * 4 bytes per float)
+            var byteOffset = offsetInFloats * 4;
+            
+            // Use the optimized GL bufferSubData method
+            GL.bufferSubFloatArray(GL.ARRAY_BUFFER, byteOffset, vertices, vertices.length);
+            
+            trace("  Uploaded " + vertices.length + " floats at byte offset " + byteOffset);
+        }
+    }
+
+    /**
+     * Upload partial index data to GPU using bufferSubData for optimal performance
+     * @param ebo Element buffer object
+     * @param offsetInIndices Offset in indices (not bytes)
+     * @param indices Index data to upload
+     */
+    public function uploadIndexDataPartial(ebo:UInt, offsetInIndices:Int, indices:Array<Int>):Void {
+        trace("Renderer.uploadIndexDataPartial: ebo=" + ebo + " offset=" + offsetInIndices + " indices.length=" + indices.length);
+        if (indices.length > 0) {
+            trace("  Partial update - first 5 values: " + indices.slice(0, 5));
+        }
+        
+        if (ebo != 0 && indices.length > 0) {
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, ebo);
+            
+            // Calculate byte offset (indices * 4 bytes per int)
+            var byteOffset = offsetInIndices * 4;
+            
+            // Convert to UInt array for GL call
+            var uintIndices:Array<UInt> = [];
+            for (index in indices) {
+                uintIndices.push(index);
+            }
+            
+            // Use the optimized GL bufferSubData method
+            GL.bufferSubIntArray(GL.ELEMENT_ARRAY_BUFFER, byteOffset, uintIndices, uintIndices.length);
+            
+            trace("  Uploaded " + indices.length + " indices at byte offset " + byteOffset);
         }
     }
 

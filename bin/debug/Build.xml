@@ -69,6 +69,28 @@
    <depend name="include/haxe/Log.h"/>
    <depend name="include/states/TilemapTestState.h"/>
   </file>
+  <file name="src/states/TilemapFastTestState.cpp" >
+   <depend name="include/App.h"/>
+   <depend name="include/Camera.h"/>
+   <depend name="include/DisplayObject.h"/>
+   <depend name="include/Entity.h"/>
+   <depend name="include/ProgramInfo.h"/>
+   <depend name="include/Renderer.h"/>
+   <depend name="include/State.h"/>
+   <depend name="include/Std.h"/>
+   <depend name="include/_App/__Resources.h"/>
+   <depend name="include/data/TextureData.h"/>
+   <depend name="include/display/TilemapFast.h"/>
+   <depend name="include/haxe/Log.h"/>
+   <depend name="include/states/TilemapFastTestState.h"/>
+  </file>
+  <file name="src/states/LogTestState.cpp" >
+   <depend name="include/App.h"/>
+   <depend name="include/State.h"/>
+   <depend name="include/_App/__Log.h"/>
+   <depend name="include/haxe/Log.h"/>
+   <depend name="include/states/LogTestState.h"/>
+  </file>
   <file name="src/math/Matrix.cpp" >
    <depend name="include/Std.h"/>
    <depend name="include/math/Matrix.h"/>
@@ -444,13 +466,14 @@
   <file name="src/sys/thread/Mutex.cpp" >
    <depend name="include/sys/thread/Mutex.h"/>
   </file>
-  <file name="src/display/Triangle.cpp" >
+  <file name="src/display/TilemapFast.cpp" >
    <depend name="include/DisplayObject.h"/>
    <depend name="include/Indices.h"/>
    <depend name="include/ProgramInfo.h"/>
    <depend name="include/Renderer.h"/>
+   <depend name="include/Std.h"/>
    <depend name="include/Vertices.h"/>
-   <depend name="include/display/Triangle.h"/>
+   <depend name="include/display/TilemapFast.h"/>
    <depend name="include/haxe/IMap.h"/>
    <depend name="include/haxe/Log.h"/>
    <depend name="include/haxe/ds/StringMap.h"/>
@@ -464,52 +487,6 @@
    <depend name="include/Std.h"/>
    <depend name="include/Vertices.h"/>
    <depend name="include/display/Tilemap.h"/>
-   <depend name="include/haxe/IMap.h"/>
-   <depend name="include/haxe/Log.h"/>
-   <depend name="include/haxe/ds/StringMap.h"/>
-   <depend name="include/math/Matrix.h"/>
-  </file>
-  <file name="src/display/Rectangle.cpp" >
-   <depend name="include/DisplayObject.h"/>
-   <depend name="include/Indices.h"/>
-   <depend name="include/ProgramInfo.h"/>
-   <depend name="include/Vertices.h"/>
-   <depend name="include/display/Rectangle.h"/>
-  </file>
-  <file name="src/display/Quad.cpp" >
-   <depend name="include/DisplayObject.h"/>
-   <depend name="include/Indices.h"/>
-   <depend name="include/ProgramInfo.h"/>
-   <depend name="include/Renderer.h"/>
-   <depend name="include/Std.h"/>
-   <depend name="include/Vertices.h"/>
-   <depend name="include/data/TextureData.h"/>
-   <depend name="include/display/Quad.h"/>
-   <depend name="include/haxe/Log.h"/>
-   <depend name="include/haxe/io/ArrayBufferViewImpl.h"/>
-   <depend name="include/haxe/io/Bytes.h"/>
-   <depend name="include/math/Matrix.h"/>
-  </file>
-  <file name="src/display/Image.cpp" >
-   <depend name="include/DisplayObject.h"/>
-   <depend name="include/Indices.h"/>
-   <depend name="include/ProgramInfo.h"/>
-   <depend name="include/Renderer.h"/>
-   <depend name="include/Vertices.h"/>
-   <depend name="include/display/Image.h"/>
-   <depend name="include/haxe/IMap.h"/>
-   <depend name="include/haxe/Log.h"/>
-   <depend name="include/haxe/ds/StringMap.h"/>
-   <depend name="include/math/Matrix.h"/>
-  </file>
-  <file name="src/display/Cube.cpp" >
-   <depend name="include/DisplayObject.h"/>
-   <depend name="include/Indices.h"/>
-   <depend name="include/ProgramInfo.h"/>
-   <depend name="include/Renderer.h"/>
-   <depend name="include/Std.h"/>
-   <depend name="include/Vertices.h"/>
-   <depend name="include/display/Cube.h"/>
    <depend name="include/haxe/IMap.h"/>
    <depend name="include/haxe/Log.h"/>
    <depend name="include/haxe/ds/StringMap.h"/>
@@ -683,11 +660,16 @@
    <depend name="include/_App/__Resources.h"/>
    <depend name="include/data/TextureData.h"/>
    <depend name="include/haxe/IMap.h"/>
-   <depend name="include/haxe/Log.h"/>
    <depend name="include/haxe/ds/StringMap.h"/>
    <depend name="include/haxe/io/Bytes.h"/>
    <depend name="include/loaders/TGALoader.h"/>
    <depend name="include/sys/FileSystem.h"/>
+  </file>
+  <file name="src/_App/__Log.cpp" >
+   <depend name="include/App.h"/>
+   <depend name="include/_App/__Log.h"/>
+   <depend name="include/haxe/IMap.h"/>
+   <depend name="include/haxe/ds/IntMap.h"/>
   </file>
   <file name="src/App.cpp" >
    <depend name="include/App.h"/>
@@ -696,10 +678,12 @@
    <depend name="include/Renderer.h"/>
    <depend name="include/State.h"/>
    <depend name="include/StringTools.h"/>
+   <depend name="include/_App/__Log.h"/>
    <depend name="include/_App/__Resources.h"/>
    <depend name="include/haxe/Log.h"/>
    <depend name="include/haxe/io/Path.h"/>
-   <depend name="include/states/TilemapTestState.h"/>
+   <depend name="include/states/LogTestState.h"/>
+   <depend name="include/states/TilemapFastTestState.h"/>
   </file>
   <file name="src/__boot__.cpp" >
    <depend name="include/hxcpp/debug/jsonrpc/eval/Token.h"/>
@@ -731,6 +715,7 @@
    <depend name="include/State.h"/>
    <depend name="include/Entity.h"/>
    <depend name="include/BlendFactor.h"/>
+   <depend name="include/_App/__Log.h"/>
    <depend name="include/App.h"/>
   </file>
   <file name="src/__files__.cpp" if='HXCPP_DEBUGGER'>

@@ -5,6 +5,8 @@ import GL;
 import Renderer;
 import State;
 import states.TilemapTestState;
+import states.TilemapFastTestState;
+import states.LogTestState;
 import sys.FileSystem;
 import cpp.UInt64;
 import cpp.Pointer;
@@ -13,6 +15,7 @@ import data.TextureData;
 import loaders.TGALoader;
 
 typedef Resources = __Resources;
+typedef Log = __Log;
 
 typedef Resource = {
     var type:String;
@@ -30,6 +33,7 @@ class App {
     public var active(get, null):Bool;
     public var resources(get, null):Resources;
     public var renderer(get, null):Renderer;
+    public var log(get, null):Log;
 
     // State Management
     public var states:Array<State> = [];
@@ -46,18 +50,28 @@ class App {
     private var __currentTime:Float = 0.0;
 
     private var __resources:__Resources;
+    private var __log:__Log;
     
     public function new() {
         // Constructor - initialize basic properties
+        __log = new __Log(this);
         __resources = new __Resources(this);
     }
     
     public function init():Bool {
-        trace("Initializing application...");
+        // Configure logging: disable all categories except ENGINE for cleaner output
+        __log.disableCategory(21); // CATEGORY_RENDERER
+        __log.disableCategory(22); // CATEGORY_RESOURCES
+        __log.disableCategory(23); // CATEGORY_TILEMAP
+        __log.disableCategory(24); // CATEGORY_PERFORMANCE
+        __log.disableCategory(25); // CATEGORY_STATE
+        __log.disableCategory(26); // CATEGORY_EVENTS
+        
+        __log.engineInfo("Initializing application...");
         
         // Initialize SDL video
         if (!SDL.init(SDL.INIT_VIDEO)) {
-            trace("Failed to initialize SDL: " + SDL.getError());
+            __log.engineError("Failed to initialize SDL: " + SDL.getError());
             return false;
         }
         
@@ -69,17 +83,17 @@ class App {
         // Create window
         __window = SDL.createWindow("Clean SDL Engine", WINDOW_WIDTH, WINDOW_HEIGHT, SDL.WINDOW_OPENGL);
         if (__window == null) {
-            trace("Failed to create window: " + SDL.getError());
+            __log.engineError("Failed to create window: " + SDL.getError());
             SDL.quit();
             return false;
         }
         
-        trace("Window created successfully");
+        __log.engineInfo("Window created successfully");
         
         // Create OpenGL context
         __context = SDL.createContext(__window);
         if (__context == null) {
-            trace("Failed to create OpenGL context: " + SDL.getError());
+            __log.engineError("Failed to create OpenGL context: " + SDL.getError());
             SDL.quit();
             return false;
         }
@@ -89,24 +103,24 @@ class App {
         // Load OpenGL functions
         var gladResult = GL.gladLoadGLLoader(SDL.getProcAddress);
         if (gladResult == 0) {
-            trace("Failed to load OpenGL functions");
+            __log.engineError("Failed to load OpenGL functions");
             SDL.quit();
             return false;
         }
         
-        trace("OpenGL loaded successfully");
-        trace("OpenGL Version: " + GL.version.major + "." + GL.version.minor);
+        __log.engineInfo("OpenGL loaded successfully");
+        __log.engineInfo("OpenGL Version: " + GL.version.major + "." + GL.version.minor);
         
         // Set viewport to match window size
         GL.viewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
         
         // Create renderer
-        trace("About to create renderer...");
+        __log.engineInfo("About to create renderer...");
         __renderer = new Renderer(this, WINDOW_WIDTH, WINDOW_HEIGHT);
-        trace("Renderer created successfully!");
+        __log.engineInfo("Renderer created successfully!");
         
         // Preload assets from preload.txt BEFORE creating states
-        trace("Preloading assets...");
+        __log.engineInfo("Preloading assets...");
         resources.loadText("preload.txt")
             .then(function(source:String) {
                 var files:Array<Promise<Dynamic>> = new Array<Promise<Dynamic>>();
@@ -141,33 +155,41 @@ class App {
                 // Wait for all assets to load
                 Promise.all(files)
                     .then(function(results:Array<Dynamic>) {
-                        trace("Successfully preloaded " + results.length + " assets");
+                        __log.engineInfo("Successfully preloaded " + results.length + " assets");
                         
-                        // NOW create and setup tilemap test state after assets are loaded
-                        trace("Setting up tilemap test state with preloaded assets...");
-                        var tilemapTestState = new TilemapTestState(this);
-                        addState(tilemapTestState);
-                        trace("Tilemap test state setup complete");
+                        // Add both states but start with the TilemapFast state for visual demo
+                        __log.engineInfo("Setting up states...");
+                        var logTestState = new states.LogTestState(this);
+                        addState(logTestState);
+                        
+                        // Add and activate TilemapFastTestState for immediate visual feedback
+                        var tilemapFastState = new states.TilemapFastTestState(this);
+                        addState(tilemapFastState);
+                        
+                        // Activate the TilemapFastTestState to start rendering
+                        switchToState(tilemapFastState);
+                        
+                        __log.engineInfo("TilemapFastTestState is now active - should see tilemap rendering");
                     })
                     .onError(function(error:String) {
-                        trace("Failed to preload some assets: " + error);
+                        __log.engineError("Failed to preload some assets: " + error);
                     });
             })
             .onError(function(error:String) {
-                trace("Failed to load preload.txt: " + error);
+                __log.engineError("Failed to load preload.txt: " + error);
             });
         
-        trace("Application initialized successfully!");
+        __log.engineInfo("Application initialized successfully!");
         return true;
     }
     
     public function run():Void {
         if (__renderer == null) {
-            trace("Error: Application not initialized! Call init() first.");
+            __log.engineError("Error: Application not initialized! Call init() first.");
             return;
         }
         
-        trace("Starting main loop... (Close the window to exit)");
+        __log.engineInfo("Starting main loop... (Close the window to exit)");
 
         __active = true;
         var frameCount = 0;
@@ -188,7 +210,7 @@ class App {
             SDL.swapWindow(__window);
         }
         
-        trace("Main loop ended");
+        __log.engineInfo("Main loop ended");
     }
     
     private function handleEvents():Void {
@@ -196,13 +218,63 @@ class App {
         var event = SDL.getEvent();
         while (SDL.pollEvent(event)) {
             if (event.value.type == SDL.EVENT_QUIT) {
-                trace("Quit event received");
+                __log.engineInfo("Quit event received");
                 __active = false;
             } else if (event.value.type == SDL.EVENT_WINDOW_CLOSE_REQUESTED) {
-                trace("Window close requested");
+                __log.engineInfo("Window close requested");
                 __active = false;
             }
-            // TODO: Add more event handling (keyboard, mouse, etc.)
+            
+            // Gamepad/Controller Events
+            else if (event.value.type == SDL.EVENT_GAMEPAD_ADDED) {
+                // trace("Gamepad connected"); // Disabled - EVENTS category
+                // TODO: Open gamepad and store reference
+            }
+            else if (event.value.type == SDL.EVENT_GAMEPAD_REMOVED) {
+                // trace("Gamepad disconnected"); // Disabled - EVENTS category
+                // TODO: Close gamepad and clean up reference
+            }
+            else if (event.value.type == SDL.EVENT_GAMEPAD_BUTTON_DOWN) {
+                // trace("Gamepad button pressed"); // Disabled - EVENTS category
+                // TODO: Access button data when SDL bindings are complete
+            }
+            else if (event.value.type == SDL.EVENT_GAMEPAD_BUTTON_UP) {
+                // trace("Gamepad button released"); // Disabled - EVENTS category
+                // TODO: Access button data when SDL bindings are complete
+            }
+            else if (event.value.type == SDL.EVENT_GAMEPAD_AXIS_MOTION) {
+                // trace("Gamepad axis motion"); // Disabled - EVENTS category
+                // TODO: Access axis data when SDL bindings are complete
+            }
+            
+            // Keyboard Events
+            else if (event.value.type == SDL.EVENT_KEY_DOWN) {
+                // trace("Key pressed"); // Disabled - EVENTS category
+                // TODO: Access key data when SDL bindings are complete
+            }
+            else if (event.value.type == SDL.EVENT_KEY_UP) {
+                // trace("Key released"); // Disabled - EVENTS category
+                // TODO: Access key data when SDL bindings are complete
+            }
+            
+            // Mouse Events
+            else if (event.value.type == SDL.EVENT_MOUSE_BUTTON_DOWN) {
+                // trace("Mouse button pressed"); // Disabled - EVENTS category
+                // TODO: Access mouse data when SDL bindings are complete
+            }
+            else if (event.value.type == SDL.EVENT_MOUSE_BUTTON_UP) {
+                // trace("Mouse button released"); // Disabled - EVENTS category
+                // TODO: Access mouse data when SDL bindings are complete
+            }
+            else if (event.value.type == SDL.EVENT_MOUSE_MOTION) {
+                // Only log significant movement to avoid spam
+                // trace("Mouse motion"); // Disabled - EVENTS category
+                // TODO: Access mouse data when SDL bindings are complete
+            }
+            else if (event.value.type == SDL.EVENT_MOUSE_WHEEL) {
+                // trace("Mouse wheel"); // Disabled - EVENTS category
+                // TODO: Access wheel data when SDL bindings are complete
+            }
         }
     }
     
@@ -236,12 +308,12 @@ class App {
      */
     public function addState(state:State):State {
         if (state == null) {
-            trace("Warning: Attempted to add null state");
+            __log.engineWarn("Warning: Attempted to add null state");
             return null;
         }
         
         states.push(state);
-        trace("Added state '" + state.name + "' to app (total states: " + states.length + ")");
+        __log.engineInfo("Added state '" + state.name + "' to app (total states: " + states.length + ")");
         
         // If no current state, make this the current one
         if (currentState == null) {
@@ -259,7 +331,7 @@ class App {
         
         var removed = states.remove(state);
         if (removed) {
-            trace("Removed state '" + state.name + "' from app");
+            __log.engineInfo("Removed state '" + state.name + "' from app");
             
             // If this was the current state, deactivate it
             if (currentState == state) {
@@ -310,7 +382,7 @@ class App {
         }
         
         if (!stateExists) {
-            trace("Warning: Attempted to switch to state '" + state.name + "' that is not in states array");
+            __log.engineWarn("Warning: Attempted to switch to state '" + state.name + "' that is not in states array");
             return false;
         }
         
@@ -323,7 +395,7 @@ class App {
         currentState = state;
         currentState.onActivate();
         
-        trace("Switched to state '" + state.name + "'");
+        __log.engineInfo("Switched to state '" + state.name + "'");
         return true;
     }
     
@@ -336,7 +408,7 @@ class App {
                 return switchToState(state);
             }
         }
-        trace("Warning: State '" + name + "' not found");
+        __log.engineWarn("Warning: State '" + name + "' not found");
         return false;
     }
     
@@ -370,7 +442,7 @@ class App {
     }
     
     public function cleanup():Void {
-        trace("Cleaning up application...");
+        __log.engineInfo("Cleaning up application...");
         
         // Deactivate current state
         if (currentState != null) {
@@ -395,9 +467,15 @@ class App {
             __renderer = null;
         }
         
+        __log.engineInfo("Application cleanup complete");
+        
         SDL.quit();
         
-        trace("Application cleanup complete");
+        // Cleanup log system last
+        if (__log != null) {
+            __log.cleanup();
+            __log = null;
+        }
     }
     
     public function getRenderer():Renderer {
@@ -418,6 +496,211 @@ class App {
     
     private function get_resources():Resources {
         return __resources;
+    }
+    
+    private function get_log():Log {
+        return __log;
+    }
+}
+
+private class __Log {
+    // Log categories - SDL3 standard categories
+    public static inline var CATEGORY_APPLICATION:Int = 0;
+    public static inline var CATEGORY_ERROR:Int = 1;
+    public static inline var CATEGORY_ASSERT:Int = 2;
+    public static inline var CATEGORY_SYSTEM:Int = 3;
+    public static inline var CATEGORY_AUDIO:Int = 4;
+    public static inline var CATEGORY_VIDEO:Int = 5;
+    public static inline var CATEGORY_RENDER:Int = 6;
+    public static inline var CATEGORY_INPUT:Int = 7;
+    public static inline var CATEGORY_TEST:Int = 8;
+    public static inline var CATEGORY_CUSTOM:Int = 19; // First available custom category
+    
+    // Engine-specific categories
+    public static inline var CATEGORY_ENGINE:Int = 20;
+    public static inline var CATEGORY_RENDERER:Int = 21;
+    public static inline var CATEGORY_RESOURCES:Int = 22;
+    public static inline var CATEGORY_TILEMAP:Int = 23;
+    public static inline var CATEGORY_PERFORMANCE:Int = 24;
+    public static inline var CATEGORY_STATE:Int = 25;
+    public static inline var CATEGORY_EVENTS:Int = 26;
+    
+    // Log level flags for enabling/disabling categories
+    private var __enabledCategories:Map<Int, Bool> = new Map<Int, Bool>();
+    private var __globalLogLevel:Int;
+    private var __parent:App;
+    
+    public function new(app:App) {
+        this.__parent = app;
+        
+        // Initialize SDL logging system
+        SDL.resetLogPriorities();
+        
+        // Set default global log level to INFO (shows INFO, WARN, ERROR, CRITICAL)
+        __globalLogLevel = 3; // INFO level
+        
+        // Enable all engine categories by default
+        enableCategory(CATEGORY_ENGINE);
+        enableCategory(CATEGORY_RENDERER);
+        enableCategory(CATEGORY_RESOURCES);
+        enableCategory(CATEGORY_TILEMAP);
+        enableCategory(CATEGORY_PERFORMANCE);
+        enableCategory(CATEGORY_STATE);
+        enableCategory(CATEGORY_EVENTS);
+        
+        // Enable SDL system categories at WARN level and above
+        SDL.setLogPriority(CATEGORY_APPLICATION, SDL.LOG_PRIORITY_WARN);
+        SDL.setLogPriority(CATEGORY_ERROR, SDL.LOG_PRIORITY_ERROR);
+        SDL.setLogPriority(CATEGORY_SYSTEM, SDL.LOG_PRIORITY_WARN);
+        SDL.setLogPriority(CATEGORY_AUDIO, SDL.LOG_PRIORITY_WARN);
+        SDL.setLogPriority(CATEGORY_VIDEO, SDL.LOG_PRIORITY_WARN);
+        SDL.setLogPriority(CATEGORY_RENDER, SDL.LOG_PRIORITY_WARN);
+        SDL.setLogPriority(CATEGORY_INPUT, SDL.LOG_PRIORITY_WARN);
+        
+        // Log system initialization
+        info(CATEGORY_ENGINE, "Log system initialized");
+    }
+    
+    // === CONFIGURATION METHODS ===
+    
+    public function setGlobalLogLevel(priority:Int):Void {
+        __globalLogLevel = priority;
+        info(CATEGORY_ENGINE, "Global log level set to " + priority);
+    }
+    
+    public function setCategoryLevel(category:Int, priority:Int):Void {
+        info(CATEGORY_ENGINE, "Category " + getCategoryName(category) + " level set to " + priority);
+    }
+    
+    public function enableCategory(category:Int):Void {
+        __enabledCategories.set(category, true);
+        SDL.setLogPriority(category, SDL.LOG_PRIORITY_VERBOSE); // Enable all levels for this category
+    }
+    
+    public function disableCategory(category:Int):Void {
+        __enabledCategories.set(category, false);
+        // Disable by setting to maximum priority level (only critical messages pass)
+        SDL.setLogPriority(category, SDL.LOG_PRIORITY_CRITICAL);
+    }
+    
+    public function isCategoryEnabled(category:Int):Bool {
+        return __enabledCategories.exists(category) && __enabledCategories.get(category);
+    }
+    
+    // === LOGGING METHODS ===
+    
+    public function trace(category:Int, message:String):Void {
+        if (isCategoryEnabled(category)) {
+            SDL.logTrace(category, "[" + getCategoryName(category) + "] " + message);
+        }
+    }
+    
+    public function verbose(category:Int, message:String):Void {
+        if (isCategoryEnabled(category)) {
+            SDL.logVerbose(category, "[" + getCategoryName(category) + "] " + message);
+        }
+    }
+    
+    public function debug(category:Int, message:String):Void {
+        if (isCategoryEnabled(category)) {
+            SDL.logDebug(category, "[" + getCategoryName(category) + "] " + message);
+        }
+    }
+    
+    public function info(category:Int, message:String):Void {
+        if (isCategoryEnabled(category)) {
+            SDL.logInfo(category, "[" + getCategoryName(category) + "] " + message);
+        }
+    }
+    
+    public function warn(category:Int, message:String):Void {
+        if (isCategoryEnabled(category)) {
+            SDL.logWarn(category, "[" + getCategoryName(category) + "] " + message);
+        }
+    }
+    
+    public function error(category:Int, message:String):Void {
+        if (isCategoryEnabled(category)) {
+            SDL.logError(category, "[" + getCategoryName(category) + "] " + message);
+        }
+    }
+    
+    public function critical(category:Int, message:String):Void {
+        if (isCategoryEnabled(category)) {
+            SDL.logCritical(category, "[" + getCategoryName(category) + "] " + message);
+        }
+    }
+    
+    // Convenience methods for common categories
+    public function engineInfo(message:String):Void { info(CATEGORY_ENGINE, message); }
+    public function engineWarn(message:String):Void { warn(CATEGORY_ENGINE, message); }
+    public function engineError(message:String):Void { error(CATEGORY_ENGINE, message); }
+    
+    public function rendererInfo(message:String):Void { info(CATEGORY_RENDERER, message); }
+    public function rendererDebug(message:String):Void { debug(CATEGORY_RENDERER, message); }
+    public function rendererWarn(message:String):Void { warn(CATEGORY_RENDERER, message); }
+    
+    public function tilemapInfo(message:String):Void { info(CATEGORY_TILEMAP, message); }
+    public function tilemapDebug(message:String):Void { debug(CATEGORY_TILEMAP, message); }
+    public function tilemapPerf(message:String):Void { info(CATEGORY_PERFORMANCE, message); }
+    
+    public function stateInfo(message:String):Void { info(CATEGORY_STATE, message); }
+    public function eventInfo(message:String):Void { info(CATEGORY_EVENTS, message); }
+    
+    // === UTILITY METHODS ===
+    
+    private function getCategoryName(category:Int):String {
+        switch (category) {
+            case CATEGORY_APPLICATION: return "APP";
+            case CATEGORY_ERROR: return "ERROR";
+            case CATEGORY_ASSERT: return "ASSERT";
+            case CATEGORY_SYSTEM: return "SYSTEM";
+            case CATEGORY_AUDIO: return "AUDIO";
+            case CATEGORY_VIDEO: return "VIDEO";
+            case CATEGORY_RENDER: return "RENDER";
+            case CATEGORY_INPUT: return "INPUT";
+            case CATEGORY_TEST: return "TEST";
+            case CATEGORY_ENGINE: return "ENGINE";
+            case CATEGORY_RENDERER: return "RENDERER";
+            case CATEGORY_RESOURCES: return "RESOURCES";
+            case CATEGORY_TILEMAP: return "TILEMAP";
+            case CATEGORY_PERFORMANCE: return "PERF";
+            case CATEGORY_STATE: return "STATE";
+            case CATEGORY_EVENTS: return "EVENTS";
+            default: return "CUSTOM" + category;
+        }
+    }
+    
+    private function getPriorityName(priority:SDL_LogPriority):String {
+        if (priority == SDL.LOG_PRIORITY_TRACE) return "TRACE";
+        if (priority == SDL.LOG_PRIORITY_VERBOSE) return "VERBOSE";
+        if (priority == SDL.LOG_PRIORITY_DEBUG) return "DEBUG";
+        if (priority == SDL.LOG_PRIORITY_INFO) return "INFO";
+        if (priority == SDL.LOG_PRIORITY_WARN) return "WARN";
+        if (priority == SDL.LOG_PRIORITY_ERROR) return "ERROR";
+        if (priority == SDL.LOG_PRIORITY_CRITICAL) return "CRITICAL";
+        return "UNKNOWN";
+    }
+    
+    public function getDebugInfo():String {
+        var info = "=== LOG SYSTEM DEBUG INFO ===\n";
+        info += "Global log level: set\n";
+        info += "Enabled categories:\n";
+        
+        for (category in __enabledCategories.keys()) {
+            if (__enabledCategories.get(category)) {
+                var currentLevel = SDL.getLogPriority(category);
+                info += "  " + getCategoryName(category) + " (level: " + currentLevel + ")\n";
+            }
+        }
+        
+        return info;
+    }
+    
+    public function cleanup():Void {
+        info(CATEGORY_ENGINE, "Log system shutting down");
+        __enabledCategories.clear();
+        SDL.resetLogPriorities();
     }
 }
 
@@ -488,7 +771,7 @@ private class __Resources {
             if (cache) __resources.set(fullPath, {type: 'text', data: data, size: size.toInt()});
             resolve(data);
 
-            trace("Loaded file: " + fullPath + " with size: " + size.toInt() + " bytes");
+            // trace("Loaded file: " + fullPath + " with size: " + size.toInt() + " bytes"); // Disabled - RESOURCES category
             SDL.free(ptrData);
         });
     }
@@ -537,7 +820,7 @@ private class __Resources {
                     __resources.set(fullPath, {type: 'texture', data: textureData, size: size.toInt()});
                 }
                 
-                trace("Loaded texture: " + fullPath + " (" + textureData.width + "x" + textureData.height + ")");
+                // trace("Loaded texture: " + fullPath + " (" + textureData.width + "x" + textureData.height + ")"); // Disabled - RESOURCES category
                 resolve(textureData);
                 
             } catch (e:Dynamic) {
@@ -549,7 +832,7 @@ private class __Resources {
     }
     
     public function cleanup():Void {
-        trace("Cleaning up resources...");
+        // trace("Cleaning up resources..."); // Disabled - RESOURCES category
         var count = 0;
         for (key in __resources.keys()) {
             var resource = __resources.get(key);
@@ -567,6 +850,6 @@ private class __Resources {
             }
         }
         __resources.clear();
-        trace('Cleared $count cached resources');
+        // trace('Cleared $count cached resources'); // Disabled - RESOURCES category
     }
 }

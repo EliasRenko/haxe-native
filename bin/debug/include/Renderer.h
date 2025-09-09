@@ -106,6 +106,12 @@ class HXCPP_CLASS_ATTRIBUTES Renderer_obj : public ::hx::Object
 		void uploadIndexData(int ebo,::Array< int > indices);
 		::Dynamic uploadIndexData_dyn();
 
+		void uploadVertexDataPartial(int vbo,int offsetInFloats,::Array< Float > vertices);
+		::Dynamic uploadVertexDataPartial_dyn();
+
+		void uploadIndexDataPartial(int ebo,int offsetInIndices,::Array< int > indices);
+		::Dynamic uploadIndexDataPartial_dyn();
+
 		void setupVertexAttributes( ::ProgramInfo programInfo);
 		::Dynamic setupVertexAttributes_dyn();
 

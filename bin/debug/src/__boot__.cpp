@@ -88,6 +88,9 @@
 #ifndef INCLUDED_BlendFactor
 #include <BlendFactor.h>
 #endif
+#ifndef INCLUDED__App___Log
+#include <_App/__Log.h>
+#endif
 #ifndef INCLUDED_App
 #include <App.h>
 #endif
@@ -117,6 +120,12 @@
 #endif
 #ifndef INCLUDED_states_TilemapTestState
 #include <states/TilemapTestState.h>
+#endif
+#ifndef INCLUDED_states_TilemapFastTestState
+#include <states/TilemapFastTestState.h>
+#endif
+#ifndef INCLUDED_states_LogTestState
+#include <states/LogTestState.h>
 #endif
 #ifndef INCLUDED_math_Matrix
 #include <math/Matrix.h>
@@ -247,23 +256,11 @@
 #ifndef INCLUDED_sys_thread_Mutex
 #include <sys/thread/Mutex.h>
 #endif
-#ifndef INCLUDED_display_Triangle
-#include <display/Triangle.h>
+#ifndef INCLUDED_display_TilemapFast
+#include <display/TilemapFast.h>
 #endif
 #ifndef INCLUDED_display_Tilemap
 #include <display/Tilemap.h>
-#endif
-#ifndef INCLUDED_display_Rectangle
-#include <display/Rectangle.h>
-#endif
-#ifndef INCLUDED_display_Quad
-#include <display/Quad.h>
-#endif
-#ifndef INCLUDED_display_Image
-#include <display/Image.h>
-#endif
-#ifndef INCLUDED_display_Cube
-#include <display/Cube.h>
 #endif
 #ifndef INCLUDED_data_TextureData
 #include <data/TextureData.h>
@@ -379,6 +376,7 @@ __files__boot();
 ::State_obj::__register();
 ::Entity_obj::__register();
 ::BlendFactor_obj::__register();
+::_App::__Log_obj::__register();
 ::App_obj::__register();
 ::sys::thread::_Thread::Thread_Impl__obj::__register();
 ::sys::thread::NoEventLoopException_obj::__register();
@@ -389,6 +387,8 @@ __files__boot();
 ::sys::net::_Socket::SocketInput_obj::__register();
 ::sys::FileSystem_obj::__register();
 ::states::TilemapTestState_obj::__register();
+::states::TilemapFastTestState_obj::__register();
+::states::LogTestState_obj::__register();
 ::math::Matrix_obj::__register();
 ::hxcpp::debug::jsonrpc::eval::Tools_obj::__register();
 ::hxcpp::debug::jsonrpc::eval::Interp_obj::__register();
@@ -432,12 +432,8 @@ __files__boot();
 ::haxe::EntryPoint_obj::__register();
 ::sys::thread::EventLoop_obj::__register();
 ::sys::thread::Mutex_obj::__register();
-::display::Triangle_obj::__register();
+::display::TilemapFast_obj::__register();
 ::display::Tilemap_obj::__register();
-::display::Rectangle_obj::__register();
-::display::Quad_obj::__register();
-::display::Image_obj::__register();
-::display::Cube_obj::__register();
 ::data::TextureData_obj::__register();
 ::cpp::vm::ThreadInfo_obj::__register();
 ::cpp::vm::StackFrame_obj::__register();
@@ -487,6 +483,7 @@ __files__boot();
 ::cpp::vm::Debugger_obj::__boot();
 ::haxe::Log_obj::__boot();
 ::App_obj::__boot();
+::_App::__Log_obj::__boot();
 ::BlendFactor_obj::__boot();
 ::Entity_obj::__boot();
 ::State_obj::__boot();
