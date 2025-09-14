@@ -16,9 +16,6 @@ class LogTestState extends State {
         
         trace("=== Log System Test Starting ===");
         
-        // Test different log priorities and categories
-        app.log.setGlobalLogLevel(1); // DEBUG level
-        
         // Enable specific categories (using numeric values)
         app.log.enableCategory(0); // APPLICATION
         app.log.enableCategory(3); // SYSTEM  
@@ -37,13 +34,12 @@ class LogTestState extends State {
         app.log.debug(Log.CATEGORY_PERFORMANCE, "Performance test starting");
         app.log.warn(Log.CATEGORY_TILEMAP, "Tilemap optimization active");
         
-        // Change global level and test filtering
-        trace("Setting global log level to WARN - debug/info messages should be filtered out");
-        app.log.setGlobalLogLevel(4); // WARN level
+        // Test category disable/enable
+        trace("Testing category filtering");
         
-        // These should be filtered out
-        app.log.debug(Log.CATEGORY_ENGINE, "This debug message should be filtered out by global level");
-        app.log.warn(Log.CATEGORY_ENGINE, "This warning should still appear");
+        // These should still appear
+        app.log.debug(Log.CATEGORY_ENGINE, "This debug message should appear");
+        app.log.warn(Log.CATEGORY_ENGINE, "This warning should appear");
         
         // Test category disable/enable
         trace("Disabling ENGINE category - messages should stop");

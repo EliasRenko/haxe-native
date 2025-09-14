@@ -23,8 +23,8 @@
 #ifndef INCLUDED_Vertices
 #include <Vertices.h>
 #endif
-#ifndef INCLUDED__App___Resources
-#include <_App/__Resources.h>
+#ifndef INCLUDED__Resources___Resources
+#include <_Resources/__Resources.h>
 #endif
 #ifndef INCLUDED_data_TextureData
 #include <data/TextureData.h>

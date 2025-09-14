@@ -10,6 +10,10 @@ import cpp.Struct;
 import Window;
 
 typedef SDL_PropertiesID = UInt64;
+typedef SDL_JoystickID = UInt32;
+
+@:native("SDL_Gamepad")
+extern class SDL_Gamepad {}
 
 @:keep
 @:buildXml(
@@ -176,6 +180,26 @@ extern class SDL {
 
     //@:native("SDL_LogMessageV")
     //static function logMessageV(category:Int, priority:SDL_LogPriority, text:String, ?):Void;
+
+    // ** Gamepad
+
+    @:native("SDL_GetGamepads")
+    static function getGamepads(count:Pointer<Int>):Pointer<SDL_JoystickID>;
+
+    @:native("SDL_OpenGamepad")
+    static function openGamepad(instanceId:SDL_JoystickID):Pointer<SDL_Gamepad>;
+
+    @:native("SDL_CloseGamepad")
+    static function closeGamepad(gamepad:Pointer<SDL_Gamepad>):Void;
+
+    @:native("SDL_GamepadConnected")
+    static function gamepadConnected(gamepad:Pointer<SDL_Gamepad>):Bool;
+
+    @:native("SDL_GetGamepadName")
+    static function getGamepadName(gamepad:Pointer<SDL_Gamepad>):ConstCharStar;
+
+    @:native("SDL_GetGamepadInstanceID")
+    static function getGamepadInstanceID(gamepad:Pointer<SDL_Gamepad>):SDL_JoystickID;
 
     // ** Platform
 
@@ -648,6 +672,21 @@ extern class SDL {
 
     @:native("SDL_INIT_VIDEO")
     static var INIT_VIDEO(default,null):InitFlag;
+    
+    @:native("SDL_INIT_AUDIO")
+    static var INIT_AUDIO(default,null):InitFlag;
+    
+    @:native("SDL_INIT_JOYSTICK")
+    static var INIT_JOYSTICK(default,null):InitFlag;
+    
+    @:native("SDL_INIT_GAMEPAD")
+    static var INIT_GAMEPAD(default,null):InitFlag;
+    
+    @:native("SDL_INIT_HAPTIC")
+    static var INIT_HAPTIC(default,null):InitFlag;
+    
+    @:native("SDL_INIT_SENSOR")
+    static var INIT_SENSOR(default,null):InitFlag;
 }
 
 // @:native("SDL_Event")
@@ -659,11 +698,42 @@ extern class SDL {
 @:native("::cpp::Reference<SDL_GLContext>")
 extern class GLContext {}
 
+@:native("SDL_GamepadButtonEvent")
+@:structAccess
+extern class GamepadButtonEvent {
+    var type:SDL_EventType;
+    var timestamp:UInt64;
+    var which:SDL_JoystickID;
+    var button:Int;
+    var down:Bool;
+}
+
+@:native("SDL_GamepadAxisEvent")
+@:structAccess
+extern class GamepadAxisEvent {
+    var type:SDL_EventType;
+    var timestamp:UInt64;
+    var which:SDL_JoystickID;
+    var axis:Int;
+    var value:Int;
+}
+
+@:native("SDL_GamepadDeviceEvent")
+@:structAccess
+extern class GamepadDeviceEvent {
+    var type:SDL_EventType;
+    var timestamp:UInt64;
+    var which:SDL_JoystickID;
+}
+
 @:native("SDL_Event")
 @:structAccess
 extern class Event {
 
     var type:SDL_EventType;
+    var gbutton:GamepadButtonEvent;
+    var gaxis:GamepadAxisEvent;
+    var gdevice:GamepadDeviceEvent;
     // var window:WindowEvent;
     // var key:KeyboardEvent;
     // var edit:TextEditingEvent;

@@ -62,6 +62,9 @@ class HXCPP_CLASS_ATTRIBUTES StringMap_obj : public ::hx::Object
 		bool exists(::String key);
 		::Dynamic exists_dyn();
 
+		bool remove(::String key);
+		::Dynamic remove_dyn();
+
 		 ::Dynamic keys();
 		::Dynamic keys_dyn();
 

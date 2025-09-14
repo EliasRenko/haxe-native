@@ -4,6 +4,10 @@ import SDL;
 import GL;
 import Renderer;
 import State;
+import Log;
+import Input;
+import Resources;
+import data.Resource;
 import states.TilemapTestState;
 import states.TilemapFastTestState;
 import states.LogTestState;
@@ -13,15 +17,7 @@ import cpp.Pointer;
 import cpp.NativeString;
 import data.TextureData;
 import loaders.TGALoader;
-
-typedef Resources = __Resources;
-typedef Log = __Log;
-
-typedef Resource = {
-    var type:String;
-    var data:Dynamic;
-    var size:Int;
-}
+import haxe.ds.Vector;
 
 class App {
 
@@ -34,6 +30,7 @@ class App {
     public var resources(get, null):Resources;
     public var renderer(get, null):Renderer;
     public var log(get, null):Log;
+    public var input(get, null):Input;
 
     // State Management
     public var states:Array<State> = [];
@@ -49,13 +46,15 @@ class App {
     private var __lastTime:Float = 0.0;
     private var __currentTime:Float = 0.0;
 
-    private var __resources:__Resources;
-    private var __log:__Log;
+    private var __input:Input;
+    private var __resources:Resources;
+    private var __log:Log;
     
     public function new() {
         // Constructor - initialize basic properties
-        __log = new __Log(this);
-        __resources = new __Resources(this);
+        __log = new Log(this);
+        __resources = new Resources(this);
+        __input = new Input(this);
     }
     
     public function init():Bool {
@@ -67,12 +66,30 @@ class App {
         __log.disableCategory(25); // CATEGORY_STATE
         __log.disableCategory(26); // CATEGORY_EVENTS
         
+        // Enable INPUT category to see gamepad events
+        __log.enableCategory(Log.CATEGORY_INPUT);
+        
         __log.engineInfo("Initializing application...");
         
-        // Initialize SDL video
+        // Debug: Print SDL gamepad event constants
+        __log.info(Log.CATEGORY_INPUT, "SDL Constants - GAMEPAD_BUTTON_DOWN: " + SDL.EVENT_GAMEPAD_BUTTON_DOWN);
+        __log.info(Log.CATEGORY_INPUT, "SDL Constants - GAMEPAD_BUTTON_UP: " + SDL.EVENT_GAMEPAD_BUTTON_UP);
+        __log.info(Log.CATEGORY_INPUT, "SDL Constants - GAMEPAD_ADDED: " + SDL.EVENT_GAMEPAD_ADDED);
+        __log.info(Log.CATEGORY_INPUT, "SDL Constants - GAMEPAD_REMOVED: " + SDL.EVENT_GAMEPAD_REMOVED);
+        __log.info(Log.CATEGORY_INPUT, "SDL Constants - GAMEPAD_AXIS_MOTION: " + SDL.EVENT_GAMEPAD_AXIS_MOTION);
+        
+        // Initialize SDL video and gamepad
         if (!SDL.init(SDL.INIT_VIDEO)) {
             __log.engineError("Failed to initialize SDL: " + SDL.getError());
             return false;
+        }
+        
+        // Initialize gamepad subsystem
+        if (!SDL.initSubSystem(SDL.INIT_GAMEPAD)) {
+            __log.engineWarn("Failed to initialize SDL gamepad subsystem: " + SDL.getError());
+            __log.engineInfo("Continuing without gamepad support");
+        } else {
+            __log.engineInfo("SDL gamepad subsystem initialized successfully");
         }
         
         // Set OpenGL attributes (3.3 Core)
@@ -118,6 +135,10 @@ class App {
         __log.engineInfo("About to create renderer...");
         __renderer = new Renderer(this, WINDOW_WIDTH, WINDOW_HEIGHT);
         __log.engineInfo("Renderer created successfully!");
+        
+        // Initialize input system
+        __log.engineInfo("Initializing input system...");
+        __input.init();
         
         // Preload assets from preload.txt BEFORE creating states
         __log.engineInfo("Preloading assets...");
@@ -217,6 +238,11 @@ class App {
         // Poll SDL events
         var event = SDL.getEvent();
         while (SDL.pollEvent(event)) {
+            // Debug: Log all event types
+            if (event.value.type != SDL.EVENT_MOUSE_MOTION) { // Skip mouse motion to reduce spam
+                __log.info(Log.CATEGORY_INPUT, "DEBUG: Event type: " + event.value.type);
+            }
+            
             if (event.value.type == SDL.EVENT_QUIT) {
                 __log.engineInfo("Quit event received");
                 __active = false;
@@ -227,53 +253,43 @@ class App {
             
             // Gamepad/Controller Events
             else if (event.value.type == SDL.EVENT_GAMEPAD_ADDED) {
-                // trace("Gamepad connected"); // Disabled - EVENTS category
-                // TODO: Open gamepad and store reference
+                __input.onGamepadConnected();
             }
             else if (event.value.type == SDL.EVENT_GAMEPAD_REMOVED) {
-                // trace("Gamepad disconnected"); // Disabled - EVENTS category
-                // TODO: Close gamepad and clean up reference
+                __input.onGamepadDisconnected();
             }
             else if (event.value.type == SDL.EVENT_GAMEPAD_BUTTON_DOWN) {
-                // trace("Gamepad button pressed"); // Disabled - EVENTS category
-                // TODO: Access button data when SDL bindings are complete
+                __log.info(Log.CATEGORY_INPUT, "DEBUG: Gamepad button down event received!");
+                __input.onGamepadButtonPressed(event);
             }
             else if (event.value.type == SDL.EVENT_GAMEPAD_BUTTON_UP) {
-                // trace("Gamepad button released"); // Disabled - EVENTS category
-                // TODO: Access button data when SDL bindings are complete
+                __log.info(Log.CATEGORY_INPUT, "DEBUG: Gamepad button up event received!");
+                __input.onGamepadButtonReleased(event);
             }
             else if (event.value.type == SDL.EVENT_GAMEPAD_AXIS_MOTION) {
-                // trace("Gamepad axis motion"); // Disabled - EVENTS category
-                // TODO: Access axis data when SDL bindings are complete
+                __input.onGamepadAxisMotion(event);
             }
             
             // Keyboard Events
             else if (event.value.type == SDL.EVENT_KEY_DOWN) {
-                // trace("Key pressed"); // Disabled - EVENTS category
-                // TODO: Access key data when SDL bindings are complete
+                __input.onKeyPressed(event);
             }
             else if (event.value.type == SDL.EVENT_KEY_UP) {
-                // trace("Key released"); // Disabled - EVENTS category
-                // TODO: Access key data when SDL bindings are complete
+                __input.onKeyReleased(event);
             }
             
             // Mouse Events
             else if (event.value.type == SDL.EVENT_MOUSE_BUTTON_DOWN) {
-                // trace("Mouse button pressed"); // Disabled - EVENTS category
-                // TODO: Access mouse data when SDL bindings are complete
+                __input.onMouseButtonPressed(event);
             }
             else if (event.value.type == SDL.EVENT_MOUSE_BUTTON_UP) {
-                // trace("Mouse button released"); // Disabled - EVENTS category
-                // TODO: Access mouse data when SDL bindings are complete
+                __input.onMouseButtonReleased(event);
             }
             else if (event.value.type == SDL.EVENT_MOUSE_MOTION) {
-                // Only log significant movement to avoid spam
-                // trace("Mouse motion"); // Disabled - EVENTS category
-                // TODO: Access mouse data when SDL bindings are complete
+                __input.onMouseMotion(event);
             }
             else if (event.value.type == SDL.EVENT_MOUSE_WHEEL) {
-                // trace("Mouse wheel"); // Disabled - EVENTS category
-                // TODO: Access wheel data when SDL bindings are complete
+                __input.onMouseWheel(event);
             }
         }
     }
@@ -282,9 +298,19 @@ class App {
         // Use a fixed deltaTime for stable animation (60 FPS target)
         var deltaTime:Float = 1.0 / 60.0; // 0.0167 seconds per frame
         
+        // Update input system
+        if (__input != null) {
+            __input.update();
+        }
+        
         // Update current state if one is active
         if (currentState != null && currentState.active) {
             currentState.update(deltaTime);
+        }
+        
+        // Post-update input (clear pressed/released states)
+        if (__input != null) {
+            __input.postUpdate();
         }
     }
     
@@ -462,12 +488,24 @@ class App {
             __resources = null;
         }
         
+        // Cleanup input system
+        if (__input != null) {
+            __input.cleanup();
+            __input = null;
+        }
+        
         if (__renderer != null) {
             __renderer.cleanup();
             __renderer = null;
         }
         
         __log.engineInfo("Application cleanup complete");
+        
+        // Quit gamepad subsystem before main SDL quit
+        if (SDL.wasInit(SDL.INIT_GAMEPAD) != 0) {
+            SDL.quitSubSystem(SDL.INIT_GAMEPAD);
+            __log.engineInfo("SDL gamepad subsystem shut down");
+        }
         
         SDL.quit();
         
@@ -501,355 +539,8 @@ class App {
     private function get_log():Log {
         return __log;
     }
-}
-
-private class __Log {
-    // Log categories - SDL3 standard categories
-    public static inline var CATEGORY_APPLICATION:Int = 0;
-    public static inline var CATEGORY_ERROR:Int = 1;
-    public static inline var CATEGORY_ASSERT:Int = 2;
-    public static inline var CATEGORY_SYSTEM:Int = 3;
-    public static inline var CATEGORY_AUDIO:Int = 4;
-    public static inline var CATEGORY_VIDEO:Int = 5;
-    public static inline var CATEGORY_RENDER:Int = 6;
-    public static inline var CATEGORY_INPUT:Int = 7;
-    public static inline var CATEGORY_TEST:Int = 8;
-    public static inline var CATEGORY_CUSTOM:Int = 19; // First available custom category
     
-    // Engine-specific categories
-    public static inline var CATEGORY_ENGINE:Int = 20;
-    public static inline var CATEGORY_RENDERER:Int = 21;
-    public static inline var CATEGORY_RESOURCES:Int = 22;
-    public static inline var CATEGORY_TILEMAP:Int = 23;
-    public static inline var CATEGORY_PERFORMANCE:Int = 24;
-    public static inline var CATEGORY_STATE:Int = 25;
-    public static inline var CATEGORY_EVENTS:Int = 26;
-    
-    // Log level flags for enabling/disabling categories
-    private var __enabledCategories:Map<Int, Bool> = new Map<Int, Bool>();
-    private var __globalLogLevel:Int;
-    private var __parent:App;
-    
-    public function new(app:App) {
-        this.__parent = app;
-        
-        // Initialize SDL logging system
-        SDL.resetLogPriorities();
-        
-        // Set default global log level to INFO (shows INFO, WARN, ERROR, CRITICAL)
-        __globalLogLevel = 3; // INFO level
-        
-        // Enable all engine categories by default
-        enableCategory(CATEGORY_ENGINE);
-        enableCategory(CATEGORY_RENDERER);
-        enableCategory(CATEGORY_RESOURCES);
-        enableCategory(CATEGORY_TILEMAP);
-        enableCategory(CATEGORY_PERFORMANCE);
-        enableCategory(CATEGORY_STATE);
-        enableCategory(CATEGORY_EVENTS);
-        
-        // Enable SDL system categories at WARN level and above
-        SDL.setLogPriority(CATEGORY_APPLICATION, SDL.LOG_PRIORITY_WARN);
-        SDL.setLogPriority(CATEGORY_ERROR, SDL.LOG_PRIORITY_ERROR);
-        SDL.setLogPriority(CATEGORY_SYSTEM, SDL.LOG_PRIORITY_WARN);
-        SDL.setLogPriority(CATEGORY_AUDIO, SDL.LOG_PRIORITY_WARN);
-        SDL.setLogPriority(CATEGORY_VIDEO, SDL.LOG_PRIORITY_WARN);
-        SDL.setLogPriority(CATEGORY_RENDER, SDL.LOG_PRIORITY_WARN);
-        SDL.setLogPriority(CATEGORY_INPUT, SDL.LOG_PRIORITY_WARN);
-        
-        // Log system initialization
-        info(CATEGORY_ENGINE, "Log system initialized");
-    }
-    
-    // === CONFIGURATION METHODS ===
-    
-    public function setGlobalLogLevel(priority:Int):Void {
-        __globalLogLevel = priority;
-        info(CATEGORY_ENGINE, "Global log level set to " + priority);
-    }
-    
-    public function setCategoryLevel(category:Int, priority:Int):Void {
-        info(CATEGORY_ENGINE, "Category " + getCategoryName(category) + " level set to " + priority);
-    }
-    
-    public function enableCategory(category:Int):Void {
-        __enabledCategories.set(category, true);
-        SDL.setLogPriority(category, SDL.LOG_PRIORITY_VERBOSE); // Enable all levels for this category
-    }
-    
-    public function disableCategory(category:Int):Void {
-        __enabledCategories.set(category, false);
-        // Disable by setting to maximum priority level (only critical messages pass)
-        SDL.setLogPriority(category, SDL.LOG_PRIORITY_CRITICAL);
-    }
-    
-    public function isCategoryEnabled(category:Int):Bool {
-        return __enabledCategories.exists(category) && __enabledCategories.get(category);
-    }
-    
-    // === LOGGING METHODS ===
-    
-    public function trace(category:Int, message:String):Void {
-        if (isCategoryEnabled(category)) {
-            SDL.logTrace(category, "[" + getCategoryName(category) + "] " + message);
-        }
-    }
-    
-    public function verbose(category:Int, message:String):Void {
-        if (isCategoryEnabled(category)) {
-            SDL.logVerbose(category, "[" + getCategoryName(category) + "] " + message);
-        }
-    }
-    
-    public function debug(category:Int, message:String):Void {
-        if (isCategoryEnabled(category)) {
-            SDL.logDebug(category, "[" + getCategoryName(category) + "] " + message);
-        }
-    }
-    
-    public function info(category:Int, message:String):Void {
-        if (isCategoryEnabled(category)) {
-            SDL.logInfo(category, "[" + getCategoryName(category) + "] " + message);
-        }
-    }
-    
-    public function warn(category:Int, message:String):Void {
-        if (isCategoryEnabled(category)) {
-            SDL.logWarn(category, "[" + getCategoryName(category) + "] " + message);
-        }
-    }
-    
-    public function error(category:Int, message:String):Void {
-        if (isCategoryEnabled(category)) {
-            SDL.logError(category, "[" + getCategoryName(category) + "] " + message);
-        }
-    }
-    
-    public function critical(category:Int, message:String):Void {
-        if (isCategoryEnabled(category)) {
-            SDL.logCritical(category, "[" + getCategoryName(category) + "] " + message);
-        }
-    }
-    
-    // Convenience methods for common categories
-    public function engineInfo(message:String):Void { info(CATEGORY_ENGINE, message); }
-    public function engineWarn(message:String):Void { warn(CATEGORY_ENGINE, message); }
-    public function engineError(message:String):Void { error(CATEGORY_ENGINE, message); }
-    
-    public function rendererInfo(message:String):Void { info(CATEGORY_RENDERER, message); }
-    public function rendererDebug(message:String):Void { debug(CATEGORY_RENDERER, message); }
-    public function rendererWarn(message:String):Void { warn(CATEGORY_RENDERER, message); }
-    
-    public function tilemapInfo(message:String):Void { info(CATEGORY_TILEMAP, message); }
-    public function tilemapDebug(message:String):Void { debug(CATEGORY_TILEMAP, message); }
-    public function tilemapPerf(message:String):Void { info(CATEGORY_PERFORMANCE, message); }
-    
-    public function stateInfo(message:String):Void { info(CATEGORY_STATE, message); }
-    public function eventInfo(message:String):Void { info(CATEGORY_EVENTS, message); }
-    
-    // === UTILITY METHODS ===
-    
-    private function getCategoryName(category:Int):String {
-        switch (category) {
-            case CATEGORY_APPLICATION: return "APP";
-            case CATEGORY_ERROR: return "ERROR";
-            case CATEGORY_ASSERT: return "ASSERT";
-            case CATEGORY_SYSTEM: return "SYSTEM";
-            case CATEGORY_AUDIO: return "AUDIO";
-            case CATEGORY_VIDEO: return "VIDEO";
-            case CATEGORY_RENDER: return "RENDER";
-            case CATEGORY_INPUT: return "INPUT";
-            case CATEGORY_TEST: return "TEST";
-            case CATEGORY_ENGINE: return "ENGINE";
-            case CATEGORY_RENDERER: return "RENDERER";
-            case CATEGORY_RESOURCES: return "RESOURCES";
-            case CATEGORY_TILEMAP: return "TILEMAP";
-            case CATEGORY_PERFORMANCE: return "PERF";
-            case CATEGORY_STATE: return "STATE";
-            case CATEGORY_EVENTS: return "EVENTS";
-            default: return "CUSTOM" + category;
-        }
-    }
-    
-    private function getPriorityName(priority:SDL_LogPriority):String {
-        if (priority == SDL.LOG_PRIORITY_TRACE) return "TRACE";
-        if (priority == SDL.LOG_PRIORITY_VERBOSE) return "VERBOSE";
-        if (priority == SDL.LOG_PRIORITY_DEBUG) return "DEBUG";
-        if (priority == SDL.LOG_PRIORITY_INFO) return "INFO";
-        if (priority == SDL.LOG_PRIORITY_WARN) return "WARN";
-        if (priority == SDL.LOG_PRIORITY_ERROR) return "ERROR";
-        if (priority == SDL.LOG_PRIORITY_CRITICAL) return "CRITICAL";
-        return "UNKNOWN";
-    }
-    
-    public function getDebugInfo():String {
-        var info = "=== LOG SYSTEM DEBUG INFO ===\n";
-        info += "Global log level: set\n";
-        info += "Enabled categories:\n";
-        
-        for (category in __enabledCategories.keys()) {
-            if (__enabledCategories.get(category)) {
-                var currentLevel = SDL.getLogPriority(category);
-                info += "  " + getCategoryName(category) + " (level: " + currentLevel + ")\n";
-            }
-        }
-        
-        return info;
-    }
-    
-    public function cleanup():Void {
-        info(CATEGORY_ENGINE, "Log system shutting down");
-        __enabledCategories.clear();
-        SDL.resetLogPriorities();
-    }
-}
-
-private class __Resources {
-    // Privates
-    private var __resources:Map<String, Resource> = new Map<String, Resource>();
-    private var __parent:App;
-    private var __resourceFolder:String;
-
-    public function new(app:App, resourceFolder:String = "res") {
-        this.__parent = app;
-        this.__resourceFolder = resourceFolder;
-    }
-
-    public function cached(name:String):Bool {
-        var fullPath = __resourceFolder + "/" + name;
-        if (__resources.exists(fullPath)) {
-            return true;
-        }
-        return false;
-    }
-
-    public function exists(path:String):Bool {
-        var fullPath = __resourceFolder + "/" + path;
-        try {
-            return FileSystem.exists(fullPath);
-        } catch (e:Dynamic) {
-            return false;
-        }
-    }
-
-    public function getText(name:String):String {
-        var fullPath = __resourceFolder + "/" + name;
-        if (__resources.exists(fullPath)) {
-            var _resource:Resource = __resources.get(fullPath);
-            if (_resource == null) {
-                return null;
-            }
-            return cast(_resource.data, String);
-        }
-        return null;
-    }
-
-    public function getTexture(name:String):TextureData {
-        var fullPath = __resourceFolder + "/" + name;
-        if (__resources.exists(fullPath)) {
-            var _resource:Resource = __resources.get(fullPath);
-            if (_resource == null || _resource.type != 'texture') {
-                return null;
-            }
-            return cast(_resource.data, TextureData);
-        }
-        return null;
-    }
-
-    public function loadText(path:String, cache:Bool = true):Promise<String> {
-        var fullPath = __resourceFolder + "/" + path;
-        return new Promise<String>((resolve, reject) -> {
-
-            var size:UInt64 = 0; // Size in bytes
-            var ptrSize:Pointer<UInt64> = Pointer.addressOf(size);
-            var ptrData = SDL.loadFile(fullPath, ptrSize.ptr);
-            if (ptrData == null) {
-                reject("Failed to open file: " + fullPath);
-            }
-
-            var data:String = NativeString.fromPointer(ptrData);
-            if (cache) __resources.set(fullPath, {type: 'text', data: data, size: size.toInt()});
-            resolve(data);
-
-            // trace("Loaded file: " + fullPath + " with size: " + size.toInt() + " bytes"); // Disabled - RESOURCES category
-            SDL.free(ptrData);
-        });
-    }
-
-    public function loadShader(vertexPath:String, fragmentPath:String, cache:Bool = true):Promise<{vertex:String, fragment:String}> {
-        return new Promise<{vertex:String, fragment:String}>((resolve, reject) -> {
-            var vertexPromise = loadText(vertexPath, cache);
-            var fragmentPromise = loadText(fragmentPath, cache);
-            
-            Promise.all([vertexPromise, fragmentPromise])
-                .then(function(results:Array<String>) {
-                    resolve({
-                        vertex: results[0],
-                        fragment: results[1]
-                    });
-                })
-                .onError(function(error:String) {
-                    reject(error);
-                });
-        });
-    }
-
-    public function loadTexture(path:String, cache:Bool = true):Promise<TextureData> {
-        var fullPath = __resourceFolder + "/" + path;
-        return new Promise<TextureData>((resolve, reject) -> {
-            
-            var size:UInt64 = 0;
-            var ptrSize:Pointer<UInt64> = Pointer.addressOf(size);
-            var ptrData = SDL.loadFile(fullPath, ptrSize.ptr);
-            if (ptrData == null) {
-                reject("Failed to open texture file: " + fullPath);
-                return;
-            }
-
-            try {
-                // Convert raw data to Haxe Bytes
-                var bytes = haxe.io.Bytes.alloc(size.toInt());
-                for (i in 0...size.toInt()) {
-                    bytes.set(i, ptrData[i]);
-                }
-                
-                // Parse TGA
-                var textureData = TGALoader.loadFromBytes(bytes);
-                
-                if (cache) {
-                    __resources.set(fullPath, {type: 'texture', data: textureData, size: size.toInt()});
-                }
-                
-                // trace("Loaded texture: " + fullPath + " (" + textureData.width + "x" + textureData.height + ")"); // Disabled - RESOURCES category
-                resolve(textureData);
-                
-            } catch (e:Dynamic) {
-                reject("Failed to parse TGA file: " + e);
-            }
-            
-            SDL.free(ptrData);
-        });
-    }
-    
-    public function cleanup():Void {
-        // trace("Cleaning up resources..."); // Disabled - RESOURCES category
-        var count = 0;
-        for (key in __resources.keys()) {
-            var resource = __resources.get(key);
-            if (resource != null) {
-                count++;
-                // Dispose texture data if it's a texture
-                if (resource.type == 'texture') {
-                    var textureData:TextureData = cast(resource.data, TextureData);
-                    if (textureData != null) {
-                        textureData.dispose();
-                    }
-                }
-                // For text resources, data is just a String reference, no special cleanup needed
-                // Future: Add specific cleanup for other resource types
-            }
-        }
-        __resources.clear();
-        // trace('Cleared $count cached resources'); // Disabled - RESOURCES category
+    private function get_input():Input {
+        return __input;
     }
 }

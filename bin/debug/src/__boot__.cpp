@@ -82,14 +82,14 @@
 #ifndef INCLUDED_State
 #include <State.h>
 #endif
+#ifndef INCLUDED__Log___Log
+#include <_Log/__Log.h>
+#endif
 #ifndef INCLUDED_Entity
 #include <Entity.h>
 #endif
 #ifndef INCLUDED_BlendFactor
 #include <BlendFactor.h>
-#endif
-#ifndef INCLUDED__App___Log
-#include <_App/__Log.h>
 #endif
 #ifndef INCLUDED_App
 #include <App.h>
@@ -295,6 +295,9 @@
 #ifndef INCLUDED_Std
 #include <Std.h>
 #endif
+#ifndef INCLUDED__Resources___Resources
+#include <_Resources/__Resources.h>
+#endif
 #ifndef INCLUDED_Renderer
 #include <Renderer.h>
 #endif
@@ -316,6 +319,12 @@
 #ifndef INCLUDED_IntIterator
 #include <IntIterator.h>
 #endif
+#ifndef INCLUDED_InputDevice
+#include <InputDevice.h>
+#endif
+#ifndef INCLUDED__Input___Input
+#include <_Input/__Input.h>
+#endif
 #ifndef INCLUDED_EventDispacher
 #include <EventDispacher.h>
 #endif
@@ -336,9 +345,6 @@
 #endif
 #ifndef INCLUDED_Camera
 #include <Camera.h>
-#endif
-#ifndef INCLUDED__App___Resources
-#include <_App/__Resources.h>
 #endif
 
 void __files__boot();
@@ -374,9 +380,9 @@ __files__boot();
 ::sys::thread::_Thread::HaxeThread_obj::__register();
 ::cpp::vm::Debugger_obj::__register();
 ::State_obj::__register();
+::_Log::__Log_obj::__register();
 ::Entity_obj::__register();
 ::BlendFactor_obj::__register();
-::_App::__Log_obj::__register();
 ::App_obj::__register();
 ::sys::thread::_Thread::Thread_Impl__obj::__register();
 ::sys::thread::NoEventLoopException_obj::__register();
@@ -445,6 +451,7 @@ __files__boot();
 ::StringTools_obj::__register();
 ::StringBuf_obj::__register();
 ::Std_obj::__register();
+::_Resources::__Resources_obj::__register();
 ::Renderer_obj::__register();
 ::Reflect_obj::__register();
 ::Promise_obj::__register();
@@ -452,6 +459,8 @@ __files__boot();
 ::AttributeFormatHelper_obj::__register();
 ::Main_obj::__register();
 ::IntIterator_obj::__register();
+::InputDevice_obj::__register();
+::_Input::__Input_obj::__register();
 ::EventDispacher_obj::__register();
 ::EReg_obj::__register();
 ::DisplayObject_obj::__register();
@@ -459,7 +468,6 @@ __files__boot();
 ::Vertices_obj::__register();
 ::Date_obj::__register();
 ::Camera_obj::__register();
-::_App::__Resources_obj::__register();
 ::hxcpp::debug::jsonrpc::eval::Token_obj::__boot();
 ::hxcpp::debug::jsonrpc::eval::_Interp::Stop_obj::__boot();
 ::hxcpp::debug::jsonrpc::eval::FieldKind_obj::__boot();
@@ -483,9 +491,9 @@ __files__boot();
 ::cpp::vm::Debugger_obj::__boot();
 ::haxe::Log_obj::__boot();
 ::App_obj::__boot();
-::_App::__Log_obj::__boot();
 ::BlendFactor_obj::__boot();
 ::Entity_obj::__boot();
+::_Log::__Log_obj::__boot();
 ::State_obj::__boot();
 ::sys::thread::_Thread::HaxeThread_obj::__boot();
 ::hxcpp::debug::jsonrpc::Protocol_obj::__boot();
