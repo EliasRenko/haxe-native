@@ -51,7 +51,6 @@ class App {
     private var __log:Log;
     
     public function new() {
-        // Constructor - initialize basic properties
         __log = new Log(this);
         __resources = new Resources(this);
         __input = new Input(this);
@@ -232,6 +231,8 @@ class App {
         }
         
         __log.engineInfo("Main loop ended");
+        
+        release();
     }
     
     private function handleEvents():Void {
@@ -315,16 +316,12 @@ class App {
     }
     
     private function render():Void {
-        // Clear screen using renderer pipeline
         __renderer.clearScreen();
         __renderer.initializeRenderState();
         
-        // Render current state if one is active
         if (currentState != null && currentState.active) {
             currentState.render(__renderer);
         }
-        
-        // Note: Buffer swap is handled in the main loop
     }
 
     // ===== STATE MANAGEMENT METHODS =====
@@ -450,24 +447,7 @@ class App {
         return null;
     }
     
-    /**
-     * Get debug info about all states
-     */
-    public function getStatesDebugInfo():String {
-        var info = "=== STATES DEBUG INFO ===\n";
-        info += "Total states: " + states.length + "\n";
-        info += "Current state: " + (currentState != null ? currentState.name : "none") + "\n";
-        
-        for (i in 0...states.length) {
-            var state = states[i];
-            var current = (state == currentState) ? " [CURRENT]" : "";
-            info += "  " + i + ": " + state.getDebugInfo() + current + "\n";
-        }
-        
-        return info;
-    }
-    
-    public function cleanup():Void {
+    public function release():Void {
         __log.engineInfo("Cleaning up application...");
         
         // Deactivate current state
@@ -507,13 +487,13 @@ class App {
             __log.engineInfo("SDL gamepad subsystem shut down");
         }
         
-        SDL.quit();
-        
         // Cleanup log system last
         if (__log != null) {
             __log.cleanup();
             __log = null;
         }
+
+        SDL.quit();
     }
     
     public function getRenderer():Renderer {

@@ -426,8 +426,8 @@ class Renderer {
      */
     public function initializeRenderState():Void {
         // Enable depth testing for 3D
-        GL.glEnable(GL.DEPTH_TEST);
-        GL.glDepthFunc(GL.LESS);
+        // GL.glEnable(GL.DEPTH_TEST);
+        // GL.glDepthFunc(GL.LESS);
         
         // Disable face culling to see all faces from all angles
         GL.glDisable(GL.CULL_FACE);
