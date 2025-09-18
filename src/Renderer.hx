@@ -64,8 +64,6 @@ class Renderer {
         
         displayObject.render(viewProjectionMatrix);
 
-        renderObject(displayObject);
-
         // ---
 
         if (displayObject.vertices.length == 0) {

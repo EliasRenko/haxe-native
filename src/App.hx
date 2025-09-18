@@ -21,7 +21,7 @@ import haxe.ds.Vector;
 
 class App {
 
-    // Window dimensions - change these to adjust window size
+    public static inline var WINDOW_TITLE:String = "Engine";
     public static inline var WINDOW_WIDTH:Int = 640;
     public static inline var WINDOW_HEIGHT:Int = 480;
 
@@ -97,8 +97,8 @@ class App {
         SDL.setAttribute(SDL.GL_CONTEXT_PROFILE_MASK, SDL.GL_CONTEXT_PROFILE_CORE);
         
         // Create window
-        __window = SDL.createWindow("Clean SDL Engine", WINDOW_WIDTH, WINDOW_HEIGHT, SDL.WINDOW_OPENGL);
-        if (__window == null) {
+        __window = new Window(SDL.createWindow(WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT, SDL.WINDOW_OPENGL));
+        if (__window.ptr == null) {
             __log.engineError("Failed to create window: " + SDL.getError());
             SDL.quit();
             return false;
@@ -107,14 +107,14 @@ class App {
         __log.engineInfo("Window created successfully");
         
         // Create OpenGL context
-        __context = SDL.createContext(__window);
+        __context = SDL.createContext(__window.ptr);
         if (__context == null) {
             __log.engineError("Failed to create OpenGL context: " + SDL.getError());
             SDL.quit();
             return false;
         }
         
-        SDL.makeCurrent(__window, __context);
+        SDL.makeCurrent(__window.ptr, __context);
         
         // Load OpenGL functions
         var gladResult = GL.gladLoadGLLoader(SDL.getProcAddress);
@@ -229,7 +229,7 @@ class App {
             render();
             
             // Swap buffers
-            SDL.swapWindow(__window);
+            SDL.swapWindow(__window.ptr);
         }
         
         __log.engineInfo("Main loop ended");
@@ -497,7 +497,8 @@ class App {
 
         SDL.quit();
     }
-    
+
+    // Getters and setters
     public function getRenderer():Renderer {
         return __renderer;
     }

@@ -64,12 +64,6 @@ class HXCPP_CLASS_ATTRIBUTES Renderer_obj : public ::hx::Object
 		void renderDisplayObject( ::DisplayObject displayObject, ::math::Matrix viewProjectionMatrix);
 		::Dynamic renderDisplayObject_dyn();
 
-		void renderObject( ::DisplayObject displayObject);
-		::Dynamic renderObject_dyn();
-
-		void _hx___render( ::DisplayObject drawable);
-		::Dynamic _hx___render_dyn();
-
 		void _hx___renderUniforms( ::ProgramInfo programInfo, ::haxe::ds::StringMap uniforms);
 		::Dynamic _hx___renderUniforms_dyn();
 
@@ -178,8 +172,8 @@ class HXCPP_CLASS_ATTRIBUTES Renderer_obj : public ::hx::Object
 		 ::Dynamic uploadTexture( ::data::TextureData textureData);
 		::Dynamic uploadTexture_dyn();
 
-		void cleanup();
-		::Dynamic cleanup_dyn();
+		void release();
+		::Dynamic release_dyn();
 
 		void setDepthTest(bool enabled);
 		::Dynamic setDepthTest_dyn();

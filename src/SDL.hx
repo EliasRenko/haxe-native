@@ -7,10 +7,17 @@ import cpp.ConstCharStar;
 import cpp.Pointer;
 import cpp.Struct;
 
-import Window;
-
 typedef SDL_PropertiesID = UInt64;
 typedef SDL_JoystickID = UInt32;
+
+@:native("::cpp::Reference<SDL_GLContext>")
+extern class GLContext {}
+
+// Window
+@:include("SDL3/SDL.h")
+@:native("SDL_Window")
+extern class SDL_Window {}
+typedef WindowPtr = Pointer<SDL_Window>;
 
 @:native("SDL_Gamepad")
 extern class SDL_Gamepad {}
@@ -79,30 +86,30 @@ extern class SDL {
     static function getNumVideoDrivers():Int;
 
     @:native("SDL_GetWindowSize")
-    static function getWindowSize(window:Window, w:Pointer<Int>, h:Pointer<Int>):Bool;
+    static function getWindowSize(window:WindowPtr, w:Pointer<Int>, h:Pointer<Int>):Bool;
 
     @:native("SDL_GetWindowSizeInPixels")
-    static function getWindowSizeInPixels(window:Window, w:Pointer<Int>, h:Pointer<Int>):Bool;
+    static function getWindowSizeInPixels(window:WindowPtr, w:Pointer<Int>, h:Pointer<Int>):Bool;
 
     // ** 
     
     @:native("SDL_CreateWindow")
-    static function createWindow(title:String, w:Int, h:Int, flags:CreateWindowFlag):Window;
+    static function createWindow(title:String, w:Int, h:Int, flags:CreateWindowFlag):WindowPtr;
 
     @:native("SDL_SetWindowFullscreen")
-    static function setWindowFullscreen(window:Window, fullscreen:Bool):Int;
+    static function setWindowFullscreen(window:WindowPtr, fullscreen:Bool):Int;
 
     @:native("SDL_GetPointerProperty")
     static function getPointerProperty(props:SDL_PropertiesID, name:cpp.ConstCharStar, defaultValue:cpp.RawPointer<Void>):cpp.RawPointer<Void>;
 
     @:native("SDL_GetWindowProperties")
-    static function getWindowProperties(window:Window):SDL_PropertiesID;
+    static function getWindowProperties(window:WindowPtr):SDL_PropertiesID;
 
     @:native("SDL_GL_CreateContext")
-    static function createContext(window:Window):GLContext;
+    static function createContext(window:WindowPtr):GLContext;
 
     @:native("SDL_GL_MakeCurrent")
-    static function makeCurrent(window:Window, context:GLContext):Void;
+    static function makeCurrent(window:WindowPtr, context:GLContext):Void;
 
     @:native("SDL_GL_GetProcAddress")
     static function getProcAddress(name:ConstCharStar):cpp.RawPointer<Void>;
@@ -114,7 +121,7 @@ extern class SDL {
     static function setAttribute(attr:SDL_GLAttr, value:Int):Int;
 
     @:native("SDL_GL_SwapWindow")
-    static function swapWindow(window:Window):Void;
+    static function swapWindow(window:WindowPtr):Void;
 
     @:native("SDL_PollEvent")
     static function pollEvent(event:Pointer<Event>):Bool;
@@ -691,12 +698,6 @@ extern class SDL {
 
 // @:native("SDL_Event")
 // extern class Event {}
-
-// @:native("::cpp::Reference<SDL_Window>")
-// extern class Window {}
-
-@:native("::cpp::Reference<SDL_GLContext>")
-extern class GLContext {}
 
 @:native("SDL_GamepadButtonEvent")
 @:structAccess
