@@ -15,17 +15,17 @@
 #ifndef INCLUDED_DisplayObject
 #include <DisplayObject.h>
 #endif
-#ifndef INCLUDED_Indices
-#include <Indices.h>
-#endif
 #ifndef INCLUDED_ProgramInfo
 #include <ProgramInfo.h>
 #endif
 #ifndef INCLUDED_Renderer
 #include <Renderer.h>
 #endif
-#ifndef INCLUDED_Vertices
-#include <Vertices.h>
+#ifndef INCLUDED__DisplayObject_Indices_Impl_
+#include <_DisplayObject/Indices_Impl_.h>
+#endif
+#ifndef INCLUDED__DisplayObject_Vertices_Impl_
+#include <_DisplayObject/Vertices_Impl_.h>
 #endif
 #ifndef INCLUDED_haxe_IMap
 #include <haxe/IMap.h>
@@ -37,70 +37,70 @@
 #include <math/Matrix.h>
 #endif
 
-HX_DEFINE_STACK_FRAME(_hx_pos_762d6b90114794ff_47_new,"DisplayObject","new",0x810bfff3,"DisplayObject.new","DisplayObject.hx",47,0x55877edd)
-HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_114_init,"DisplayObject","init",0x662cac1d,"DisplayObject.init","DisplayObject.hx",114,0x55877edd)
-HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_128_updateBuffers,"DisplayObject","updateBuffers",0xe91f8dbd,"DisplayObject.updateBuffers","DisplayObject.hx",128,0x55877edd)
-HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_141_remove,"DisplayObject","remove",0x39022a91,"DisplayObject.remove","DisplayObject.hx",141,0x55877edd)
-HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_156_setTexture,"DisplayObject","setTexture",0x92f32626,"DisplayObject.setTexture","DisplayObject.hx",156,0x55877edd)
-HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_168_addTexture,"DisplayObject","addTexture",0xa79e2d87,"DisplayObject.addTexture","DisplayObject.hx",168,0x55877edd)
-HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_177_hasTextures,"DisplayObject","hasTextures",0xa4245745,"DisplayObject.hasTextures","DisplayObject.hx",177,0x55877edd)
-HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_184_getTextureId,"DisplayObject","getTextureId",0x7dac982d,"DisplayObject.getTextureId","DisplayObject.hx",184,0x55877edd)
-HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_187_updateTransform,"DisplayObject","updateTransform",0xae68be36,"DisplayObject.updateTransform","DisplayObject.hx",187,0x55877edd)
-HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_223_render,"DisplayObject","render",0x39a2f9a3,"DisplayObject.render","DisplayObject.hx",223,0x55877edd)
+HX_DEFINE_STACK_FRAME(_hx_pos_762d6b90114794ff_80_new,"DisplayObject","new",0x810bfff3,"DisplayObject.new","DisplayObject.hx",80,0x55877edd)
+HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_147_init,"DisplayObject","init",0x662cac1d,"DisplayObject.init","DisplayObject.hx",147,0x55877edd)
+HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_161_updateBuffers,"DisplayObject","updateBuffers",0xe91f8dbd,"DisplayObject.updateBuffers","DisplayObject.hx",161,0x55877edd)
+HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_174_remove,"DisplayObject","remove",0x39022a91,"DisplayObject.remove","DisplayObject.hx",174,0x55877edd)
+HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_189_setTexture,"DisplayObject","setTexture",0x92f32626,"DisplayObject.setTexture","DisplayObject.hx",189,0x55877edd)
+HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_201_addTexture,"DisplayObject","addTexture",0xa79e2d87,"DisplayObject.addTexture","DisplayObject.hx",201,0x55877edd)
+HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_210_hasTextures,"DisplayObject","hasTextures",0xa4245745,"DisplayObject.hasTextures","DisplayObject.hx",210,0x55877edd)
+HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_217_getTextureId,"DisplayObject","getTextureId",0x7dac982d,"DisplayObject.getTextureId","DisplayObject.hx",217,0x55877edd)
+HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_220_updateTransform,"DisplayObject","updateTransform",0xae68be36,"DisplayObject.updateTransform","DisplayObject.hx",220,0x55877edd)
+HX_LOCAL_STACK_FRAME(_hx_pos_762d6b90114794ff_231_render,"DisplayObject","render",0x39a2f9a3,"DisplayObject.render","DisplayObject.hx",231,0x55877edd)
 
-void DisplayObject_obj::__construct( ::ProgramInfo programInfo, ::Vertices vertices, ::Indices indices){
-            	HX_GC_STACKFRAME(&_hx_pos_762d6b90114794ff_47_new)
+void DisplayObject_obj::__construct( ::ProgramInfo programInfo,::Array< Float > vertices,::Array< int > indices){
+            	HX_GC_STACKFRAME(&_hx_pos_762d6b90114794ff_80_new)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(programInfo,"programInfo")
             	HX_STACK_ARG(vertices,"vertices")
             	HX_STACK_ARG(indices,"indices")
-HXLINE(  47)
-HXLINE(  99)		this->initialized = false;
-HXLINE(  98)		this->ebo = ( (unsigned int)(0) );
-HXLINE(  97)		this->vbo = ( (unsigned int)(0) );
-HXLINE(  96)		this->vao = ( (unsigned int)(0) );
-HXLINE(  93)		this->needsBufferUpdate = false;
-HXLINE(  90)		this->framesSinceLastMatrixDebug = 0;
-HXLINE(  87)		this->_hx___indicesToRender = 0;
-HXLINE(  86)		this->_hx___verticesToRender = 0;
-HXLINE(  85)		this->_hx___shouldTransform = false;
-HXLINE(  82)		this->cullFace = false;
-HXLINE(  81)		this->depthWrite = true;
-HXLINE(  80)		this->depthTest = true;
-HXLINE(  77)		this->children = ::Array_obj< ::Dynamic>::__new(0);
-HXLINE(  76)		this->parent = null();
-HXLINE(  73)		this->scaleZ = ((Float)1.0);
-HXLINE(  72)		this->scaleY = ((Float)1.0);
-HXLINE(  71)		this->scaleX = ((Float)1.0);
-HXLINE(  69)		this->rotationZ = ((Float)0.0);
-HXLINE(  68)		this->rotationY = ((Float)0.0);
-HXLINE(  67)		this->rotationX = ((Float)0.0);
-HXLINE(  64)		this->z = ((Float)0.0);
-HXLINE(  63)		this->y = ((Float)0.0);
-HXLINE(  62)		this->x = ((Float)0.0);
-HXLINE(  59)		this->signature = HX_("",00,00,00,00);
-HXLINE(  58)		this->visible = true;
-HXLINE(  57)		this->uniforms =  ::haxe::ds::StringMap_obj::__alloc( HX_CTX );
-HXLINE(  56)		this->matrix =  ::math::Matrix_obj::__alloc( HX_CTX );
-HXLINE(  55)		this->textures = ::Array_obj< ::Dynamic>::__new();
-HXLINE(  53)		this->vertices =  ::Vertices_obj::__alloc( HX_CTX ,::Array_obj< Float >::__new(0));
-HXLINE(  52)		this->indices =  ::Indices_obj::__alloc( HX_CTX ,::Array_obj< int >::__new(0));
-HXLINE(  50)		this->mode = GL_TRIANGLES;
-HXLINE(  49)		this->bufferId = 0;
-HXLINE( 102)		if (::hx::IsNull( programInfo )) {
-HXLINE( 102)			HX_STACK_DO_THROW(HX_("programInfo cannot be null",35,9f,32,e7));
+HXLINE(  80)
+HXLINE( 132)		this->initialized = false;
+HXLINE( 131)		this->ebo = ( (unsigned int)(0) );
+HXLINE( 130)		this->vbo = ( (unsigned int)(0) );
+HXLINE( 129)		this->vao = ( (unsigned int)(0) );
+HXLINE( 126)		this->needsBufferUpdate = false;
+HXLINE( 123)		this->framesSinceLastMatrixDebug = 0;
+HXLINE( 120)		this->_hx___indicesToRender = 0;
+HXLINE( 119)		this->_hx___verticesToRender = 0;
+HXLINE( 118)		this->_hx___shouldTransform = false;
+HXLINE( 115)		this->cullFace = false;
+HXLINE( 114)		this->depthWrite = true;
+HXLINE( 113)		this->depthTest = true;
+HXLINE( 110)		this->children = ::Array_obj< ::Dynamic>::__new(0);
+HXLINE( 109)		this->parent = null();
+HXLINE( 106)		this->scaleZ = ((Float)1.0);
+HXLINE( 105)		this->scaleY = ((Float)1.0);
+HXLINE( 104)		this->scaleX = ((Float)1.0);
+HXLINE( 102)		this->rotationZ = ((Float)0.0);
+HXLINE( 101)		this->rotationY = ((Float)0.0);
+HXLINE( 100)		this->rotationX = ((Float)0.0);
+HXLINE(  97)		this->z = ((Float)0.0);
+HXLINE(  96)		this->y = ((Float)0.0);
+HXLINE(  95)		this->x = ((Float)0.0);
+HXLINE(  92)		this->signature = HX_("",00,00,00,00);
+HXLINE(  91)		this->visible = true;
+HXLINE(  90)		this->uniforms =  ::haxe::ds::StringMap_obj::__alloc( HX_CTX );
+HXLINE(  89)		this->matrix =  ::math::Matrix_obj::__alloc( HX_CTX );
+HXLINE(  88)		this->textures = ::Array_obj< ::Dynamic>::__new();
+HXLINE(  86)		this->vertices = ::Array_obj< Float >::__new(0);
+HXLINE(  85)		this->indices = ::Array_obj< int >::__new(0);
+HXLINE(  83)		this->mode = GL_TRIANGLES;
+HXLINE(  82)		this->bufferId = 0;
+HXLINE( 135)		if (::hx::IsNull( programInfo )) {
+HXLINE( 135)			HX_STACK_DO_THROW(HX_("programInfo cannot be null",35,9f,32,e7));
             		}
-HXLINE( 103)		this->programInfo = programInfo;
-HXLINE( 105)		this->vertices = vertices;
-HXLINE( 106)		 ::Indices _hx_tmp;
-HXDLIN( 106)		if (::hx::IsNotNull( indices )) {
-HXLINE( 106)			_hx_tmp = indices;
+HXLINE( 136)		this->programInfo = programInfo;
+HXLINE( 138)		this->vertices = vertices;
+HXLINE( 139)		::Array< int > _hx_tmp;
+HXDLIN( 139)		if (::hx::IsNotNull( indices )) {
+HXLINE( 139)			_hx_tmp = indices;
             		}
             		else {
-HXLINE( 106)			_hx_tmp =  ::Indices_obj::__alloc( HX_CTX ,::Array_obj< int >::__new(0));
+HXLINE( 139)			_hx_tmp = ::Array_obj< int >::__new(0);
             		}
-HXDLIN( 106)		this->indices = _hx_tmp;
-HXLINE( 108)		this->blendFactors =  ::Dynamic(::hx::Anon_obj::Create(2)
+HXDLIN( 139)		this->indices = _hx_tmp;
+HXLINE( 141)		this->blendFactors =  ::Dynamic(::hx::Anon_obj::Create(2)
             			->setFixed(0,HX_("destination",8e,8a,fb,11),::BlendFactor_obj::ONE_MINUS_SRC_ALPHA)
             			->setFixed(1,HX_("source",db,b0,31,32),::BlendFactor_obj::SRC_ALPHA));
             	}
@@ -121,52 +121,53 @@ bool DisplayObject_obj::_hx_isInstanceOf(int inClassId) {
 }
 
 void DisplayObject_obj::init( ::Renderer renderer){
-            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_114_init)
+            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_147_init)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(renderer,"renderer")
-HXLINE( 114)
-HXLINE( 115)		if (this->initialized) {
-HXLINE( 115)			return;
+HXLINE( 147)
+HXLINE( 148)		if (this->initialized) {
+HXLINE( 148)			return;
             		}
-HXLINE( 118)		HX_VARI(  ::Dynamic,buffers) = renderer->createBuffers(this->vertices->data->length,this->indices->data->length);
-HXLINE( 119)		this->vao = ( (unsigned int)(buffers->__Field(HX_("vao",e4,de,59,00),::hx::paccDynamic)) );
-HXLINE( 120)		this->vbo = ( (unsigned int)(buffers->__Field(HX_("vbo",c3,df,59,00),::hx::paccDynamic)) );
-HXLINE( 121)		this->ebo = ( (unsigned int)(buffers->__Field(HX_("ebo",72,f9,4c,00),::hx::paccDynamic)) );
-HXLINE( 124)		this->initialized = true;
-HXLINE( 125)		this->updateBuffers(renderer);
+HXLINE( 151)		int buffers = ::_DisplayObject::Vertices_Impl__obj::get_data(this->vertices)->length;
+HXDLIN( 151)		HX_VARI_NAME(  ::Dynamic,buffers1,"buffers") = renderer->createBuffers(buffers,::_DisplayObject::Indices_Impl__obj::get_data(this->indices)->length);
+HXLINE( 152)		this->vao = ( (unsigned int)(buffers1->__Field(HX_("vao",e4,de,59,00),::hx::paccDynamic)) );
+HXLINE( 153)		this->vbo = ( (unsigned int)(buffers1->__Field(HX_("vbo",c3,df,59,00),::hx::paccDynamic)) );
+HXLINE( 154)		this->ebo = ( (unsigned int)(buffers1->__Field(HX_("ebo",72,f9,4c,00),::hx::paccDynamic)) );
+HXLINE( 157)		this->initialized = true;
+HXLINE( 158)		this->updateBuffers(renderer);
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC1(DisplayObject_obj,init,(void))
 
 void DisplayObject_obj::updateBuffers( ::Renderer renderer){
-            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_128_updateBuffers)
+            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_161_updateBuffers)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(renderer,"renderer")
-HXLINE( 128)
-HXLINE( 129)		if (!(this->initialized)) {
-HXLINE( 129)			return;
+HXLINE( 161)
+HXLINE( 162)		if (!(this->initialized)) {
+HXLINE( 162)			return;
             		}
-HXLINE( 132)		renderer->uploadVertexData(( (int)(this->vao) ),( (int)(this->vbo) ),this->vertices->data);
-HXLINE( 133)		renderer->uploadIndexData(( (int)(this->ebo) ),this->indices->data);
-HXLINE( 134)		renderer->setupVertexAttributes(this->programInfo);
-HXLINE( 137)		this->needsBufferUpdate = false;
+HXLINE( 165)		renderer->uploadVertexData(( (int)(this->vao) ),( (int)(this->vbo) ),this->vertices);
+HXLINE( 166)		renderer->uploadIndexData(( (int)(this->ebo) ),this->indices);
+HXLINE( 167)		renderer->setupVertexAttributes(this->programInfo);
+HXLINE( 170)		this->needsBufferUpdate = false;
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC1(DisplayObject_obj,updateBuffers,(void))
 
 void DisplayObject_obj::remove( ::Renderer renderer){
-            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_141_remove)
+            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_174_remove)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(renderer,"renderer")
-HXLINE( 141)
-HXDLIN( 141)		if (this->initialized) {
-HXLINE( 143)			renderer->deleteBuffers(( (int)(this->vao) ),( (int)(this->vbo) ),( (int)(this->ebo) ));
-HXLINE( 144)			this->vao = ( (unsigned int)(0) );
-HXLINE( 145)			this->vbo = ( (unsigned int)(0) );
-HXLINE( 146)			this->ebo = ( (unsigned int)(0) );
-HXLINE( 147)			this->initialized = false;
+HXLINE( 174)
+HXDLIN( 174)		if (this->initialized) {
+HXLINE( 176)			renderer->deleteBuffers(( (int)(this->vao) ),( (int)(this->vbo) ),( (int)(this->ebo) ));
+HXLINE( 177)			this->vao = ( (unsigned int)(0) );
+HXLINE( 178)			this->vbo = ( (unsigned int)(0) );
+HXLINE( 179)			this->ebo = ( (unsigned int)(0) );
+HXLINE( 180)			this->initialized = false;
             		}
             	}
 
@@ -174,15 +175,15 @@ HXLINE( 147)			this->initialized = false;
 HX_DEFINE_DYNAMIC_FUNC1(DisplayObject_obj,remove,(void))
 
 void DisplayObject_obj::setTexture( ::Dynamic texture){
-            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_156_setTexture)
+            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_189_setTexture)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(texture,"texture")
-HXLINE( 156)
-HXDLIN( 156)		if (::hx::IsNull( texture )) {
-HXLINE( 157)			this->textures = ::Array_obj< ::Dynamic>::__new(0);
+HXLINE( 189)
+HXDLIN( 189)		if (::hx::IsNull( texture )) {
+HXLINE( 190)			this->textures = ::Array_obj< ::Dynamic>::__new(0);
             		}
             		else {
-HXLINE( 159)			this->textures = ::Array_obj< ::Dynamic>::__new(1)->init(0,texture);
+HXLINE( 192)			this->textures = ::Array_obj< ::Dynamic>::__new(1)->init(0,texture);
             		}
             	}
 
@@ -190,143 +191,96 @@ HXLINE( 159)			this->textures = ::Array_obj< ::Dynamic>::__new(1)->init(0,textur
 HX_DEFINE_DYNAMIC_FUNC1(DisplayObject_obj,setTexture,(void))
 
 int DisplayObject_obj::addTexture( ::Dynamic texture){
-            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_168_addTexture)
+            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_201_addTexture)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(texture,"texture")
-HXLINE( 168)
-HXLINE( 169)		this->textures->push(texture);
-HXLINE( 170)		return (this->textures->length - 1);
+HXLINE( 201)
+HXLINE( 202)		this->textures->push(texture);
+HXLINE( 203)		return (this->textures->length - 1);
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC1(DisplayObject_obj,addTexture,return )
 
 bool DisplayObject_obj::hasTextures(){
-            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_177_hasTextures)
+            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_210_hasTextures)
             	HX_STACK_THIS(this)
-HXLINE( 177)
-HXDLIN( 177)		if ((this->textures->length > 0)) {
-HXDLIN( 177)			return ::hx::IsNotNull( this->textures->__get(0) );
+HXLINE( 210)
+HXDLIN( 210)		if ((this->textures->length > 0)) {
+HXDLIN( 210)			return ::hx::IsNotNull( this->textures->__get(0) );
             		}
             		else {
-HXDLIN( 177)			return false;
+HXDLIN( 210)			return false;
             		}
-HXDLIN( 177)		return false;
+HXDLIN( 210)		return false;
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC0(DisplayObject_obj,hasTextures,return )
 
 int DisplayObject_obj::getTextureId(){
-            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_184_getTextureId)
+            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_217_getTextureId)
             	HX_STACK_THIS(this)
-HXLINE( 184)
-HXDLIN( 184)		bool _hx_tmp;
-HXDLIN( 184)		if ((this->textures->length > 0)) {
-HXDLIN( 184)			_hx_tmp = ::hx::IsNotNull( this->textures->__get(0) );
+HXLINE( 217)
+HXDLIN( 217)		bool _hx_tmp;
+HXDLIN( 217)		if ((this->textures->length > 0)) {
+HXDLIN( 217)			_hx_tmp = ::hx::IsNotNull( this->textures->__get(0) );
             		}
             		else {
-HXDLIN( 184)			_hx_tmp = false;
+HXDLIN( 217)			_hx_tmp = false;
             		}
-HXDLIN( 184)		if (_hx_tmp) {
-HXDLIN( 184)			return ( (int)(this->textures->__get(0)->__Field(HX_("id",db,5b,00,00),::hx::paccDynamic)) );
+HXDLIN( 217)		if (_hx_tmp) {
+HXDLIN( 217)			return ( (int)(this->textures->__get(0)->__Field(HX_("id",db,5b,00,00),::hx::paccDynamic)) );
             		}
             		else {
-HXDLIN( 184)			return 0;
+HXDLIN( 217)			return 0;
             		}
-HXDLIN( 184)		return 0;
+HXDLIN( 217)		return 0;
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC0(DisplayObject_obj,getTextureId,return )
 
 void DisplayObject_obj::updateTransform(){
-            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_187_updateTransform)
+            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_220_updateTransform)
             	HX_STACK_THIS(this)
-HXLINE( 187)
-HXLINE( 189)		this->matrix->identity();
-HXLINE( 197)		bool _hx_tmp;
-HXDLIN( 197)		bool _hx_tmp1;
-HXDLIN( 197)		if ((this->scaleX == ((Float)1.0))) {
-HXLINE( 197)			_hx_tmp1 = (this->scaleY != ((Float)1.0));
-            		}
-            		else {
-HXLINE( 197)			_hx_tmp1 = true;
-            		}
-HXDLIN( 197)		if (!(_hx_tmp1)) {
-HXLINE( 197)			_hx_tmp = (this->scaleZ != ((Float)1.0));
-            		}
-            		else {
-HXLINE( 197)			_hx_tmp = true;
-            		}
-HXDLIN( 197)		if (_hx_tmp) {
-HXLINE( 198)			this->matrix->appendScale(this->scaleX,this->scaleY,this->scaleZ);
-            		}
-HXLINE( 202)		if ((this->rotationX != ((Float)0.0))) {
-HXLINE( 203)			this->matrix->appendRotationX(this->rotationX);
-            		}
-HXLINE( 205)		if ((this->rotationY != ((Float)0.0))) {
-HXLINE( 206)			this->matrix->appendRotationY(this->rotationY);
-            		}
-HXLINE( 208)		if ((this->rotationZ != ((Float)0.0))) {
-HXLINE( 210)			this->matrix->appendRotationZ(((-(this->rotationZ) * ::Math_obj::PI) / ((Float)180.0)));
-            		}
-HXLINE( 213)		bool _hx_tmp2;
-HXDLIN( 213)		bool _hx_tmp3;
-HXDLIN( 213)		if ((this->x == ((Float)0.0))) {
-HXLINE( 213)			_hx_tmp3 = (this->y != ((Float)0.0));
-            		}
-            		else {
-HXLINE( 213)			_hx_tmp3 = true;
-            		}
-HXDLIN( 213)		if (!(_hx_tmp3)) {
-HXLINE( 213)			_hx_tmp2 = (this->z != ((Float)0.0));
-            		}
-            		else {
-HXLINE( 213)			_hx_tmp2 = true;
-            		}
-HXDLIN( 213)		if (_hx_tmp2) {
-HXLINE( 214)			this->matrix->appendTranslation(this->x,this->y,this->z);
-            		}
+HXLINE( 220)
+HXLINE( 221)		this->matrix->identity();
+HXLINE( 222)		this->matrix->appendScale(this->scaleX,this->scaleY,this->scaleZ);
+HXLINE( 223)		this->matrix->appendRotationX(this->rotationX);
+HXLINE( 224)		this->matrix->appendRotationY(this->rotationY);
+HXLINE( 225)		this->matrix->appendRotationZ(((-(this->rotationZ) * ::Math_obj::PI) / ((Float)180.0)));
+HXLINE( 226)		this->matrix->appendTranslation(this->x,this->y,this->z);
             	}
 
 
 HX_DEFINE_DYNAMIC_FUNC0(DisplayObject_obj,updateTransform,(void))
 
-void DisplayObject_obj::render( ::math::Matrix cameraMatrix, ::Renderer renderer){
-            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_223_render)
+void DisplayObject_obj::render( ::math::Matrix cameraMatrix){
+            	HX_STACKFRAME(&_hx_pos_762d6b90114794ff_231_render)
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(cameraMatrix,"cameraMatrix")
-            	HX_STACK_ARG(renderer,"renderer")
-HXLINE( 223)
-HXLINE( 224)		bool _hx_tmp;
-HXDLIN( 224)		if (this->visible) {
-HXLINE( 224)			_hx_tmp = !(this->initialized);
+HXLINE( 231)
+HXLINE( 232)		if (!(this->visible)) {
+HXLINE( 232)			return;
             		}
-            		else {
-HXLINE( 224)			_hx_tmp = true;
-            		}
-HXDLIN( 224)		if (_hx_tmp) {
-HXLINE( 224)			return;
-            		}
-HXLINE( 227)		this->updateTransform();
-HXLINE( 231)		HX_VARI(  ::math::Matrix,finalMatrix) = ::math::Matrix_obj::copy(this->matrix);
-HXLINE( 232)		finalMatrix->append(cameraMatrix);
-HXLINE( 235)		this->uniforms->set(HX_("uMatrix",96,f0,ab,f1),finalMatrix->data);
-HXLINE( 238)		renderer->renderObject(::hx::ObjectPtr<OBJ_>(this));
+HXLINE( 235)		this->updateTransform();
+HXLINE( 239)		HX_VARI(  ::math::Matrix,finalMatrix) = ::math::Matrix_obj::copy(this->matrix);
+HXLINE( 240)		finalMatrix->append(cameraMatrix);
+HXLINE( 243)		this->uniforms->set(HX_("uMatrix",96,f0,ab,f1),finalMatrix->data);
             	}
 
 
-HX_DEFINE_DYNAMIC_FUNC2(DisplayObject_obj,render,(void))
+HX_DEFINE_DYNAMIC_FUNC1(DisplayObject_obj,render,(void))
 
 
-::hx::ObjectPtr< DisplayObject_obj > DisplayObject_obj::__new( ::ProgramInfo programInfo, ::Vertices vertices, ::Indices indices) {
+::hx::ObjectPtr< DisplayObject_obj > DisplayObject_obj::__new( ::ProgramInfo programInfo,::Array< Float > vertices,::Array< int > indices) {
 	::hx::ObjectPtr< DisplayObject_obj > __this = new DisplayObject_obj();
 	__this->__construct(programInfo,vertices,indices);
 	return __this;
 }
 
-::hx::ObjectPtr< DisplayObject_obj > DisplayObject_obj::__alloc(::hx::Ctx *_hx_ctx, ::ProgramInfo programInfo, ::Vertices vertices, ::Indices indices) {
+::hx::ObjectPtr< DisplayObject_obj > DisplayObject_obj::__alloc(::hx::Ctx *_hx_ctx, ::ProgramInfo programInfo,::Array< Float > vertices,::Array< int > indices) {
 	DisplayObject_obj *__this = (DisplayObject_obj*)(::hx::Ctx::alloc(_hx_ctx, sizeof(DisplayObject_obj), true, "DisplayObject"));
 	*(void **)__this = DisplayObject_obj::_hx_vtable;
 	__this->__construct(programInfo,vertices,indices);
@@ -518,12 +472,12 @@ void DisplayObject_obj::__Visit(HX_VISIT_PARAMS)
 		if (HX_FIELD_EQ(inName,"parent") ) { parent=inValue.Cast<  ::DisplayObject >(); return inValue; }
 		break;
 	case 7:
-		if (HX_FIELD_EQ(inName,"indices") ) { indices=inValue.Cast<  ::Indices >(); return inValue; }
+		if (HX_FIELD_EQ(inName,"indices") ) { indices=inValue.Cast< ::Array< int > >(); return inValue; }
 		if (HX_FIELD_EQ(inName,"visible") ) { visible=inValue.Cast< bool >(); return inValue; }
 		break;
 	case 8:
 		if (HX_FIELD_EQ(inName,"bufferId") ) { bufferId=inValue.Cast< int >(); return inValue; }
-		if (HX_FIELD_EQ(inName,"vertices") ) { vertices=inValue.Cast<  ::Vertices >(); return inValue; }
+		if (HX_FIELD_EQ(inName,"vertices") ) { vertices=inValue.Cast< ::Array< Float > >(); return inValue; }
 		if (HX_FIELD_EQ(inName,"textures") ) { textures=inValue.Cast< ::Array< ::Dynamic> >(); return inValue; }
 		if (HX_FIELD_EQ(inName,"uniforms") ) { uniforms=inValue.Cast<  ::haxe::ds::StringMap >(); return inValue; }
 		if (HX_FIELD_EQ(inName,"children") ) { children=inValue.Cast< ::Array< ::Dynamic> >(); return inValue; }
@@ -604,8 +558,8 @@ static ::hx::StorageInfo DisplayObject_obj_sMemberStorageInfo[] = {
 	{::hx::fsInt,(int)offsetof(DisplayObject_obj,bufferId),HX_("bufferId",fb,3c,fe,ac)},
 	{::hx::fsInt,(int)offsetof(DisplayObject_obj,mode),HX_("mode",63,d3,60,48)},
 	{::hx::fsObject /*  ::Dynamic */ ,(int)offsetof(DisplayObject_obj,blendFactors),HX_("blendFactors",73,78,17,d7)},
-	{::hx::fsObject /*  ::Indices */ ,(int)offsetof(DisplayObject_obj,indices),HX_("indices",27,47,54,e3)},
-	{::hx::fsObject /*  ::Vertices */ ,(int)offsetof(DisplayObject_obj,vertices),HX_("vertices",f9,bf,15,6a)},
+	{::hx::fsObject /* ::Array< int > */ ,(int)offsetof(DisplayObject_obj,indices),HX_("indices",27,47,54,e3)},
+	{::hx::fsObject /* ::Array< Float > */ ,(int)offsetof(DisplayObject_obj,vertices),HX_("vertices",f9,bf,15,6a)},
 	{::hx::fsObject /*  ::ProgramInfo */ ,(int)offsetof(DisplayObject_obj,programInfo),HX_("programInfo",12,41,df,bc)},
 	{::hx::fsObject /* ::Array< ::Dynamic> */ ,(int)offsetof(DisplayObject_obj,textures),HX_("textures",38,f7,ce,65)},
 	{::hx::fsObject /*  ::math::Matrix */ ,(int)offsetof(DisplayObject_obj,matrix),HX_("matrix",41,36,c8,bb)},

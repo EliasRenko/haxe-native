@@ -34,7 +34,7 @@ private class __Input {
         __parent.log.info(Log.CATEGORY_INPUT, "Input system initialized");
     }
 
-    public function cleanup():Void {
+    public function release():Void {
         __parent.log.info(Log.CATEGORY_INPUT, "Input system shutting down");
         
         // TODO: Close all open gamepads when SDL gamepad bindings are available

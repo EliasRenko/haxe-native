@@ -15,10 +15,8 @@ typedef RenderState = {
 
 class Renderer {
     
-    // App reference with controlled access
+    // Publics
     public var app(get, null):App;
-    
-    // Window dimensions - exposed for camera calculations
     public var windowWidth:Int;
     public var windowHeight:Int;
     
@@ -64,40 +62,32 @@ class Renderer {
             displayObject.updateBuffers(this);
         }
         
-        // Render the display object with the provided view-projection matrix
-        // The DisplayObject will combine this with its model matrix
-        displayObject.render(viewProjectionMatrix, this);
-    }
-    
-    /**
-     * Render a DisplayObject using the cleaner architecture pattern
-     * All GL operations are centralized here in the Renderer
-     */
-    public function renderObject(displayObject:DisplayObject):Void {
-        if (displayObject.vertices.data.length == 0) {
+        displayObject.render(viewProjectionMatrix);
+
+        renderObject(displayObject);
+
+        // ---
+
+        if (displayObject.vertices.length == 0) {
             return;
         }
 
-        __render(displayObject);
-    }
-
-    private function __render(drawable:DisplayObject):Void {
         // Use the program
-        GL.useProgram(drawable.programInfo.program);
+        GL.useProgram(displayObject.programInfo.program);
 
         // Bind VAO
-        GL.bindVertexArray(drawable.vao);
-        
+        GL.bindVertexArray(displayObject.vao);
+
         // Render uniforms, attributes, and textures
-        __renderUniforms(drawable.programInfo, drawable.uniforms);
-        __renderAttributes(drawable.programInfo);
-        __renderTextures(drawable.programInfo, drawable);
+        __renderUniforms(displayObject.programInfo, displayObject.uniforms);
+        __renderAttributes(displayObject.programInfo);
+        __renderTextures(displayObject.programInfo, displayObject);
 
         // Draw the object
-        if (drawable.__indicesToRender == 0) {
-            GL.drawArrays(drawable.mode, 0, drawable.__verticesToRender);
+        if (displayObject.__indicesToRender == 0) {
+            GL.drawArrays(displayObject.mode, 0, displayObject.__verticesToRender);
         } else {
-            GL.drawElements(drawable.mode, drawable.__indicesToRender, GL.UNSIGNED_INT, 0);
+            GL.drawElements(displayObject.mode, displayObject.__indicesToRender, GL.UNSIGNED_INT, 0);
         }
 
         GL.bindVertexArray(0);
@@ -562,7 +552,7 @@ class Renderer {
         return texture;
     }
 
-    public function cleanup():Void {
+    public function release():Void {
         // Reset render state
         setDepthTest(true);
         setDepthWrite(true);
@@ -630,11 +620,8 @@ class Renderer {
         setBlendMode(state.blendMode);
     }
 
-    /**
-     * Get app reference
-     */
+    // Getters and setters
     private function get_app():App {
         return __app;
     }
-
 }

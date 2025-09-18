@@ -127,6 +127,9 @@
 #ifndef INCLUDED_states_LogTestState
 #include <states/LogTestState.h>
 #endif
+#ifndef INCLUDED_states_ImageTestState
+#include <states/ImageTestState.h>
+#endif
 #ifndef INCLUDED_math_Matrix
 #include <math/Matrix.h>
 #endif
@@ -262,6 +265,9 @@
 #ifndef INCLUDED_display_Tilemap
 #include <display/Tilemap.h>
 #endif
+#ifndef INCLUDED_display_Image
+#include <display/Image.h>
+#endif
 #ifndef INCLUDED_data_TextureData
 #include <data/TextureData.h>
 #endif
@@ -334,11 +340,11 @@
 #ifndef INCLUDED_DisplayObject
 #include <DisplayObject.h>
 #endif
-#ifndef INCLUDED_Indices
-#include <Indices.h>
+#ifndef INCLUDED__DisplayObject_Indices_Impl_
+#include <_DisplayObject/Indices_Impl_.h>
 #endif
-#ifndef INCLUDED_Vertices
-#include <Vertices.h>
+#ifndef INCLUDED__DisplayObject_Vertices_Impl_
+#include <_DisplayObject/Vertices_Impl_.h>
 #endif
 #ifndef INCLUDED_Date
 #include <Date.h>
@@ -395,6 +401,7 @@ __files__boot();
 ::states::TilemapTestState_obj::__register();
 ::states::TilemapFastTestState_obj::__register();
 ::states::LogTestState_obj::__register();
+::states::ImageTestState_obj::__register();
 ::math::Matrix_obj::__register();
 ::hxcpp::debug::jsonrpc::eval::Tools_obj::__register();
 ::hxcpp::debug::jsonrpc::eval::Interp_obj::__register();
@@ -440,6 +447,7 @@ __files__boot();
 ::sys::thread::Mutex_obj::__register();
 ::display::TilemapFast_obj::__register();
 ::display::Tilemap_obj::__register();
+::display::Image_obj::__register();
 ::data::TextureData_obj::__register();
 ::cpp::vm::ThreadInfo_obj::__register();
 ::cpp::vm::StackFrame_obj::__register();
@@ -464,8 +472,8 @@ __files__boot();
 ::EventDispacher_obj::__register();
 ::EReg_obj::__register();
 ::DisplayObject_obj::__register();
-::Indices_obj::__register();
-::Vertices_obj::__register();
+::_DisplayObject::Indices_Impl__obj::__register();
+::_DisplayObject::Vertices_Impl__obj::__register();
 ::Date_obj::__register();
 ::Camera_obj::__register();
 ::hxcpp::debug::jsonrpc::eval::Token_obj::__boot();

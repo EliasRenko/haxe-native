@@ -1,5 +1,6 @@
 package;
 
+import states.ImageTestState;
 import App;
 
 class Main {
@@ -10,7 +11,8 @@ class Main {
             trace("Failed to initialize application");
             return;
         }
-        
+
+        app.addState(new ImageTestState(app));
         app.run();
     }
 }

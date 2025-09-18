@@ -136,7 +136,7 @@ private class __Resources {
         });
     }
     
-    public function cleanup():Void {
+    public function release():Void {
         // trace("Cleaning up resources..."); // Disabled - RESOURCES category
         var count = 0;
         for (key in __resources.keys()) {

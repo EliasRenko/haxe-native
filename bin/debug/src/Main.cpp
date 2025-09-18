@@ -7,11 +7,17 @@
 #ifndef INCLUDED_Main
 #include <Main.h>
 #endif
+#ifndef INCLUDED_State
+#include <State.h>
+#endif
 #ifndef INCLUDED_haxe_Log
 #include <haxe/Log.h>
 #endif
+#ifndef INCLUDED_states_ImageTestState
+#include <states/ImageTestState.h>
+#endif
 
-HX_LOCAL_STACK_FRAME(_hx_pos_e47a9afac0942eb9_6_main,"Main","main",0xed0e206e,"Main.main","Main.hx",6,0x087e5c05)
+HX_LOCAL_STACK_FRAME(_hx_pos_e47a9afac0942eb9_7_main,"Main","main",0xed0e206e,"Main.main","Main.hx",7,0x087e5c05)
 
 void Main_obj::__construct() { }
 
@@ -31,17 +37,15 @@ bool Main_obj::_hx_isInstanceOf(int inClassId) {
 }
 
 void Main_obj::main(){
-            	HX_GC_STACKFRAME(&_hx_pos_e47a9afac0942eb9_6_main)
-HXLINE(   6)
-HXLINE(   7)		::haxe::Log_obj::trace(HX_("Clean engine starting...",27,09,48,91),::hx::SourceInfo(HX_("src/Main.hx",9a,7a,30,a1),7,HX_("Main",59,64,2f,33),HX_("main",39,38,56,48)));
-HXLINE(  10)		HX_VARI(  ::App,app) =  ::App_obj::__alloc( HX_CTX );
-HXLINE(  13)		if (!(app->init())) {
-HXLINE(  14)			::haxe::Log_obj::trace(HX_("Failed to initialize application",82,e0,1b,be),::hx::SourceInfo(HX_("src/Main.hx",9a,7a,30,a1),14,HX_("Main",59,64,2f,33),HX_("main",39,38,56,48)));
-HXLINE(  15)			return;
+            	HX_GC_STACKFRAME(&_hx_pos_e47a9afac0942eb9_7_main)
+HXLINE(   7)
+HXLINE(   9)		HX_VARI(  ::App,app) =  ::App_obj::__alloc( HX_CTX );
+HXLINE(  10)		if (!(app->init())) {
+HXLINE(  11)			::haxe::Log_obj::trace(HX_("Failed to initialize application",82,e0,1b,be),::hx::SourceInfo(HX_("src/Main.hx",9a,7a,30,a1),11,HX_("Main",59,64,2f,33),HX_("main",39,38,56,48)));
+HXLINE(  12)			return;
             		}
-HXLINE(  19)		app->run();
-HXLINE(  22)		app->cleanup();
-HXLINE(  24)		::haxe::Log_obj::trace(HX_("Clean shutdown complete",0c,2d,5c,6e),::hx::SourceInfo(HX_("src/Main.hx",9a,7a,30,a1),24,HX_("Main",59,64,2f,33),HX_("main",39,38,56,48)));
+HXLINE(  15)		app->addState( ::states::ImageTestState_obj::__alloc( HX_CTX ,app));
+HXLINE(  16)		app->run();
             	}
 
 

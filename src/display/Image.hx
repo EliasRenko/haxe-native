@@ -9,43 +9,18 @@ import Texture;
 
 class Image extends DisplayObject {
 	
-	// ** Publics.
-
-	/**
-	 * The angle of the graphic.
-	 */
+	// Publics
 	public var angle(get, set):Float;
-
-	/**
-	 * The width of the graphic.
-	 */
-	 public var width(get, set):Float;
-
-	 /**
-	  * The height of the graphic.
-	  */
-	 public var height(get, set):Float;
-
-	/**
-	 * The x origin of the graphic.
-	 */
+	public var width(get, set):Float;
+	public var height(get, set):Float;
 	public var originX(get, set):Float;
-
-	/**
-	 * The y origin of the graphic.
-	 */
 	public var originY(get, set):Float;
 
-	// ** Privates.
-
+	// Privates
 	private var __angle:Float = 0;
-
 	private var __height:Float = 0;
-
 	private var __width:Float = 0;
-
 	private var __originX:Float = 0;
-
 	private var __originY:Float = 0;
 
 	public function new(programInfo:ProgramInfo, texture:Texture) {
@@ -128,7 +103,7 @@ class Image extends DisplayObject {
 		}
 	}
 
-	override function render(cameraMatrix:Matrix, renderer:Renderer):Void {
+	override function render(cameraMatrix:Matrix):Void {
 		if (!visible || !initialized) return;
 		
 		// Update transformation matrix based on current properties
@@ -140,29 +115,22 @@ class Image extends DisplayObject {
 		
 		// Set the transform matrix uniform (using correct uniform name for textured shader)
 		uniforms.set("uMatrix", finalMatrix.data);
-		
-		// Let the Renderer handle all GL operations
-		renderer.renderObject(this);
 	}
 
 	//** Getters and setters.
 	
 	private function set_angle(value:Float):Float {
-
 		__angle = (value %= 360) >= 0 ? value : (value + 360);
-		
 		__shouldTransform = true;
-
 		return value;
 	}
 
 	private function set_height(value:Float):Float {
-		// Update vertex positions for new coordinate system (origin at top-left)
 		// Vertices: [top-left, top-right, bottom-right, bottom-left]
-		vertices.set(1, 0 - originY);                        // Top-left Y
-		vertices.set(6, 0 - originY);                        // Top-right Y  
-		vertices.set(11, -(value * scaleY) - originY);       // Bottom-right Y
-		vertices.set(16, -(value * scaleY) - originY);       // Bottom-left Y
+		vertices.set(1, 0 - originY);
+		vertices.set(6, 0 - originY);
+		vertices.set(11, -(value * scaleY) - originY);
+		vertices.set(16, -(value * scaleY) - originY);
 		
 		__height = value;
 		__shouldTransform = true;
@@ -176,12 +144,11 @@ class Image extends DisplayObject {
 	}
 	
 	private function set_width(value:Float):Float {
-		// Update vertex positions for new coordinate system (origin at top-left)
 		// Vertices: [top-left, top-right, bottom-right, bottom-left]
-		vertices.set(0, 0 - originX);                        // Top-left X
-		vertices.set(5, (value * scaleX) - originX);         // Top-right X
-		vertices.set(10, (value * scaleX) - originX);        // Bottom-right X
-		vertices.set(15, 0 - originX);                       // Bottom-left X
+		vertices.set(0, 0 - originX);                      
+		vertices.set(5, (value * scaleX) - originX);
+		vertices.set(10, (value * scaleX) - originX);
+		vertices.set(15, 0 - originX);
 		
 		__width = value;
 		__shouldTransform = true;
@@ -225,7 +192,6 @@ class Image extends DisplayObject {
 	}
 
 	function get_angle():Float {
-		
 		return __angle;
 	}
 }

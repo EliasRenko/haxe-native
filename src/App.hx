@@ -141,6 +141,10 @@ class App {
         
         // Preload assets from preload.txt BEFORE creating states
         __log.engineInfo("Preloading assets...");
+
+        
+        
+
         resources.loadText("preload.txt")
             .then(function(source:String) {
                 var files:Array<Promise<Dynamic>> = new Array<Promise<Dynamic>>();
@@ -177,19 +181,17 @@ class App {
                     .then(function(results:Array<Dynamic>) {
                         __log.engineInfo("Successfully preloaded " + results.length + " assets");
                         
-                        // Add both states but start with the TilemapFast state for visual demo
-                        __log.engineInfo("Setting up states...");
-                        var logTestState = new states.LogTestState(this);
-                        addState(logTestState);
+                        // // Add both states but start with the TilemapFast state for visual demo
+                        // __log.engineInfo("Setting up states...");
+                        // var logTestState = new states.LogTestState(this);
+                        // addState(logTestState);
                         
-                        // Add and activate TilemapFastTestState for immediate visual feedback
-                        var tilemapFastState = new states.TilemapFastTestState(this);
-                        addState(tilemapFastState);
+                        // // Add and activate TilemapFastTestState for immediate visual feedback
+                        // var tilemapFastState = new states.TilemapFastTestState(this);
+                        // addState(tilemapFastState);
                         
-                        // Activate the TilemapFastTestState to start rendering
-                        switchToState(tilemapFastState);
-                        
-                        __log.engineInfo("TilemapFastTestState is now active - should see tilemap rendering");
+                        // // Activate the TilemapFastTestState to start rendering
+                        // switchToState(tilemapFastState);
                     })
                     .onError(function(error:String) {
                         __log.engineError("Failed to preload some assets: " + error);
@@ -462,20 +464,20 @@ class App {
         states = [];
         currentState = null;
         
-        // Cleanup resources first
+        // Release resources first
         if (__resources != null) {
-            __resources.cleanup();
+            __resources.release();
             __resources = null;
         }
-        
-        // Cleanup input system
+
+        // Release input system
         if (__input != null) {
-            __input.cleanup();
+            __input.release();
             __input = null;
         }
         
         if (__renderer != null) {
-            __renderer.cleanup();
+            __renderer.release();
             __renderer = null;
         }
         

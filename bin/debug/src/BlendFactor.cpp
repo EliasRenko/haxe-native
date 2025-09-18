@@ -5,8 +5,8 @@
 #include <BlendFactor.h>
 #endif
 
-HX_LOCAL_STACK_FRAME(_hx_pos_d54970a8a26526eb_43_boot,"BlendFactor","boot",0x9bb88780,"BlendFactor.boot","DisplayObject.hx",43,0x55877edd)
-HX_LOCAL_STACK_FRAME(_hx_pos_d54970a8a26526eb_44_boot,"BlendFactor","boot",0x9bb88780,"BlendFactor.boot","DisplayObject.hx",44,0x55877edd)
+HX_LOCAL_STACK_FRAME(_hx_pos_d54970a8a26526eb_76_boot,"BlendFactor","boot",0x9bb88780,"BlendFactor.boot","DisplayObject.hx",76,0x55877edd)
+HX_LOCAL_STACK_FRAME(_hx_pos_d54970a8a26526eb_77_boot,"BlendFactor","boot",0x9bb88780,"BlendFactor.boot","DisplayObject.hx",77,0x55877edd)
 
 void BlendFactor_obj::__construct() { }
 
@@ -118,12 +118,12 @@ void BlendFactor_obj::__register()
 void BlendFactor_obj::__boot()
 {
 {
-            	HX_STACKFRAME(&_hx_pos_d54970a8a26526eb_43_boot)
-HXDLIN(  43)		SRC_ALPHA = 770;
+            	HX_STACKFRAME(&_hx_pos_d54970a8a26526eb_76_boot)
+HXDLIN(  76)		SRC_ALPHA = 770;
             	}
 {
-            	HX_STACKFRAME(&_hx_pos_d54970a8a26526eb_44_boot)
-HXDLIN(  44)		ONE_MINUS_SRC_ALPHA = 771;
+            	HX_STACKFRAME(&_hx_pos_d54970a8a26526eb_77_boot)
+HXDLIN(  77)		ONE_MINUS_SRC_ALPHA = 771;
             	}
 }
 

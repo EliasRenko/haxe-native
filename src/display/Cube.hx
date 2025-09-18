@@ -107,7 +107,7 @@ class Cube extends DisplayObject {
     }
     
     // Custom render method for cube
-    public override function render(cameraMatrix:Matrix, renderer:Renderer):Void {
+    public override function render(cameraMatrix:Matrix):Void {
         if (!visible || !initialized) {
             return;
         }
@@ -121,6 +121,5 @@ class Cube extends DisplayObject {
         
         // Set uniforms and delegate rendering to renderer
         uniforms.set("uMatrix", finalMatrix.data);
-        renderer.renderObject(this);
     }
 }

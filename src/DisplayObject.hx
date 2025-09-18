@@ -11,30 +11,63 @@ typedef BlendFactors = {
 	destination:Int
 }
 
-// Simple vertex data container
-class Vertices {
-	public var data:Array<Float>;
-	
-	public function new(data:Array<Float>) {
-		this.data = data;
+@:forward(length, pop, push)
+abstract Vertices(Array<Float>) from Array<Float> to Array<Float> {
+	// Publics
+	public var data(get, never):Array<Float>;
+
+    inline public function new(data:Array<Float> = null) {
+		this = data;
+    }
+
+	public function dispose():Void {
+		for (index in 0...this.length) {
+			this.pop();
+		}
+    }
+    
+	public function insert(count:UInt, ?value:Float):Void {
+		for (value in 0...count) {
+			this.push(1);
+		}
 	}
-	
-	// Allow array access
-	public function get(index:Int):Float {
-		return data[index];
+
+	public function set(pos:Int, value:Float):Void {
+		this[pos] = value;
 	}
-	
-	public function set(index:Int, value:Float):Float {
-		return data[index] = value;
+
+	private function get_data():Array<Float> {
+		return this;
 	}
 }
 
-// Simple index data container  
-class Indices {
-	public var data:Array<Int>;
-	
-	public function new(data:Array<Int>) {
-		this.data = data;
+@:forward(length, pop, push)
+abstract Indices(Array<UInt>) from Array<UInt> to Array<UInt> {
+	// Publics
+	public var data(get, never):Array<UInt>;
+
+    inline public function new(data:Array<UInt> = null) {
+		this = data;
+    }
+
+	public function dispose():Void {
+		for (index in 0...this.length) {
+			this.pop();
+		}
+    }
+    
+	public function insert(count:UInt, ?value:UInt):Void {
+		for (value in 0...count) {
+			this.push(1);
+		}
+	}
+
+	public function set(pos:Int, value:UInt):Void {
+		this[pos] = value;
+	}
+
+	private function get_data():Array<UInt> {
+		return this;
 	}
 }
 
@@ -45,7 +78,7 @@ class BlendFactor {
 }
 
 class DisplayObject {
-	//** Publics.
+	//** Publics
 	public var bufferId:UInt = 0;
 	public var mode:Int = GL.TRIANGLES; // Use proper GL constant
 	public var blendFactors:BlendFactors;
@@ -129,8 +162,8 @@ class DisplayObject {
 		if (!initialized) return;
 		
 		// Use Renderer's upload methods
-		renderer.uploadVertexData(vao, vbo, vertices.data);
-		renderer.uploadIndexData(ebo, indices.data);
+		renderer.uploadVertexData(vao, vbo, vertices);
+		renderer.uploadIndexData(ebo, indices);
 		renderer.setupVertexAttributes(programInfo);
 		
 		// Clear the update flag
@@ -185,43 +218,18 @@ class DisplayObject {
 	}
 
 	public function updateTransform():Void {
-		// Reset matrix to identity
 		matrix.identity();
-		
-		// Debug: Log transformation values occasionally (reduced frequency) - DISABLED
-		if (false && (x != 0.0 || y != 0.0 || z != 0.0 || rotationX != 0.0 || rotationY != 0.0 || rotationZ != 0.0) && framesSinceLastMatrixDebug % 900 == 0) {
-			trace("Transform - Pos: (" + x + ", " + y + ", " + z + ") Rot: (" + rotationX + ", " + rotationY + ", " + rotationZ + ")");
-		}
-		
-		// Apply transformations in order: Scale -> Rotate -> Translate
-		if (scaleX != 1.0 || scaleY != 1.0 || scaleZ != 1.0) {
-			matrix.appendScale(scaleX, scaleY, scaleZ);
-		}
-		
-		// Apply rotations in order: X -> Y -> Z (standard Euler order)
-		if (rotationX != 0.0) {
-			matrix.appendRotationX(rotationX);
-		}
-		if (rotationY != 0.0) {
-			matrix.appendRotationY(rotationY);
-		}
-		if (rotationZ != 0.0) {
-			// Negate angle to make positive values rotate clockwise (standard 2D behavior)
-			matrix.appendRotationZ(-rotationZ * Math.PI / 180.0);
-		}
-		
-		if (x != 0.0 || y != 0.0 || z != 0.0) {
-			matrix.appendTranslation(x, y, z);
-			if (false && framesSinceLastMatrixDebug % 900 == 0) {
-				trace("Applied translation: (" + x + ", " + y + ", " + z + ")");
-			}
-		}
+		matrix.appendScale(scaleX, scaleY, scaleZ);
+		matrix.appendRotationX(rotationX);
+		matrix.appendRotationY(rotationY);
+		matrix.appendRotationZ(-rotationZ * Math.PI / 180.0);
+		matrix.appendTranslation(x, y, z);
 	}
 
 	// Fallback/default rendering implementation
 	// This method can be overridden by specific display objects for custom rendering behavior
-	public function render(cameraMatrix:Matrix, renderer:Renderer):Void {
-		if (!visible || !initialized) return;
+	public function render(cameraMatrix:Matrix):Void {
+		if (!visible) return;
 		
 		// Update transformation matrix based on current properties
 		updateTransform();
@@ -233,8 +241,5 @@ class DisplayObject {
 		
 		// Set the transform matrix in uniforms map
 		uniforms.set("uMatrix", finalMatrix.data);
-		
-		// Let the Renderer handle all GL operations
-		renderer.renderObject(this);
 	}
 }

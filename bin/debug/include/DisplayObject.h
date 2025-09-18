@@ -7,10 +7,8 @@
 #endif
 
 HX_DECLARE_CLASS0(DisplayObject)
-HX_DECLARE_CLASS0(Indices)
 HX_DECLARE_CLASS0(ProgramInfo)
 HX_DECLARE_CLASS0(Renderer)
-HX_DECLARE_CLASS0(Vertices)
 HX_DECLARE_CLASS1(haxe,IMap)
 HX_DECLARE_CLASS2(haxe,ds,StringMap)
 HX_DECLARE_CLASS1(math,Matrix)
@@ -27,13 +25,13 @@ class HXCPP_CLASS_ATTRIBUTES DisplayObject_obj : public ::hx::Object
 	public:
 		enum { _hx_ClassId = 0x6749d015 };
 
-		void __construct( ::ProgramInfo programInfo, ::Vertices vertices, ::Indices indices);
+		void __construct( ::ProgramInfo programInfo,::Array< Float > vertices,::Array< int > indices);
 		inline void *operator new(size_t inSize, bool inContainer=true,const char *inName="DisplayObject")
 			{ return ::hx::Object::operator new(inSize,inContainer,inName); }
 		inline void *operator new(size_t inSize, int extra)
 			{ return ::hx::Object::operator new(inSize+extra,true,"DisplayObject"); }
-		static ::hx::ObjectPtr< DisplayObject_obj > __new( ::ProgramInfo programInfo, ::Vertices vertices, ::Indices indices);
-		static ::hx::ObjectPtr< DisplayObject_obj > __alloc(::hx::Ctx *_hx_ctx, ::ProgramInfo programInfo, ::Vertices vertices, ::Indices indices);
+		static ::hx::ObjectPtr< DisplayObject_obj > __new( ::ProgramInfo programInfo,::Array< Float > vertices,::Array< int > indices);
+		static ::hx::ObjectPtr< DisplayObject_obj > __alloc(::hx::Ctx *_hx_ctx, ::ProgramInfo programInfo,::Array< Float > vertices,::Array< int > indices);
 		static void * _hx_vtable;
 		static Dynamic __CreateEmpty();
 		static Dynamic __Create(::hx::DynamicArray inArgs);
@@ -52,8 +50,8 @@ class HXCPP_CLASS_ATTRIBUTES DisplayObject_obj : public ::hx::Object
 		int bufferId;
 		int mode;
 		 ::Dynamic blendFactors;
-		 ::Indices indices;
-		 ::Vertices vertices;
+		::Array< int > indices;
+		::Array< Float > vertices;
 		 ::ProgramInfo programInfo;
 		::Array< ::Dynamic> textures;
 		 ::math::Matrix matrix;
@@ -107,7 +105,7 @@ class HXCPP_CLASS_ATTRIBUTES DisplayObject_obj : public ::hx::Object
 		void updateTransform();
 		::Dynamic updateTransform_dyn();
 
-		virtual void render( ::math::Matrix cameraMatrix, ::Renderer renderer);
+		virtual void render( ::math::Matrix cameraMatrix);
 		::Dynamic render_dyn();
 
 };

@@ -20,9 +20,6 @@
 #ifndef INCLUDED_Std
 #include <Std.h>
 #endif
-#ifndef INCLUDED_Vertices
-#include <Vertices.h>
-#endif
 #ifndef INCLUDED__Resources___Resources
 #include <_Resources/__Resources.h>
 #endif
@@ -72,7 +69,7 @@ HX_LOCAL_STACK_FRAME(_hx_pos_201f460b2ea368b5_386_deleteBuffers,"Renderer","dele
 HX_LOCAL_STACK_FRAME(_hx_pos_201f460b2ea368b5_405_set2DRenderState,"Renderer","set2DRenderState",0x47799eb2,"Renderer.set2DRenderState","Renderer.hx",405,0x8fac813b)
 HX_LOCAL_STACK_FRAME(_hx_pos_201f460b2ea368b5_411_set3DRenderState,"Renderer","set3DRenderState",0x8d3a1c33,"Renderer.set3DRenderState","Renderer.hx",411,0x8fac813b)
 HX_LOCAL_STACK_FRAME(_hx_pos_201f460b2ea368b5_419_clearScreen,"Renderer","clearScreen",0x506b854e,"Renderer.clearScreen","Renderer.hx",419,0x8fac813b)
-HX_LOCAL_STACK_FRAME(_hx_pos_201f460b2ea368b5_427_initializeRenderState,"Renderer","initializeRenderState",0x9a0d2c20,"Renderer.initializeRenderState","Renderer.hx",427,0x8fac813b)
+HX_LOCAL_STACK_FRAME(_hx_pos_201f460b2ea368b5_433_initializeRenderState,"Renderer","initializeRenderState",0x9a0d2c20,"Renderer.initializeRenderState","Renderer.hx",433,0x8fac813b)
 HX_LOCAL_STACK_FRAME(_hx_pos_201f460b2ea368b5_440_createShader,"Renderer","createShader",0x4769a92c,"Renderer.createShader","Renderer.hx",440,0x8fac813b)
 HX_LOCAL_STACK_FRAME(_hx_pos_201f460b2ea368b5_444_shaderSource,"Renderer","shaderSource",0xaa0df7cb,"Renderer.shaderSource","Renderer.hx",444,0x8fac813b)
 HX_LOCAL_STACK_FRAME(_hx_pos_201f460b2ea368b5_451_compileShader,"Renderer","compileShader",0xc7f374ad,"Renderer.compileShader","Renderer.hx",451,0x8fac813b)
@@ -157,7 +154,8 @@ HXLINE(  60)			return;
 HXLINE(  63)		if (displayObject->needsBufferUpdate) {
 HXLINE(  64)			displayObject->updateBuffers(::hx::ObjectPtr<OBJ_>(this));
             		}
-HXLINE(  69)		displayObject->render(viewProjectionMatrix,::hx::ObjectPtr<OBJ_>(this));
+HXLINE(  67)		displayObject->render(viewProjectionMatrix);
+HXLINE(  69)		this->renderObject(displayObject);
             	}
 
 
@@ -168,7 +166,7 @@ void Renderer_obj::renderObject( ::DisplayObject displayObject){
             	HX_STACK_THIS(this)
             	HX_STACK_ARG(displayObject,"displayObject")
 HXLINE(  76)
-HXLINE(  77)		if ((displayObject->vertices->data->length == 0)) {
+HXLINE(  77)		if ((displayObject->vertices->length == 0)) {
 HXLINE(  78)			return;
             		}
 HXLINE(  81)		this->_hx___render(displayObject);
@@ -721,12 +719,10 @@ HXLINE( 421)		glClear(16640);
 HX_DEFINE_DYNAMIC_FUNC0(Renderer_obj,clearScreen,(void))
 
 void Renderer_obj::initializeRenderState(){
-            	HX_STACKFRAME(&_hx_pos_201f460b2ea368b5_427_initializeRenderState)
+            	HX_STACKFRAME(&_hx_pos_201f460b2ea368b5_433_initializeRenderState)
             	HX_STACK_THIS(this)
-HXLINE( 427)
-HXLINE( 429)		glEnable(GL_DEPTH_TEST);
-HXLINE( 430)		glDepthFunc(GL_LESS);
-HXLINE( 433)		glDisable(GL_CULL_FACE);
+HXLINE( 433)
+HXDLIN( 433)		glDisable(GL_CULL_FACE);
             	}
 
 

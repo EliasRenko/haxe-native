@@ -361,8 +361,8 @@ class TilemapFast extends DisplayObject {
         }
         
         // Update DisplayObject vertex data
-        this.vertices.data = __vertexCache;
-        this.indices.data = __indexCache;
+        this.vertices = __vertexCache;
+        this.indices = __indexCache;
         
         // Update render counts
         __verticesToRender = Std.int(__vertexCache.length / 5);  // 5 floats per vertex
@@ -472,7 +472,7 @@ class TilemapFast extends DisplayObject {
         }
         
         // Update the main DisplayObject data
-        this.vertices.data = __vertexCache;
+        this.vertices = __vertexCache;
         
         trace("TilemapFast: Partial update complete");
     }
@@ -480,7 +480,7 @@ class TilemapFast extends DisplayObject {
     /**
      * Override render to manage 2D rendering state
      */
-    override public function render(cameraMatrix:math.Matrix, renderer:Renderer):Void {
+    override public function render(cameraMatrix:math.Matrix):Void {
         if (!visible || !initialized || atlasTexture == null) {
             return;
         }
@@ -491,8 +491,8 @@ class TilemapFast extends DisplayObject {
         }
         
         // Save current render state and set up for 2D rendering
-        var savedDepthTest = renderer.pushRenderState();
-        renderer.setDepthTest(false);
+        // var savedDepthTest = renderer.pushRenderState();
+        // renderer.setDepthTest(false);
         
         // Update transformation matrix based on current properties
         updateTransform();
@@ -504,11 +504,8 @@ class TilemapFast extends DisplayObject {
         // Set uniforms for tilemap rendering
         uniforms.set("uMatrix", finalMatrix.data);
         
-        // Let the Renderer handle all GL operations including texture binding
-        renderer.renderObject(this);
-        
         // Restore previous render state
-        renderer.popRenderState(savedDepthTest);
+        //renderer.popRenderState(savedDepthTest);
     }
 
     /**
