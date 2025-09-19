@@ -3,7 +3,7 @@ import EventDispacher;
 import haxe.ds.Vector;
 
 private class __Input {
-    private var __parent:App;
+    private var __parent:AppNative;
     private var __gamepads:Map<SDL.SDL_JoystickID, cpp.Pointer<SDL.SDL_Gamepad>> = new Map<SDL.SDL_JoystickID, cpp.Pointer<SDL.SDL_Gamepad>>();
     
     // Input state tracking
@@ -26,7 +26,7 @@ private class __Input {
     private var __gamepadReleased:Array<String> = [];
     private var __gamepadAxes:Map<String, Float> = new Map<String, Float>(); // "gamepadId_axis" -> value
     
-    public function new(app:App) {
+    public function new(app:AppNative) {
         this.__parent = app;
     }
     

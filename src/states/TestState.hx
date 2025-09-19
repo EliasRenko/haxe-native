@@ -10,7 +10,7 @@ import display.Tilemap;
  */
 class TestState extends State {
     
-    public function new(app:App) {
+    public function new(app:AppNative) {
         super("TestState", app);
     }
     

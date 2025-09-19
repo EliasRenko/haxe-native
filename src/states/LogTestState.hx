@@ -1,13 +1,13 @@
 package states;
 
 import State;
-import App;
+import AppNative;
 
 class LogTestState extends State {
     
     private var frameCount:Int = 0;
     
-    public function new(app:App) {
+    public function new(app:AppNative) {
         super("LogTestState", app);
     }
     

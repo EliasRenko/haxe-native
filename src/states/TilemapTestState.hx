@@ -1,7 +1,7 @@
 package states;
 
 import State;
-import App;
+import AppNative;
 import Entity;
 import Renderer;
 import display.Tilemap;
@@ -11,7 +11,7 @@ import display.Tilemap;
  */
 class TilemapTestState extends State {
     
-    public function new(app:App) {
+    public function new(app:AppNative) {
         super("TilemapTestState", app);
     }
     
@@ -53,8 +53,8 @@ class TilemapTestState extends State {
         
         // Position tilemap at center of screen
         // Center the entire tilemap (10 tiles * 32 units = 320 width, 8 tiles * 32 units = 256 height)
-        tilemap.x = (App.WINDOW_WIDTH / 2) - (10 * 32 / 2);   // Center horizontally 
-        tilemap.y = (App.WINDOW_HEIGHT / 2) - (8 * 32 / 2);   // Center vertically
+        tilemap.x = (AppNative.WINDOW_WIDTH / 2) - (10 * 32 / 2);   // Center horizontally 
+        tilemap.y = (AppNative.WINDOW_HEIGHT / 2) - (8 * 32 / 2);   // Center vertically
         tilemap.z = 0.0;   // Default Z position
         
         // Create entity and add to state
@@ -65,7 +65,7 @@ class TilemapTestState extends State {
         trace("Tilemap: 10x8 tiles, 32 units per tile");
         trace("Atlas texture: " + atlasTexture.width + "x" + atlasTexture.height + " (ID: " + atlasTexture.id + ")");
         trace("Tilemap positioned at: " + tilemap.x + ", " + tilemap.y);
-        trace("Window size: " + App.WINDOW_WIDTH + "x" + App.WINDOW_HEIGHT + " pixels");
+        trace("Window size: " + AppNative.WINDOW_WIDTH + "x" + AppNative.WINDOW_HEIGHT + " pixels");
     }
     
     /**

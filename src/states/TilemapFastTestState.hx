@@ -1,7 +1,7 @@
 package states;
 
 import State;
-import App;
+import AppNative;
 import Entity;
 import display.TilemapFast;
 import ProgramInfo;
@@ -16,7 +16,7 @@ class TilemapFastTestState extends State {
     private var tilemap:TilemapFast;
     private var frameCount:Int = 0;
     
-    public function new(app:App) {
+    public function new(app:AppNative) {
         super("TilemapFastTestState", app);
     }
     
@@ -67,8 +67,8 @@ class TilemapFastTestState extends State {
         createInitialPattern();
         
         // Position the tilemap at center of screen
-        tilemap.x = (App.WINDOW_WIDTH / 2) - (10 * 32 / 2);   // Center horizontally 
-        tilemap.y = (App.WINDOW_HEIGHT / 2) - (8 * 32 / 2);   // Center vertically
+        tilemap.x = (AppNative.WINDOW_WIDTH / 2) - (10 * 32 / 2);   // Center horizontally 
+        tilemap.y = (AppNative.WINDOW_HEIGHT / 2) - (8 * 32 / 2);   // Center vertically
         tilemap.z = 0.0;   // Default Z position
         
         // Create entity and add to state

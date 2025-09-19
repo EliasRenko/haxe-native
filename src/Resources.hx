@@ -12,10 +12,10 @@ import data.TextureData;
 private class __Resources {
     // Privates
     private var __resources:Map<String, Resource> = new Map<String, Resource>();
-    private var __parent:App;
+    private var __parent:AppNative;
     private var __resourceFolder:String;
 
-    public function new(app:App, resourceFolder:String = "res") {
+    public function new(app:AppNative, resourceFolder:String = "res") {
         this.__parent = app;
         this.__resourceFolder = resourceFolder;
     }

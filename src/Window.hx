@@ -48,8 +48,8 @@ class Window {
     }
 
     public function isFullscreen():Bool {
-        var props:Int = SDL.getWindowProperties(__windowPtr);
-        return (props & SDL.WINDOW_FULLSCREEN) != 0 || (props & SDL.WINDOW_FULLSCREEN_DESKTOP) != 0;
+        var flags:SDL.WindowFlags = SDL.getWindowFlags(__windowPtr);
+        return (flags & SDL.WINDOW_FULLSCREEN) != 0;
     }
 
     public function setFullscreen(enable:Bool):Bool {

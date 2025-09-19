@@ -19,7 +19,7 @@ import data.TextureData;
 import loaders.TGALoader;
 import haxe.ds.Vector;
 
-class App {
+class AppNative {
 
     public static inline var WINDOW_TITLE:String = "Engine";
     public static inline var WINDOW_WIDTH:Int = 640;
@@ -170,6 +170,8 @@ class App {
                     .then(function(results:Array<Dynamic>) {
                         __log.engineInfo("Successfully preloaded " + results.length + " assets");
                         
+                        run();
+
                         // // Add both states but start with the TilemapFast state for visual demo
                         // __log.engineInfo("Setting up states...");
                         // var logTestState = new states.LogTestState(this);

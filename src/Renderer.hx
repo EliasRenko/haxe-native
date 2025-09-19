@@ -16,11 +16,11 @@ typedef RenderState = {
 class Renderer {
     
     // Publics
-    public var app(get, null):App;
+    public var app(get, null):AppNative;
     public var windowWidth:Int;
     public var windowHeight:Int;
     
-    private var __app:App;
+    private var __app:AppNative;
     
     // Current render state tracking
     private var __currentDepthTest:Bool = true;
@@ -31,7 +31,7 @@ class Renderer {
     // ProgramInfo storage - managed by States, not Renderer
     private var programInfos:Map<String, ProgramInfo> = new Map<String, ProgramInfo>();
     
-    public function new(app:App, windowWidth:Int, windowHeight:Int) {
+    public function new(app:AppNative, windowWidth:Int, windowHeight:Int) {
         this.__app = app;
         this.windowWidth = windowWidth;
         this.windowHeight = windowHeight;
@@ -619,7 +619,7 @@ class Renderer {
     }
 
     // Getters and setters
-    private function get_app():App {
+    private function get_app():AppNative {
         return __app;
     }
 }

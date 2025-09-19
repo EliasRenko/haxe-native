@@ -1,7 +1,7 @@
 package;
 
 import states.ImageTestState;
-import App;
+import AppNative;
 
 class Main {
     public static function main() {

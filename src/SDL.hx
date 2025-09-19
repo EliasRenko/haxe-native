@@ -101,6 +101,9 @@ extern class SDL {
     @:native("SDL_SetWindowFullscreen")
     static function setWindowFullscreen(window:WindowPtr, fullscreen:Bool):Int;
 
+    @:native("SDL_GetWindowFlags")
+    static function getWindowFlags(window:WindowPtr):UInt32;
+
     @:native("SDL_GetPointerProperty")
     static function getPointerProperty(props:SDL_PropertiesID, name:cpp.ConstCharStar, defaultValue:cpp.RawPointer<Void>):cpp.RawPointer<Void>;
 
@@ -266,9 +269,6 @@ extern class SDL {
     // ** Window flags
     @:native("SDL_WINDOW_FULLSCREEN")
     static var WINDOW_FULLSCREEN(default, null):CreateWindowFlag;
-
-    @:native("SDL_WINDOW_FULLSCREEN_DESKTOP")
-    static var WINDOW_FULLSCREEN_DESKTOP(default, null):CreateWindowFlag;
 
     @:native("SDL_WINDOW_OPENGL")
     static var WINDOW_OPENGL(default, null):CreateWindowFlag;
@@ -767,6 +767,7 @@ extern class Event {
 
 typedef PtrEvent = Pointer<Event>;
 typedef CreateWindowFlag = Int;
+typedef WindowFlags = UInt32;
 
 abstract InitFlag(UInt64) {
     @:op(A|B) static function _(a:InitFlag, b:InitFlag):InitFlag;

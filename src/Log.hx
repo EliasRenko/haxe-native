@@ -1,7 +1,7 @@
 import SDL;
 
 private class __Log {
-    private var __parent:App;
+    private var __parent:AppNative;
     private var __enabledCategories:Map<Int, Bool> = new Map<Int, Bool>();
     
     // SDL Log Categories (using integers directly since they're not in SDL3 bindings)
@@ -24,7 +24,7 @@ private class __Log {
     public static inline var CATEGORY_STATE:Int = 105;
     public static inline var CATEGORY_EVENTS:Int = 106;
     
-    public function new(app:App) {
+    public function new(app:AppNative) {
         this.__parent = app;
     }
     

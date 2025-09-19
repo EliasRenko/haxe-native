@@ -3,7 +3,7 @@ package;
 import Entity;
 import ProgramInfo;
 import Camera;
-import App;
+import AppNative;
 
 /**
  * Base class for game states (worlds/scenes/levels)
@@ -13,19 +13,19 @@ class State {
     
     // State properties
     public var active:Bool = true;
-    public var app(get, null):App;
+    public var app(get, null):AppNative;
     public var camera:Camera;
     public var entities:Array<Entity> = [];
     public var name:String;
     public var id:Int;
     
     // Private reference to app for accessing renderer
-    private var __app:App;
+    private var __app:AppNative;
     
     // Private state counter for auto-generating IDs
     private static var __nextId:Int = 0;
     
-    public function new(name:String, app:App) {
+    public function new(name:String, app:AppNative) {
         this.name = name;
         this.id = __nextId++;
         this.entities = [];
@@ -209,7 +209,7 @@ class State {
     /**
      * Get app reference
      */
-    private function get_app():App {
+    private function get_app():AppNative {
         return __app;
     }
 }

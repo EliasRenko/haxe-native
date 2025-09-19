@@ -1,17 +1,17 @@
 # Copy resources (using --macro to ensure execution)
---macro Sys.command("cmd", ["/c", ".\\bat\\copy-files.bat", ".\\include", ".\\bin\\debug\\include"])
---macro Sys.command("cmd", ["/c", ".\\bat\\copy-files.bat", ".\\lib", ".\\bin\\debug\\lib"])
---macro Sys.command("cmd", ["/c", ".\\bat\\copy-files.bat", ".\\res", ".\\bin\\debug\\res"])
---macro Sys.command("cmd", ["/c", "if not exist bin\\debug\\src mkdir bin\\debug\\src"])
---macro Sys.command("cmd", ["/c", "copy src\\glad.c bin\\debug\\src\\glad.c"])
---macro Sys.command("cmd", ["/c", "copy lib\\SDL3.dll bin\\debug\\SDL3.dll"])
+--macro Sys.command("cmd", ["/c", ".\\bat\\copy-files.bat", ".\\include", ".\\bin\\native.debug\\include"])
+--macro Sys.command("cmd", ["/c", ".\\bat\\copy-files.bat", ".\\lib", ".\\bin\\native.debug\\lib"])
+--macro Sys.command("cmd", ["/c", ".\\bat\\copy-files.bat", ".\\res", ".\\bin\\native.debug\\res"])
+--macro Sys.command("cmd", ["/c", "if not exist bin\\native.debug\\src mkdir bin\\native.debug\\src"])
+--macro Sys.command("cmd", ["/c", "copy src\\glad.c bin\\native.debug\\src\\glad.c"])
+--macro Sys.command("cmd", ["/c", "copy lib\\SDL3.dll bin\\native.debug\\SDL3.dll"])
 
 -cp src 
 -cp test
 -main Main
--cpp bin/debug
+-cpp bin/native.debug
 
--D HXCPP_DEBUGGER
+-D HXCPP_native.DEBUGGER
 -D HXCPP_M64
 -D HXCPP_CPP11
 -D HXCPP_NO_PCH

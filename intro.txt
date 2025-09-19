@@ -1,9 +1,0 @@
-We have a simple rendering framework using SDL and OpenGL 3.3 used to draw 2d graphics as a priority.
-The framework is done in haxe with c++ externs to SDL and glad (OpenGL) so we gonna build for native targets.
-The binary files are in the bin/debug folder and we build using build.hxml.
-The main functionality of the framework is the easy rendering by extending the DisplayObject class with new display files of our need to create new and easy graphics.
-All the rendering logic will be written inside those DisplayObjects, render() function.
-However, to keep things clean, we keep all the GL calls inside Renderer class and keep the DisplayObject derivations mostly as containers and flags to assign the proper rendering.
-At the moment, we pass the calculated matrix to those objects,
-calculate the final matrix inside the object and then pass it as uniform for rendering (settings other uniforms as well).
-This would be the basic functionality. We use App.hx for application logic, the Renderer class renders all DisplaybOjects and we optimize and create new DisplayObjects based on our needs. Scan the project for additional info and ask me anything so we can debug easily and faster without creating more problems and obstacles on the way.
