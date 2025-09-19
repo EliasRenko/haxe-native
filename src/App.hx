@@ -50,6 +50,7 @@ class App {
     private var __resources:Resources;
     private var __log:Log;
     
+    
     public function new() {
         __log = new Log(this);
         __resources = new Resources(this);
@@ -123,28 +124,16 @@ class App {
             SDL.quit();
             return false;
         }
-        
         __log.engineInfo("OpenGL loaded successfully");
         __log.engineInfo("OpenGL Version: " + GL.version.major + "." + GL.version.minor);
         
         // Set viewport to match window size
         GL.viewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
         
-        // Create renderer
-        __log.engineInfo("About to create renderer...");
         __renderer = new Renderer(this, WINDOW_WIDTH, WINDOW_HEIGHT);
-        __log.engineInfo("Renderer created successfully!");
-        
-        // Initialize input system
-        __log.engineInfo("Initializing input system...");
-        __input.init();
-        
-        // Preload assets from preload.txt BEFORE creating states
-        __log.engineInfo("Preloading assets...");
-
-        
         
 
+        
         resources.loadText("preload.txt")
             .then(function(source:String) {
                 var files:Array<Promise<Dynamic>> = new Array<Promise<Dynamic>>();
@@ -210,8 +199,6 @@ class App {
             __log.engineError("Error: Application not initialized! Call init() first.");
             return;
         }
-        
-        __log.engineInfo("Starting main loop... (Close the window to exit)");
 
         __active = true;
         var frameCount = 0;

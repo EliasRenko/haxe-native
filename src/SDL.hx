@@ -10,6 +10,8 @@ import cpp.Struct;
 typedef SDL_PropertiesID = UInt64;
 typedef SDL_JoystickID = UInt32;
 
+// Context
+@:include("SDL3/SDL.h")
 @:native("::cpp::Reference<SDL_GLContext>")
 extern class GLContext {}
 
@@ -264,6 +266,9 @@ extern class SDL {
     // ** Window flags
     @:native("SDL_WINDOW_FULLSCREEN")
     static var WINDOW_FULLSCREEN(default, null):CreateWindowFlag;
+
+    @:native("SDL_WINDOW_FULLSCREEN_DESKTOP")
+    static var WINDOW_FULLSCREEN_DESKTOP(default, null):CreateWindowFlag;
 
     @:native("SDL_WINDOW_OPENGL")
     static var WINDOW_OPENGL(default, null):CreateWindowFlag;
@@ -761,14 +766,15 @@ extern class Event {
 }
 
 typedef PtrEvent = Pointer<Event>;
+typedef CreateWindowFlag = Int;
 
 abstract InitFlag(UInt64) {
     @:op(A|B) static function _(a:InitFlag, b:InitFlag):InitFlag;
 }
 
-abstract CreateWindowFlag(UInt64) {
-    @:op(A|B) static function _(a:CreateWindowFlag, b:CreateWindowFlag):CreateWindowFlag;
-}
+// abstract CreateWindowFlag(Int) {
+//     @:op(A|B) static function _(a:CreateWindowFlag, b:CreateWindowFlag):CreateWindowFlag;
+// }
 
 abstract SDL_GLAttr(UInt32) {
     @:op(A|B) static function _(a:SDL_GLAttr, b:SDL_GLAttr):SDL_GLAttr;

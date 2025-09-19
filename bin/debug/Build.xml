@@ -544,6 +544,9 @@
   <file name="src/haxe/IMap.cpp" >
    <depend name="include/haxe/IMap.h"/>
   </file>
+  <file name="src/Window.cpp" >
+   <depend name="include/Window.h"/>
+  </file>
   <file name="src/Type.cpp" >
    <depend name="include/Reflect.h"/>
    <depend name="include/Type.h"/>
@@ -717,6 +720,7 @@
    <depend name="include/State.h"/>
    <depend name="include/Std.h"/>
    <depend name="include/StringTools.h"/>
+   <depend name="include/Window.h"/>
    <depend name="include/_Input/__Input.h"/>
    <depend name="include/_Log/__Log.h"/>
    <depend name="include/_Resources/__Resources.h"/>

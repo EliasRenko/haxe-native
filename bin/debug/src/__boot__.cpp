@@ -286,6 +286,9 @@
 #ifndef INCLUDED_haxe_IMap
 #include <haxe/IMap.h>
 #endif
+#ifndef INCLUDED_Window
+#include <Window.h>
+#endif
 #ifndef INCLUDED_Type
 #include <Type.h>
 #endif
@@ -454,6 +457,7 @@ __files__boot();
 ::cpp::vm::Parameter_obj::__register();
 ::cpp::Lib_obj::__register();
 ::haxe::IMap_obj::__register();
+::Window_obj::__register();
 ::Type_obj::__register();
 ::Sys_obj::__register();
 ::StringTools_obj::__register();
