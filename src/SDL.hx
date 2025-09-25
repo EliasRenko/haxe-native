@@ -790,11 +790,12 @@ extern class Event {
     var motion:MouseMotionEvent;
     var button:MouseButtonEvent;
     var wheel:MouseWheelEvent;
-    // var jaxis:JoyAxisEvent;
-    // var jball:JoyBallEvent;
-    // var jhat:JoyHatEvent;
-    // var jbutton:JoyButtonEvent;
-    // var jdevice:JoyDeviceEvent;
+    var jdevice:JoyDeviceEvent;
+    var jaxis:JoyAxisEvent;
+    var jball:JoyBallEvent;
+    var jhat:JoyHatEvent;
+    var jbutton:JoyButtonEvent;
+    var jbattery:JoyBatteryEvent;
     // var caxis:ControllerAxisEvent;
     // var cbutton:ControllerButtonEvent;
     // var cdevice:ControllerDeviceEvent;
@@ -919,6 +920,65 @@ extern class MouseDeviceEvent {
     var which:UInt; // SDL_MouseID
 }
 
+@:structAccess
+@:native("::cpp::Struct<SDL_JoyDeviceEvent>")
+extern class JoyDeviceEvent {
+    var type:SDL_EventType;
+    var timestamp:UInt64;
+    var which:UInt32; // SDL_JoystickID
+}
+
+@:structAccess
+@:native("::cpp::Struct<SDL_JoyAxisEvent>")
+extern class JoyAxisEvent {
+    var type:SDL_EventType;
+    var timestamp:UInt64;
+    var which:UInt32; // SDL_JoystickID
+    var axis:UInt8;
+    var value:Int; // Sint16
+}
+
+@:structAccess
+@:native("::cpp::Struct<SDL_JoyBallEvent>")
+extern class JoyBallEvent {
+    var type:SDL_EventType;
+    var timestamp:UInt64;
+    var which:UInt32; // SDL_JoystickID
+    var ball:UInt8;
+    var xrel:Int; // Sint16
+    var yrel:Int; // Sint16
+}
+
+@:structAccess
+@:native("::cpp::Struct<SDL_JoyHatEvent>")
+extern class JoyHatEvent {
+    var type:SDL_EventType;
+    var timestamp:UInt64;
+    var which:UInt32; // SDL_JoystickID
+    var hat:UInt8;
+    var value:UInt8;
+}
+
+@:structAccess
+@:native("::cpp::Struct<SDL_JoyButtonEvent>")
+extern class JoyButtonEvent {
+    var type:SDL_EventType;
+    var timestamp:UInt64;
+    var which:UInt32; // SDL_JoystickID
+    var button:UInt8;
+    var down:Bool;
+}
+
+@:structAccess
+@:native("::cpp::Struct<SDL_JoyBatteryEvent>")
+extern class JoyBatteryEvent {
+    var type:SDL_EventType;
+    var timestamp:UInt64;
+    var which:UInt32; // SDL_JoystickID
+    var state:Int;    // SDL_PowerState
+    var percent:Int;
+}
+
 @:enum
 abstract SDL_SystemEventType(UInt) from UInt to UInt {
     var QUIT = 0x100;
@@ -994,16 +1054,6 @@ abstract SDL_KeyboardEventType(UInt) from UInt to UInt {
 }
 
 @:enum
-abstract SDL_MouseEventType(UInt) from UInt to UInt {
-    var MOUSE_MOTION = 0x400;
-    var MOUSE_BUTTON_DOWN = 0x401;
-    var MOUSE_BUTTON_UP = 0x402;
-    var MOUSE_WHEEL = 0x403;
-    var MOUSE_ADDED = 0x404;
-    var MOUSE_REMOVED = 0x405;
-}
-
-@:enum
 abstract SDL_Keymod(UInt16) from UInt16 to UInt16 {
     var NONE = 0x0000;
     var LSHIFT = 0x0001;
@@ -1024,6 +1074,39 @@ abstract SDL_Keymod(UInt16) from UInt16 to UInt16 {
     var SHIFT = LSHIFT | RSHIFT;
     var ALT = LALT | RALT;
     var GUI = LGUI | RGUI;
+}
+
+@:enum
+abstract SDL_MouseEventType(UInt) from UInt to UInt {
+    var MOUSE_MOTION = 0x400;
+    var MOUSE_BUTTON_DOWN = 0x401;
+    var MOUSE_BUTTON_UP = 0x402;
+    var MOUSE_WHEEL = 0x403;
+    var MOUSE_ADDED = 0x404;
+    var MOUSE_REMOVED = 0x405;
+}
+
+@:enum
+abstract SDL_JoystickEventType(UInt) from UInt to UInt {
+    var JOYSTICK_AXIS_MOTION = 0x600;
+    var JOYSTICK_BALL_MOTION = 0x601;
+    var JOYSTICK_HAT_MOTION = 0x602;
+    var JOYSTICK_BUTTON_DOWN = 0x603;
+    var JOYSTICK_BUTTON_UP = 0x604;
+    var JOYSTICK_ADDED = 0x605;
+    var JOYSTICK_REMOVED = 0x606;
+    var JOYSTICK_BATTERY_UPDATED = 0x607;
+    var JOYSTICK_UPDATE_COMPLETE = 0x608;
+}
+
+@:enum
+abstract SDL_PowerState(Int) from Int to Int {
+    var ERROR = -1;
+    var UNKNOWN = 0;
+    var ON_BATTERY = 1;
+    var NO_BATTERY = 2;
+    var CHARGING = 3;
+    var CHARGED = 4;
 }
 
 typedef PtrEvent = Pointer<Event>;

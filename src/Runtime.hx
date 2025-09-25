@@ -325,10 +325,6 @@ class Runtime {
         }
     }
 
-    private function __handleGamepadInputEvents(event:Pointer<Event>):Void {
-        
-    }
-
     private function __handleKeyboardInputEvents(event:Pointer<Event>):Void {
         switch (event.value.type) {
             case SDL_KeyboardEventType.KEY_DOWN:
@@ -367,6 +363,35 @@ class Runtime {
             default:
                 // Other events can be ignored here
         }
+    }
+
+    private function __handleJoystickInputEvents(event:Pointer<Event>):Void {
+        switch (event.value.type) {
+            case SDL_JoystickEventType.JOYSTICK_AXIS_MOTION:
+                onJoyAxisMotion(event.value.jaxis.which, event.value.jaxis.axis, event.value.jaxis.value);
+            case SDL_JoystickEventType.JOYSTICK_BALL_MOTION:
+                onJoyBallMotion(event.value.jball.which, event.value.jball.ball, event.value.jball.xrel, event.value.jball.yrel);
+            case SDL_JoystickEventType.JOYSTICK_HAT_MOTION:
+                onJoyHatMotion(event.value.jhat.which, event.value.jhat.hat, event.value.jhat.value);
+            case SDL_JoystickEventType.JOYSTICK_BUTTON_DOWN:
+                onJoyButtonDown(event.value.jbutton.which, event.value.jbutton.button);
+            case SDL_JoystickEventType.JOYSTICK_BUTTON_UP:
+                onJoyButtonUp(event.value.jbutton.which, event.value.jbutton.button);
+            case SDL_JoystickEventType.JOYSTICK_ADDED:
+                onJoyDeviceAdded(event.value.jdevice.which);
+            case SDL_JoystickEventType.JOYSTICK_REMOVED:
+                onJoyDeviceRemoved(event.value.jdevice.which);
+            case SDL_JoystickEventType.JOYSTICK_BATTERY_UPDATED:
+                onJoyBatteryUpdated(event.value.jbattery.which, event.value.jbattery.percent);
+            case SDL_JoystickEventType.JOYSTICK_UPDATE_COMPLETE:
+                onJoyUpdateComplete(event.value.jdevice.which);
+            default:
+                // Other events can be ignored here
+        }
+    }
+
+    private function __handleGamepadInputEvents(event:Pointer<Event>):Void {
+        
     }
 
     public function update():Void {
@@ -471,6 +496,17 @@ class Runtime {
     private function onMouseWheel(x:Float, y:Float, windowId:Int):Void {}
     private function onMouseAdded(deviceId:Int):Void {}
     private function onMouseRemoved(deviceId:Int):Void {}
+
+    // Joystick event handlers
+    private function onJoyAxisMotion(joystickId:Int, axis:Int, value:Int):Void {}
+    private function onJoyBallMotion(joystickId:Int, ball:Int, xrel:Int, yrel:Int):Void {}
+    private function onJoyHatMotion(joystickId:Int, hat:Int, value:Int):Void {}
+    private function onJoyButtonDown(joystickId:Int, button:Int):Void {}
+    private function onJoyButtonUp(joystickId:Int, button:Int):Void {}
+    private function onJoyDeviceAdded(deviceId:Int):Void {}
+    private function onJoyDeviceRemoved(deviceId:Int):Void {}
+    private function onJoyBatteryUpdated(joystickId:Int, batteryLevel:Int):Void {}
+    private function onJoyUpdateComplete(joystickId:Int):Void {}
 
     public function getLastSDLError():String {
         return SDL.getError();
