@@ -215,6 +215,116 @@ class Runtime {
         SDL.stopTextInput(window);
     }
 
+    // System events
+    // LOCALE_CHANGED & SYSTEM_THEME_CHANGED are not handled
+    private function __handleSystemEvents(event:Pointer<Event>):Void {
+        switch (event.value.type) {
+            case SDL_SystemEventType.QUIT:
+                __active = false;
+            case SDL_SystemEventType.TERMINATING:
+                onTermination();
+            case SDL_SystemEventType.LOW_MEMORY:
+                onLowMemory();
+            case SDL_SystemEventType.WILL_ENTER_BACKGROUND:
+                willEnterBackground();
+            case SDL_SystemEventType.DID_ENTER_BACKGROUND:
+                didEnterBackground();
+            case SDL_SystemEventType.WILL_ENTER_FOREGROUND:
+                willEnterForeground();
+            case SDL_SystemEventType.DID_ENTER_FOREGROUND:
+                didEnterForeground();
+            default:
+                // Other events can be ignored here
+        }
+    }
+
+    // Display events
+    private function __handleDisplayEvents(event:Pointer<Event>):Void {
+        switch (event.value.type) {
+            case SDL_DisplayEventType.DISPLAY_ORIENTATION:
+                onDisplayOrientationChanged(event.value.display.displayID, event.value.display.data1); // data1 = orientation
+            case SDL_DisplayEventType.DISPLAY_ADDED:
+                onDisplayAdded(event.value.display.displayID);
+            case SDL_DisplayEventType.DISPLAY_REMOVED:
+                onDisplayRemoved(event.value.display.displayID);
+            case SDL_DisplayEventType.DISPLAY_MOVED:
+                onDisplayMoved(event.value.display.displayID, event.value.display.data1, event.value.display.data2); // data1,data2 = x,y
+            case SDL_DisplayEventType.DISPLAY_DESKTOP_MODE_CHANGED:
+                var mode:Pointer<SDL_DisplayMode> = SDL.getDesktopDisplayMode(event.value.display.displayID);
+                onDisplayDesktopModeChanged(event.value.display.displayID, mode.value);
+            case SDL_DisplayEventType.DISPLAY_CURRENT_MODE_CHANGED:
+                var mode:Pointer<SDL_DisplayMode> = SDL.getCurrentDisplayMode(event.value.display.displayID);
+                onDisplayCurrentModeChanged(event.value.display.displayID, mode.value);
+            case SDL_DisplayEventType.DISPLAY_CONTENT_SCALE_CHANGED:
+                var scale:Float = SDL.getDisplayContentScale(event.value.display.displayID);
+                onDisplayContentScaleChanged(event.value.display.displayID, scale);
+            default:
+                // Other events can be ignored here
+        }
+    }
+
+    // Window events
+    // SDL_EVENT_WINDOW_METAL_VIEW_RESIZED is not handled
+    private function __handleWindowEvents(event:Pointer<Event>):Void {
+        switch (event.value.type) {
+            case SDL_WindowEventType.WINDOW_SHOWN:
+                onWindowShown(event.value.window.windowID);
+            case SDL_WindowEventType.WINDOW_HIDDEN:
+                onWindowHidden(event.value.window.windowID);
+            case SDL_WindowEventType.WINDOW_EXPOSED:
+                onWindowExposed(event.value.window.windowID);
+            case SDL_WindowEventType.WINDOW_MOVED:
+                onWindowMoved(event.value.window.windowID, event.value.window.data1, event.value.window.data2); // data1,data2 = x,y
+            case SDL_WindowEventType.WINDOW_RESIZED:
+                onWindowResized(event.value.window.windowID, event.value.window.data1, event.value.window.data2); // data1,data2 = width,height
+            case SDL_WindowEventType.WINDOW_PIXEL_SIZE_CHANGED:
+                onWindowPixelSizeChanged(event.value.window.windowID, event.value.window.data1, event.value.window.data2); // data1,data2 = pixelWidth,pixelHeight
+            case SDL_WindowEventType.WINDOW_MINIMIZED:
+                onWindowMinimized(event.value.window.windowID);
+            case SDL_WindowEventType.WINDOW_MAXIMIZED:
+                onWindowMaximized(event.value.window.windowID);
+            case SDL_WindowEventType.WINDOW_RESTORED:
+                onWindowRestored(event.value.window.windowID);
+            case SDL_WindowEventType.WINDOW_MOUSE_ENTER:
+                onWindowMouseEnter(event.value.window.windowID);
+            case SDL_WindowEventType.WINDOW_MOUSE_LEAVE:
+                onWindowMouseLeave(event.value.window.windowID);
+            case SDL_WindowEventType.WINDOW_FOCUS_GAINED:
+                onWindowFocusGained(event.value.window.windowID);
+            case SDL_WindowEventType.WINDOW_FOCUS_LOST:
+                onWindowFocusLost(event.value.window.windowID);
+            case SDL_WindowEventType.WINDOW_CLOSE_REQUESTED:
+                onWindowCloseRequested(event.value.window.windowID);
+            case SDL_WindowEventType.WINDOW_HIT_TEST:
+                onWindowHitTest(event.value.window.windowID, event.value.window.data1, event.value.window.data2); // data1,data2 = x,y
+            case SDL_WindowEventType.WINDOW_ICCPROF_CHANGED:
+                onWindowICCProfileChanged(event.value.window.windowID);
+            case SDL_WindowEventType.WINDOW_DISPLAY_CHANGED:
+                onWindowDisplayChanged(event.value.window.windowID, event.value.window.data1); // data1 = displayIndex
+            case SDL_WindowEventType.WINDOW_DISPLAY_SCALE_CHANGED:
+                var windowPtr = SDL.getWindowFromID(event.value.window.windowID);
+                var scale = SDL.getWindowDisplayScale(windowPtr);
+                onWindowDisplayScaleChanged(event.value.window.windowID, scale);
+            case SDL_WindowEventType.WINDOW_SAFE_AREA_CHANGED:
+                //var safeArea:SDL_Rect = {x:0, y:0, w:0, h:0};
+                //SDL.getWindowSafeArea(event.value.window.windowID, Pointer.addressOf(safeArea));
+                //onWindowSafeAreaChanged(event.value.window.windowID, safeArea);
+            case SDL_WindowEventType.WINDOW_OCCLUDED:
+                onWindowOccluded(event.value.window.windowID);
+            case SDL_WindowEventType.WINDOW_ENTER_FULLSCREEN:
+                onWindowEnterFullscreen(event.value.window.windowID);
+            case SDL_WindowEventType.WINDOW_LEAVE_FULLSCREEN:
+                onWindowLeaveFullscreen(event.value.window.windowID);
+            case SDL_WindowEventType.WINDOW_DESTROYED:
+                onWindowDestroyed(event.value.window.windowID);
+           case SDL_WindowEventType.WINDOW_HDR_STATE_CHANGED:
+                var hdrEnabled:Bool = event.value.window.data1 != 0;
+                onWindowHDRStateChanged(event.value.window.windowID, hdrEnabled);
+            default:
+                // Other events can be ignored here
+        }
+    }
+
     private function __handleGamepadInputEvents(event:Pointer<Event>):Void {
         
     }
@@ -305,6 +415,49 @@ class Runtime {
         SDL.free(ptrData);
         return bytes;
     }
+
+    // System event handlers
+    private function onTermination():Void {}
+    private function onLowMemory():Void {}
+    private function willEnterBackground():Void {}
+    private function didEnterBackground():Void {}
+    private function willEnterForeground():Void {}
+    private function didEnterForeground():Void {}
+
+    // Window event handlers
+    private function onWindowShown(windowId:Int):Void {}
+    private function onWindowHidden(windowId:Int):Void {}
+    private function onWindowExposed(windowId:Int):Void {}
+    private function onWindowMoved(windowId:Int, x:Int, y:Int):Void {}
+    private function onWindowResized(windowId:Int, width:Int, height:Int):Void {}
+    private function onWindowPixelSizeChanged(windowId:Int, pixelWidth:Int, pixelHeight:Int):Void {}
+    private function onWindowMinimized(windowId:Int):Void {}
+    private function onWindowMaximized(windowId:Int):Void {}
+    private function onWindowRestored(windowId:Int):Void {}
+    private function onWindowMouseEnter(windowId:Int):Void {}
+    private function onWindowMouseLeave(windowId:Int):Void {}
+    private function onWindowFocusGained(windowId:Int):Void {}
+    private function onWindowFocusLost(windowId:Int):Void {}
+    private function onWindowCloseRequested(windowId:Int):Void {}
+    private function onWindowHitTest(windowId:Int, x:Int, y:Int):Void {}
+    private function onWindowICCProfileChanged(windowId:Int):Void {}
+    private function onWindowDisplayChanged(windowId:Int, displayIndex:Int):Void {}
+    private function onWindowDisplayScaleChanged(windowId:Int, scale:Float):Void {}
+    private function onWindowSafeAreaChanged(windowId:Int, safeArea:SDL_Rect):Void {}
+    private function onWindowOccluded(windowId:Int):Void {}
+    private function onWindowEnterFullscreen(windowId:Int):Void {}
+    private function onWindowLeaveFullscreen(windowId:Int):Void {}
+    private function onWindowDestroyed(windowId:Int):Void {}
+    private function onWindowHDRStateChanged(windowId:Int, hdrEnabled:Bool):Void {}
+
+    // Display event handlers
+    private function onDisplayOrientationChanged(displayId:Int, orientation:SDL_DisplayOrientation):Void {}
+    private function onDisplayAdded(displayId:Int):Void {}
+    private function onDisplayRemoved(displayId:Int):Void {}
+    private function onDisplayMoved(displayId:Int, x:Int, y:Int):Void {}
+    private function onDisplayDesktopModeChanged(displayId:Int, mode:SDL_DisplayMode):Void {}
+    private function onDisplayCurrentModeChanged(displayId:Int, mode:SDL_DisplayMode):Void {}
+    private function onDisplayContentScaleChanged(displayId:Int, scale:Float):Void {}
 
     // Keyboard event handlers
     private function onKeyDown(keycode:Int, scancode:Int, repeat:Bool, mod:SDL_Keymod, windowId:Int):Void {}

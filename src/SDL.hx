@@ -139,6 +139,24 @@ extern class SDL {
     @:native("SDL_GetTicks")
     static function getTicks():UInt64;
 
+    @:native("SDL_GetDesktopDisplayMode")
+    public static function getDesktopDisplayMode(displayID:UInt64):Pointer<SDL_DisplayMode>;
+
+    @:native("SDL_GetCurrentDisplayMode")
+    public static function getCurrentDisplayMode(displayID:UInt64):Pointer<SDL_DisplayMode>;
+
+    @:native("SDL_GetWindowDisplayScale")
+    public static function getWindowDisplayScale(window:WindowPtr):Float;
+
+    @:native("SDL_GetWindowFromID")
+    public static function getWindowFromID(id:UInt):WindowPtr;
+
+    @:native("SDL_GetWindowSafeArea")
+    public static function getWindowSafeArea(windowID:UInt, rectPtr:Pointer<SDL_Rect>):Bool;
+
+    @:native("SDL_GetDisplayContentScale")
+    public static function getDisplayContentScale(displayID:UInt64):Float;
+
     static inline function getEvent():Pointer<Event> {
         var event:Pointer<Event> = null;
         untyped __cpp__("SDL_Event __sdl_ev__; {0} = &__sdl_ev__", event);
@@ -718,6 +736,15 @@ extern class SDL {
 // @:native("SDL_Event")
 // extern class Event {}
 
+@:structAccess
+@:native("::cpp::Struct<SDL_Rect>")
+extern class SDL_Rect {
+    var x:Int;
+    var y:Int;
+    var w:Int;
+    var h:Int;
+}
+
 @:native("SDL_GamepadButtonEvent")
 @:structAccess
 extern class GamepadButtonEvent {
@@ -751,10 +778,11 @@ extern class GamepadDeviceEvent {
 extern class Event {
 
     var type:SDL_EventType;
+    var display:SDL_DisplayEvent;
+    var window:WindowEvent;
     var gbutton:GamepadButtonEvent;
     var gaxis:GamepadAxisEvent;
     var gdevice:GamepadDeviceEvent;
-    // var window:WindowEvent;
     var key:KeyboardEvent;
     // var edit:TextEditingEvent;
     var text:TextInputEvent;
@@ -778,6 +806,40 @@ extern class Event {
     // var mgesture:MultiGestureEvent;
     // var dgesture:DollarGestureEvent;
     // var drop:DropEvent;
+}
+
+@:structAccess
+@:native("::cpp::Struct<SDL_DisplayEvent>")
+extern class SDL_DisplayEvent {
+    var type:SDL_EventType;
+    var timestamp:UInt64;
+    var displayID:UInt64; // SDL_DisplayID
+    var data1:Int;
+    var data2:Int;
+}
+
+@:structAccess
+@:native("::cpp::Struct<SDL_DisplayMode>")
+extern class SDL_DisplayMode {
+    var displayID:UInt64; // SDL_DisplayID
+    var format:UInt32;    // SDL_PixelFormat
+    var w:Int;
+    var h:Int;
+    var pixel_density:Float;
+    var refresh_rate:Float;
+    var refresh_rate_numerator:Int;
+    var refresh_rate_denominator:Int;
+    var internal:cpp.Pointer<Void>; // SDL_DisplayModeData*
+}
+
+@:structAccess
+@:native("::cpp::Struct<SDL_WindowEvent>")
+extern class WindowEvent {
+    var type:SDL_EventType;
+    var timestamp:UInt64;
+    var windowID:UInt; // SDL_WindowID
+    var data1:Int;
+    var data2:Int;
 }
 
 @:structAccess
@@ -858,6 +920,68 @@ extern class MouseDeviceEvent {
 }
 
 @:enum
+abstract SDL_SystemEventType(UInt) from UInt to UInt {
+    var QUIT = 0x100;
+    var TERMINATING = 0x101;
+    var LOW_MEMORY = 0x102;
+    var WILL_ENTER_BACKGROUND = 0x103;
+    var DID_ENTER_BACKGROUND = 0x104;
+    var WILL_ENTER_FOREGROUND = 0x105;
+    var DID_ENTER_FOREGROUND = 0x106;
+    var LOCALE_CHANGED = 0x107;
+    var SYSTEM_THEME_CHANGED = 0x108;
+}
+
+@:enum
+abstract SDL_DisplayEventType(UInt) from UInt to UInt {
+    var DISPLAY_ORIENTATION = 0x150;
+    var DISPLAY_ADDED = 0x151;
+    var DISPLAY_REMOVED = 0x152;
+    var DISPLAY_MOVED = 0x153;
+    var DISPLAY_DESKTOP_MODE_CHANGED = 0x154;
+    var DISPLAY_CURRENT_MODE_CHANGED = 0x155;
+    var DISPLAY_CONTENT_SCALE_CHANGED  = 0x156;
+}
+
+@:enum
+abstract SDL_WindowEventType(UInt) from UInt to UInt {
+    var WINDOW_SHOWN = 0x202;
+    var WINDOW_HIDDEN = 0x203;
+    var WINDOW_EXPOSED = 0x204;
+    var WINDOW_MOVED = 0x205;
+    var WINDOW_RESIZED = 0x206;
+    var WINDOW_PIXEL_SIZE_CHANGED = 0x207;
+    var WINDOW_METAL_VIEW_RESIZED = 0x208;
+    var WINDOW_MINIMIZED = 0x209;
+    var WINDOW_MAXIMIZED = 0x20A;
+    var WINDOW_RESTORED = 0x20B;
+    var WINDOW_MOUSE_ENTER = 0x20C;
+    var WINDOW_MOUSE_LEAVE = 0x20D;
+    var WINDOW_FOCUS_GAINED = 0x20E;
+    var WINDOW_FOCUS_LOST = 0x20F;
+    var WINDOW_CLOSE_REQUESTED = 0x210;
+    var WINDOW_HIT_TEST = 0x211;
+    var WINDOW_ICCPROF_CHANGED = 0x212;
+    var WINDOW_DISPLAY_CHANGED = 0x213;
+    var WINDOW_DISPLAY_SCALE_CHANGED = 0x214;
+    var WINDOW_SAFE_AREA_CHANGED = 0x215;
+    var WINDOW_OCCLUDED = 0x216;
+    var WINDOW_ENTER_FULLSCREEN = 0x217;
+    var WINDOW_LEAVE_FULLSCREEN = 0x218;
+    var WINDOW_DESTROYED = 0x219;
+    var WINDOW_HDR_STATE_CHANGED = 0x21A;
+}
+
+@:enum
+abstract SDL_DisplayOrientation(Int) from Int to Int {
+    var UNKNOWN = 0;
+    var LANDSCAPE = 1;
+    var LANDSCAPE_FLIPPED = 2;
+    var PORTRAIT = 3;
+    var PORTRAIT_FLIPPED = 4;
+}
+
+@:enum
 abstract SDL_KeyboardEventType(UInt) from UInt to UInt {
     var KEY_DOWN = 0x300; 
     var KEY_UP = 0x301; 
@@ -871,35 +995,35 @@ abstract SDL_KeyboardEventType(UInt) from UInt to UInt {
 
 @:enum
 abstract SDL_MouseEventType(UInt) from UInt to UInt {
-    var MOUSE_MOTION        = 0x400;
-    var MOUSE_BUTTON_DOWN   = 0x401;
-    var MOUSE_BUTTON_UP     = 0x402;
-    var MOUSE_WHEEL         = 0x403;
-    var MOUSE_ADDED         = 0x404;
-    var MOUSE_REMOVED       = 0x405;
+    var MOUSE_MOTION = 0x400;
+    var MOUSE_BUTTON_DOWN = 0x401;
+    var MOUSE_BUTTON_UP = 0x402;
+    var MOUSE_WHEEL = 0x403;
+    var MOUSE_ADDED = 0x404;
+    var MOUSE_REMOVED = 0x405;
 }
 
 @:enum
 abstract SDL_Keymod(UInt16) from UInt16 to UInt16 {
-    var NONE    = 0x0000;
-    var LSHIFT  = 0x0001;
-    var RSHIFT  = 0x0002;
-    var LEVEL5  = 0x0004;
-    var LCTRL   = 0x0040;
-    var RCTRL   = 0x0080;
-    var LALT    = 0x0100;
-    var RALT    = 0x0200;
-    var LGUI    = 0x0400;
-    var RGUI    = 0x0800;
-    var NUM     = 0x1000;
-    var CAPS    = 0x2000;
-    var MODE    = 0x4000;
-    var SCROLL  = 0x8000;
+    var NONE = 0x0000;
+    var LSHIFT = 0x0001;
+    var RSHIFT = 0x0002;
+    var LEVEL5 = 0x0004;
+    var LCTRL = 0x0040;
+    var RCTRL = 0x0080;
+    var LALT = 0x0100;
+    var RALT = 0x0200;
+    var LGUI = 0x0400;
+    var RGUI = 0x0800;
+    var NUM = 0x1000;
+    var CAPS = 0x2000;
+    var MODE = 0x4000;
+    var SCROLL = 0x8000;
 
-    var CTRL    = LCTRL | RCTRL;
-    var SHIFT   = LSHIFT | RSHIFT;
-    var ALT     = LALT | RALT;
-    var GUI     = LGUI | RGUI;
+    var CTRL = LCTRL | RCTRL;
+    var SHIFT = LSHIFT | RSHIFT;
+    var ALT = LALT | RALT;
+    var GUI = LGUI | RGUI;
 }
 
 typedef PtrEvent = Pointer<Event>;

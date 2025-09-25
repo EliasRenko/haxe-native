@@ -1,0 +1,26 @@
+# Copy resources (using --macro to ensure execution)
+--macro Sys.command("cmd", ["/c", ".\\bat\\copy-files.bat", ".\\include", ".\\bin\\android\\include"])
+--macro Sys.command("cmd", ["/c", ".\\bat\\copy-files.bat", ".\\lib", ".\\bin\\android\\lib"])
+--macro Sys.command("cmd", ["/c", ".\\bat\\copy-files.bat", ".\\res", ".\\bin\\android\\res"])
+--macro Sys.command("cmd", ["/c", "if not exist bin\\android\\src mkdir bin\\android\\src"])
+--macro Sys.command("cmd", ["/c", "copy src\\glad.c bin\\android\\src\\glad.c"])
+--macro Sys.command("cmd", ["/c", "copy lib\\SDL3.dll bin\\android\\SDL3.dll"])
+
+-cp src 
+-cp test
+-main Main
+-cpp bin/android
+
+-D HXCPP_DEBUGGER
+-D HXCPP_M64
+-D HXCPP_CPP11
+-D HXCPP_NO_PCH
+-D HXCPP_NO_PRECOMPILED_HEADERS
+-D no-deprecation-warnings
+-D android
+
+-lib hxcpp-debug-server
+-lib hxcpp
+
+-debug 
+-dce std

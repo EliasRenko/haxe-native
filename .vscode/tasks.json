@@ -11,7 +11,9 @@
 			"options": {
 				"shell": {
 					"executable": "powershell.exe",
-					"args": ["-Command"]
+					"args": [
+						"-Command"
+					]
 				}
 			}
 		},
@@ -23,7 +25,9 @@
 				"cwd": "${workspaceFolder}/bin/debug",
 				"shell": {
 					"executable": "powershell.exe",
-					"args": ["-Command"]
+					"args": [
+						"-Command"
+					]
 				}
 			},
 			"group": "test",
@@ -37,14 +41,28 @@
 		},
 		{
 			"label": "Run Engine (External Terminal)",
-			"type": "shell", 
+			"type": "shell",
 			"command": "start",
-			"args": ["cmd", "/k", "cd", "/d", "${workspaceFolder}\\bin\\debug", "&&", "Main-debug.exe"],
+			"args": [
+				"cmd",
+				"/k",
+				"cd",
+				"/d",
+				"${workspaceFolder}\\bin\\debug",
+				"&&",
+				"Main-debug.exe"
+			],
 			"group": "test",
 			"presentation": {
 				"echo": false,
 				"reveal": "never"
 			}
 		}
-	]
+	],
+	"options": {
+		"env": {
+			"ANDROID_NDK_DIR": "C:\\Users\\efedorenko\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973",
+			"ANDROID_SDK_DIR": "C:\\Users\\efedorenko\\AppData\\Local\\Android\\Sdk"
+		}
+	}
 }
