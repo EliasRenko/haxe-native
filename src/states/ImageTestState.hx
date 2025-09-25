@@ -48,8 +48,8 @@ class ImageTestState extends State {
         // Now with pixel-perfect camera, position image at center of screen
         // Screen size from App constants, so center is at (WINDOW_WIDTH/2, WINDOW_HEIGHT/2)
         // But we want to position by the image's top-left corner, so subtract half the image size
-        imageDisplay.x = (App.WINDOW_WIDTH / 2) - (texture.width / 2);   // Center horizontally 
-        imageDisplay.y = (App.WINDOW_HEIGHT / 2) - (texture.height / 2);  // Center vertically
+        imageDisplay.x = (__app.WINDOW_WIDTH / 2) - (texture.width / 2);   // Center horizontally 
+        imageDisplay.y = (__app.WINDOW_HEIGHT / 2) - (texture.height / 2);  // Center vertically
         imageDisplay.z = 0.0;   // Default Z position
         
         // No scaling needed - image will render at 1:1 pixel size
@@ -61,7 +61,7 @@ class ImageTestState extends State {
         trace("ImageTestState setup complete - 1 image entity created");
         trace("Camera configured: pixel-perfect orthographic (0,0 at top-left)");
         trace("Image positioned at screen center: " + imageDisplay.x + ", " + imageDisplay.y);
-        trace("Window size: " + App.WINDOW_WIDTH + "x" + App.WINDOW_HEIGHT + " pixels");
+        trace("Window size: " + __app.WINDOW_WIDTH + "x" + __app.WINDOW_HEIGHT + " pixels");
     }
     
     override public function onDeactivate():Void {

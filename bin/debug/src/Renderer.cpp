@@ -17,6 +17,9 @@
 #ifndef INCLUDED_Renderer
 #include <Renderer.h>
 #endif
+#ifndef INCLUDED_Runtime
+#include <Runtime.h>
+#endif
 #ifndef INCLUDED_Std
 #include <Std.h>
 #endif

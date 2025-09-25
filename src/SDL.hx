@@ -1,5 +1,7 @@
 package;
 
+import cpp.UInt8;
+import cpp.UInt16;
 import cpp.Star;
 import cpp.UInt32;
 import cpp.UInt64;
@@ -92,6 +94,12 @@ extern class SDL {
 
     @:native("SDL_GetWindowSizeInPixels")
     static function getWindowSizeInPixels(window:WindowPtr, w:Pointer<Int>, h:Pointer<Int>):Bool;
+
+    @:native("SDL_GL_SetSwapInterval")
+    public static function setSwapInterval(interval:Int):Bool;
+
+    @:native("SDL_GL_GetSwapInterval")
+    public static function getSwapInterval(interval:Pointer<Int>):Bool;
 
     // ** 
     
@@ -267,8 +275,8 @@ extern class SDL {
     @:native("SDL_WINDOW_FULLSCREEN")
     static var WINDOW_FULLSCREEN(default, null):CreateWindowFlag;
 
-    @:native("SDL_WINDOW_FULLSCREEN_DESKTOP")
-    static var WINDOW_FULLSCREEN_DESKTOP(default, null):CreateWindowFlag;
+    // @:native("SDL_WINDOW_FULLSCREEN_DESKTOP")
+    // static var WINDOW_FULLSCREEN_DESKTOP(default, null):CreateWindowFlag;
 
     @:native("SDL_WINDOW_OPENGL")
     static var WINDOW_OPENGL(default, null):CreateWindowFlag;
@@ -341,6 +349,12 @@ extern class SDL {
 
     @:native("SDL_WINDOW_NOT_FOCUSABLE")
     static var WINDOW_NOT_FOCUSABLE(default, null):CreateWindowFlag;
+
+    @:native("SDL_StartTextInput")
+    public static function startTextInput(window:WindowPtr):Bool;
+
+    @:native("SDL_StopTextInput")
+    public static function stopTextInput(window:WindowPtr):Bool;
 
     // ** Folders
 
@@ -524,7 +538,7 @@ extern class SDL {
     static var EVENT_KEYBOARD_REMOVED(default, null):SDL_EventType;
     @:native("SDL_EVENT_TEXT_EDITING_CANDIDATES")
     static var EVENT_TEXT_EDITING_CANDIDATES(default, null):SDL_EventType;
-
+    
     // Mouse events
     @:native("SDL_EVENT_MOUSE_MOTION")
     static var EVENT_MOUSE_MOTION(default, null):SDL_EventType;
@@ -741,12 +755,13 @@ extern class Event {
     var gaxis:GamepadAxisEvent;
     var gdevice:GamepadDeviceEvent;
     // var window:WindowEvent;
-    // var key:KeyboardEvent;
+    var key:KeyboardEvent;
     // var edit:TextEditingEvent;
-    // var text:TextInputEvent;
-    // var motion:MouseMotionEvent;
-    // var button:MouseButtonEvent;
-    // var wheel:MouseWheelEvent;
+    var text:TextInputEvent;
+    var mdevice:MouseDeviceEvent;
+    var motion:MouseMotionEvent;
+    var button:MouseButtonEvent;
+    var wheel:MouseWheelEvent;
     // var jaxis:JoyAxisEvent;
     // var jball:JoyBallEvent;
     // var jhat:JoyHatEvent;
@@ -765,8 +780,132 @@ extern class Event {
     // var drop:DropEvent;
 }
 
+@:structAccess
+@:native("::cpp::Struct<SDL_KeyboardEvent>")
+extern class KeyboardEvent {
+    var type:SDL_EventType;
+    var timestamp:UInt64;
+    var windowID:UInt;
+    var which:UInt; // SDL_KeyboardID
+    var scancode:Int;
+    var key:Int;
+    var mod:SDL_Keymod;
+    var raw:UInt16;
+    var down:Bool;
+    var repeat:Bool;
+}
+
+@:structAccess
+@:native("::cpp::Struct<SDL_TextInputEvent>")
+extern class TextInputEvent {
+    var type:SDL_EventType;
+    var timestamp:UInt64;
+    var windowID:UInt;
+    var text:ConstCharStar;
+}
+
+@:structAccess
+@:native("::cpp::Struct<SDL_MouseButtonEvent>")
+extern class MouseButtonEvent {
+    var type:SDL_EventType;
+    var timestamp:UInt64;
+    var windowID:UInt;
+    var which:UInt; // SDL_MouseID
+    var button:UInt8;
+    var down:Bool;
+    var clicks:UInt8;
+    var x:Float;
+    var y:Float;
+}
+
+@:structAccess
+@:native("::cpp::Struct<SDL_MouseMotionEvent>")
+extern class MouseMotionEvent {
+    var type:SDL_EventType;
+    var timestamp:UInt64;
+    var windowID:UInt;
+    var which:UInt; // SDL_MouseID
+    var state:UInt32; // SDL_MouseButtonFlags
+    var x:Float;
+    var y:Float;
+    var xrel:Float;
+    var yrel:Float;
+}
+
+@:structAccess
+@:native("::cpp::Struct<SDL_MouseWheelEvent>")
+extern class MouseWheelEvent {
+    var type:SDL_EventType;
+    var reserved:UInt32;
+    var timestamp:UInt64;
+    var windowID:UInt;
+    var which:UInt; // SDL_MouseID
+    var x:Float;
+    var y:Float;
+    var direction:UInt32; // SDL_MouseWheelDirection
+    var mouse_x:Float;
+    var mouse_y:Float;
+    var integer_x:Int;
+    var integer_y:Int;
+}
+
+@:structAccess
+@:native("::cpp::Struct<SDL_MouseDeviceEvent>")
+extern class MouseDeviceEvent {
+    var type:SDL_EventType;
+    var timestamp:UInt64;
+    var which:UInt; // SDL_MouseID
+}
+
+@:enum
+abstract SDL_KeyboardEventType(UInt) from UInt to UInt {
+    var KEY_DOWN = 0x300; 
+    var KEY_UP = 0x301; 
+    var TEXT_EDITING = 0x302; 
+    var TEXT_INPUT = 0x303; 
+    var KEYMAP_CHANGED = 0x304; 
+    var KEYBOARD_ADDED = 0x305; 
+    var KEYBOARD_REMOVED = 0x306; 
+    var TEXT_EDITING_CANDIDATES = 0x307;
+}
+
+@:enum
+abstract SDL_MouseEventType(UInt) from UInt to UInt {
+    var MOUSE_MOTION        = 0x400;
+    var MOUSE_BUTTON_DOWN   = 0x401;
+    var MOUSE_BUTTON_UP     = 0x402;
+    var MOUSE_WHEEL         = 0x403;
+    var MOUSE_ADDED         = 0x404;
+    var MOUSE_REMOVED       = 0x405;
+}
+
+@:enum
+abstract SDL_Keymod(UInt16) from UInt16 to UInt16 {
+    var NONE    = 0x0000;
+    var LSHIFT  = 0x0001;
+    var RSHIFT  = 0x0002;
+    var LEVEL5  = 0x0004;
+    var LCTRL   = 0x0040;
+    var RCTRL   = 0x0080;
+    var LALT    = 0x0100;
+    var RALT    = 0x0200;
+    var LGUI    = 0x0400;
+    var RGUI    = 0x0800;
+    var NUM     = 0x1000;
+    var CAPS    = 0x2000;
+    var MODE    = 0x4000;
+    var SCROLL  = 0x8000;
+
+    var CTRL    = LCTRL | RCTRL;
+    var SHIFT   = LSHIFT | RSHIFT;
+    var ALT     = LALT | RALT;
+    var GUI     = LGUI | RGUI;
+}
+
 typedef PtrEvent = Pointer<Event>;
 typedef CreateWindowFlag = Int;
+typedef SDL_EventType = UInt;
+typedef SDL_KeyMod = UInt16;
 
 abstract InitFlag(UInt64) {
     @:op(A|B) static function _(a:InitFlag, b:InitFlag):InitFlag;
@@ -784,9 +923,9 @@ abstract SDL_LogPriority(UInt32) {
     @:op(A|B) static function _(a:SDL_LogPriority, b:SDL_LogPriority):SDL_LogPriority;
 }
 
-abstract SDL_EventType(UInt32) {
-    @:op(A|B) static function _(a:SDL_EventType, b:SDL_EventType):SDL_EventType;
-}
+// abstract SDL_EventType(UInt32) {
+//     @:op(A|B) static function _(a:SDL_EventType, b:SDL_EventType):SDL_EventType;
+// }
 
 abstract SDL_Folder(UInt32) {
     @:op(A|B) static function _(a:SDL_Folder, b:SDL_Folder):SDL_Folder;

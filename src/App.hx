@@ -1,139 +1,32 @@
 package;
 
-import SDL;
-import GL;
-import Renderer;
-import State;
-import Log;
-import Input;
-import Resources;
-import data.Resource;
-import states.TilemapTestState;
-import states.TilemapFastTestState;
-import states.LogTestState;
-import sys.FileSystem;
-import cpp.UInt64;
-import cpp.Pointer;
-import cpp.NativeString;
-import data.TextureData;
-import loaders.TGALoader;
-import haxe.ds.Vector;
-
-class App {
-
-    public static inline var WINDOW_TITLE:String = "Engine";
-    public static inline var WINDOW_WIDTH:Int = 640;
-    public static inline var WINDOW_HEIGHT:Int = 480;
-
-    // Publics
-    public var active(get, null):Bool;
-    public var resources(get, null):Resources;
-    public var renderer(get, null):Renderer;
-    public var log(get, null):Log;
-    public var input(get, null):Input;
-
-    // State Management
-    public var states:Array<State> = [];
-    public var currentState:State = null;
-
-    // Privates
-    private var __active:Bool = false;
-    private var __window:Window;
-    private var __context:GLContext;
-    private var __renderer:Renderer;
-
-    // Timing variables for deltaTime calculation
-    private var __lastTime:Float = 0.0;
-    private var __currentTime:Float = 0.0;
-
-    private var __input:Input;
-    private var __resources:Resources;
-    private var __log:Log;
-    
+class App extends Runtime {
     
     public function new() {
+        super();
+
         __log = new Log(this);
         __resources = new Resources(this);
         __input = new Input(this);
     }
-    
-    public function init():Bool {
-        // Configure logging: disable all categories except ENGINE for cleaner output
-        __log.disableCategory(21); // CATEGORY_RENDERER
-        __log.disableCategory(22); // CATEGORY_RESOURCES
-        __log.disableCategory(23); // CATEGORY_TILEMAP
-        __log.disableCategory(24); // CATEGORY_PERFORMANCE
-        __log.disableCategory(25); // CATEGORY_STATE
-        __log.disableCategory(26); // CATEGORY_EVENTS
-        
-        // Enable INPUT category to see gamepad events
-        __log.enableCategory(Log.CATEGORY_INPUT);
-        
-        __log.engineInfo("Initializing application...");
-        
-        // Debug: Print SDL gamepad event constants
-        __log.info(Log.CATEGORY_INPUT, "SDL Constants - GAMEPAD_BUTTON_DOWN: " + SDL.EVENT_GAMEPAD_BUTTON_DOWN);
-        __log.info(Log.CATEGORY_INPUT, "SDL Constants - GAMEPAD_BUTTON_UP: " + SDL.EVENT_GAMEPAD_BUTTON_UP);
-        __log.info(Log.CATEGORY_INPUT, "SDL Constants - GAMEPAD_ADDED: " + SDL.EVENT_GAMEPAD_ADDED);
-        __log.info(Log.CATEGORY_INPUT, "SDL Constants - GAMEPAD_REMOVED: " + SDL.EVENT_GAMEPAD_REMOVED);
-        __log.info(Log.CATEGORY_INPUT, "SDL Constants - GAMEPAD_AXIS_MOTION: " + SDL.EVENT_GAMEPAD_AXIS_MOTION);
-        
-        // Initialize SDL video and gamepad
-        if (!SDL.init(SDL.INIT_VIDEO)) {
-            __log.engineError("Failed to initialize SDL: " + SDL.getError());
-            return false;
-        }
-        
-        // Initialize gamepad subsystem
-        if (!SDL.initSubSystem(SDL.INIT_GAMEPAD)) {
-            __log.engineWarn("Failed to initialize SDL gamepad subsystem: " + SDL.getError());
-            __log.engineInfo("Continuing without gamepad support");
-        } else {
-            __log.engineInfo("SDL gamepad subsystem initialized successfully");
-        }
-        
-        // Set OpenGL attributes (3.3 Core)
-        SDL.setAttribute(SDL.GL_CONTEXT_MAJOR_VERSION, 3);
-        SDL.setAttribute(SDL.GL_CONTEXT_MINOR_VERSION, 3);
-        SDL.setAttribute(SDL.GL_CONTEXT_PROFILE_MASK, SDL.GL_CONTEXT_PROFILE_CORE);
-        
-        // Create window
-        __window = new Window(SDL.createWindow(WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT, SDL.WINDOW_OPENGL));
-        if (__window.ptr == null) {
-            __log.engineError("Failed to create window: " + SDL.getError());
-            SDL.quit();
-            return false;
-        }
-        
-        __log.engineInfo("Window created successfully");
-        
-        // Create OpenGL context
-        __context = SDL.createContext(__window.ptr);
-        if (__context == null) {
-            __log.engineError("Failed to create OpenGL context: " + SDL.getError());
-            SDL.quit();
-            return false;
-        }
-        
-        SDL.makeCurrent(__window.ptr, __context);
-        
-        // Load OpenGL functions
-        var gladResult = GL.gladLoadGLLoader(SDL.getProcAddress);
-        if (gladResult == 0) {
-            __log.engineError("Failed to load OpenGL functions");
-            SDL.quit();
-            return false;
-        }
-        __log.engineInfo("OpenGL loaded successfully");
-        __log.engineInfo("OpenGL Version: " + GL.version.major + "." + GL.version.minor);
-        
-        // Set viewport to match window size
-        GL.viewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-        
-        __renderer = new Renderer(this, WINDOW_WIDTH, WINDOW_HEIGHT);
-        
 
-        
+    override function init():Bool {
+        super.init();
+
+        return true;
+    }
+
+    override public function run():Void {
+
+        super.run();
+    }
+
+    override function preload() {
+        super.preload();
+
+        // TODO: Move to a more appropriate place
+        __renderer = new Renderer(this, 640, 480);
+
         resources.loadText("preload.txt")
             .then(function(source:String) {
                 var files:Array<Promise<Dynamic>> = new Array<Promise<Dynamic>>();
@@ -169,7 +62,7 @@ class App {
                 Promise.all(files)
                     .then(function(results:Array<Dynamic>) {
                         __log.engineInfo("Successfully preloaded " + results.length + " assets");
-                        
+
                         // // Add both states but start with the TilemapFast state for visual demo
                         // __log.engineInfo("Setting up states...");
                         // var logTestState = new states.LogTestState(this);
@@ -191,126 +84,6 @@ class App {
             });
         
         __log.engineInfo("Application initialized successfully!");
-        return true;
-    }
-    
-    public function run():Void {
-        if (__renderer == null) {
-            __log.engineError("Error: Application not initialized! Call init() first.");
-            return;
-        }
-
-        __active = true;
-        var frameCount = 0;
-
-        while (__active) {
-            frameCount++;
-            
-            // Handle events
-            handleEvents();
-            
-            // Update application logic
-            update();
-            
-            // Render frame
-            render();
-            
-            // Swap buffers
-            SDL.swapWindow(__window.ptr);
-        }
-        
-        __log.engineInfo("Main loop ended");
-        
-        release();
-    }
-    
-    private function handleEvents():Void {
-        // Poll SDL events
-        var event = SDL.getEvent();
-        while (SDL.pollEvent(event)) {
-            // Debug: Log all event types
-            if (event.value.type != SDL.EVENT_MOUSE_MOTION) { // Skip mouse motion to reduce spam
-                __log.info(Log.CATEGORY_INPUT, "DEBUG: Event type: " + event.value.type);
-            }
-            
-            if (event.value.type == SDL.EVENT_QUIT) {
-                __log.engineInfo("Quit event received");
-                __active = false;
-            } else if (event.value.type == SDL.EVENT_WINDOW_CLOSE_REQUESTED) {
-                __log.engineInfo("Window close requested");
-                __active = false;
-            }
-            
-            // Gamepad/Controller Events
-            else if (event.value.type == SDL.EVENT_GAMEPAD_ADDED) {
-                __input.onGamepadConnected();
-            }
-            else if (event.value.type == SDL.EVENT_GAMEPAD_REMOVED) {
-                __input.onGamepadDisconnected();
-            }
-            else if (event.value.type == SDL.EVENT_GAMEPAD_BUTTON_DOWN) {
-                __log.info(Log.CATEGORY_INPUT, "DEBUG: Gamepad button down event received!");
-                __input.onGamepadButtonPressed(event);
-            }
-            else if (event.value.type == SDL.EVENT_GAMEPAD_BUTTON_UP) {
-                __log.info(Log.CATEGORY_INPUT, "DEBUG: Gamepad button up event received!");
-                __input.onGamepadButtonReleased(event);
-            }
-            else if (event.value.type == SDL.EVENT_GAMEPAD_AXIS_MOTION) {
-                __input.onGamepadAxisMotion(event);
-            }
-            
-            // Keyboard Events
-            else if (event.value.type == SDL.EVENT_KEY_DOWN) {
-                __input.onKeyPressed(event);
-            }
-            else if (event.value.type == SDL.EVENT_KEY_UP) {
-                __input.onKeyReleased(event);
-            }
-            
-            // Mouse Events
-            else if (event.value.type == SDL.EVENT_MOUSE_BUTTON_DOWN) {
-                __input.onMouseButtonPressed(event);
-            }
-            else if (event.value.type == SDL.EVENT_MOUSE_BUTTON_UP) {
-                __input.onMouseButtonReleased(event);
-            }
-            else if (event.value.type == SDL.EVENT_MOUSE_MOTION) {
-                __input.onMouseMotion(event);
-            }
-            else if (event.value.type == SDL.EVENT_MOUSE_WHEEL) {
-                __input.onMouseWheel(event);
-            }
-        }
-    }
-    
-    private function update():Void {
-        // Use a fixed deltaTime for stable animation (60 FPS target)
-        var deltaTime:Float = 1.0 / 60.0; // 0.0167 seconds per frame
-        
-        // Update input system
-        if (__input != null) {
-            __input.update();
-        }
-        
-        // Update current state if one is active
-        if (currentState != null && currentState.active) {
-            currentState.update(deltaTime);
-        }
-        
-        // Post-update input (clear pressed/released states)
-        if (__input != null) {
-            __input.postUpdate();
-        }
-    }
-    
-    private function render():Void {
-        __renderer.clearScreen();
-        __renderer.initializeRenderState();
-        
-        if (currentState != null && currentState.active) {
-            currentState.render(__renderer);
-        }
     }
 
     // ===== STATE MANAGEMENT METHODS =====
@@ -434,83 +207,5 @@ class App {
             }
         }
         return null;
-    }
-    
-    public function release():Void {
-        __log.engineInfo("Cleaning up application...");
-        
-        // Deactivate current state
-        if (currentState != null) {
-            currentState.onDeactivate();
-        }
-        
-        // Clean up all states
-        for (state in states) {
-            state.clearEntities(__renderer);
-        }
-        states = [];
-        currentState = null;
-        
-        // Release resources first
-        if (__resources != null) {
-            __resources.release();
-            __resources = null;
-        }
-
-        // Release input system
-        if (__input != null) {
-            __input.release();
-            __input = null;
-        }
-        
-        if (__renderer != null) {
-            __renderer.release();
-            __renderer = null;
-        }
-        
-        __log.engineInfo("Application cleanup complete");
-        
-        // Quit gamepad subsystem before main SDL quit
-        if (SDL.wasInit(SDL.INIT_GAMEPAD) != 0) {
-            SDL.quitSubSystem(SDL.INIT_GAMEPAD);
-            __log.engineInfo("SDL gamepad subsystem shut down");
-        }
-        
-        // Cleanup log system last
-        if (__log != null) {
-            __log.cleanup();
-            __log = null;
-        }
-
-        SDL.quit();
-    }
-
-    // Getters and setters
-    public function getRenderer():Renderer {
-        return __renderer;
-    }
-    
-    public function getWindow():Dynamic {
-        return __window;
-    }
-    
-    private function get_active():Bool {
-        return __active;
-    }
-    
-    private function get_renderer():Renderer {
-        return __renderer;
-    }
-    
-    private function get_resources():Resources {
-        return __resources;
-    }
-    
-    private function get_log():Log {
-        return __log;
-    }
-    
-    private function get_input():Input {
-        return __input;
     }
 }

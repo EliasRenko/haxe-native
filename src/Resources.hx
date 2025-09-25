@@ -1,10 +1,8 @@
-import SDL;
-import Promise;
+
+// TODO: Replace sys.FileSystem with SDL IO functions (SDL_GetPathInfo)
 import sys.FileSystem;
-import haxe.io.Bytes;
-import cpp.Pointer;
-import cpp.UInt64;
-import cpp.NativeString;
+
+import Promise;
 import loaders.TGALoader;
 import data.Resource;
 import data.TextureData;
@@ -65,74 +63,55 @@ private class __Resources {
         var fullPath = __resourceFolder + "/" + path;
         return new Promise<String>((resolve, reject) -> {
 
-            var size:UInt64 = 0; // Size in bytes
-            var ptrSize:Pointer<UInt64> = Pointer.addressOf(size);
-            var ptrData = SDL.loadFile(fullPath, ptrSize.ptr);
-            if (ptrData == null) {
-                reject("Failed to open file: " + fullPath);
+            try {
+                var bytes = __parent.loadBytes(fullPath);
+                var data:String = bytes.toString();
+                if (cache) __resources.set(fullPath, {type: 'text', data: data, size: bytes.length});
+                resolve(data);
+            } catch (e:Dynamic) {
+                reject("Failed to load text file: " + fullPath + " - " + e);
             }
-
-            var data:String = NativeString.fromPointer(ptrData);
-            if (cache) __resources.set(fullPath, {type: 'text', data: data, size: size.toInt()});
-            resolve(data);
-
-            // trace("Loaded file: " + fullPath + " with size: " + size.toInt() + " bytes"); // Disabled - RESOURCES category
-            SDL.free(ptrData);
         });
     }
 
     public function loadShader(vertexPath:String, fragmentPath:String, cache:Bool = true):Promise<{vertex:String, fragment:String}> {
+        var fullVertexPath = __resourceFolder + "/" + vertexPath;
+        var fullFragmentPath = __resourceFolder + "/" + fragmentPath;
         return new Promise<{vertex:String, fragment:String}>((resolve, reject) -> {
-            var vertexPromise = loadText(vertexPath, cache);
-            var fragmentPromise = loadText(fragmentPath, cache);
-            
-            Promise.all([vertexPromise, fragmentPromise])
-                .then(function(results:Array<String>) {
-                    resolve({
-                        vertex: results[0],
-                        fragment: results[1]
-                    });
-                })
-                .onError(function(error:String) {
-                    reject(error);
-                });
+            try {
+                var vertexBytes = __parent.loadBytes(fullVertexPath);
+                var fragmentBytes = __parent.loadBytes(fullFragmentPath);
+                var vertex = vertexBytes.toString();
+                var fragment = fragmentBytes.toString();
+                if (cache) {
+                    __resources.set(fullVertexPath, {type: 'text', data: vertex, size: vertexBytes.length});
+                    __resources.set(fullFragmentPath, {type: 'text', data: fragment, size: fragmentBytes.length});
+                }
+                resolve({vertex: vertex, fragment: fragment});
+            } catch (e:Dynamic) {
+                reject("Failed to load shader files: " + e);
+            }
         });
     }
 
     public function loadTexture(path:String, cache:Bool = true):Promise<TextureData> {
         var fullPath = __resourceFolder + "/" + path;
         return new Promise<TextureData>((resolve, reject) -> {
-            
-            var size:UInt64 = 0;
-            var ptrSize:Pointer<UInt64> = Pointer.addressOf(size);
-            var ptrData = SDL.loadFile(fullPath, ptrSize.ptr);
-            if (ptrData == null) {
-                reject("Failed to open texture file: " + fullPath);
-                return;
-            }
-
             try {
-                // Convert raw data to Haxe Bytes
-                var bytes = haxe.io.Bytes.alloc(size.toInt());
-                for (i in 0...size.toInt()) {
-                    bytes.set(i, ptrData[i]);
-                }
-                
+                var bytes = __parent.loadBytes(fullPath);
                 // Parse TGA
                 var textureData = TGALoader.loadFromBytes(bytes);
                 
                 if (cache) {
-                    __resources.set(fullPath, {type: 'texture', data: textureData, size: size.toInt()});
+                    __resources.set(fullPath, {type: 'texture', data: textureData, size: bytes.length});
                 }
                 
                 // trace("Loaded texture: " + fullPath + " (" + textureData.width + "x" + textureData.height + ")"); // Disabled - RESOURCES category
                 resolve(textureData);
                 
             } catch (e:Dynamic) {
-                reject("Failed to parse TGA file: " + e);
+                reject("Failed to load texture: " + e);
             }
-            
-            SDL.free(ptrData);
         });
     }
     
@@ -155,7 +134,6 @@ private class __Resources {
             }
         }
         __resources.clear();
-        // trace('Cleared $count cached resources'); // Disabled - RESOURCES category
     }
 }
 

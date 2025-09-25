@@ -91,9 +91,6 @@
 #ifndef INCLUDED_BlendFactor
 #include <BlendFactor.h>
 #endif
-#ifndef INCLUDED_App
-#include <App.h>
-#endif
 #ifndef INCLUDED_sys_thread__Thread_Thread_Impl_
 #include <sys/thread/_Thread/Thread_Impl_.h>
 #endif
@@ -117,15 +114,6 @@
 #endif
 #ifndef INCLUDED_sys_FileSystem
 #include <sys/FileSystem.h>
-#endif
-#ifndef INCLUDED_states_TilemapTestState
-#include <states/TilemapTestState.h>
-#endif
-#ifndef INCLUDED_states_TilemapFastTestState
-#include <states/TilemapFastTestState.h>
-#endif
-#ifndef INCLUDED_states_LogTestState
-#include <states/LogTestState.h>
 #endif
 #ifndef INCLUDED_states_ImageTestState
 #include <states/ImageTestState.h>
@@ -259,12 +247,6 @@
 #ifndef INCLUDED_sys_thread_Mutex
 #include <sys/thread/Mutex.h>
 #endif
-#ifndef INCLUDED_display_TilemapFast
-#include <display/TilemapFast.h>
-#endif
-#ifndef INCLUDED_display_Tilemap
-#include <display/Tilemap.h>
-#endif
 #ifndef INCLUDED_display_Image
 #include <display/Image.h>
 #endif
@@ -355,6 +337,12 @@
 #ifndef INCLUDED_Camera
 #include <Camera.h>
 #endif
+#ifndef INCLUDED_App
+#include <App.h>
+#endif
+#ifndef INCLUDED_Runtime
+#include <Runtime.h>
+#endif
 
 void __files__boot();
 
@@ -392,7 +380,6 @@ __files__boot();
 ::_Log::__Log_obj::__register();
 ::Entity_obj::__register();
 ::BlendFactor_obj::__register();
-::App_obj::__register();
 ::sys::thread::_Thread::Thread_Impl__obj::__register();
 ::sys::thread::NoEventLoopException_obj::__register();
 ::sys::thread::Lock_obj::__register();
@@ -401,9 +388,6 @@ __files__boot();
 ::sys::net::_Socket::SocketOutput_obj::__register();
 ::sys::net::_Socket::SocketInput_obj::__register();
 ::sys::FileSystem_obj::__register();
-::states::TilemapTestState_obj::__register();
-::states::TilemapFastTestState_obj::__register();
-::states::LogTestState_obj::__register();
 ::states::ImageTestState_obj::__register();
 ::math::Matrix_obj::__register();
 ::hxcpp::debug::jsonrpc::eval::Tools_obj::__register();
@@ -448,8 +432,6 @@ __files__boot();
 ::haxe::EntryPoint_obj::__register();
 ::sys::thread::EventLoop_obj::__register();
 ::sys::thread::Mutex_obj::__register();
-::display::TilemapFast_obj::__register();
-::display::Tilemap_obj::__register();
 ::display::Image_obj::__register();
 ::data::TextureData_obj::__register();
 ::cpp::vm::ThreadInfo_obj::__register();
@@ -480,6 +462,8 @@ __files__boot();
 ::_DisplayObject::Vertices_Impl__obj::__register();
 ::Date_obj::__register();
 ::Camera_obj::__register();
+::App_obj::__register();
+::Runtime_obj::__register();
 ::hxcpp::debug::jsonrpc::eval::Token_obj::__boot();
 ::hxcpp::debug::jsonrpc::eval::_Interp::Stop_obj::__boot();
 ::hxcpp::debug::jsonrpc::eval::FieldKind_obj::__boot();
@@ -502,7 +486,6 @@ __files__boot();
 ::sys::net::Host_obj::__init__();
 ::cpp::vm::Debugger_obj::__boot();
 ::haxe::Log_obj::__boot();
-::App_obj::__boot();
 ::BlendFactor_obj::__boot();
 ::Entity_obj::__boot();
 ::_Log::__Log_obj::__boot();

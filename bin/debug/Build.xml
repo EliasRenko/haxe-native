@@ -55,42 +55,6 @@
    <depend name="include/haxe/io/Path.h"/>
    <depend name="include/sys/FileSystem.h"/>
   </file>
-  <file name="src/states/TilemapTestState.cpp" >
-   <depend name="include/App.h"/>
-   <depend name="include/Camera.h"/>
-   <depend name="include/DisplayObject.h"/>
-   <depend name="include/Entity.h"/>
-   <depend name="include/ProgramInfo.h"/>
-   <depend name="include/Renderer.h"/>
-   <depend name="include/State.h"/>
-   <depend name="include/_Resources/__Resources.h"/>
-   <depend name="include/data/TextureData.h"/>
-   <depend name="include/display/Tilemap.h"/>
-   <depend name="include/haxe/Log.h"/>
-   <depend name="include/states/TilemapTestState.h"/>
-  </file>
-  <file name="src/states/TilemapFastTestState.cpp" >
-   <depend name="include/App.h"/>
-   <depend name="include/Camera.h"/>
-   <depend name="include/DisplayObject.h"/>
-   <depend name="include/Entity.h"/>
-   <depend name="include/ProgramInfo.h"/>
-   <depend name="include/Renderer.h"/>
-   <depend name="include/State.h"/>
-   <depend name="include/Std.h"/>
-   <depend name="include/_Resources/__Resources.h"/>
-   <depend name="include/data/TextureData.h"/>
-   <depend name="include/display/TilemapFast.h"/>
-   <depend name="include/haxe/Log.h"/>
-   <depend name="include/states/TilemapFastTestState.h"/>
-  </file>
-  <file name="src/states/LogTestState.cpp" >
-   <depend name="include/App.h"/>
-   <depend name="include/State.h"/>
-   <depend name="include/_Log/__Log.h"/>
-   <depend name="include/haxe/Log.h"/>
-   <depend name="include/states/LogTestState.h"/>
-  </file>
   <file name="src/states/ImageTestState.cpp" >
    <depend name="include/App.h"/>
    <depend name="include/Camera.h"/>
@@ -98,6 +62,7 @@
    <depend name="include/Entity.h"/>
    <depend name="include/ProgramInfo.h"/>
    <depend name="include/Renderer.h"/>
+   <depend name="include/Runtime.h"/>
    <depend name="include/State.h"/>
    <depend name="include/_Resources/__Resources.h"/>
    <depend name="include/data/TextureData.h"/>
@@ -480,32 +445,6 @@
   <file name="src/sys/thread/Mutex.cpp" >
    <depend name="include/sys/thread/Mutex.h"/>
   </file>
-  <file name="src/display/TilemapFast.cpp" >
-   <depend name="include/DisplayObject.h"/>
-   <depend name="include/ProgramInfo.h"/>
-   <depend name="include/Renderer.h"/>
-   <depend name="include/Std.h"/>
-   <depend name="include/_DisplayObject/Indices_Impl_.h"/>
-   <depend name="include/_DisplayObject/Vertices_Impl_.h"/>
-   <depend name="include/display/TilemapFast.h"/>
-   <depend name="include/haxe/IMap.h"/>
-   <depend name="include/haxe/Log.h"/>
-   <depend name="include/haxe/ds/StringMap.h"/>
-   <depend name="include/math/Matrix.h"/>
-  </file>
-  <file name="src/display/Tilemap.cpp" >
-   <depend name="include/DisplayObject.h"/>
-   <depend name="include/ProgramInfo.h"/>
-   <depend name="include/Renderer.h"/>
-   <depend name="include/Std.h"/>
-   <depend name="include/_DisplayObject/Indices_Impl_.h"/>
-   <depend name="include/_DisplayObject/Vertices_Impl_.h"/>
-   <depend name="include/display/Tilemap.h"/>
-   <depend name="include/haxe/IMap.h"/>
-   <depend name="include/haxe/Log.h"/>
-   <depend name="include/haxe/ds/StringMap.h"/>
-   <depend name="include/math/Matrix.h"/>
-  </file>
   <file name="src/display/Image.cpp" >
    <depend name="include/DisplayObject.h"/>
    <depend name="include/ProgramInfo.h"/>
@@ -575,6 +514,7 @@
    <depend name="include/DisplayObject.h"/>
    <depend name="include/Entity.h"/>
    <depend name="include/Renderer.h"/>
+   <depend name="include/Runtime.h"/>
    <depend name="include/State.h"/>
    <depend name="include/Std.h"/>
    <depend name="include/haxe/Log.h"/>
@@ -583,6 +523,7 @@
   <file name="src/_Resources/__Resources.cpp" >
    <depend name="include/App.h"/>
    <depend name="include/Promise.h"/>
+   <depend name="include/Runtime.h"/>
    <depend name="include/Std.h"/>
    <depend name="include/_Resources/__Resources.h"/>
    <depend name="include/data/TextureData.h"/>
@@ -597,6 +538,7 @@
    <depend name="include/DisplayObject.h"/>
    <depend name="include/ProgramInfo.h"/>
    <depend name="include/Renderer.h"/>
+   <depend name="include/Runtime.h"/>
    <depend name="include/Std.h"/>
    <depend name="include/_Resources/__Resources.h"/>
    <depend name="include/data/TextureData.h"/>
@@ -643,12 +585,14 @@
   <file name="src/Main.cpp" >
    <depend name="include/App.h"/>
    <depend name="include/Main.h"/>
+   <depend name="include/Runtime.h"/>
    <depend name="include/State.h"/>
    <depend name="include/haxe/Log.h"/>
    <depend name="include/states/ImageTestState.h"/>
   </file>
   <file name="src/_Log/__Log.cpp" >
    <depend name="include/App.h"/>
+   <depend name="include/Runtime.h"/>
    <depend name="include/_Log/__Log.h"/>
    <depend name="include/haxe/IMap.h"/>
    <depend name="include/haxe/ds/IntMap.h"/>
@@ -662,6 +606,7 @@
   </file>
   <file name="src/_Input/__Input.cpp" >
    <depend name="include/App.h"/>
+   <depend name="include/Runtime.h"/>
    <depend name="include/Std.h"/>
    <depend name="include/_Input/__Input.h"/>
    <depend name="include/_Log/__Log.h"/>
@@ -717,15 +662,25 @@
    <depend name="include/EReg.h"/>
    <depend name="include/Promise.h"/>
    <depend name="include/Renderer.h"/>
+   <depend name="include/Runtime.h"/>
    <depend name="include/State.h"/>
-   <depend name="include/Std.h"/>
    <depend name="include/StringTools.h"/>
-   <depend name="include/Window.h"/>
    <depend name="include/_Input/__Input.h"/>
    <depend name="include/_Log/__Log.h"/>
    <depend name="include/_Resources/__Resources.h"/>
    <depend name="include/haxe/Log.h"/>
    <depend name="include/haxe/io/Path.h"/>
+  </file>
+  <file name="src/Runtime.cpp" >
+   <depend name="include/Renderer.h"/>
+   <depend name="include/Runtime.h"/>
+   <depend name="include/State.h"/>
+   <depend name="include/Window.h"/>
+   <depend name="include/_Input/__Input.h"/>
+   <depend name="include/_Log/__Log.h"/>
+   <depend name="include/_Resources/__Resources.h"/>
+   <depend name="include/haxe/Log.h"/>
+   <depend name="include/haxe/io/Bytes.h"/>
   </file>
   <file name="src/__boot__.cpp" >
    <depend name="include/hxcpp/debug/jsonrpc/eval/Token.h"/>
@@ -758,7 +713,6 @@
    <depend name="include/_Log/__Log.h"/>
    <depend name="include/Entity.h"/>
    <depend name="include/BlendFactor.h"/>
-   <depend name="include/App.h"/>
   </file>
   <file name="src/__files__.cpp" if='HXCPP_DEBUGGER'>
   </file>

@@ -84,7 +84,7 @@ class HXCPP_CLASS_ATTRIBUTES DisplayObject_obj : public ::hx::Object
 		void init( ::Renderer renderer);
 		::Dynamic init_dyn();
 
-		virtual void updateBuffers( ::Renderer renderer);
+		void updateBuffers( ::Renderer renderer);
 		::Dynamic updateBuffers_dyn();
 
 		void remove( ::Renderer renderer);
