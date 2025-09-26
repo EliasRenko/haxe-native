@@ -208,6 +208,7 @@ class Runtime {
             __handleMouseInputEvents(event);
             __handleJoystickInputEvents(event);
             __handleGamepadInputEvents(event);
+            __handleFingerEvents(event);
             __handleClipboardEvents(event);
         }
     }
@@ -430,6 +431,23 @@ class Runtime {
         }
     }
 
+    // Touch Finger events
+    private function __handleFingerEvents(event:Pointer<Event>):Void {
+        switch (event.value.type) {
+            case SDL_FingerEventType.FINGER_DOWN:
+                onFingerDown(event.value.tfinger.touchID, event.value.tfinger.fingerID, event.value.tfinger.x, event.value.tfinger.y, event.value.tfinger.dx, event.value.tfinger.dy, event.value.tfinger.pressure);
+            case SDL_FingerEventType.FINGER_UP:
+                onFingerUp(event.value.tfinger.touchID, event.value.tfinger.fingerID, event.value.tfinger.x, event.value.tfinger.y, event.value.tfinger.dx, event.value.tfinger.dy, event.value.tfinger.pressure);
+            case SDL_FingerEventType.FINGER_MOTION:
+                onFingerMotion(event.value.tfinger.touchID, event.value.tfinger.fingerID, event.value.tfinger.x, event.value.tfinger.y, event.value.tfinger.dx, event.value.tfinger.dy, event.value.tfinger.pressure);
+            case SDL_FingerEventType.FINGER_CANCELED:
+                onFingerCanceled(event.value.tfinger.touchID, event.value.tfinger.fingerID, event.value.tfinger.x, event.value.tfinger.y, event.value.tfinger.dx, event.value.tfinger.dy, event.value.tfinger.pressure);
+            default:
+                // Other events can be ignored here
+        }
+    }
+
+    // Clipboard events
     private function __handleClipboardEvents(event:Pointer<Event>):Void {
         if (event.value.type == SDL_ClipboardEventType.CLIPBOARD_UPDATE) {
             var clipboardText = SDL.getClipboardText();
@@ -564,6 +582,12 @@ class Runtime {
     private function onGamepadSensorUpdate(deviceId:Int, sensorId:Int, data1:Float, data2:Float, data3:Float):Void {}
     private function onGamepadUpdateComplete(deviceId:Int):Void {}
     private function onGamepadSteamHandleUpdated(deviceId:Int):Void {}
+
+    // Touch event handlers
+    private function onFingerDown(touchId:Int, fingerId:Int, x:Float, y:Float, dx:Float, dy:Float, pressure:Float):Void {}
+    private function onFingerUp(touchId:Int, fingerId:Int, x:Float, y:Float, dx:Float, dy:Float, pressure:Float):Void {}
+    private function onFingerMotion(touchId:Int, fingerId:Int, x:Float, y:Float, dx:Float, dy:Float, pressure:Float):Void {}
+    private function onFingerCanceled(touchId:Int, fingerId:Int, x:Float, y:Float, dx:Float, dy:Float, pressure:Float):Void {}
 
     // Clipboard event handler
     private function onClipboardUpdate(clipboardText:String):Void {}

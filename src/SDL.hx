@@ -810,7 +810,7 @@ extern class Event {
     var gtouchpad:GamepadTouchpadEvent;
     var gsensor:GamepadSensorEvent;
     var clipboard:ClipboardEvent;
-
+    var tfinger:TouchFingerEvent;
     // var caxis:ControllerAxisEvent;
     // var cbutton:ControllerButtonEvent;
     // var cdevice:ControllerDeviceEvent;
@@ -1029,6 +1029,21 @@ extern class ClipboardEvent {
     var mime_types:cpp.Pointer<cpp.ConstCharStar>;
 }
 
+@:structAccess
+@:native("::cpp::Struct<SDL_TouchFingerEvent>")
+extern class TouchFingerEvent {
+    var type:SDL_EventType;
+    var timestamp:UInt64;
+    var touchID:UInt64; // SDL_TouchID
+    var fingerID:UInt64; // SDL_FingerID
+    var x:Float;
+    var y:Float;
+    var dx:Float;
+    var dy:Float;
+    var pressure:Float;
+    var windowID:UInt; // SDL_WindowID
+}
+
 @:enum
 abstract SDL_SystemEventType(UInt) from UInt to UInt {
     var QUIT = 0x100;
@@ -1176,14 +1191,82 @@ abstract SDL_GamepadEventType(UInt) from UInt to UInt {
 }
 
 @:enum
+abstract SDL_FingerEventType(UInt) from UInt to UInt {
+    var FINGER_DOWN = 0x700;
+    var FINGER_UP = 0x701;
+    var FINGER_MOTION = 0x702;
+    var FINGER_CANCELED = 0x703;
+}
+
+@:enum
 abstract SDL_ClipboardEventType(UInt) from UInt to UInt {
     var CLIPBOARD_UPDATE = 0x900;
+}
+
+@:enum
+abstract SDL_DropEventType(UInt) from UInt to UInt {
+    var DROP_FILE = 0x1000;
+    var DROP_TEXT = 0x1001;
+    var DROP_BEGIN = 0x1002;
+    var DROP_COMPLETE = 0x1003;
+    var DROP_POSITION = 0x1004;
+}
+
+@:enum
+abstract SDL_AudioEventType(UInt) from UInt to UInt {
+    var AUDIO_DEVICE_ADDED = 0x1100;
+    var AUDIO_DEVICE_REMOVED = 0x1101;
+    var AUDIO_DEVICE_FORMAT_CHANGED = 0x1102;
+}
+
+@:enum
+abstract SDL_SensorEventType(UInt) from UInt to UInt {
+    var SENSOR_UPDATE = 0x1200;
+}
+
+@:enum
+abstract SDL_PenEventType(UInt) from UInt to UInt {
+    var PEN_PROXIMITY_IN = 0x1300;
+    var PEN_PROXIMITY_OUT = 0x1301;
+    var PEN_DOWN = 0x1302;
+    var PEN_UP = 0x1303;
+    var PEN_BUTTON_DOWN = 0x1304;
+    var PEN_BUTTON_UP = 0x1305;
+    var PEN_MOTION = 0x1306;
+    var PEN_AXIS = 0x1307;
+}
+
+@:enum
+abstract SDL_CameraEventType(UInt) from UInt to UInt {
+    var CAMERA_DEVICE_ADDED = 0x1400;
+    var CAMERA_DEVICE_REMOVED = 0x1401;
+    var CAMERA_DEVICE_APPROVED = 0x1402;
+    var CAMERA_DEVICE_DENIED = 0x1403;
+}
+
+@:enum
+abstract SDL_RenderEventType(UInt) from UInt to UInt {
+    var RENDER_TARGETS_RESET = 0x2000;
+    var RENDER_DEVICE_RESET = 0x2001;
+    var RENDER_DEVICE_LOST = 0x2002;
+}
+
+@:enum
+abstract SDL_InternalEventType(UInt) from UInt to UInt {
+    var POLL_SENTINEL = 0x7F00;
+}
+
+@:enum
+abstract SDL_UserEventType(UInt) from UInt to UInt {
+    var USER = 0x8000;
 }
 
 typedef PtrEvent = Pointer<Event>;
 typedef CreateWindowFlag = Int;
 typedef SDL_EventType = UInt;
 typedef SDL_KeyMod = UInt16;
+typedef SDL_TouchID = UInt64;
+typedef SDL_FingerID = UInt64;
 
 abstract InitFlag(UInt64) {
     @:op(A|B) static function _(a:InitFlag, b:InitFlag):InitFlag;
