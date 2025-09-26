@@ -1109,6 +1109,22 @@ abstract SDL_PowerState(Int) from Int to Int {
     var CHARGED = 4;
 }
 
+@:enum
+abstract SDL_GamepadEventType(UInt) from UInt to UInt {
+    var GAMEPAD_AXIS_MOTION = 0x650;
+    var GAMEPAD_BUTTON_DOWN = 0x651;
+    var GAMEPAD_BUTTON_UP = 0x652;
+    var GAMEPAD_ADDED = 0x653;
+    var GAMEPAD_REMOVED = 0x654;
+    var GAMEPAD_REMAPPED = 0x655;
+    var GAMEPAD_TOUCHPAD_DOWN = 0x656;
+    var GAMEPAD_TOUCHPAD_MOTION = 0x657;
+    var GAMEPAD_TOUCHPAD_UP = 0x658;
+    var GAMEPAD_SENSOR_UPDATE = 0x659;
+    var GAMEPAD_UPDATE_COMPLETE = 0x65A;
+    var GAMEPAD_STEAM_HANDLE_UPDATED = 0x65B;
+}
+
 typedef PtrEvent = Pointer<Event>;
 typedef CreateWindowFlag = Int;
 typedef SDL_EventType = UInt;
