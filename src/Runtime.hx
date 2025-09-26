@@ -201,9 +201,14 @@ class Runtime {
                 __active = false;
             }
             
-            __handleGamepadInputEvents(event);
+            __handleSystemEvents(event);
+            __handleDisplayEvents(event);
+            __handleWindowEvents(event);
             __handleKeyboardInputEvents(event);
             __handleMouseInputEvents(event);
+            __handleJoystickInputEvents(event);
+            __handleGamepadInputEvents(event);
+            __handleClipboardEvents(event);
         }
     }
 
@@ -325,6 +330,7 @@ class Runtime {
         }
     }
 
+    // Keyboard events
     private function __handleKeyboardInputEvents(event:Pointer<Event>):Void {
         switch (event.value.type) {
             case SDL_KeyboardEventType.KEY_DOWN:
@@ -346,6 +352,7 @@ class Runtime {
         }
     }
 
+    // Mouse events
     private function __handleMouseInputEvents(event:Pointer<Event>):Void {
         switch (event.value.type) {
             case SDL_MouseEventType.MOUSE_BUTTON_DOWN:
@@ -365,6 +372,7 @@ class Runtime {
         }
     }
 
+    // Joystick events
     private function __handleJoystickInputEvents(event:Pointer<Event>):Void {
         switch (event.value.type) {
             case SDL_JoystickEventType.JOYSTICK_AXIS_MOTION:
@@ -390,34 +398,42 @@ class Runtime {
         }
     }
 
+    // Gamepad events
     private function __handleGamepadInputEvents(event:Pointer<Event>):Void {
         switch (event.value.type) {
             case SDL_GamepadEventType.GAMEPAD_BUTTON_DOWN:
-                onGamepadButtonDown(event.value.cbutton.which, event.value.cbutton.button);
+                onGamepadButtonDown(event.value.gbutton.which, event.value.gbutton.button);
             case SDL_GamepadEventType.GAMEPAD_BUTTON_UP:
-                onGamepadButtonUp(event.value.cbutton.which, event.value.cbutton.button);
+                onGamepadButtonUp(event.value.gbutton.which, event.value.gbutton.button);
             case SDL_GamepadEventType.GAMEPAD_AXIS_MOTION:
-                onGamepadAxisMotion(event.value.caxis.which, event.value.caxis.axis, event.value.caxis.value);
+                onGamepadAxisMotion(event.value.gaxis.which, event.value.gaxis.axis, event.value.gaxis.value);
             case SDL_GamepadEventType.GAMEPAD_ADDED:
-                onGamepadDeviceAdded(event.value.cdevice.which);
+                onGamepadDeviceAdded(event.value.gdevice.which);
             case SDL_GamepadEventType.GAMEPAD_REMOVED:
-                onGamepadDeviceRemoved(event.value.cdevice.which);
+                onGamepadDeviceRemoved(event.value.gdevice.which);
             case SDL_GamepadEventType.GAMEPAD_REMAPPED:
-                onGamepadRemapped(event.value.cdevice.which);
+                onGamepadRemapped(event.value.gdevice.which);
             case SDL_GamepadEventType.GAMEPAD_TOUCHPAD_DOWN:
-                onGamepadTouchpadDown(event.value.ctouchpad.which, event.value.ctouchpad.touchpad, event.value.ctouchpad.finger, event.value.ctouchpad.x, event.value.ctouchpad.y);
+                onGamepadTouchpadDown(event.value.gtouchpad.which, event.value.gtouchpad.touchpad, event.value.gtouchpad.finger, event.value.gtouchpad.x, event.value.gtouchpad.y, event.value.gtouchpad.pressure);
             case SDL_GamepadEventType.GAMEPAD_TOUCHPAD_UP:
-                onGamepadTouchpadUp(event.value.ctouchpad.which, event.value.ctouchpad.touchpad, event.value.ctouchpad.finger, event.value.ctouchpad.x, event.value.ctouchpad.y);
+                onGamepadTouchpadUp(event.value.gtouchpad.which, event.value.gtouchpad.touchpad, event.value.gtouchpad.finger, event.value.gtouchpad.x, event.value.gtouchpad.y, event.value.gtouchpad.pressure);
             case SDL_GamepadEventType.GAMEPAD_TOUCHPAD_MOTION:
-                onGamepadTouchpadMotion(event.value.ctouchpad.which, event.value.ctouchpad.touchpad, event.value.ctouchpad.finger, event.value.ctouchpad.x, event.value.ctouchpad.y);
+                onGamepadTouchpadMotion(event.value.gtouchpad.which, event.value.gtouchpad.touchpad, event.value.gtouchpad.finger, event.value.gtouchpad.x, event.value.gtouchpad.y, event.value.gtouchpad.pressure);
             case SDL_GamepadEventType.GAMEPAD_SENSOR_UPDATE:
-                onGamepadSensorUpdate(event.value.csensor.which, event.value.csensor.sensor, event.value.csensor.data1, event.value.csensor.data2, event.value.csensor.data3);
+                onGamepadSensorUpdate(event.value.gsensor.which, event.value.gsensor.sensor, event.value.gsensor.data[0], event.value.gsensor.data[1], event.value.gsensor.data[2]);
             case SDL_GamepadEventType.GAMEPAD_UPDATE_COMPLETE:
-                onGamepadUpdateComplete(event.value.cdevice.which);
+                onGamepadUpdateComplete(event.value.gdevice.which);
             case SDL_GamepadEventType.GAMEPAD_STEAM_HANDLE_UPDATED:
-                onGamepadSteamHandleUpdated(event.value.cdevice.which, event.value.cdevice.steamHandle);
+                onGamepadSteamHandleUpdated(event.value.gdevice.which);
             default:
                 // Other events can be ignored here
+        }
+    }
+
+    private function __handleClipboardEvents(event:Pointer<Event>):Void {
+        if (event.value.type == SDL_ClipboardEventType.CLIPBOARD_UPDATE) {
+            var clipboardText = SDL.getClipboardText();
+            onClipboardUpdate(clipboardText);
         }
     }
 
@@ -542,12 +558,15 @@ class Runtime {
     private function onGamepadDeviceAdded(deviceId:Int):Void {}
     private function onGamepadDeviceRemoved(deviceId:Int):Void {}
     private function onGamepadRemapped(deviceId:Int):Void {}
-    private function onGamepadTouchpadDown(deviceId:Int, touchpadId:Int):Void {}
-    private function onGamepadTouchpadMotion(deviceId:Int, touchpadId:Int, x:Float, y:Float):Void {}
-    private function onGamepadTouchpadUp(deviceId:Int, touchpadId:Int):Void {}
-    private function onGamepadSensorUpdate(deviceId:Int, sensorId:Int, data:Dynamic):Void {}
+    private function onGamepadTouchpadDown(deviceId:Int, touchpadId:Int, fingerId:Int, x:Float, y:Float, pressure:Float):Void {}
+    private function onGamepadTouchpadUp(deviceId:Int, touchpadId:Int, fingerId:Int, x:Float, y:Float, pressure:Float):Void {}
+    private function onGamepadTouchpadMotion(deviceId:Int, touchpadId:Int, fingerId:Int, x:Float, y:Float, pressure:Float):Void {}
+    private function onGamepadSensorUpdate(deviceId:Int, sensorId:Int, data1:Float, data2:Float, data3:Float):Void {}
     private function onGamepadUpdateComplete(deviceId:Int):Void {}
     private function onGamepadSteamHandleUpdated(deviceId:Int):Void {}
+
+    // Clipboard event handler
+    private function onClipboardUpdate(clipboardText:String):Void {}
 
     public function getLastSDLError():String {
         return SDL.getError();

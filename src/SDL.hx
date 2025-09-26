@@ -1,5 +1,6 @@
 package;
 
+import cpp.RawPointer;
 import cpp.UInt8;
 import cpp.UInt16;
 import cpp.Star;
@@ -373,6 +374,16 @@ extern class SDL {
 
     @:native("SDL_StopTextInput")
     public static function stopTextInput(window:WindowPtr):Bool;
+
+    //@:native("SDL_GetClipboardText")
+    //public static function getClipboardText():ConstCharStar;
+
+    public static inline function getClipboardText():String {
+        var ptr:cpp.ConstCharStar = untyped __cpp__("SDL_GetClipboardText()");
+        var str:String = ptr;
+        untyped __cpp__("SDL_free((void*){0})", ptr);
+    return str;
+}
 
     // ** Folders
 
@@ -780,9 +791,6 @@ extern class Event {
     var type:SDL_EventType;
     var display:SDL_DisplayEvent;
     var window:WindowEvent;
-    var gbutton:GamepadButtonEvent;
-    var gaxis:GamepadAxisEvent;
-    var gdevice:GamepadDeviceEvent;
     var key:KeyboardEvent;
     // var edit:TextEditingEvent;
     var text:TextInputEvent;
@@ -796,6 +804,13 @@ extern class Event {
     var jhat:JoyHatEvent;
     var jbutton:JoyButtonEvent;
     var jbattery:JoyBatteryEvent;
+    var gdevice:GamepadDeviceEvent;
+    var gaxis:GamepadAxisEvent;
+    var gbutton:GamepadButtonEvent;
+    var gtouchpad:GamepadTouchpadEvent;
+    var gsensor:GamepadSensorEvent;
+    var clipboard:ClipboardEvent;
+
     // var caxis:ControllerAxisEvent;
     // var cbutton:ControllerButtonEvent;
     // var cdevice:ControllerDeviceEvent;
@@ -979,6 +994,41 @@ extern class JoyBatteryEvent {
     var percent:Int;
 }
 
+@:structAccess
+@:native("::cpp::Struct<SDL_GamepadTouchpadEvent>")
+extern class GamepadTouchpadEvent {
+    var type:SDL_EventType;
+    var timestamp:UInt64;
+    var which:UInt32; // SDL_JoystickID
+    var touchpad:Int;
+    var finger:Int;
+    var x:Float;
+    var y:Float;
+    var pressure:Float;
+}
+
+@:structAccess
+@:native("::cpp::Struct<SDL_GamepadSensorEvent>")
+extern class GamepadSensorEvent {
+    var type:SDL_EventType;
+    var reserved:UInt32;
+    var timestamp:UInt64;
+    var which:UInt32; // SDL_JoystickID
+    var sensor:Int; // SDL_SensorType
+    var data:RawPointer<Float>; // float[3]
+    var sensor_timestamp:UInt64;
+}
+
+@:structAccess
+@:native("::cpp::Struct<SDL_ClipboardEvent>")
+extern class ClipboardEvent {
+    var type:SDL_EventType;
+    var timestamp:UInt64;
+    var owner:Bool;
+    var num_mime_types:Int;
+    var mime_types:cpp.Pointer<cpp.ConstCharStar>;
+}
+
 @:enum
 abstract SDL_SystemEventType(UInt) from UInt to UInt {
     var QUIT = 0x100;
@@ -1123,6 +1173,11 @@ abstract SDL_GamepadEventType(UInt) from UInt to UInt {
     var GAMEPAD_SENSOR_UPDATE = 0x659;
     var GAMEPAD_UPDATE_COMPLETE = 0x65A;
     var GAMEPAD_STEAM_HANDLE_UPDATED = 0x65B;
+}
+
+@:enum
+abstract SDL_ClipboardEventType(UInt) from UInt to UInt {
+    var CLIPBOARD_UPDATE = 0x900;
 }
 
 typedef PtrEvent = Pointer<Event>;
