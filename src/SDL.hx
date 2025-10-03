@@ -29,7 +29,7 @@ extern class SDL_Gamepad {}
 
 @:keep
 @:buildXml(
-'<target id="haxe">
+'<target id="haxe" if="windows">
    <lib name="lib/x64/SDL3.lib"/>
    <lib name="user32.lib"/>
    <lib name="gdi32.lib"/>

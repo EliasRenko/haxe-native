@@ -1,7 +1,6 @@
 package;
 
 import Entity;
-import ProgramInfo;
 import Camera;
 import App;
 

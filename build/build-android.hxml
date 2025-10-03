@@ -5,6 +5,8 @@
 --macro Sys.command("cmd", ["/c", "if not exist bin\\android\\src mkdir bin\\android\\src"])
 --macro Sys.command("cmd", ["/c", "copy src\\glad.c bin\\android\\src\\glad.c"])
 --macro Sys.command("cmd", ["/c", "copy lib\\SDL3.dll bin\\android\\SDL3.dll"])
+--macro include('hxcpp.android')
+--macro addAndroidManifest('res/android/AndroidManifest.xml')
 
 -cp src 
 -cp test
@@ -17,7 +19,9 @@
 -D HXCPP_NO_PCH
 -D HXCPP_NO_PRECOMPILED_HEADERS
 -D no-deprecation-warnings
+-D HXCPP_ARM64
 -D android
+-D android-apk
 
 -lib hxcpp-debug-server
 -lib hxcpp

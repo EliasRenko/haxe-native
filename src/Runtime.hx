@@ -14,7 +14,7 @@ import cpp.Pointer;
 
 class Runtime {
 
-    public var WINDOW_TITLE:String = "Engine";
+    public var WINDOW_TITLE:String = "Runtime";
     public var WINDOW_WIDTH:Int = 640;
     public var WINDOW_HEIGHT:Int = 480;
 
@@ -48,21 +48,43 @@ class Runtime {
     public function new() {}
     
     public function init():Bool {
-        __log.engineInfo("Initializing application...");
-        
-        // Initialize SDL video and gamepad
+        // Initialize SDL video
         if (!SDL.init(SDL.INIT_VIDEO)) {
-            __log.engineError("Failed to initialize SDL: " + SDL.getError());
+            __log.runtimeError("Failed to initialize SDL video: " + SDL.getError());
             return false;
         }
-        
-        // Initialize gamepad subsystem
-        if (!SDL.initSubSystem(SDL.INIT_GAMEPAD)) {
-            __log.engineWarn("Failed to initialize SDL gamepad subsystem: " + SDL.getError());
-            __log.engineInfo("Continuing without gamepad support");
-        } else {
-            __log.engineInfo("SDL gamepad subsystem initialized successfully");
+
+        // Initialize SDL audio
+        #if !no_audio
+        if (!SDL.init(SDL.INIT_AUDIO)) {
+            __log.runtimeError("Failed to initialize SDL audio: " + SDL.getError());
+            return false;
         }
+        #end
+
+        // Initialize SDL joystick
+        #if !no_joystick
+        if (!SDL.init(SDL.INIT_JOYSTICK)) {
+            __log.runtimeError("Failed to initialize SDL joystick: " + SDL.getError());
+            return false;
+        }
+        #end
+
+        // Initialize gamepad
+        #if !no_gamepad
+        if (!SDL.init(SDL.INIT_GAMEPAD)) {
+            __log.runtimeError("Failed to initialize SDL gamepad: " + SDL.getError());
+            return false;
+        }
+        #end
+
+        #if !no_haptic
+        // Initialize SDL haptic
+        if (!SDL.init(SDL.INIT_HAPTIC)) {
+            __log.runtimeWarn("Failed to initialize SDL haptic: " + SDL.getError());
+            return false;
+        }
+        #end
         
         // Set OpenGL attributes (3.3 Core)
         SDL.setAttribute(SDL.GL_CONTEXT_MAJOR_VERSION, 3);
@@ -76,8 +98,6 @@ class Runtime {
             SDL.quit();
             return false;
         }
-        
-        __log.engineInfo("Window created successfully");
         
         // Create OpenGL context
         __context = SDL.createContext(__window.ptr);
@@ -121,6 +141,7 @@ class Runtime {
         for (state in states) {
             state.clearEntities(__renderer);
         }
+
         states = [];
         currentState = null;
         
@@ -142,12 +163,6 @@ class Runtime {
         }
         
         __log.engineInfo("Application cleanup complete");
-        
-        // Quit gamepad subsystem before main SDL quit
-        if (SDL.wasInit(SDL.INIT_GAMEPAD) != 0) {
-            SDL.quitSubSystem(SDL.INIT_GAMEPAD);
-            __log.engineInfo("SDL gamepad subsystem shut down");
-        }
         
         // Cleanup log system last
         if (__log != null) {

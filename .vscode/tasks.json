@@ -14,7 +14,11 @@
 					"args": [
 						"-Command"
 					]
-				}
+				},
+				"env": {
+                    "ANDROID_NDK_ROOT": "C:/Users/efedorenko/AppData/Local/Android/Sdk/ndk/27.0.12077973",
+					"PATH": "${env:PATH};C:/Users/efedorenko/AppData/Local/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/windows-x86_64/bin"
+                }
 			}
 		},
 		{

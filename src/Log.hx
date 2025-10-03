@@ -1,7 +1,11 @@
 import SDL;
 
 private class __Log {
-    private var __parent:App;
+    
+    public var active:Bool = true;
+
+    // Privates
+    private var __parent:Runtime;
     private var __enabledCategories:Map<Int, Bool> = new Map<Int, Bool>();
     
     // SDL Log Categories (using integers directly since they're not in SDL3 bindings)
@@ -23,16 +27,18 @@ private class __Log {
     public static inline var CATEGORY_PERFORMANCE:Int = 104;
     public static inline var CATEGORY_STATE:Int = 105;
     public static inline var CATEGORY_EVENTS:Int = 106;
+
+    public static inline var CATEGORY_RUNTIME:Int = 100;
     
-    public function new(app:App) {
-        this.__parent = app;
+    public function new(runtime:Runtime, ?callback:Void->Void) {
+        __parent = runtime;
     }
     
     // === INITIALIZATION & CONFIGURATION ===
     
     public function init():Void {
         // Set up basic logging
-        SDL.setLogOutputFunction(null, null);
+        
         
         // Enable common categories
         enableCategory(CATEGORY_APPLICATION);
@@ -42,6 +48,8 @@ private class __Log {
         enableCategory(CATEGORY_SYSTEM);
         enableCategory(CATEGORY_INPUT);
         enableCategory(CATEGORY_EVENTS);
+
+        enableCategory(CATEGORY_RUNTIME);
         
         info(CATEGORY_ENGINE, "Log system initialized");
     }
@@ -104,6 +112,10 @@ private class __Log {
     }
     
     // Convenience methods for common categories
+    public function runtimeInfo(message:String):Void { info(CATEGORY_RUNTIME, message); }
+    public function runtimeWarn(message:String):Void { warn(CATEGORY_RUNTIME, message); }
+    public function runtimeError(message:String):Void { error(CATEGORY_RUNTIME, message); }
+
     public function engineInfo(message:String):Void { info(CATEGORY_ENGINE, message); }
     public function engineWarn(message:String):Void { warn(CATEGORY_ENGINE, message); }
     public function engineError(message:String):Void { error(CATEGORY_ENGINE, message); }
