@@ -132,11 +132,6 @@ class Runtime {
     public function release():Void {
         __log.engineInfo("Cleaning up application...");
         
-        // Deactivate current state
-        if (currentState != null) {
-            currentState.onDeactivate();
-        }
-        
         // Clean up all states
         for (state in states) {
             state.clearEntities(__renderer);

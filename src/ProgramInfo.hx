@@ -117,7 +117,7 @@ class ProgramInfo {
 		programId = -1;
 		
 		// Automatically compile and introspect the shader program
-		if (!compile(renderer)) {
+		if (!renderer.compileProgramInfo(this)) {
 			trace("Failed to compile shader program: " + name);
 			return;
 		}
@@ -306,72 +306,6 @@ class ProgramInfo {
 		var textureData = {name:name, format:format, setter:setter, location:location};
 		textures.push(textureData);
 		uniformMap.set(name, textureData); // Also add to uniform map for consistent lookup
-	}
-	
-	// ** Shader compilation and linking
-	public function compile(renderer:Renderer):Bool {
-		if (isCompiled) return true;
-		
-		trace("Starting shader compilation...");
-		
-		// Compile vertex shader
-		trace("Creating vertex shader...");
-		vertexShader = renderer.createShader(GL.VERTEX_SHADER);
-		trace("Vertex shader created: " + vertexShader);
-		
-		trace("Setting vertex shader source...");
-		renderer.shaderSource(vertexShader, vertexShaderSource);
-		
-		trace("Compiling vertex shader...");
-		renderer.compileShader(vertexShader);
-		
-		// Check vertex shader compilation
-		trace("Checking vertex shader compilation...");
-		if (!checkShaderCompilation(vertexShader, "Vertex")) {
-			trace("Vertex shader compilation failed!");
-			return false;
-		}
-		trace("Vertex shader compiled successfully!");
-		
-		// Compile fragment shader
-		trace("Creating fragment shader...");
-		fragmentShader = renderer.createShader(GL.FRAGMENT_SHADER);
-		trace("Fragment shader created: " + fragmentShader);
-		
-		trace("Setting fragment shader source...");
-		renderer.shaderSource(fragmentShader, fragmentShaderSource);
-		
-		trace("Compiling fragment shader...");
-		renderer.compileShader(fragmentShader);
-		
-		// Check fragment shader compilation
-		trace("Checking fragment shader compilation...");
-		if (!checkShaderCompilation(fragmentShader, "Fragment")) {
-			trace("Fragment shader compilation failed!");
-			return false;
-		}
-		trace("Fragment shader compiled successfully!");
-		
-		// Create and link program
-		trace("Creating shader program...");
-		program = renderer.createProgram();
-		trace("Shader program created: " + program);
-		
-		renderer.attachShader(program, vertexShader);
-		renderer.attachShader(program, fragmentShader);
-		renderer.linkProgram(program);
-		
-		// Check program linking
-		trace("Checking program linking...");
-		if (!checkProgramLinking()) {
-			trace("Program linking failed!");
-			return false;
-		}
-		trace("Program linked successfully!");
-		
-		isCompiled = true;
-		trace("Shader compilation complete!");
-		return true;
 	}
 	
 	// ** Automatically discover attributes and uniforms from compiled shader program
@@ -758,18 +692,6 @@ class ProgramInfo {
 			case 35680: UniformFormat.SamplerCube; // GL_SAMPLER_CUBE
 			default: UniformFormat.Float;       // Default fallback
 		}
-	}
-	
-	private function checkShaderCompilation(shader:Shader, type:String):Bool {
-		// TODO: Add proper shader compilation checking
-		// For now, assume success
-		return true;
-	}
-	
-	private function checkProgramLinking():Bool {
-		// TODO: Add proper program linking checking
-		// For now, assume success
-		return true;
 	}
 	
 	// ** Default shaders for basic rendering

@@ -142,15 +142,15 @@ class Renderer {
     public function createProgramInfo(name:String, vertexShader:String, fragmentShader:String):ProgramInfo {
         // Check if this ProgramInfo already exists
         if (programInfos.exists(name)) {
-            trace("ProgramInfo '" + name + "' already exists, reusing...");
             return programInfos.get(name);
         }
         
         // Create new ProgramInfo and register it
         var programInfo = new ProgramInfo(name, this, vertexShader, fragmentShader);
         programInfos.set(name, programInfo);
-        
-        trace("Created and registered ProgramInfo: " + name);
+
+        // TODO: Convert to proper logging system once cross-class access is resolved
+        // trace("Created and registered ProgramInfo: " + name);
         return programInfo;
     }
     
@@ -584,4 +584,85 @@ class Renderer {
     private function get_app():App {
         return __app;
     }
+
+
+    // 
+
+    // ** Shader compilation and linking
+	public function compileProgramInfo(programInfo:ProgramInfo):Bool {
+		if (programInfo.isCompiled) return true;
+		
+		// Vertex shader
+		programInfo.vertexShader = createShader(GL.VERTEX_SHADER);
+		shaderSource(programInfo.vertexShader, programInfo.vertexShaderSource);
+		compileShader(programInfo.vertexShader);
+		if (!checkShaderCompilation(programInfo.vertexShader, "Vertex")) {
+			trace("Vertex shader compilation failed!");
+			return false;
+		}
+		
+		// Fragment shader
+		programInfo.fragmentShader = createShader(GL.FRAGMENT_SHADER);
+		shaderSource(programInfo.fragmentShader, programInfo.fragmentShaderSource);
+		compileShader(programInfo.fragmentShader);
+		if (!checkShaderCompilation(programInfo.fragmentShader, "Fragment")) {
+			trace("Fragment shader compilation failed!");
+			return false;
+		}
+
+		// Create and link program
+		programInfo.program = createProgram();
+		
+		attachShader(programInfo.program, programInfo.vertexShader);
+		attachShader(programInfo.program, programInfo.fragmentShader);
+		linkProgram(programInfo.program);
+		
+		// Check program linking
+		if (!checkProgramLinking(programInfo.program)) {
+			return false;
+		}
+		
+		programInfo.isCompiled = true;
+		return true;
+	}
+
+    private function checkShaderCompilation(shader:Int, type:String):Bool {
+		var success:Int = GL.getShaderParameterValue(shader, GL.COMPILE_STATUS);
+		
+		if (success == 0) {
+			// Compilation failed, get error log
+			var errorLog:String = GL.getShaderInfoLogString(shader);
+			
+			if (errorLog.length > 0) {
+				trace(type + " shader compilation failed:");
+				trace(errorLog);
+			} else {
+				trace(type + " shader compilation failed with no error log");
+			}
+			return false;
+		}
+		
+		trace(type + " shader compiled successfully");
+		return true;
+	}
+
+	private function checkProgramLinking(program:Int):Bool {
+		var success:Int = GL.getProgramParameterValue(program, GL.LINK_STATUS);
+		
+		if (success == 0) {
+			// Linking failed, get error log
+			var errorLog:String = GL.getProgramInfoLogString(program);
+			
+			if (errorLog.length > 0) {
+				trace("Program linking failed:");
+				trace(errorLog);
+			} else {
+				trace("Program linking failed with no error log");
+			}
+			return false;
+		}
+		
+		trace("Program linked successfully");
+		return true;
+	}
 }

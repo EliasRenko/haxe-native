@@ -258,6 +258,9 @@ extern class GL {
     @:native("GL_LINK_STATUS")
     static var LINK_STATUS(default, null):Int;
 
+    @:native("GL_INFO_LOG_LENGTH")
+    static var INFO_LOG_LENGTH(default, null):Int;
+
     @:native("GL_VALIDATE_STATUS")
     static var VALIDATE_STATUS(default, null):GlEnum;
 
@@ -284,6 +287,9 @@ extern class GL {
     @:native("glGetShaderiv")
     static function getShaderiv(shader:GlUInt, pname:GlEnum, params:RawPointer<GlInt>):Void;
 
+    @:native("glGetShaderInfoLog")
+    static function getShaderInfoLog(shader:GlUInt, bufSize:GlSizeI, length:RawPointer<GlSizeI>, infoLog:GlChar):Void;
+
     //@:native("glGetShaderiv")
     // static inline function getShaderiv(shader:Int, pname:Int, param:Array<Int>):Void {
     //     untyped __cpp__("glGetShaderiv({0}, {1}, (GLint*)&({2}[0]))", shader, pname, param);
@@ -301,6 +307,9 @@ extern class GL {
     @:native("glGetProgramiv")
     static function getProgramiv(program:GlUInt, pname:GlEnum, params:RawPointer<GlInt>):Void;
 
+    @:native("glGetProgramInfoLog")
+    static function getProgramInfoLog(program:GlUInt, bufSize:GlSizeI, length:RawPointer<GlSizeI>, infoLog:GlChar):Void;
+
     @:native("glDeleteShader")
 	static function deleteShader(shader:GlUInt):Void;
 
@@ -309,14 +318,53 @@ extern class GL {
 
     @:native("glGetActiveUniform")
     static function getActiveUniform(program:GlUInt, index:GlUInt, bufSize:GlSizeI, length:RawPointer<GlSizeI>, size:RawPointer<GlInt>, type:RawPointer<GlEnum>, name:GlChar):Void;
-    @:native("glGetProgramiv")
-    static function getProgramParameter(program:GlUInt, pname:GlEnum, params:RawPointer<GlInt>):Void;
     @:native("glGetAttribLocation")
 	static function getAttribLocation(program:GlUInt, name:ConstCharStar):GlInt;
     @:native("glGetUniformLocation")
     static function getUniformLocation(program:GlUInt, name:ConstCharStar):GlInt;
     @:native("glGetError")
     static function getError():Int;
+
+    // ** Shader compilation helper functions
+    static inline function getShaderParameterValue(shader:Int, pname:Int):Int {
+        var result:Int = 0;
+        untyped __cpp__("glGetShaderiv({0}, {1}, &{2})", shader, pname, result);
+        return result;
+    }
+
+    static inline function getProgramParameterValue(program:Int, pname:Int):Int {
+        var result:Int = 0;
+        untyped __cpp__("glGetProgramiv({0}, {1}, &{2})", program, pname, result);
+        return result;
+    }
+
+    static inline function getShaderInfoLogString(shader:Int):String {
+        var logLength:Int = getShaderParameterValue(shader, INFO_LOG_LENGTH);
+        if (logLength <= 0) return "";
+        
+        var errorLog:String = "";
+        untyped __cpp__("
+            char* log = new char[{1}];
+            glGetShaderInfoLog({0}, {1}, NULL, log);
+            {2} = String(log);
+            delete[] log;
+        ", shader, logLength, errorLog);
+        return errorLog;
+    }
+
+    static inline function getProgramInfoLogString(program:Int):String {
+        var logLength:Int = getProgramParameterValue(program, INFO_LOG_LENGTH);
+        if (logLength <= 0) return "";
+        
+        var errorLog:String = "";
+        untyped __cpp__("
+            char* log = new char[{1}];
+            glGetProgramInfoLog({0}, {1}, NULL, log);
+            {2} = String(log);
+            delete[] log;
+        ", program, logLength, errorLog);
+        return errorLog;
+    }
 
     // ** glUniform
     @:native("glUniform1f")
