@@ -211,64 +211,6 @@ class ProgramInfo {
 		}
 	}
 	
-	// ** Get uniform location and set value
-	public function setUniformFloat(name:String, value:Float, renderer:Renderer):Void {
-		if (!isCompiled) {
-			trace("Warning: Program not compiled, cannot set uniform: " + name);
-			return;
-		}
-		
-		// First try to find the uniform in our introspected list (faster)
-		for (uniform in uniforms) {
-			if (uniform.name == name) {
-				if (uniform.format == UniformFormat.Float) {
-					renderer.uniform1f(uniform.location, value);
-					return;
-				} else {
-					trace("Warning: Uniform '" + name + "' is not a float uniform");
-					return;
-				}
-			}
-		}
-		
-		// Fallback to runtime lookup if not found in introspected uniforms
-		var location = renderer.getUniformLocation(program, name);
-		if (location != -1) {
-			renderer.uniform1f(location, value);
-		} else {
-			trace("Warning: Uniform '" + name + "' not found in shader");
-		}
-	}
-	
-	// ** Set matrix4x4 uniform
-	public function setUniformMatrix4(name:String, matrix:Array<Float>, renderer:Renderer):Void {
-		if (!isCompiled) {
-			trace("Warning: Program not compiled, cannot set uniform: " + name);
-			return;
-		}
-		
-		// First try to find the uniform in our introspected list (faster)
-		for (uniform in uniforms) {
-			if (uniform.name == name) {
-				if (uniform.format == UniformFormat.Mat4) {
-					renderer.uniformMatrix4fv(uniform.location, false, matrix);
-					return;
-				} else {
-					trace("Warning: Uniform '" + name + "' is not a Mat4 uniform");
-					return;
-				}
-			}
-		}
-		
-		// Fallback to runtime lookup if not found in introspected uniforms
-		var location = renderer.getUniformLocation(program, name);
-		if (location != -1) {
-			renderer.uniformMatrix4fv(location, false, matrix);
-		} else {
-			trace("Warning: Uniform '" + name + "' not found in shader");
-		}
-	}
-	
 	// ** Debug method to print vertex layout
 	public function printVertexLayout():Void {
 		trace("=== Vertex Layout for " + name + " ===");

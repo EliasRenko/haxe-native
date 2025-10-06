@@ -70,9 +70,8 @@ class Renderer {
         // Bind VAO
         GL.bindVertexArray(displayObject.vao);
 
-        // Render uniforms, attributes, and textures
+        // Render uniforms and textures
         __renderUniforms(displayObject.programInfo, displayObject.uniforms);
-        __renderAttributes(displayObject.programInfo);
         __renderTextures(displayObject.programInfo, displayObject);
 
         // Draw the object
@@ -103,10 +102,7 @@ class Renderer {
         }
     }
 
-    private function __renderAttributes(programInfo:ProgramInfo):Void {
-        // Attributes are already set up in VAO, so this is essentially a no-op
-        // for our current VAO-based implementation, but kept for compatibility
-    }
+
 
     private function __renderTextures(programInfo:ProgramInfo, drawable:DisplayObject):Void {
         for (i in 0...programInfo.textures.length) {
@@ -381,21 +377,6 @@ class Renderer {
     }
 
     /**
-     * Set rendering state for 2D rendering
-     */
-    public function set2DRenderState():Void {
-        GL.glDisable(GL.DEPTH_TEST);
-    }
-
-    /**
-     * Set rendering state for 3D rendering  
-     */
-    public function set3DRenderState():Void {
-        GL.glEnable(GL.DEPTH_TEST);
-        GL.glDepthFunc(GL.LESS);
-    }
-
-    /**
      * Clear the screen and prepare for rendering
      */
     public function clearScreen():Void {
@@ -415,84 +396,11 @@ class Renderer {
         GL.glDisable(GL.CULL_FACE);
     }
 
-    /**
-     * Shader compilation and management methods
-     */
-    public function createShader(type:Int):Int {
-        return GL.createShader(type);
-    }
 
-    public function shaderSource(shader:Int, source:String):Void {
-        untyped __cpp__("
-            const char* shaderSource = {1}.__s;
-            glShaderSource({0}, 1, &shaderSource, NULL);
-        ", shader, source);
-    }
-
-    public function compileShader(shader:Int):Void {
-        GL.compileShader(shader);
-    }
-
-    public function createProgram():Int {
-        return GL.createProgram();
-    }
-
-    public function attachShader(program:Int, shader:Int):Void {
-        GL.attachShader(program, shader);
-    }
-
-    public function linkProgram(program:Int):Void {
-        GL.linkProgram(program);
-    }
-
-    public function useProgram(program:Int):Void {
-        GL.useProgram(program);
-    }
-
-    public function deleteShader(shader:Int):Void {
-        GL.deleteShader(shader);
-    }
-
-    public function getAttribLocation(program:Int, name:String):Int {
-        return GL.getAttribLocation(program, name);
-    }
-
-    public function getUniformLocation(program:Int, name:String):Int {
-        return GL.getUniformLocation(program, name);
-    }
-
-    public function enableVertexAttribArray(index:Int):Void {
-        GL.enableVertexAttribArray(index);
-    }
 
     public function vertexAttribPointer(index:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:Int):Void {
         untyped __cpp__("glVertexAttribPointer({0}, {1}, {2}, {3} ? GL_TRUE : GL_FALSE, {4}, (void*)(intptr_t){5})", 
             index, size, type, normalized, stride, offset);
-    }
-
-    public function uniform1i(location:Int, value:Int):Void {
-        GL.uniform1i(location, value);
-    }
-
-    public function uniform1f(location:Int, value:Float):Void {
-        GL.uniform1f(location, value);
-    }
-
-    public function uniformMatrix4fv(location:Int, transpose:Bool, value:Array<Float>):Void {
-        // Create a copy to ensure proper memory layout
-        var matrixData = new Array<Float>();
-        for (i in 0...16) {
-            matrixData[i] = value[i];
-        }
-        
-        // Use transpose=false for column-major OpenGL matrix format
-        untyped __cpp__("
-            float matData[16];
-            for(int i = 0; i < 16; i++) {
-                matData[i] = {2}[i];
-            }
-            glUniformMatrix4fv({0}, 1, {1} ? GL_TRUE : GL_FALSE, matData);
-        ", location, transpose, matrixData);
     }
     
     /**
@@ -526,7 +434,7 @@ class Renderer {
             bytes.set(i, textureData.bytes[i]);
         }
         
-        untyped __cpp__("glTexImage2D(GL_TEXTURE_2D, 0, {0}, {1}, {2}, 0, {3}, GL_UNSIGNED_BYTE, {4}->b->GetBase())", 
+        untyped __cpp__("glTexImage2D(GL_TEXTURE_2D, 0, {0}, {1}, {2}, 0, {3}, GL_UNSIGNED_BYTE, (unsigned char*){4}->b->GetBase())", 
             internalFormat, textureData.width, textureData.height, format, bytes);
         
         // Unbind texture
@@ -611,6 +519,66 @@ class Renderer {
         setDepthWrite(state.depthWrite);
         setBlendMode(state.blendMode);
     }
+
+    
+    // ===== SHADER WRAPPER FUNCTIONS =====
+    // These functions are used by ProgramInfo for shader compilation
+    // TODO: Consider having ProgramInfo call GL directly instead
+    
+    public function createShader(type:Int):Int {
+        return GL.createShader(type);
+    }
+
+    public function shaderSource(shader:Int, source:String):Void {
+        untyped __cpp__("\n            const char* shaderSource = {1}.__s;\n            glShaderSource({0}, 1, &shaderSource, NULL);\n        ", shader, source);
+    }
+
+    public function compileShader(shader:Int):Void {
+        GL.compileShader(shader);
+    }
+
+    public function createProgram():Int {
+        return GL.createProgram();
+    }
+
+    public function attachShader(program:Int, shader:Int):Void {
+        GL.attachShader(program, shader);
+    }
+
+    public function linkProgram(program:Int):Void {
+        GL.linkProgram(program);
+    }
+
+    public function useProgram(program:Int):Void {
+        GL.useProgram(program);
+    }
+
+    public function deleteShader(shader:Int):Void {
+        GL.deleteShader(shader);
+    }
+
+    public function getAttribLocation(program:Int, name:String):Int {
+        return GL.getAttribLocation(program, name);
+    }
+
+    public function getUniformLocation(program:Int, name:String):Int {
+        return GL.getUniformLocation(program, name);
+    }
+
+    public function enableVertexAttribArray(index:Int):Void {
+        GL.enableVertexAttribArray(index);
+    }
+
+    // ===== DEPRECATED / UNUSED FUNCTIONS =====
+    // These functions are kept for reference but are no longer used in the current architecture
+    
+    /*
+    // No-op function that was kept for compatibility
+    private function __renderAttributes(programInfo:ProgramInfo):Void {
+        // Attributes are already set up in VAO, so this is essentially a no-op
+        // for our current VAO-based implementation, but kept for compatibility
+    }
+    */
 
     // Getters and setters
     private function get_app():App {
