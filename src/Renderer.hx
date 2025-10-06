@@ -45,12 +45,6 @@ class Renderer {
         
         // Initialize rendering state
         initializeRenderState();
-        
-        // Debug: Print frame info occasionally
-        if (frameCount % 300 == 0) { // Every 5 seconds
-            // TODO: Convert to proper logging system once cross-class access is resolved
-            // trace("Frame: " + frameCount + ", Window: " + windowWidth + "x" + windowHeight);
-        }
     }
     
     // ** New method to render display objects with provided view-projection matrix
