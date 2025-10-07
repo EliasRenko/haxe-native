@@ -20,15 +20,8 @@ class Runtime {
 
     // Publics
     public var active(get, null):Bool;
-    public var resources(get, null):Resources;
     public var renderer(get, null):Renderer;
-    public var log(get, null):Log;
-    public var input(get, null):Input;
     public var vsync(get, set):Int;
-
-    // State Management
-    public var states:Array<State> = [];
-    public var currentState:State = null;
 
     // Privates
     private var __active:Bool = false;
@@ -40,10 +33,8 @@ class Runtime {
     private var __lastTime:Float = 0.0;
     private var __currentTime:Float = 0.0;
 
-    private var __input:Input;
-    private var __resources:Resources;
+    // TODO: Move log to App
     private var __log:Log;
-    
     
     public function new() {}
     
@@ -95,7 +86,7 @@ class Runtime {
         __window = new Window(SDL.createWindow(WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT, SDL.WINDOW_OPENGL));
         if (__window.ptr == null) {
             __log.engineError("Failed to create window: " + SDL.getError());
-            SDL.quit();
+            release();
             return false;
         }
         
@@ -103,7 +94,7 @@ class Runtime {
         __context = SDL.createContext(__window.ptr);
         if (__context == null) {
             __log.engineError("Failed to create OpenGL context: " + SDL.getError());
-            SDL.quit();
+            release();
             return false;
         }
         
@@ -113,7 +104,7 @@ class Runtime {
         var gladResult = GL.gladLoadGLLoader(SDL.getProcAddress);
         if (gladResult == 0) {
             __log.engineError("Failed to load OpenGL functions");
-            SDL.quit();
+            release();
             return false;
         }
         __log.engineInfo("OpenGL loaded successfully");
@@ -132,32 +123,10 @@ class Runtime {
     public function release():Void {
         __log.engineInfo("Cleaning up application...");
         
-        // Clean up all states
-        for (state in states) {
-            state.clearEntities(__renderer);
-        }
-
-        states = [];
-        currentState = null;
-        
-        // Release resources first
-        if (__resources != null) {
-            __resources.release();
-            __resources = null;
-        }
-
-        // Release input system
-        if (__input != null) {
-            __input.release();
-            __input = null;
-        }
-        
         if (__renderer != null) {
             __renderer.release();
             __renderer = null;
         }
-        
-        __log.engineInfo("Application cleanup complete");
         
         // Cleanup log system last
         if (__log != null) {
@@ -466,32 +435,11 @@ class Runtime {
     }
 
     public function update():Void {
-        // Use a fixed deltaTime for stable animation (60 FPS target)
-        var deltaTime:Float = 1.0 / 60.0; // 0.0167 seconds per frame
         
-        // Update input system
-        if (__input != null) {
-            __input.update();
-        }
-        
-        // Update current state if one is active
-        if (currentState != null && currentState.active) {
-            currentState.update(deltaTime);
-        }
-        
-        // Post-update input (clear pressed/released states)
-        if (__input != null) {
-            __input.postUpdate();
-        }
     }
     
     private function render():Void {
-        __renderer.clearScreen();
-        __renderer.initializeRenderState();
-        
-        if (currentState != null && currentState.active) {
-            currentState.render(__renderer);
-        }
+
     }
 
     public function loadBytes(path:String):Bytes {
@@ -621,18 +569,6 @@ class Runtime {
     
     private function get_renderer():Renderer {
         return __renderer;
-    }
-    
-    private function get_resources():Resources {
-        return __resources;
-    }
-    
-    private function get_log():Log {
-        return __log;
-    }
-    
-    private function get_input():Input {
-        return __input;
     }
 
 	private function get_vsync():Int {
