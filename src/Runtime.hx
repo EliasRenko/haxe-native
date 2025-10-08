@@ -5,10 +5,7 @@ import haxe.io.Bytes;
 import SDL;
 import GL;
 import Renderer;
-import State;
 import Log;
-import Input;
-import Resources;
 import cpp.UInt64;
 import cpp.Pointer;
 
@@ -28,10 +25,6 @@ class Runtime {
     private var __window:Window;
     private var __context:GLContext;
     private var __renderer:Renderer;
-
-    // Timing variables for deltaTime calculation
-    private var __lastTime:Float = 0.0;
-    private var __currentTime:Float = 0.0;
 
     // TODO: Move log to App
     private var __log:Log;
