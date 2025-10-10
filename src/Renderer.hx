@@ -424,9 +424,26 @@ class Renderer {
         GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
         GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST);
         
-        // Upload actual texture data
-        var format = GL.RGBA;
-        var internalFormat = GL.RGBA;
+        // Upload actual texture data with correct format based on BPP
+        var format:Int;
+        var internalFormat:Int;
+        
+        switch (textureData.bytesPerPixel) {
+            case 1: // Grayscale/monochrome
+                format = GL.RED;
+                internalFormat = GL.RED;
+            case 2: // Grayscale + Alpha
+                format = GL.RG;
+                internalFormat = GL.RG;
+            case 3: // RGB
+                format = GL.RGB;
+                internalFormat = GL.RGB;
+            case 4: // RGBA
+                format = GL.RGBA;
+                internalFormat = GL.RGBA;
+            default:
+                throw "Unsupported texture format: " + textureData.bytesPerPixel + " bytes per pixel";
+        }
         
         // Convert UInt8Array to Bytes for OpenGL upload
         var bytes = haxe.io.Bytes.alloc(textureData.width * textureData.height * textureData.bytesPerPixel);
@@ -436,6 +453,10 @@ class Renderer {
         
         untyped __cpp__("glTexImage2D(GL_TEXTURE_2D, 0, {0}, {1}, {2}, 0, {3}, GL_UNSIGNED_BYTE, (unsigned char*){4}->b->GetBase())", 
             internalFormat, textureData.width, textureData.height, format, bytes);
+        
+        // Debug output for texture format
+        trace("Texture uploaded: " + textureData.width + "x" + textureData.height + ", BPP=" + textureData.bytesPerPixel + 
+              ", internalFormat=" + internalFormat + ", format=" + format);
         
         // Unbind texture
         GL.bindTexture(GL.TEXTURE_2D, 0);

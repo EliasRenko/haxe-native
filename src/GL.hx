@@ -273,6 +273,15 @@ extern class GL {
     @:native("GL_RGBA")
     static var RGBA(default, null):Int;
 
+    @:native("GL_RED")
+    static var RED(default, null):Int;
+
+    @:native("GL_RG")
+    static var RG(default, null):Int;
+
+    @:native("GL_RGB")
+    static var RGB(default, null):Int;
+
     // ---
 
     @:native("glCreateShader")
