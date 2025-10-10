@@ -424,9 +424,28 @@ class Renderer {
         GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
         GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST);
         
-        // Upload actual texture data
-        var format = GL.RGBA;
-        var internalFormat = GL.RGBA;
+        // Upload actual texture data with correct format based on BPP
+        var format:Int;
+        var internalFormat:Int;
+        
+        switch (textureData.bytesPerPixel) {
+            case 1: // Grayscale/monochrome
+                format = GL.RED;
+                internalFormat = GL.RED;
+            case 2: // Grayscale + Alpha
+                format = GL.RG;
+                internalFormat = GL.RG;
+            case 3: // RGB
+                format = GL.RGB;
+                internalFormat = GL.RGB;
+            case 4: // RGBA
+                format = GL.RGBA;
+                internalFormat = GL.RGBA;
+            default:
+                trace("Warning: Unsupported texture format, falling back to RGBA");
+                format = GL.RGBA;
+                internalFormat = GL.RGBA;
+        }
         
         // Convert UInt8Array to Bytes for OpenGL upload
         var bytes = haxe.io.Bytes.alloc(textureData.width * textureData.height * textureData.bytesPerPixel);

@@ -378,6 +378,8 @@ class ProgramInfo {
 	
 	// ** Discover all active uniforms
 	private function introspectUniforms(renderer:Renderer):Void {
+		trace("ProgramInfo.introspectUniforms() called for program: " + program);
+		
 		// Get number of active uniforms
 		var activeUniforms:Int = 0;
 		untyped __cpp__("glGetProgramiv({0}, GL_ACTIVE_UNIFORMS, &{1})", program, activeUniforms);
