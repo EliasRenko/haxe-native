@@ -48,8 +48,8 @@ class Camera {
             // (0,0) at top-left, (width, height) at bottom-right
             var left = 0.0;
             var right = width;
-            var top = 0.0;        // Top is 0 (reversed Y)
-            var bottom = height;  // Bottom is screen height
+            var top = height;     // Top is screen height (flip Y-axis)
+            var bottom = 0.0;     // Bottom is 0 (flip Y-axis)
             var near = -10.0; // Allow objects behind the camera
             var far = 10.0;   // Allow objects in front of the camera
             __matrix.append(Matrix.createOrthoMatrix(left, right, bottom, top, near, far));
