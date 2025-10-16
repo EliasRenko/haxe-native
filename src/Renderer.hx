@@ -250,10 +250,7 @@ class Renderer {
      * Upload vertex data to GPU
      */
     public function uploadVertexData(vao:UInt, vbo:UInt, vertices:Array<Float>):Void {
-        trace("Renderer.uploadVertexData: vao=" + vao + " vbo=" + vbo + " vertices.length=" + vertices.length);
-        if (vertices.length > 0) {
-            trace("  First 15 vertex values: " + vertices.slice(0, 15));
-        }
+        
         
         GL.bindVertexArray(vao);
         GL.bindBuffer(GL.ARRAY_BUFFER, vbo);
@@ -264,19 +261,15 @@ class Renderer {
             vertexBytes.setFloat(i * 4, vertices[i]);
         }
         
-        trace("  Uploading " + vertexBytes.length + " bytes to VBO " + vbo);
+        
         GL.bufferData(GL.ARRAY_BUFFER, vertexBytes.length, vertexBytes.getData(), GL.DYNAMIC_DRAW);
-        trace("  Buffer upload complete");
+        
     }
 
     /**
      * Upload index data to GPU
      */
     public function uploadIndexData(ebo:UInt, indices:Array<Int>):Void {
-        trace("Renderer.uploadIndexData: ebo=" + ebo + " indices.length=" + indices.length);
-        if (indices.length > 0) {
-            trace("  First 15 index values: " + indices.slice(0, 15));
-        }
         
         if (ebo != 0 && indices.length > 0) {
             GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, ebo);
@@ -285,9 +278,8 @@ class Renderer {
                 indexBytes.setInt32(i * 4, indices[i]);
             }
             
-            trace("  Uploading " + indexBytes.length + " bytes to EBO " + ebo);
+
             GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, indexBytes.length, indexBytes.getData(), GL.DYNAMIC_DRAW);
-            trace("  Index buffer upload complete");
         }
     }
 
