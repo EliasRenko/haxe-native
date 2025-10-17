@@ -44,14 +44,15 @@ class Camera {
         __matrix.appendTranslation(-x, -y, -z);
         
         if (ortho) {
-            // Pixel-perfect orthographic projection 
-            // (0,0) at top-left, (width, height) at bottom-right
+            // IMPORTANT: Orthographic projection with TOP-LEFT origin (0,0)
+            // This is the standard 2D coordinate system for UI and games
+            // DO NOT CHANGE - ensures (0,0) is at top-left, Y increases downward
             var left = 0.0;
             var right = width;
-            var top = height;     // Top is screen height (flip Y-axis)
-            var bottom = 0.0;     // Bottom is 0 (flip Y-axis)
-            var near = -10.0; // Allow objects behind the camera
-            var far = 10.0;   // Allow objects in front of the camera
+            var top = 0.0;        // Top is 0 (standard 2D coordinates)
+            var bottom = height;  // Bottom is screen height (Y increases downward)
+            var near = -10.0;     // Allow objects behind the camera
+            var far = 10.0;       // Allow objects in front of the camera
             __matrix.append(Matrix.createOrthoMatrix(left, right, bottom, top, near, far));
         }
         else {
