@@ -657,5 +657,71 @@ extern class GL {
     @:native("GL_ONE_MINUS_SRC_ALPHA")
     static var ONE_MINUS_SRC_ALPHA(default, null):Int;
 
+    // Framebuffer constants
+    @:native("GL_FRAMEBUFFER")
+    static var FRAMEBUFFER(default, null):Int;
+    @:native("GL_COLOR_ATTACHMENT0")
+    static var COLOR_ATTACHMENT0(default, null):Int;
+    @:native("GL_FRAMEBUFFER_COMPLETE")
+    static var FRAMEBUFFER_COMPLETE(default, null):Int;
+    
+    // Framebuffer functions
+    @:native("glGenFramebuffers")
+    static function genFramebuffers(n:Int, framebuffers:RawPointer<UInt>):Void;
+    
+    @:native("glBindFramebuffer")
+    static function bindFramebuffer(target:Int, framebuffer:UInt):Void;
+    
+    @:native("glFramebufferTexture2D")
+    static function framebufferTexture2D(target:Int, attachment:Int, textarget:Int, texture:UInt, level:Int):Void;
+    
+    @:native("glCheckFramebufferStatus")
+    static function checkFramebufferStatus(target:Int):Int;
+    
+    @:native("glDeleteFramebuffers")
+    static function deleteFramebuffers(n:Int, framebuffers:RawPointer<UInt>):Void;
+    
+    // Helper functions for single framebuffer creation/deletion
+    static inline function createFramebuffer():UInt {
+        var fb:UInt = 0;
+        untyped __cpp__("glGenFramebuffers(1, (GLuint*)&{0})", fb);
+        return fb;
+    }
+    
+    static inline function deleteFramebuffer(framebuffer:UInt):Void {
+        untyped __cpp__("glDeleteFramebuffers(1, (GLuint*)&{0})", framebuffer);
+    }
+    
+    // Helper functions for single object creation (using existing extern declarations)
+    static inline function createTexture():UInt {
+        var tex:UInt = 0;
+        untyped __cpp__("glGenTextures(1, (GLuint*)&{0})", tex);
+        return tex;
+    }
+    
+    static inline function deleteTexture(texture:UInt):Void {
+        untyped __cpp__("glDeleteTextures(1, (GLuint*)&{0})", texture);
+    }
+    
+    static inline function createBuffer():UInt {
+        var buf:UInt = 0;
+        untyped __cpp__("glGenBuffers(1, (GLuint*)&{0})", buf);
+        return buf;
+    }
+    
+    static inline function deleteBuffer(buffer:UInt):Void {
+        untyped __cpp__("glDeleteBuffers(1, (GLuint*)&{0})", buffer);
+    }
+    
+    static inline function createVertexArray():UInt {
+        var vao:UInt = 0;
+        untyped __cpp__("glGenVertexArrays(1, (GLuint*)&{0})", vao);
+        return vao;
+    }
+    
+    static inline function deleteVertexArray(vao:UInt):Void {
+        untyped __cpp__("glDeleteVertexArrays(1, (GLuint*)&{0})", vao);
+    }
+
     
 }

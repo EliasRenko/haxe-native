@@ -31,6 +31,14 @@ class Renderer {
     // ProgramInfo storage - managed by States, not Renderer
     private var programInfos:Map<String, ProgramInfo> = new Map<String, ProgramInfo>();
     
+    // Framebuffer for post-processing
+    public var screenFBO:Int = 0;
+    public var screenTexture:Int = 0;
+    public var postProcessShader:ProgramInfo = null;
+    private var __fullscreenQuadVAO:Int = 0;
+    private var __fullscreenQuadVBO:Int = 0;
+    public var usePostProcessing:Bool = false; // Toggle post-processing on/off
+    
     public function new(app:App, windowWidth:Int, windowHeight:Int) {
         this.__app = app;
         this.windowWidth = windowWidth;
@@ -726,5 +734,184 @@ class Renderer {
 		
 		trace("Program linked successfully");
 		return true;
+	}
+	
+	// =============================================================================
+	// FRAMEBUFFER AND POST-PROCESSING
+	// =============================================================================
+	
+	/**
+	 * Initialize the post-processing framebuffer and fullscreen quad
+	 */
+	public function initializePostProcessing():Void {
+		// Create framebuffer and texture
+		createFramebuffer(windowWidth, windowHeight);
+		
+		// Create fullscreen quad for rendering
+		createFullscreenQuad();
+		
+		// Create default post-process shader (passthrough)
+		var vertShader = '
+			#version 330 core
+			layout (location = 0) in vec2 aPos;
+			layout (location = 1) in vec2 aTexCoord;
+			out vec2 TexCoord;
+			
+			void main() {
+				gl_Position = vec4(aPos.x, aPos.y, 0.0, 1.0);
+				TexCoord = aTexCoord;
+			}
+		';
+		
+		var fragShader = '
+			#version 330 core
+	in vec2 TexCoord;
+	out vec4 FragColor;
+	uniform sampler2D uScreenTexture;
+	
+	void main() {
+		vec4 color = texture(uScreenTexture, TexCoord);
+		
+		// Scanline effect
+		float scanline = sin(TexCoord.y * 480.0 * 2.0) * 0.1 + 0.9;
+		
+		// Vignette effect
+		vec2 center = TexCoord - 0.5;
+		float vignette = 1.0 - dot(center, center) * 0.5;
+		
+		FragColor = vec4(color.rgb * scanline * vignette, color.a);
+	}
+		';
+		
+		postProcessShader = createProgramInfo("PostProcess", vertShader, fragShader);
+		
+		trace("Renderer: Post-processing initialized");
+	}
+	
+	/**
+	 * Create framebuffer with color texture attachment
+	 */
+	private function createFramebuffer(width:Int, height:Int):Void {
+		// Create framebuffer
+		screenFBO = GL.createFramebuffer();
+		GL.bindFramebuffer(GL.FRAMEBUFFER, screenFBO);
+		
+		// Create color texture
+		screenTexture = GL.createTexture();
+		GL.bindTexture(GL.TEXTURE_2D, screenTexture);
+		GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, width, height, 0, GL.RGBA, GL.UNSIGNED_BYTE, null);
+		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR);
+		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
+		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
+		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
+		
+		// Attach texture to framebuffer
+		GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, screenTexture, 0);
+		
+		// Check framebuffer status
+		if (GL.checkFramebufferStatus(GL.FRAMEBUFFER) != GL.FRAMEBUFFER_COMPLETE) {
+			trace("ERROR: Framebuffer is not complete!");
+		}
+		
+		// Unbind framebuffer
+		GL.bindFramebuffer(GL.FRAMEBUFFER, 0);
+		
+		trace("Renderer: Created framebuffer " + width + "x" + height);
+	}
+	
+	/**
+	 * Create a fullscreen quad (2 triangles)
+	 */
+	private function createFullscreenQuad():Void {
+		// Fullscreen quad vertices: position (x,y) + texcoord (u,v)
+		var quadVertices:Array<Float> = [
+			// positions  // texCoords
+			-1.0,  1.0,  0.0, 1.0, // top-left
+			-1.0, -1.0,  0.0, 0.0, // bottom-left
+			 1.0, -1.0,  1.0, 0.0, // bottom-right
+			 1.0,  1.0,  1.0, 1.0  // top-right
+		];
+		
+		var quadIndices:Array<UInt> = [
+			0, 1, 2, // first triangle
+			0, 2, 3  // second triangle
+		];
+		
+		// Create VAO
+		__fullscreenQuadVAO = GL.createVertexArray();
+		GL.bindVertexArray(__fullscreenQuadVAO);
+		
+		// Create VBO
+		__fullscreenQuadVBO = GL.createBuffer();
+		GL.bindBuffer(GL.ARRAY_BUFFER, __fullscreenQuadVBO);
+		
+		// Convert vertex array to bytes
+		var vertexBytes = haxe.io.Bytes.alloc(quadVertices.length * 4);
+		for (i in 0...quadVertices.length) {
+			vertexBytes.setFloat(i * 4, quadVertices[i]);
+		}
+		GL.bufferData(GL.ARRAY_BUFFER, vertexBytes.length, vertexBytes.getData(), GL.STATIC_DRAW);
+		
+		// Create EBO
+		var ebo = GL.createBuffer();
+		GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, ebo);
+		
+		// Convert index array to bytes
+		var indexBytes = haxe.io.Bytes.alloc(quadIndices.length * 4);
+		for (i in 0...quadIndices.length) {
+			indexBytes.setInt32(i * 4, quadIndices[i]);
+		}
+		GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, indexBytes.length, indexBytes.getData(), GL.STATIC_DRAW);
+		
+		// Position attribute
+		GL.vertexAttribPointer(0, 2, GL.FLOAT, false, 4 * 4, untyped __cpp__("(void*)0")); // 4 floats per vertex, stride = 16 bytes
+		GL.enableVertexAttribArray(0);
+		
+		// TexCoord attribute
+		GL.vertexAttribPointer(1, 2, GL.FLOAT, false, 4 * 4, untyped __cpp__("(void*){0}", 2 * 4)); // offset = 8 bytes
+		GL.enableVertexAttribArray(1);
+		
+		GL.bindVertexArray(0);
+		
+		trace("Renderer: Created fullscreen quad");
+	}
+	
+	/**
+	 * Bind the framebuffer for rendering
+	 */
+	public function bindFramebuffer():Void {
+		GL.bindFramebuffer(GL.FRAMEBUFFER, screenFBO);
+		GL.viewport(0, 0, windowWidth, windowHeight);
+	}
+	
+	/**
+	 * Unbind the framebuffer (render to screen)
+	 */
+	public function unbindFramebuffer():Void {
+		GL.bindFramebuffer(GL.FRAMEBUFFER, 0);
+		GL.viewport(0, 0, windowWidth, windowHeight);
+	}
+	
+	/**
+	 * Render the framebuffer texture to screen with post-process shader
+	 */
+	public function renderToScreen():Void {
+		// Use post-process shader
+		GL.useProgram(postProcessShader.program);
+		
+		// Bind screen texture
+		GL.activeTexture(GL.TEXTURE0);
+		GL.bindTexture(GL.TEXTURE_2D, screenTexture);
+		
+		// Set uniform
+		var uniformInfo = postProcessShader.getUniform("uScreenTexture");
+		if (uniformInfo != null) {
+			uniformInfo.setter(uniformInfo.location, 0);
+		}
+		
+		// Render fullscreen quad
+		GL.bindVertexArray(__fullscreenQuadVAO);
+		GL.drawElements(GL.TRIANGLES, 6, GL.UNSIGNED_INT, 0);
+		GL.bindVertexArray(0);
 	}
 }
