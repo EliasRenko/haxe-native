@@ -138,7 +138,7 @@ extern class SDL {
     static function pollEvent(event:Pointer<Event>):Bool;
 
     @:native("SDL_GetTicks")
-    static function getTicks():UInt64;
+    public static function getTicks():UInt;
 
     @:native("SDL_GetDesktopDisplayMode")
     public static function getDesktopDisplayMode(displayID:UInt64):Pointer<SDL_DisplayMode>;
