@@ -9,6 +9,8 @@ import Log;
 import cpp.UInt64;
 import cpp.Pointer;
 
+
+
 class Runtime {
 
     public var WINDOW_TITLE:String = "Runtime";
@@ -34,14 +36,14 @@ class Runtime {
     public function init():Bool {
         // Initialize SDL video
         if (!SDL.init(SDL.INIT_VIDEO)) {
-            __log.runtimeError("Failed to initialize SDL video: " + SDL.getError());
+            logMessage(0, LogPriority.ERROR, "Failed to initialize SDL video: " + SDL.getError());
             return false;
         }
 
         // Initialize SDL audio
         #if !no_audio
         if (!SDL.init(SDL.INIT_AUDIO)) {
-            __log.runtimeError("Failed to initialize SDL audio: " + SDL.getError());
+            logMessage(0, LogPriority.ERROR, "Failed to initialize SDL audio: " + SDL.getError());
             return false;
         }
         #end
@@ -49,7 +51,7 @@ class Runtime {
         // Initialize SDL joystick
         #if !no_joystick
         if (!SDL.init(SDL.INIT_JOYSTICK)) {
-            __log.runtimeError("Failed to initialize SDL joystick: " + SDL.getError());
+            logMessage(0, LogPriority.ERROR, "Failed to initialize SDL joystick: " + SDL.getError());
             return false;
         }
         #end
@@ -57,7 +59,7 @@ class Runtime {
         // Initialize gamepad
         #if !no_gamepad
         if (!SDL.init(SDL.INIT_GAMEPAD)) {
-            __log.runtimeError("Failed to initialize SDL gamepad: " + SDL.getError());
+            logMessage(0, LogPriority.ERROR, "Failed to initialize SDL gamepad: " + SDL.getError());
             return false;
         }
         #end
@@ -65,7 +67,7 @@ class Runtime {
         #if !no_haptic
         // Initialize SDL haptic
         if (!SDL.init(SDL.INIT_HAPTIC)) {
-            __log.runtimeWarn("Failed to initialize SDL haptic: " + SDL.getError());
+            logMessage(0, LogPriority.ERROR, "Failed to initialize SDL haptic: " + SDL.getError());
             return false;
         }
         #end
@@ -78,7 +80,7 @@ class Runtime {
         // Create window
         __window = new Window(SDL.createWindow(WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT, SDL.WINDOW_OPENGL));
         if (__window.ptr == null) {
-            __log.engineError("Failed to create window: " + SDL.getError());
+            logMessage(0, LogPriority.ERROR, "Failed to create window: " + SDL.getError());
             release();
             return false;
         }
@@ -86,7 +88,7 @@ class Runtime {
         // Create OpenGL context
         __context = SDL.createContext(__window.ptr);
         if (__context == null) {
-            __log.engineError("Failed to create OpenGL context: " + SDL.getError());
+            logMessage(0, LogPriority.ERROR, "Failed to create OpenGL context: " + SDL.getError());
             release();
             return false;
         }
@@ -96,12 +98,12 @@ class Runtime {
         // Load OpenGL functions
         var gladResult = GL.gladLoadGLLoader(SDL.getProcAddress);
         if (gladResult == 0) {
-            __log.engineError("Failed to load OpenGL functions");
+            logMessage(0, LogPriority.ERROR, "Failed to load OpenGL functions");
             release();
             return false;
         }
-        __log.engineInfo("OpenGL loaded successfully");
-        __log.engineInfo("OpenGL Version: " + GL.version.major + "." + GL.version.minor);
+
+        logMessage(0, LogPriority.INFO, "OpenGL version: " + GL.version.major + "." + GL.version.minor + " has been loaded.");
         
         // Set viewport to match window size
         GL.viewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -114,7 +116,7 @@ class Runtime {
     }
 
     public function release():Void {
-        __log.engineInfo("Cleaning up application...");
+        logMessage(0, LogPriority.INFO, "Finalizing runtime.");
         
         if (__renderer != null) {
             __renderer.release();
@@ -136,7 +138,7 @@ class Runtime {
     
     public function run():Void {
         if (__renderer == null) {
-            __log.engineError("Error: Application not initialized! Call init() first.");
+            //__log.engineError("Error: Application not initialized! Call init() first.");
             return;
         }
 
@@ -161,10 +163,33 @@ class Runtime {
         
         release();
     }
-    
+
+    private function update():Void {}
+    private function render():Void {}
+
+    public function loadBytes(path:String):Bytes {
+        var size:UInt64 = 0;
+        var ptrSize:Pointer<UInt64> = Pointer.addressOf(size);
+        var ptrData = SDL.loadFile(path, ptrSize.ptr);
+
+        if (ptrData == null) {
+            throw "Failed to open file: " + path;
+        }
+
+        var bytes = Bytes.alloc(size.toInt());
+        for (i in 0...size.toInt()) {
+            bytes.set(i, ptrData[i]);
+        }
+        
+        SDL.free(ptrData);
+        return bytes;
+    }
+
+    // Event handling
     private function handleEvents():Void {
         var event = SDL.getEvent();
         while (SDL.pollEvent(event)) {
+            // TODO: Handle various system events
             if (event.value.type == SDL.EVENT_QUIT) {
                 __active = false;
             } 
@@ -427,32 +452,6 @@ class Runtime {
         }
     }
 
-    public function update():Void {
-        
-    }
-    
-    private function render():Void {
-
-    }
-
-    public function loadBytes(path:String):Bytes {
-        var size:UInt64 = 0;
-        var ptrSize:Pointer<UInt64> = Pointer.addressOf(size);
-        var ptrData = SDL.loadFile(path, ptrSize.ptr);
-
-        if (ptrData == null) {
-            throw "Failed to open file: " + path;
-        }
-
-        var bytes = Bytes.alloc(size.toInt());
-        for (i in 0...size.toInt()) {
-            bytes.set(i, ptrData[i]);
-        }
-        
-        SDL.free(ptrData);
-        return bytes;
-    }
-
     // System event handlers
     private function onTermination():Void {}
     private function onLowMemory():Void {}
@@ -543,6 +542,53 @@ class Runtime {
     // Clipboard event handler
     private function onClipboardUpdate(clipboardText:String):Void {}
 
+    // Log functions
+    // Priority hierarchy (low to high): TRACE (0) < VERBOSE (1) < DEBUG (2) < INFO (3) < WARN (4) < ERROR (5) < CRITICAL (6)
+    public function logMessage(category:Int, priority:Int, message:String):Void {
+        SDL.logMessage(category, priority, message);
+    }
+
+    public function logTrace(category:Int, message:String):Void {
+        SDL.logTrace(category, message);
+    }
+
+    public function logVerbose(category:Int, message:String):Void {
+        SDL.logVerbose(category, message);
+    }
+
+    public function logDebug(category:Int, message:String):Void {
+        SDL.logDebug(category, message);
+    }
+
+    public function logInfo(category:Int, message:String):Void {
+        SDL.logInfo(category, message);
+    }
+
+    public function logWarn(category:Int, message:String):Void {
+        SDL.logWarn(category, message);
+    }
+
+    public function logError(category:Int, message:String):Void {
+        SDL.logError(category, message);
+    }
+
+    public function logCritical(category:Int, message:String):Void {
+        SDL.logCritical(category, message);
+    }
+
+    public function getLogPriority(category:Int):Int {
+        return SDL.getLogPriority(category);
+    }
+
+    public function setLogPriority(category:Int, priority:Int):Void {
+        SDL.setLogPriority(category, priority);
+    }
+
+    public function resetLogPriorities():Void {
+        SDL.resetLogPriorities();
+    }
+
+    // SDL functions
     public function getLastSDLError():String {
         return SDL.getError();
     }

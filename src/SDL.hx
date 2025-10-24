@@ -428,25 +428,24 @@ extern class SDL {
 
     // ** Log priorities
 
-    @:native("SDL_LOG_PRIORITY_INVALID")
-    static var LOG_PRIORITY_INVALID(default, null):SDL_LogPriority;
-    @:native("SDL_LOG_PRIORITY_TRACE")
-    static var LOG_PRIORITY_TRACE(default, null):SDL_LogPriority;
-    @:native("SDL_LOG_PRIORITY_VERBOSE")
-    static var LOG_PRIORITY_VERBOSE(default, null):SDL_LogPriority;
-    @:native("SDL_LOG_PRIORITY_DEBUG")
-    static var LOG_PRIORITY_DEBUG(default, null):SDL_LogPriority;
-    @:native("SDL_LOG_PRIORITY_INFO")
-    static var LOG_PRIORITY_INFO(default, null):SDL_LogPriority;
-    @:native("SDL_LOG_PRIORITY_WARN")
-    static var LOG_PRIORITY_WARN(default, null):SDL_LogPriority;
-    @:native("SDL_LOG_PRIORITY_ERROR")
-    static var LOG_PRIORITY_ERROR(default, null):SDL_LogPriority;
-    @:native("SDL_LOG_PRIORITY_CRITICAL")
-    static var LOG_PRIORITY_CRITICAL(default, null):SDL_LogPriority;
-    @:native("SDL_LOG_PRIORITY_COUNT")
-    static var LOG_PRIORITY_COUNT(default, null):SDL_LogPriority;
-
+    // @:native("SDL_LOG_PRIORITY_INVALID")
+    // static var LOG_PRIORITY_INVALID(default, null):SDL_LogPriority;
+    // @:native("SDL_LOG_PRIORITY_TRACE")
+    // static var LOG_PRIORITY_TRACE(default, null):SDL_LogPriority;
+    // @:native("SDL_LOG_PRIORITY_VERBOSE")
+    // static var LOG_PRIORITY_VERBOSE(default, null):SDL_LogPriority;
+    // @:native("SDL_LOG_PRIORITY_DEBUG")
+    // static var LOG_PRIORITY_DEBUG(default, null):SDL_LogPriority;
+    // @:native("SDL_LOG_PRIORITY_INFO")
+    // static var LOG_PRIORITY_INFO(default, null):SDL_LogPriority;
+    // @:native("SDL_LOG_PRIORITY_WARN")
+    // static var LOG_PRIORITY_WARN(default, null):SDL_LogPriority;
+    // @:native("SDL_LOG_PRIORITY_ERROR")
+    // static var LOG_PRIORITY_ERROR(default, null):SDL_LogPriority;
+    // @:native("SDL_LOG_PRIORITY_CRITICAL")
+    // static var LOG_PRIORITY_CRITICAL(default, null):SDL_LogPriority;
+    // @:native("SDL_LOG_PRIORITY_COUNT")
+    // static var LOG_PRIORITY_COUNT(default, null):SDL_LogPriority;
 
     // ** Event types
 
@@ -1261,6 +1260,19 @@ abstract SDL_UserEventType(UInt) from UInt to UInt {
     var USER = 0x8000;
 }
 
+@:enum
+abstract SDL_LogPriority(Int) from Int to Int {
+    var SDL_LOG_PRIORITY_INVALID = -1;
+    var SDL_LOG_PRIORITY_TRACE = 0;
+    var SDL_LOG_PRIORITY_VERBOSE = 1;
+    var SDL_LOG_PRIORITY_DEBUG = 2;
+    var SDL_LOG_PRIORITY_INFO = 3;
+    var SDL_LOG_PRIORITY_WARN = 4;
+    var SDL_LOG_PRIORITY_ERROR = 5;
+    var SDL_LOG_PRIORITY_CRITICAL = 6;
+    var SDL_LOG_PRIORITY_COUNT = 7;
+}
+
 typedef PtrEvent = Pointer<Event>;
 typedef CreateWindowFlag = Int;
 typedef SDL_EventType = UInt;
@@ -1280,9 +1292,9 @@ abstract SDL_GLAttr(UInt32) {
     @:op(A|B) static function _(a:SDL_GLAttr, b:SDL_GLAttr):SDL_GLAttr;
 }
 
-abstract SDL_LogPriority(UInt32) {
-    @:op(A|B) static function _(a:SDL_LogPriority, b:SDL_LogPriority):SDL_LogPriority;
-}
+// abstract SDL_LogPriority(UInt32) {
+//     @:op(A|B) static function _(a:SDL_LogPriority, b:SDL_LogPriority):SDL_LogPriority;
+// }
 
 // abstract SDL_EventType(UInt32) {
 //     @:op(A|B) static function _(a:SDL_EventType, b:SDL_EventType):SDL_EventType;
