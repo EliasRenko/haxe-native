@@ -36,14 +36,14 @@ class Runtime {
     public function init():Bool {
         // Initialize SDL video
         if (!SDL.init(SDL.INIT_VIDEO)) {
-            logMessage(0, LogPriority.ERROR, "Failed to initialize SDL video: " + SDL.getError());
+            __log.error(0, "Failed to initialize SDL video: " + SDL.getError());
             return false;
         }
 
         // Initialize SDL audio
         #if !no_audio
         if (!SDL.init(SDL.INIT_AUDIO)) {
-            logMessage(0, LogPriority.ERROR, "Failed to initialize SDL audio: " + SDL.getError());
+            __log.error(0, "Failed to initialize SDL audio: " + SDL.getError());
             return false;
         }
         #end
@@ -51,7 +51,7 @@ class Runtime {
         // Initialize SDL joystick
         #if !no_joystick
         if (!SDL.init(SDL.INIT_JOYSTICK)) {
-            logMessage(0, LogPriority.ERROR, "Failed to initialize SDL joystick: " + SDL.getError());
+            __log.error(0, "Failed to initialize SDL joystick: " + SDL.getError());
             return false;
         }
         #end
@@ -59,7 +59,7 @@ class Runtime {
         // Initialize gamepad
         #if !no_gamepad
         if (!SDL.init(SDL.INIT_GAMEPAD)) {
-            logMessage(0, LogPriority.ERROR, "Failed to initialize SDL gamepad: " + SDL.getError());
+            __log.error(0, "Failed to initialize SDL gamepad: " + SDL.getError());
             return false;
         }
         #end
@@ -67,7 +67,7 @@ class Runtime {
         #if !no_haptic
         // Initialize SDL haptic
         if (!SDL.init(SDL.INIT_HAPTIC)) {
-            logMessage(0, LogPriority.ERROR, "Failed to initialize SDL haptic: " + SDL.getError());
+            __log.error(0, "Failed to initialize SDL haptic: " + SDL.getError());
             return false;
         }
         #end
@@ -80,7 +80,7 @@ class Runtime {
         // Create window
         __window = new Window(SDL.createWindow(WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT, SDL.WINDOW_OPENGL));
         if (__window.ptr == null) {
-            logMessage(0, LogPriority.ERROR, "Failed to create window: " + SDL.getError());
+            __log.error(0, "Failed to create window: " + SDL.getError());
             release();
             return false;
         }
@@ -88,7 +88,7 @@ class Runtime {
         // Create OpenGL context
         __context = SDL.createContext(__window.ptr);
         if (__context == null) {
-            logMessage(0, LogPriority.ERROR, "Failed to create OpenGL context: " + SDL.getError());
+            __log.error(0, "Failed to create OpenGL context: " + SDL.getError());
             release();
             return false;
         }
@@ -98,12 +98,12 @@ class Runtime {
         // Load OpenGL functions
         var gladResult = GL.gladLoadGLLoader(SDL.getProcAddress);
         if (gladResult == 0) {
-            logMessage(0, LogPriority.ERROR, "Failed to load OpenGL functions");
+            __log.error(0, "Failed to load OpenGL functions");
             release();
             return false;
         }
 
-        logMessage(0, LogPriority.INFO, "OpenGL version: " + GL.version.major + "." + GL.version.minor + " has been loaded.");
+        __log.info(0, "OpenGL version: " + GL.version.major + "." + GL.version.minor + " has been loaded.");
         
         // Set viewport to match window size
         GL.viewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -116,7 +116,7 @@ class Runtime {
     }
 
     public function release():Void {
-        logMessage(0, LogPriority.INFO, "Finalizing runtime.");
+        __log.info(0, "Finalizing runtime.");
         
         if (__renderer != null) {
             __renderer.release();
@@ -125,7 +125,7 @@ class Runtime {
         
         // Cleanup log system last
         if (__log != null) {
-            __log.cleanup();
+            __log.release();
             __log = null;
         }
 
@@ -544,10 +544,6 @@ class Runtime {
 
     // Log functions
     // Priority hierarchy (low to high): TRACE (0) < VERBOSE (1) < DEBUG (2) < INFO (3) < WARN (4) < ERROR (5) < CRITICAL (6)
-    public function logMessage(category:Int, priority:Int, message:String):Void {
-        SDL.logMessage(category, priority, message);
-    }
-
     public function logTrace(category:Int, message:String):Void {
         SDL.logTrace(category, message);
     }
@@ -580,7 +576,7 @@ class Runtime {
         return SDL.getLogPriority(category);
     }
 
-    public function setLogPriority(category:Int, priority:Int):Void {
+    public function setLogPriority(category:Int, priority:SDL_LogPriority):Void {
         SDL.setLogPriority(category, priority);
     }
 
