@@ -9,8 +9,6 @@ import Log;
 import cpp.UInt64;
 import cpp.Pointer;
 
-
-
 class Runtime {
 
     public var WINDOW_TITLE:String = "Runtime";

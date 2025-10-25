@@ -173,7 +173,11 @@ extern class SDL {
     static function setLogPriorities(priority:SDL_LogPriority):Void;
 
     @:native("SDL_SetLogPriority")
-    static function setLogPriority(category:Int, priority:SDL_LogPriority):Void;
+    public static inline function setLogPriority(category:Int, priority:SDL_LogPriority):Void {
+        untyped __cpp__("SDL_SetLogPriority({0}, static_cast<SDL_LogPriority>({1}))", category, priority);
+    }
+    //static function _setLogPriority(category:Int, priority:SDL_LogPriority):Void;
+
 
     @:native("SDL_GetLogPriority")
     static function getLogPriority(category:Int):Int;
@@ -1261,7 +1265,7 @@ abstract SDL_UserEventType(UInt) from UInt to UInt {
 }
 
 @:enum
-abstract SDL_LogPriority(Int) from Int to Int {
+abstract SDL_LogPriority(UInt32) from UInt32 to UInt32 {
     var SDL_LOG_PRIORITY_INVALID = -1;
     var SDL_LOG_PRIORITY_TRACE = 0;
     var SDL_LOG_PRIORITY_VERBOSE = 1;
