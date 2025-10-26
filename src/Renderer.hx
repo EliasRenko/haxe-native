@@ -68,9 +68,7 @@ class Renderer {
 
         // ---
 
-        if (displayObject.vertices.length == 0) {
-            return;
-        }
+        if (displayObject.vertices.length == 0) return;
 
         // Use the program
         GL.useProgram(displayObject.programInfo.program);
@@ -235,6 +233,8 @@ class Renderer {
         var vbo:UInt = 0; 
         var ebo:UInt = 0;
 
+        // TODO: Implement buffer pooling for better performance
+        // TODO: Move VAO to ProgramInfo level for shared use among multiple DisplayObjects
         // Generate VAO
         var vaoArray = [vao];
         GL.genVertexArrays(1, untyped __cpp__("(unsigned int*)&{0}[0]", vaoArray));
@@ -259,7 +259,6 @@ class Renderer {
      */
     public function uploadVertexData(vao:UInt, vbo:UInt, vertices:Array<Float>):Void {
         
-        
         GL.bindVertexArray(vao);
         GL.bindBuffer(GL.ARRAY_BUFFER, vbo);
         
@@ -269,9 +268,7 @@ class Renderer {
             vertexBytes.setFloat(i * 4, vertices[i]);
         }
         
-        
         GL.bufferData(GL.ARRAY_BUFFER, vertexBytes.length, vertexBytes.getData(), GL.DYNAMIC_DRAW);
-        
     }
 
     /**
