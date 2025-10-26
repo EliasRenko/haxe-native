@@ -94,14 +94,27 @@ extern class GL {
     //@:native("glBufferData")
     //static function bufferData(target:Int, size:GlSizeI, data:RawConstPointer<Void>, usage:Int):Void;
     
-    inline static function bufferData(target:Int, size:Int, data:BytesData, usage:Int) : Void
-        { untyped __cpp__("glBufferData({0}, {1}, (const void*)&({2}[0]), {3})", target, size, data, usage); }
+    inline static function bufferData(target:Int, size:Int, data:BytesData, usage:Int):Void { 
+        untyped __cpp__("glBufferData({0}, {1}, (const void*)&({2}[0]), {3})", target, size, data, usage);
+    }
 
     // @:native("glBufferSubData")
     // static function bufferSubData(target:Int, offset:Int, size:Int, data:cpp.RawPointer<cpp.Void>):Void;
     // inline static function bufferSubData(target:GlEnum, offset:Int, size:Int, data:BytesData):Void {
 	// 	untyped __cpp__("glBufferSubData({0}, {1}, {2}, {3})", target, offset, size, data);
 	// }
+
+	static inline function bufferFloatArray(target:GlEnum, array:Array<cpp.Float32>, usage:GlEnum, arrayLength:Int):Void {
+		return untyped __cpp__("float* _cArray = ((float*)(cpp::Pointer_obj::ofArray({0}).value));
+			glBufferData({1}, sizeof(float) * {3}, _cArray, {2})", array, target, usage, arrayLength);
+	}
+
+    static inline function bufferUIntArray(target:GlEnum, array:Array<cpp.UInt32>, usage:GlEnum, arrayLength:Int):Void {
+		return untyped __cpp__(
+			"unsigned int* _cArray = ((unsigned int*)(cpp::Pointer_obj::ofArray({0}).value));
+			glBufferData({1}, sizeof(unsigned int) * {3}, _cArray, {2})",
+		array, target, usage, arrayLength);
+	}
 
     static inline function bufferSubFloatArray(target:GlEnum, offset:GlInt, array:Array<Float>, arrayLength:Int):Void {
 		return untyped __cpp__(

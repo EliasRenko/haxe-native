@@ -6,6 +6,8 @@ import DisplayObject;
 import data.TextureData;
 import Texture;
 import math.Matrix;
+import cpp.Float32;
+import cpp.UInt32;
 
 typedef RenderState = {
     depthTest:Bool,
@@ -257,34 +259,37 @@ class Renderer {
     /**
      * Upload vertex data to GPU
      */
-    public function uploadVertexData(vao:UInt, vbo:UInt, vertices:Array<Float>):Void {
+    public function uploadVertexData(vao:UInt, vbo:UInt, vertices:Array<Float32>):Void {
         
         GL.bindVertexArray(vao);
         GL.bindBuffer(GL.ARRAY_BUFFER, vbo);
+        GL.bufferFloatArray(GL.ARRAY_BUFFER, vertices, GL.DYNAMIC_DRAW, vertices.length);
         
-        // Convert vertex array to bytes
-        var vertexBytes = haxe.io.Bytes.alloc(vertices.length * 4);
-        for (i in 0...vertices.length) {
-            vertexBytes.setFloat(i * 4, vertices[i]);
-        }
-        
-        GL.bufferData(GL.ARRAY_BUFFER, vertexBytes.length, vertexBytes.getData(), GL.DYNAMIC_DRAW);
+        // TODO: Remove old rendering code
+        // // Convert vertex array to bytes
+        // var vertexBytes = haxe.io.Bytes.alloc(vertices.length * 4);
+        // for (i in 0...vertices.length) {
+        //     vertexBytes.setFloat(i * 4, vertices[i]);
+        // }
+        //var floatArray = haxe.io.Float32Array.fromArray(vertices);
+        //GL.bufferData(GL.ARRAY_BUFFER, floatArray.length, floatArray, GL.DYNAMIC_DRAW);
     }
 
     /**
      * Upload index data to GPU
      */
-    public function uploadIndexData(ebo:UInt, indices:Array<Int>):Void {
+    public function uploadIndexData(ebo:UInt, indices:Array<UInt32>):Void {
         
         if (ebo != 0 && indices.length > 0) {
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, ebo);
-            var indexBytes = haxe.io.Bytes.alloc(indices.length * 4);
-            for (i in 0...indices.length) {
-                indexBytes.setInt32(i * 4, indices[i]);
-            }
             
-
-            GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, indexBytes.length, indexBytes.getData(), GL.DYNAMIC_DRAW);
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, ebo);
+            GL.bufferUIntArray(GL.ELEMENT_ARRAY_BUFFER, indices, GL.DYNAMIC_DRAW, indices.length);
+            // TODO: Remove old rendering code
+            // var indexBytes = haxe.io.Bytes.alloc(indices.length * 4);
+            // for (i in 0...indices.length) {
+            //     indexBytes.setInt32(i * 4, indices[i]);
+            // }
+            //GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, indexBytes.length, indexBytes.getData(), GL.DYNAMIC_DRAW);
         }
     }
 
@@ -394,13 +399,14 @@ class Renderer {
         GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, 0);
     }
 
+    // TODO: programInfo.setupVertexAttributes(this); This must be called in the beginning of the draw. Now it is called for every DisplayObject.
     /**
      * Set up vertex attributes and finalize buffer setup
      */
     public function setupVertexAttributes(programInfo:ProgramInfo):Void {
         programInfo.setupVertexAttributes(this);
         // Unbind buffers
-        GL.bindBuffer(GL.ARRAY_BUFFER, 0);
+        GL.bindBuffer(GL.ARRAY_BUFFER, 0); // TODO: We got bind and unbind separated. Union in 1 function.
         GL.bindVertexArray(0);
     }
 
@@ -443,7 +449,7 @@ class Renderer {
     }
 
 
-
+    // TODO: Move to GL
     public function vertexAttribPointer(index:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:Int):Void {
         untyped __cpp__("glVertexAttribPointer({0}, {1}, {2}, {3} ? GL_TRUE : GL_FALSE, {4}, (void*)(intptr_t){5})", 
             index, size, type, normalized, stride, offset);

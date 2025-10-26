@@ -193,6 +193,7 @@ class ProgramInfo {
 		//trace("Vertex layout finalized: " + totalVertexSize + " bytes per vertex");
 	}
 	
+	// TODO: Must be called once when we init the ProgramInfo for drawing.
 	// ** Setup vertex attributes using glVertexAttribPointer
 	public function setupVertexAttributes(renderer:Renderer):Void {
 		if (!isCompiled) {

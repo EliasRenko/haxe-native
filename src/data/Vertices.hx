@@ -1,11 +1,13 @@
 package data;
 
-@:forward(length, pop, push)
-abstract Vertices(Array<Float>) from Array<Float> to Array<Float> {
-	// Publics
-	public var data(get, never):Array<Float>;
+import cpp.Float32;
 
-    inline public function new(data:Array<Float> = null) {
+@:forward(length, pop, push)
+abstract Vertices(Array<Float32>) from Array<Float32> to Array<Float32> {
+	// Publics
+	public var data(get, never):Array<Float32>;
+
+    inline public function new(data:Array<Float32> = null) {
 		this = data;
     }
 
@@ -15,7 +17,7 @@ abstract Vertices(Array<Float>) from Array<Float> to Array<Float> {
 		}
     }
     
-	public function insert(count:UInt, ?value:Float):Void {
+	public function insert(count:UInt, ?value:Float32):Void {
 		for (value in 0...count) {
 			this.push(1);
 		}
@@ -25,7 +27,7 @@ abstract Vertices(Array<Float>) from Array<Float> to Array<Float> {
 		this[pos] = value;
 	}
 
-	private function get_data():Array<Float> {
+	private function get_data():Array<Float32> {
 		return this;
 	}
 }
