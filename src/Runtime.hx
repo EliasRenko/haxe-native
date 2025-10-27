@@ -17,14 +17,12 @@ class Runtime {
 
     // Publics
     public var active(get, null):Bool;
-    public var renderer(get, null):Renderer;
     public var vsync(get, set):Int;
 
     // Privates
     private var __active:Bool = false;
     private var __window:Window;
     private var __context:GLContext;
-    private var __renderer:Renderer;
 
     // TODO: Move log to App
     private var __log:Log;
@@ -100,24 +98,17 @@ class Runtime {
             release();
             return false;
         }
-
-        __log.info(0, "OpenGL version: " + GL.version.major + "." + GL.version.minor + " has been loaded.");
+        
+        SDL.logInfo(0, "[OpenGL] " + "OpenGL version: " + GL.version.major + "." + GL.version.minor + " has been loaded.");
         
         // Set viewport to match window size
         GL.viewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-        
-        //__renderer = new Renderer(this, WINDOW_WIDTH, WINDOW_HEIGHT);
 
         return true;
     }
 
     public function release():Void {
         __log.info(0, "Finalizing runtime.");
-        
-        if (__renderer != null) {
-            __renderer.release();
-            __renderer = null;
-        }
         
         // Cleanup log system last
         if (__log != null) {
@@ -128,16 +119,7 @@ class Runtime {
         SDL.quit();
     }
 
-    // public function preload():Void {
-    //     // Preload assets here
-    // }
-    
     public function run():Void {
-        if (__renderer == null) {
-            //__log.engineError("Error: Application not initialized! Call init() first.");
-            return;
-        }
-
         __active = true;
         var frameCount = 0;
 
@@ -580,26 +562,17 @@ class Runtime {
         SDL.resetLogPriorities();
     }
 
-    // SDL functions
     public function getLastSDLError():String {
         return SDL.getError();
     }
 
     // Getters and setters
-    public function getRenderer():Renderer {
-        return __renderer;
-    }
-    
     public function getWindow():Dynamic {
         return __window;
     }
     
     private function get_active():Bool {
         return __active;
-    }
-    
-    private function get_renderer():Renderer {
-        return __renderer;
     }
 
 	private function get_vsync():Int {

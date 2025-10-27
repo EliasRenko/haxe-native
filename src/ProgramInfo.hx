@@ -194,6 +194,7 @@ class ProgramInfo {
 	}
 	
 	// TODO: Must be called once when we init the ProgramInfo for drawing.
+	// Also can be move to Renderer class
 	// ** Setup vertex attributes using glVertexAttribPointer
 	public function setupVertexAttributes(renderer:Renderer):Void {
 		if (!isCompiled) {
@@ -208,7 +209,7 @@ class ProgramInfo {
 			renderer.enableVertexAttribArray(attr.location);
 			
 			// Set up the vertex attribute pointer  
-			renderer.vertexAttribPointer(attr.location, attr.size, getGLFormat(attr.format), false, attr.stride, attr.offset);
+			GL.vertexAttribPointer(attr.location, attr.size, getGLFormat(attr.format), false, attr.stride, attr.offset);
 		}
 	}
 	
