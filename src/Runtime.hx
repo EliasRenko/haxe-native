@@ -108,8 +108,6 @@ class Runtime {
         
         //__renderer = new Renderer(this, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-        preload();
-
         return true;
     }
 
@@ -130,9 +128,9 @@ class Runtime {
         SDL.quit();
     }
 
-    public function preload():Void {
-        // Preload assets here
-    }
+    // public function preload():Void {
+    //     // Preload assets here
+    // }
     
     public function run():Void {
         if (__renderer == null) {

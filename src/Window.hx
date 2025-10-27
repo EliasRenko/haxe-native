@@ -1,12 +1,15 @@
 package;
 
+import math.Vec2;
 import cpp.Pointer;
 import SDL;
 
 class Window {
 
     // Publics
+    public var fullscreen(get, null):Bool;
     public var ptr(get, null):WindowPtr;
+    public var size(get, null):Vec2;
 
     // Privates
     private var __windowPtr:WindowPtr;
@@ -15,7 +18,7 @@ class Window {
         __windowPtr = ptr;
     }
 
-    public function getWindowSize():{ width:Int, height:Int } {
+    private function getWindowSize():{ width:Int, height:Int } {
         var w = 0, h = 0;
         var pw:Pointer<Int> = Pointer.addressOf(w);
         var ph:Pointer<Int> = Pointer.addressOf(h);
@@ -23,20 +26,12 @@ class Window {
         return { width: w, height: h };
     }
 
-    public function getWindowSizeInPixels():{ width:Int, height:Int } {
+    private function getWindowSizeInPixels():{ width:Int, height:Int } {
         var w = 0, h = 0;
         var pw:Pointer<Int> = Pointer.addressOf(w);
         var ph:Pointer<Int> = Pointer.addressOf(h);
         SDL.getWindowSizeInPixels(__windowPtr, pw, ph);
         return { width: w, height: h };
-    }
-
-    public function getWindowWidth():Int {
-        return getWindowSizeInPixels().width;
-    }
-
-    public function getWindowHeight():Int {
-        return getWindowSizeInPixels().height;
     }
 
     /** Returns the pixel scale (pixelWidth / logicalWidth) useful for HiDPI handling */
@@ -47,24 +42,24 @@ class Window {
         return (pixels.width / logical.width);
     }
 
-    public function isFullscreen():Bool {
+    // Getters and setters
+    private function get_fullscreen():Bool {
         var props:Int = SDL.getWindowProperties(__windowPtr);
         return (props & SDL.WINDOW_FULLSCREEN) != 0;
     }
 
-    public function setFullscreen(enable:Bool):Bool {
+    private function set_fullscreen(enable:Bool):Bool {
         var res = SDL.setWindowFullscreen(__windowPtr, enable);
         return res == 0;
     }
 
-    public function toggleFullscreen():Bool {
-        var currently = isFullscreen();
-        return setFullscreen(!currently);
-    }
-
-    // Getters and setters
     private function get_ptr():WindowPtr {
         return __windowPtr;
+    }
+
+    private function get_size():Vec2 {
+        var size = getWindowSizeInPixels();
+        return new Vec2(size.width, size.height);
     }
 }
 
