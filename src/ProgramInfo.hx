@@ -209,7 +209,7 @@ class ProgramInfo {
 			renderer.enableVertexAttribArray(attr.location);
 			
 			// Set up the vertex attribute pointer  
-			GL.vertexAttribPointer(attr.location, attr.size, getGLFormat(attr.format), false, attr.stride, attr.offset);
+			renderer.vertexAttribPointer(attr.location, attr.size, getGLFormat(attr.format), false, attr.stride, attr.offset);
 		}
 	}
 	

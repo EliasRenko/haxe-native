@@ -854,10 +854,12 @@ class Renderer {
 		for (i in 0...quadIndices.length) {
 			indexBytes.setInt32(i * 4, quadIndices[i]);
 		}
+        
 		GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, indexBytes.length, indexBytes.getData(), GL.STATIC_DRAW);
 		
 		// Position attribute
-		//GL.vertexAttribPointer(0, 2, GL.FLOAT, false, 4 * 4, untyped __cpp__("(void*)0")); // 4 floats per vertex, stride = 16 bytes
+		
+        GL.vertexAttribPointer(0, 2, GL.FLOAT, false, 4 * 4, untyped __cpp__("(void*)0")); // 4 floats per vertex, stride = 16 bytes
 
 		GL.enableVertexAttribArray(0);
 		
