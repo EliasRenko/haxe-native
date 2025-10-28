@@ -106,13 +106,13 @@ class DisplayObject {
 		// Use Renderer's upload methods
 		renderer.uploadData(this);
 		// TODO: Remove the vertex setup. It contains the unbind for the buffer which must be moved to the upload data.
-		renderer.setupVertexAttributes(programInfo);
+		//renderer.setupVertexAttributes(programInfo);
 		
 		// Clear the update flag
 		needsBufferUpdate = false;
 	}
 
-	public function remove(renderer:Renderer):Void {
+	public function release(renderer:Renderer):Void {
 		if (initialized) {
 			// Use Renderer's buffer cleanup method
 			renderer.deleteBuffers(vao, vbo, ebo);

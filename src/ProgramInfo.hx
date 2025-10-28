@@ -107,6 +107,8 @@ class ProgramInfo {
 	public var textureCount(get, null):Int;
 	public var isCompiled:Bool = false;
 	
+	public var vao:GlUInt = 0;
+
 	// ** Privates
 	private var __name:String;
 	

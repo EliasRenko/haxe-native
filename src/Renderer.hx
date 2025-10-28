@@ -79,6 +79,16 @@ class Renderer {
         if (displayObject.programInfo.program != currentProgram) {
             GL.useProgram(displayObject.programInfo.program);
             currentProgram = displayObject.programInfo.program;
+
+            GL.bindVertexArray(displayObject.vao);
+            for (attr in displayObject.programInfo.attributes) {
+                GL.enableVertexAttribArray(attr.location);
+                //vertexAttribPointer(attr.location, attr.size, getGLFormat(attr.format), false, attr.stride, attr.offset);
+                //GL.vertexAttribPointer(attr.location, attr.size, getGLFormat(attr.format), false, attr.stride, untyped __cpp__("(void*)0"));
+                // todo: Remove untyped cpp
+                untyped __cpp__("glVertexAttribPointer({0}, {1}, {2}, {3} ? GL_TRUE : GL_FALSE, {4}, (void*)(intptr_t){5})", attr.location, attr.size, getGLFormat(attr.format), false, attr.stride, attr.offset);
+            }
+            GL.bindVertexArray(0);
         }
 
         // Bind VAO
@@ -254,6 +264,9 @@ class Renderer {
             GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, displayObject.ebo);
             GL.bufferUIntArray(GL.ELEMENT_ARRAY_BUFFER, displayObject.indices, GL.DYNAMIC_DRAW, displayObject.indices.length);
         }
+
+        GL.bindBuffer(GL.ARRAY_BUFFER, 0);
+        GL.bindVertexArray(0);
     }
 
     /**
@@ -388,12 +401,12 @@ class Renderer {
     /**
      * Set up vertex attributes and finalize buffer setup
      */
-    public function setupVertexAttributes(programInfo:ProgramInfo):Void {
-        programInfo.setupVertexAttributes(this);
-        // Unbind buffers
-        GL.bindBuffer(GL.ARRAY_BUFFER, 0); // TODO: We got bind and unbind separated. Union in 1 function.
-        GL.bindVertexArray(0);
-    }
+    // public function setupVertexAttributes(programInfo:ProgramInfo):Void {
+    //     programInfo.setupVertexAttributes(this);
+    //     // Unbind buffers
+    //     GL.bindBuffer(GL.ARRAY_BUFFER, 0); // TODO: We got bind and unbind separated. Union in 1 function.
+    //     GL.bindVertexArray(0);
+    // }
 
     /**
      * Delete OpenGL buffers - cleanup
@@ -642,8 +655,18 @@ class Renderer {
         return __app;
     }
 
-
-    // 
+    // ** Helper: Convert AttributeFormat to GL constant for rendering
+	private function getGLFormat(format:AttributeFormat):Int {
+		return switch (format) {
+			case AttributeFormat.Float | AttributeFormat.Vec2 | AttributeFormat.Vec3 | AttributeFormat.Vec4: 5126; // GL_FLOAT
+			case AttributeFormat.Int: 5124;          // GL_INT
+			case AttributeFormat.UnsignedInt: 5125;  // GL_UNSIGNED_INT
+			case AttributeFormat.Byte: 5120;         // GL_BYTE
+			case AttributeFormat.UnsignedByte: 5121; // GL_UNSIGNED_BYTE
+			case AttributeFormat.Short: 5122;        // GL_SHORT
+			case AttributeFormat.UnsignedShort: 5123;// GL_UNSIGNED_SHORT
+		}
+	}
 
     // ** Shader compilation and linking
 	public function compileProgramInfo(programInfo:ProgramInfo):Bool {
