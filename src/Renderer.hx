@@ -40,6 +40,7 @@ class Renderer {
     private var __fullscreenQuadVAO:Int = 0;
     private var __fullscreenQuadVBO:Int = 0;
     public var usePostProcessing:Bool = false; // Toggle post-processing on/off
+    private var currentProgram:Int = -1;
     
     public function new(app:App, windowWidth:Int, windowHeight:Int) {
         this.__app = app;
@@ -48,13 +49,14 @@ class Renderer {
     }
     
     public function render():Void {
+        currentProgram = -1;
         frameCount++; // Increment frame counter for debug timing
         
         // Clear screen and depth buffer
-        clearScreen();
+        //clearScreen();
         
         // Initialize rendering state
-        initializeRenderState();
+        //initializeRenderState();
     }
     
     // ** New method to render display objects with provided view-projection matrix
@@ -73,7 +75,11 @@ class Renderer {
         if (displayObject.vertices.length == 0) return;
 
         // Use the program
-        GL.useProgram(displayObject.programInfo.program);
+        //GL.useProgram(displayObject.programInfo.program);
+        if (displayObject.programInfo.program != currentProgram) {
+            GL.useProgram(displayObject.programInfo.program);
+            currentProgram = displayObject.programInfo.program;
+        }
 
         // Bind VAO
         GL.bindVertexArray(displayObject.vao);
@@ -110,8 +116,6 @@ class Renderer {
         }
     }
 
-
-
     private function __renderTextures(programInfo:ProgramInfo, drawable:DisplayObject):Void {
         for (i in 0...programInfo.textures.length) {
             var x = GL.TEXTURE0 + i;
@@ -127,20 +131,6 @@ class Renderer {
             
             drawable.programInfo.textures[i].setter(i);
         }
-    }
-    
-    /**
-     * Register a ProgramInfo with the renderer
-     * This allows States to create and register their ProgramInfos
-     */
-    public function registerProgramInfo(name:String, programInfo:ProgramInfo):Void {
-        if (programInfos.exists(name)) {
-            // TODO: Convert to proper logging system once cross-class access is resolved
-            // trace("Warning: ProgramInfo '" + name + "' already exists, replacing...");
-        }
-        programInfos.set(name, programInfo);
-        // TODO: Convert to proper logging system once cross-class access is resolved
-        // trace("Registered ProgramInfo: " + name);
     }
     
     /**
@@ -256,6 +246,16 @@ class Renderer {
         return {vao: vao, vbo: vbo, ebo: ebo};
     }
 
+    public function uploadData(displayObject:DisplayObject):Void {
+        GL.bindVertexArray(displayObject.vao);
+        GL.bindBuffer(GL.ARRAY_BUFFER, displayObject.vbo);
+        GL.bufferFloatArray(GL.ARRAY_BUFFER, displayObject.vertices, GL.DYNAMIC_DRAW, displayObject.vertices.length);
+        if (displayObject.ebo != 0 && displayObject.indices.length > 0) {
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, displayObject.ebo);
+            GL.bufferUIntArray(GL.ELEMENT_ARRAY_BUFFER, displayObject.indices, GL.DYNAMIC_DRAW, displayObject.indices.length);
+        }
+    }
+
     /**
      * Upload vertex data to GPU
      */
@@ -264,15 +264,6 @@ class Renderer {
         GL.bindVertexArray(vao);
         GL.bindBuffer(GL.ARRAY_BUFFER, vbo);
         GL.bufferFloatArray(GL.ARRAY_BUFFER, vertices, GL.DYNAMIC_DRAW, vertices.length);
-        
-        // TODO: Remove old rendering code
-        // // Convert vertex array to bytes
-        // var vertexBytes = haxe.io.Bytes.alloc(vertices.length * 4);
-        // for (i in 0...vertices.length) {
-        //     vertexBytes.setFloat(i * 4, vertices[i]);
-        // }
-        //var floatArray = haxe.io.Float32Array.fromArray(vertices);
-        //GL.bufferData(GL.ARRAY_BUFFER, floatArray.length, floatArray, GL.DYNAMIC_DRAW);
     }
 
     /**
@@ -284,12 +275,6 @@ class Renderer {
             
             GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, ebo);
             GL.bufferUIntArray(GL.ELEMENT_ARRAY_BUFFER, indices, GL.DYNAMIC_DRAW, indices.length);
-            // TODO: Remove old rendering code
-            // var indexBytes = haxe.io.Bytes.alloc(indices.length * 4);
-            // for (i in 0...indices.length) {
-            //     indexBytes.setInt32(i * 4, indices[i]);
-            // }
-            //GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, indexBytes.length, indexBytes.getData(), GL.DYNAMIC_DRAW);
         }
     }
 

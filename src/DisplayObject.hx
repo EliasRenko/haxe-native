@@ -104,8 +104,8 @@ class DisplayObject {
 		if (!initialized) return;
 		
 		// Use Renderer's upload methods
-		renderer.uploadVertexData(vao, vbo, vertices);
-		renderer.uploadIndexData(ebo, indices);
+		renderer.uploadData(this);
+		// TODO: Remove the vertex setup. It contains the unbind for the buffer which must be moved to the upload data.
 		renderer.setupVertexAttributes(programInfo);
 		
 		// Clear the update flag
