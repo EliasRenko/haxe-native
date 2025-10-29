@@ -107,7 +107,7 @@ class ProgramInfo {
 	public var textureCount(get, null):Int;
 	public var isCompiled:Bool = false;
 	
-	public var vao:GlUInt = 0;
+	//public var vao:GlUInt = 0;
 
 	// ** Privates
 	private var __name:String;
@@ -199,6 +199,7 @@ class ProgramInfo {
 	// Also can be move to Renderer class
 	// ** Setup vertex attributes using glVertexAttribPointer
 	public function setupVertexAttributes(renderer:Renderer):Void {
+
 		if (!isCompiled) {
 			trace("Warning: Program not compiled yet, attributes may not be bound correctly");
 		}

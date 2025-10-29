@@ -75,23 +75,12 @@ class Renderer {
         if (displayObject.vertices.length == 0) return;
 
         // Use the program
-        //GL.useProgram(displayObject.programInfo.program);
         if (displayObject.programInfo.program != currentProgram) {
             GL.useProgram(displayObject.programInfo.program);
             currentProgram = displayObject.programInfo.program;
-
-            GL.bindVertexArray(displayObject.vao);
-            for (attr in displayObject.programInfo.attributes) {
-                GL.enableVertexAttribArray(attr.location);
-                //vertexAttribPointer(attr.location, attr.size, getGLFormat(attr.format), false, attr.stride, attr.offset);
-                //GL.vertexAttribPointer(attr.location, attr.size, getGLFormat(attr.format), false, attr.stride, untyped __cpp__("(void*)0"));
-                // todo: Remove untyped cpp
-                untyped __cpp__("glVertexAttribPointer({0}, {1}, {2}, {3} ? GL_TRUE : GL_FALSE, {4}, (void*)(intptr_t){5})", attr.location, attr.size, getGLFormat(attr.format), false, attr.stride, attr.offset);
-            }
-            GL.bindVertexArray(0);
         }
 
-        // Bind VAO
+        // Bind VAO (this contains all vertex attribute configuration)
         GL.bindVertexArray(displayObject.vao);
 
         // Render uniforms and textures
@@ -401,12 +390,14 @@ class Renderer {
     /**
      * Set up vertex attributes and finalize buffer setup
      */
-    // public function setupVertexAttributes(programInfo:ProgramInfo):Void {
-    //     programInfo.setupVertexAttributes(this);
-    //     // Unbind buffers
-    //     GL.bindBuffer(GL.ARRAY_BUFFER, 0); // TODO: We got bind and unbind separated. Union in 1 function.
-    //     GL.bindVertexArray(0);
-    // }
+    public function setupVertexAttributes(programInfo:ProgramInfo):Void {
+        //GL.bindVertexArray(programInfo.vao);
+        programInfo.setupVertexAttributes(this);
+        GL.bindVertexArray(0);
+        // Unbind buffers
+        //GL.bindBuffer(GL.ARRAY_BUFFER, 0); // TODO: We got bind and unbind separated. Union in 1 function.
+        //GL.bindVertexArray(0);
+    }
 
     /**
      * Delete OpenGL buffers - cleanup

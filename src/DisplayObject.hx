@@ -97,7 +97,18 @@ class DisplayObject {
 		
 		// Set initialized to true BEFORE calling updateBuffers
 		initialized = true;
+		
+		// Upload data first (this binds the buffers)
 		updateBuffers(renderer);
+		
+		// Now set up vertex attributes while buffers are bound
+		GL.bindVertexArray(vao);
+		GL.bindBuffer(GL.ARRAY_BUFFER, vbo);
+		if (ebo != 0) {
+			GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, ebo);
+		}
+		programInfo.setupVertexAttributes(renderer);
+		GL.bindVertexArray(0);
 	}
 	
 	public function updateBuffers(renderer:Renderer):Void {
