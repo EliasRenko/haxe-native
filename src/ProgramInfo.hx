@@ -107,7 +107,9 @@ class ProgramInfo {
 	public var textureCount(get, null):Int;
 	public var isCompiled:Bool = false;
 	
-	//public var vao:GlUInt = 0;
+	// ** VAO for shared vertex attribute configuration (modern OpenGL)
+	public var vao:GlUInt = 0;
+	public var useModernBinding:Bool = false; // True if ARB_vertex_attrib_binding is available
 
 	// ** Privates
 	private var __name:String;
@@ -129,6 +131,9 @@ class ProgramInfo {
 		
 		// Calculate vertex layout for interleaved data
 		finalizeVertexLayout();
+		
+		// Create VAO and set up vertex attributes using modern binding if available
+		initializeVAO(renderer);
 		
 		trace("ProgramInfo '" + name + "' created and introspected successfully!");
 	}
@@ -195,9 +200,48 @@ class ProgramInfo {
 		//trace("Vertex layout finalized: " + totalVertexSize + " bytes per vertex");
 	}
 	
+	/**
+	 * Initialize VAO with vertex attribute configuration
+	 * Uses ARB_vertex_attrib_binding if available, otherwise falls back to classic approach
+	 */
+	private function initializeVAO(renderer:Renderer):Void {
+		// Check if ARB_vertex_attrib_binding is available
+		useModernBinding = GL.GLAD_GL_ARB_vertex_attrib_binding != 0;
+		
+		// Create VAO
+		vao = GL.createVertexArray();
+		GL.bindVertexArray(vao);
+		
+		if (useModernBinding) {
+			// Modern approach: Separate vertex format from buffer binding
+			trace("Using ARB_vertex_attrib_binding for ProgramInfo '" + name + "'");
+			
+			var bindingIndex:UInt = 0; // We'll use binding point 0 for all attributes
+			
+			for (attr in attributes) {
+				// Define attribute format (no VBO binding yet!)
+				GL.vertexAttribFormat(attr.location, attr.size, getGLFormat(attr.format), false, attr.offset);
+				
+				// Bind attribute to binding point
+				GL.vertexAttribBinding(attr.location, bindingIndex);
+				
+				// Enable attribute
+				GL.enableVertexAttribArray(attr.location);
+			}
+			
+			trace("  Modern VAO setup complete - attributes will bind to VBOs at draw time");
+		} else {
+			// Classic approach: Attributes will be set up per DisplayObject with their own VBO
+			trace("ARB_vertex_attrib_binding not available, using classic VAO approach for '" + name + "'");
+			// VAO will be configured when DisplayObject initializes with its VBO
+		}
+		
+		GL.bindVertexArray(0);
+	}
+	
 	// TODO: Must be called once when we init the ProgramInfo for drawing.
 	// Also can be move to Renderer class
-	// ** Setup vertex attributes using glVertexAttribPointer
+	// ** Setup vertex attributes using glVertexAttribPointer (classic approach)
 	public function setupVertexAttributes(renderer:Renderer):Void {
 
 		if (!isCompiled) {
@@ -737,6 +781,14 @@ class ProgramInfo {
 			if (vertexShader != 0) renderer.deleteShader(vertexShader);
 			if (fragmentShader != 0) renderer.deleteShader(fragmentShader);
 		}
+		
+		// Delete VAO
+		if (vao != 0) {
+			var vaoArray = [vao];
+			GL.deleteVertexArrays(1, untyped __cpp__("(const unsigned int*)&{0}[0]", vaoArray));
+			vao = 0;
+		}
+		
 		isCompiled = false;
 	}
 	

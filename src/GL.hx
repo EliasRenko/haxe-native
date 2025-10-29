@@ -51,8 +51,26 @@ extern class GL {
     @:native("GLVersion")
 	static var version:GLversionStruct;
 
+    // Extension support checks
+    @:native("GLAD_GL_ARB_vertex_attrib_binding")
+    public static var GLAD_GL_ARB_vertex_attrib_binding:Int;
+
     static inline function gladLoadGLLoader(loadProc:(name:ConstCharStar) -> cpp.RawPointer<Void>):Int {
         return untyped __cpp__("gladLoadGLLoader((GLADloadproc){0})", loadProc);
+    }
+    
+    // ARB_vertex_attrib_binding functions (OpenGL 4.3+ core / 3.3+ with ARB extension)
+    // Note: These are core in OpenGL 4.3+, so they should be available via GLAD
+    static inline function bindVertexBuffer(bindingindex:UInt, buffer:UInt, offset:Int, stride:Int):Void {
+        untyped __cpp__("glBindVertexBuffer({0}, {1}, {2}, {3})", bindingindex, buffer, offset, stride);
+    }
+    
+    static inline function vertexAttribFormat(attribindex:UInt, size:Int, type:UInt, normalized:Bool, relativeoffset:UInt):Void {
+        untyped __cpp__("glVertexAttribFormat({0}, {1}, {2}, {3}, {4})", attribindex, size, type, normalized, relativeoffset);
+    }
+    
+    static inline function vertexAttribBinding(attribindex:UInt, bindingindex:UInt):Void {
+        untyped __cpp__("glVertexAttribBinding({0}, {1})", attribindex, bindingindex);
     }
 
     @:native("glViewport")

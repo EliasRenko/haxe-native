@@ -89,26 +89,29 @@ class DisplayObject {
 	public function init(renderer:Renderer):Void {
 		if (initialized) return;
 		
-		// Use Renderer's buffer creation method
+		// Create VBO and EBO only (VAO is shared from ProgramInfo)
 		var buffers = renderer.createBuffers(vertices.data.length, indices.data.length);
-		vao = buffers.vao;
+		vao = programInfo.vao; // Use shared VAO from ProgramInfo
 		vbo = buffers.vbo;
 		ebo = buffers.ebo;
 		
 		// Set initialized to true BEFORE calling updateBuffers
 		initialized = true;
 		
-		// Upload data first (this binds the buffers)
+		// Upload data
 		updateBuffers(renderer);
 		
-		// Now set up vertex attributes while buffers are bound
-		GL.bindVertexArray(vao);
-		GL.bindBuffer(GL.ARRAY_BUFFER, vbo);
-		if (ebo != 0) {
-			GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, ebo);
+		// If using classic VAO approach (not ARB_vertex_attrib_binding),
+		// we need to set up vertex attributes for this specific VBO
+		if (!programInfo.useModernBinding) {
+			GL.bindVertexArray(vao);
+			GL.bindBuffer(GL.ARRAY_BUFFER, vbo);
+			if (ebo != 0) {
+				GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, ebo);
+			}
+			programInfo.setupVertexAttributes(renderer);
+			GL.bindVertexArray(0);
 		}
-		programInfo.setupVertexAttributes(renderer);
-		GL.bindVertexArray(0);
 	}
 	
 	public function updateBuffers(renderer:Renderer):Void {
@@ -125,8 +128,8 @@ class DisplayObject {
 
 	public function release(renderer:Renderer):Void {
 		if (initialized) {
-			// Use Renderer's buffer cleanup method
-			renderer.deleteBuffers(vao, vbo, ebo);
+			// Delete VBO and EBO only (VAO belongs to ProgramInfo, not this DisplayObject)
+			renderer.deleteBuffers(0, vbo, ebo); // Pass 0 for VAO to skip deletion
 			vao = 0;
 			vbo = 0;
 			ebo = 0;

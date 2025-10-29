@@ -80,8 +80,18 @@ class Renderer {
             currentProgram = displayObject.programInfo.program;
         }
 
-        // Bind VAO (this contains all vertex attribute configuration)
+        // Bind VAO (shared from ProgramInfo)
         GL.bindVertexArray(displayObject.vao);
+        
+        // If using modern binding (ARB_vertex_attrib_binding), bind this object's VBO to binding point 0
+        if (displayObject.programInfo.useModernBinding) {
+            GL.bindVertexBuffer(0, displayObject.vbo, 0, displayObject.programInfo.dataPerVertex);
+            
+            // Bind EBO if present
+            if (displayObject.ebo != 0 && displayObject.indices.length > 0) {
+                GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, displayObject.ebo);
+            }
+        }
 
         // Render uniforms and textures
         __renderUniforms(displayObject.programInfo, displayObject.uniforms);
@@ -217,19 +227,12 @@ class Renderer {
     // These methods encapsulate all GL operations and should be the only place GL calls are made
 
     /**
-     * Create and manage OpenGL buffers for display objects
+     * Create VBO and EBO for display objects (VAO is now shared from ProgramInfo)
      */
     public function createBuffers(vertexCount:Int, indexCount:Int):{vao:UInt, vbo:UInt, ebo:UInt} {
-        var vao:UInt = 0;
+        var vao:UInt = 0; // Will be set from ProgramInfo
         var vbo:UInt = 0; 
         var ebo:UInt = 0;
-
-        // TODO: Implement buffer pooling for better performance
-        // TODO: Move VAO to ProgramInfo level for shared use among multiple DisplayObjects
-        // Generate VAO
-        var vaoArray = [vao];
-        GL.genVertexArrays(1, untyped __cpp__("(unsigned int*)&{0}[0]", vaoArray));
-        vao = vaoArray[0];
 
         // Generate VBO
         var vboArray = [vbo];
