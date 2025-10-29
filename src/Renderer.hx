@@ -22,17 +22,14 @@ class Renderer {
     public var windowWidth:Int;
     public var windowHeight:Int;
     
-    private var __app:App;
-    
     // Current render state tracking
     private var __currentDepthTest:Bool = true;
     private var __currentDepthWrite:Bool = true;
     private var __currentBlendMode:Bool = false;
+    private var __app:App;
     private var frameCount:Int = 0;
-    
-    // ProgramInfo storage - managed by States, not Renderer
     private var programInfos:Map<String, ProgramInfo> = new Map<String, ProgramInfo>();
-    
+
     // Framebuffer for post-processing
     public var screenFBO:Int = 0;
     public var screenTexture:Int = 0;
@@ -50,13 +47,7 @@ class Renderer {
     
     public function render():Void {
         currentProgram = -1;
-        frameCount++; // Increment frame counter for debug timing
-        
-        // Clear screen and depth buffer
-        //clearScreen();
-        
-        // Initialize rendering state
-        //initializeRenderState();
+        frameCount++;
     }
     
     // ** New method to render display objects with provided view-projection matrix
@@ -81,16 +72,11 @@ class Renderer {
         }
 
         // Bind VAO (shared from ProgramInfo)
-        GL.bindVertexArray(displayObject.vao);
+        GL.bindVertexArray(displayObject.programInfo.vao);
         
-        // If using modern binding (ARB_vertex_attrib_binding), bind this object's VBO to binding point 0
-        if (displayObject.programInfo.useModernBinding) {
-            GL.bindVertexBuffer(0, displayObject.vbo, 0, displayObject.programInfo.dataPerVertex);
-            
-            // Bind EBO if present
-            if (displayObject.ebo != 0 && displayObject.indices.length > 0) {
-                GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, displayObject.ebo);
-            }
+        GL.bindVertexBuffer(0, displayObject.vbo, 0, displayObject.programInfo.dataPerVertex);
+        if (displayObject.ebo != 0 && displayObject.indices.length > 0) {
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, displayObject.ebo);
         }
 
         // Render uniforms and textures
@@ -229,8 +215,7 @@ class Renderer {
     /**
      * Create VBO and EBO for display objects (VAO is now shared from ProgramInfo)
      */
-    public function createBuffers(vertexCount:Int, indexCount:Int):{vao:UInt, vbo:UInt, ebo:UInt} {
-        var vao:UInt = 0; // Will be set from ProgramInfo
+    public function createBuffers(vertexCount:Int, indexCount:Int):{vbo:UInt, ebo:UInt} {
         var vbo:UInt = 0; 
         var ebo:UInt = 0;
 
@@ -245,11 +230,13 @@ class Renderer {
         GL.genBuffers(1, untyped __cpp__("(unsigned int*)&{0}[0]", eboArray));
         ebo = eboArray[0];
 
-        return {vao: vao, vbo: vbo, ebo: ebo};
+        return {vbo: vbo, ebo: ebo};
     }
 
+
+    // Upload vertex data to GPU
     public function uploadData(displayObject:DisplayObject):Void {
-        GL.bindVertexArray(displayObject.vao);
+        GL.bindVertexArray(displayObject.programInfo.vao);
         GL.bindBuffer(GL.ARRAY_BUFFER, displayObject.vbo);
         GL.bufferFloatArray(GL.ARRAY_BUFFER, displayObject.vertices, GL.DYNAMIC_DRAW, displayObject.vertices.length);
         if (displayObject.ebo != 0 && displayObject.indices.length > 0) {
@@ -259,28 +246,6 @@ class Renderer {
 
         GL.bindBuffer(GL.ARRAY_BUFFER, 0);
         GL.bindVertexArray(0);
-    }
-
-    /**
-     * Upload vertex data to GPU
-     */
-    public function uploadVertexData(vao:UInt, vbo:UInt, vertices:Array<Float32>):Void {
-        
-        GL.bindVertexArray(vao);
-        GL.bindBuffer(GL.ARRAY_BUFFER, vbo);
-        GL.bufferFloatArray(GL.ARRAY_BUFFER, vertices, GL.DYNAMIC_DRAW, vertices.length);
-    }
-
-    /**
-     * Upload index data to GPU
-     */
-    public function uploadIndexData(ebo:UInt, indices:Array<UInt32>):Void {
-        
-        if (ebo != 0 && indices.length > 0) {
-            
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, ebo);
-            GL.bufferUIntArray(GL.ELEMENT_ARRAY_BUFFER, indices, GL.DYNAMIC_DRAW, indices.length);
-        }
     }
 
     /**

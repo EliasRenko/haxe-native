@@ -68,7 +68,7 @@ class DisplayObject {
 	public var needsBufferUpdate:Bool = false;
 	
 	// VAO and VBO for this display object
-	public var vao:GlUInt = 0;
+	//public var vao:GlUInt = 0;
 	public var vbo:GlUInt = 0;
 	public var ebo:GlUInt = 0; // Element buffer for indices
 	public var initialized:Bool = false;
@@ -91,7 +91,7 @@ class DisplayObject {
 		
 		// Create VBO and EBO only (VAO is shared from ProgramInfo)
 		var buffers = renderer.createBuffers(vertices.data.length, indices.data.length);
-		vao = programInfo.vao; // Use shared VAO from ProgramInfo
+		//vao = programInfo.vao; // Use shared VAO from ProgramInfo
 		vbo = buffers.vbo;
 		ebo = buffers.ebo;
 		
@@ -103,15 +103,15 @@ class DisplayObject {
 		
 		// If using classic VAO approach (not ARB_vertex_attrib_binding),
 		// we need to set up vertex attributes for this specific VBO
-		if (!programInfo.useModernBinding) {
-			GL.bindVertexArray(vao);
-			GL.bindBuffer(GL.ARRAY_BUFFER, vbo);
-			if (ebo != 0) {
-				GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, ebo);
-			}
-			programInfo.setupVertexAttributes(renderer);
-			GL.bindVertexArray(0);
-		}
+		// if (!programInfo.useModernBinding) {
+		// 	GL.bindVertexArray(vao);
+		// 	GL.bindBuffer(GL.ARRAY_BUFFER, vbo);
+		// 	if (ebo != 0) {
+		// 		GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, ebo);
+		// 	}
+		// 	programInfo.setupVertexAttributes(renderer);
+		// 	GL.bindVertexArray(0);
+		// }
 	}
 	
 	public function updateBuffers(renderer:Renderer):Void {
@@ -130,7 +130,6 @@ class DisplayObject {
 		if (initialized) {
 			// Delete VBO and EBO only (VAO belongs to ProgramInfo, not this DisplayObject)
 			renderer.deleteBuffers(0, vbo, ebo); // Pass 0 for VAO to skip deletion
-			vao = 0;
 			vbo = 0;
 			ebo = 0;
 			initialized = false;
