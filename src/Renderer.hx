@@ -1,5 +1,6 @@
 package;
 
+import cpp.RawPointer;
 import GL;
 import ProgramInfo;
 import DisplayObject;
@@ -8,6 +9,7 @@ import Texture;
 import math.Matrix;
 import cpp.Float32;
 import cpp.UInt32;
+import Framebuffer;
 
 typedef RenderState = {
     depthTest:Bool,
@@ -31,8 +33,7 @@ class Renderer {
     private var programInfos:Map<String, ProgramInfo> = new Map<String, ProgramInfo>();
 
     // Framebuffer for post-processing
-    public var screenFBO:Int = 0;
-    public var screenTexture:Int = 0;
+    public var framebuffer:Framebuffer = null;
     public var postProcessShader:ProgramInfo = null;
     private var __fullscreenQuadVAO:Int = 0;
     private var __fullscreenQuadVBO:Int = 0;
@@ -215,24 +216,33 @@ class Renderer {
     /**
      * Create VBO and EBO for display objects (VAO is now shared from ProgramInfo)
      */
-    public function createBuffers(vertexCount:Int, indexCount:Int):{vbo:UInt, ebo:UInt} {
-        var vbo:UInt = 0; 
-        var ebo:UInt = 0;
+    // public static function createBuffers(vertexCount:Int, indexCount:Int):{vbo:UInt, ebo:UInt} {
+    //     var vbo:UInt = 0; 
+    //     var ebo:UInt = 0;
 
-        // Generate VBO
-        var vboArray = [vbo];
-        GL.genBuffers(1, untyped __cpp__("(unsigned int*)&{0}[0]", vboArray));
-        vbo = vboArray[0];
+    //     // Generate VBO
+    //     var vboArray = [vbo];
+    //     GL.genBuffers(1, untyped __cpp__("(unsigned int*)&{0}[0]", vboArray));
+    //     vbo = vboArray[0];
 
-        // Always generate EBO - even if we don't need indices initially, we might later
-        // This is needed for tilemaps that start empty but get indices when atlas is set
-        var eboArray = [ebo];
-        GL.genBuffers(1, untyped __cpp__("(unsigned int*)&{0}[0]", eboArray));
-        ebo = eboArray[0];
+    //     // Always generate EBO - even if we don't need indices initially, we might later
+    //     // This is needed for tilemaps that start empty but get indices when atlas is set
+    //     var eboArray = [ebo];
+    //     GL.genBuffers(1, untyped __cpp__("(unsigned int*)&{0}[0]", eboArray));
+    //     ebo = eboArray[0];
+
+    //     return {vbo: vbo, ebo: ebo};
+    // }
+
+    public function createBuffers(vertexCount:Int, indexCount:Int):{vbo:GlUInt, ebo:GlUInt} {
+
+        var vbo:GlUInt = 0;
+        var ebo:GlUInt = 0;
+        GL.genBuffers(1, RawPointer.addressOf(vbo));
+        GL.genBuffers(1, RawPointer.addressOf(ebo));
 
         return {vbo: vbo, ebo: ebo};
     }
-
 
     // Upload vertex data to GPU
     public function uploadData(displayObject:DisplayObject):Void {
@@ -370,11 +380,11 @@ class Renderer {
     /**
      * Delete OpenGL buffers - cleanup
      */
-    public function deleteBuffers(vao:UInt, vbo:UInt, ebo:UInt):Void {
-        if (vao != 0) {
-            var vaoArray = [vao];
-            GL.deleteVertexArrays(1, untyped __cpp__("(const unsigned int*)&{0}[0]", vaoArray));
-        }
+    public function deleteBuffers(vbo:UInt, ebo:UInt):Void {
+        // if (vao != 0) {
+        //     var vaoArray = [vao];
+        //     GL.deleteVertexArrays(1, untyped __cpp__("(const unsigned int*)&{0}[0]", vaoArray));
+        // }
         if (vbo != 0) {
             var vboArray = [vbo];
             GL.deleteBuffers(1, untyped __cpp__("(const unsigned int*)&{0}[0]", vboArray));
@@ -486,6 +496,12 @@ class Renderer {
         setDepthTest(true);
         setDepthWrite(true);
         setBlendMode(false);
+        
+        // Cleanup framebuffer
+        if (framebuffer != null) {
+            framebuffer.dispose();
+            framebuffer = null;
+        }
         
         // Cleanup all registered ProgramInfos
         for (name in programInfos.keys()) {
@@ -713,8 +729,8 @@ class Renderer {
 	 * Initialize the post-processing framebuffer and fullscreen quad
 	 */
 	public function initializePostProcessing():Void {
-		// Create framebuffer and texture
-		createFramebuffer(windowWidth, windowHeight);
+		// Create framebuffer
+		framebuffer = new Framebuffer(windowWidth, windowHeight, false, true);
 		
 		// Create fullscreen quad for rendering
 		createFullscreenQuad();
@@ -746,37 +762,6 @@ class Renderer {
 		postProcessShader = createProgramInfo("PostProcess", vertShader, fragShader);
 		
 		trace("Renderer: Post-processing initialized");
-	}
-	
-	/**
-	 * Create framebuffer with color texture attachment
-	 */
-	private function createFramebuffer(width:Int, height:Int):Void {
-		// Create framebuffer
-		screenFBO = GL.createFramebuffer();
-		GL.bindFramebuffer(GL.FRAMEBUFFER, screenFBO);
-		
-		// Create color texture
-		screenTexture = GL.createTexture();
-		GL.bindTexture(GL.TEXTURE_2D, screenTexture);
-		GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, width, height, 0, GL.RGBA, GL.UNSIGNED_BYTE, null);
-		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR);
-		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
-		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
-		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
-		
-		// Attach texture to framebuffer
-		GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, screenTexture, 0);
-		
-		// Check framebuffer status
-		if (GL.checkFramebufferStatus(GL.FRAMEBUFFER) != GL.FRAMEBUFFER_COMPLETE) {
-			trace("ERROR: Framebuffer is not complete!");
-		}
-		
-		// Unbind framebuffer
-		GL.bindFramebuffer(GL.FRAMEBUFFER, 0);
-		
-		trace("Renderer: Created framebuffer " + width + "x" + height);
 	}
 	
 	/**
@@ -843,15 +828,18 @@ class Renderer {
 	 * Bind the framebuffer for rendering
 	 */
 	public function bindFramebuffer():Void {
-		GL.bindFramebuffer(GL.FRAMEBUFFER, screenFBO);
-		GL.viewport(0, 0, windowWidth, windowHeight);
+		if (framebuffer != null) {
+			framebuffer.bind();
+		}
 	}
 	
 	/**
 	 * Unbind the framebuffer (render to screen)
 	 */
 	public function unbindFramebuffer():Void {
-		GL.bindFramebuffer(GL.FRAMEBUFFER, 0);
+		if (framebuffer != null) {
+			framebuffer.unbind();
+		}
 		GL.viewport(0, 0, windowWidth, windowHeight);
 	}
 	
@@ -859,17 +847,21 @@ class Renderer {
 	 * Render the framebuffer texture to screen with post-process shader
 	 */
 	public function renderToScreen():Void {
+		if (framebuffer == null || postProcessShader == null) {
+			trace("Warning: Post-processing not initialized");
+			return;
+		}
+		
 		// Use post-process shader
 		GL.useProgram(postProcessShader.program);
 		
-		// Bind screen texture
-		GL.activeTexture(GL.TEXTURE0);
-		GL.bindTexture(GL.TEXTURE_2D, screenTexture);
+		// Bind framebuffer's color texture
+		framebuffer.bindColorTexture(0);
 		
 		// Set uniform
 		var uniformInfo = postProcessShader.getUniform("uScreenTexture");
 		if (uniformInfo != null) {
-			uniformInfo.setter(uniformInfo.location, 0);
+			uniformInfo.setter(0);
 		}
 		
 		// Render fullscreen quad

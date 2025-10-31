@@ -21,6 +21,7 @@ class BlendFactor {
 
 class DisplayObject {
 	//** Publics
+	public var active:Bool = false;
 	public var bufferId:UInt = 0;
 	public var mode:Int = GL.TRIANGLES; // Use proper GL constant
 	public var blendFactors:BlendFactors;
@@ -31,9 +32,7 @@ class DisplayObject {
 	public var matrix:Matrix = new Matrix();
 	public var uniforms:Map<String, Dynamic> = new Map<String, Dynamic>();
 	public var visible:Bool = true;
-	public var signature:String = "";
 
-	// Transformation properties
 	public var x:Float = 0.0;
 	public var y:Float = 0.0;
 	public var z:Float = 0.0;
@@ -46,10 +45,6 @@ class DisplayObject {
 	public var scaleX:Float = 1.0;
 	public var scaleY:Float = 1.0;
 	public var scaleZ:Float = 1.0;
-
-	// Scene graph support
-	public var parent:DisplayObject = null;
-	public var children:Array<DisplayObject> = [];
 	
 	// Rendering properties
 	public var depthTest:Bool = true;
@@ -57,12 +52,8 @@ class DisplayObject {
 	public var cullFace:Bool = false; // Set to true for 3D objects
 
 	// ** Privates.
-	private var __shouldTransform:Bool = false;
 	public var __verticesToRender:Int = 0;
 	public var __indicesToRender:UInt = 0;
-	
-	// Debug frame counter
-	private var framesSinceLastMatrixDebug:Int = 0;
 	
 	// Flag to indicate buffers need updating
 	public var needsBufferUpdate:Bool = false;
@@ -71,7 +62,6 @@ class DisplayObject {
 	//public var vao:GlUInt = 0;
 	public var vbo:GlUInt = 0;
 	public var ebo:GlUInt = 0; // Element buffer for indices
-	public var initialized:Bool = false;
 	
 	public function new(programInfo:ProgramInfo, vertices:Vertices, ?indices:Indices) {
 		if (programInfo == null) throw 'programInfo cannot be null';
@@ -87,52 +77,29 @@ class DisplayObject {
 	}
 
 	public function init(renderer:Renderer):Void {
-		if (initialized) return;
-		
-		// Create VBO and EBO only (VAO is shared from ProgramInfo)
+		if (active) return;
 		var buffers = renderer.createBuffers(vertices.data.length, indices.data.length);
-		//vao = programInfo.vao; // Use shared VAO from ProgramInfo
+
 		vbo = buffers.vbo;
 		ebo = buffers.ebo;
 		
-		// Set initialized to true BEFORE calling updateBuffers
-		initialized = true;
-		
-		// Upload data
+		active = true;
 		updateBuffers(renderer);
-		
-		// If using classic VAO approach (not ARB_vertex_attrib_binding),
-		// we need to set up vertex attributes for this specific VBO
-		// if (!programInfo.useModernBinding) {
-		// 	GL.bindVertexArray(vao);
-		// 	GL.bindBuffer(GL.ARRAY_BUFFER, vbo);
-		// 	if (ebo != 0) {
-		// 		GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, ebo);
-		// 	}
-		// 	programInfo.setupVertexAttributes(renderer);
-		// 	GL.bindVertexArray(0);
-		// }
 	}
 	
 	public function updateBuffers(renderer:Renderer):Void {
-		if (!initialized) return;
-		
-		// Use Renderer's upload methods
+		if (!active) return;
+	
 		renderer.uploadData(this);
-		// TODO: Remove the vertex setup. It contains the unbind for the buffer which must be moved to the upload data.
-		//renderer.setupVertexAttributes(programInfo);
-		
-		// Clear the update flag
 		needsBufferUpdate = false;
 	}
 
 	public function release(renderer:Renderer):Void {
-		if (initialized) {
-			// Delete VBO and EBO only (VAO belongs to ProgramInfo, not this DisplayObject)
-			renderer.deleteBuffers(0, vbo, ebo); // Pass 0 for VAO to skip deletion
+		if (active) {
+			renderer.deleteBuffers(vbo, ebo);
 			vbo = 0;
 			ebo = 0;
-			initialized = false;
+			active = false;
 		}
 	}
 	

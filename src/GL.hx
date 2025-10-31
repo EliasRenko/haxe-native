@@ -693,8 +693,18 @@ extern class GL {
     static var FRAMEBUFFER(default, null):Int;
     @:native("GL_COLOR_ATTACHMENT0")
     static var COLOR_ATTACHMENT0(default, null):Int;
+    @:native("GL_DEPTH_ATTACHMENT")
+    static var DEPTH_ATTACHMENT(default, null):Int;
     @:native("GL_FRAMEBUFFER_COMPLETE")
     static var FRAMEBUFFER_COMPLETE(default, null):Int;
+    
+    // Depth constants
+    @:native("GL_DEPTH_COMPONENT")
+    static var DEPTH_COMPONENT(default, null):Int;
+    
+    // Renderbuffer constants
+    @:native("GL_RENDERBUFFER")
+    static var RENDERBUFFER(default, null):Int;
     
     // Framebuffer functions
     @:native("glGenFramebuffers")
@@ -711,6 +721,22 @@ extern class GL {
     
     @:native("glDeleteFramebuffers")
     static function deleteFramebuffers(n:Int, framebuffers:RawPointer<UInt>):Void;
+    
+    // Renderbuffer functions
+    @:native("glGenRenderbuffers")
+    static function genRenderbuffers(n:Int, renderbuffers:RawPointer<UInt>):Void;
+    
+    @:native("glBindRenderbuffer")
+    static function bindRenderbuffer(target:Int, renderbuffer:UInt):Void;
+    
+    @:native("glRenderbufferStorage")
+    static function renderbufferStorage(target:Int, internalformat:Int, width:Int, height:Int):Void;
+    
+    @:native("glFramebufferRenderbuffer")
+    static function framebufferRenderbuffer(target:Int, attachment:Int, renderbuffertarget:Int, renderbuffer:UInt):Void;
+    
+    @:native("glDeleteRenderbuffers")
+    static function deleteRenderbuffers(n:Int, renderbuffers:RawPointer<UInt>):Void;
     
     // Helper functions for single framebuffer creation/deletion
     static inline function createFramebuffer():UInt {
