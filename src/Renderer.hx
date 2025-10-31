@@ -1,5 +1,7 @@
 package;
 
+import cpp.RawConstPointer;
+import cpp.ConstCharStar;
 import cpp.RawPointer;
 import GL;
 import ProgramInfo;
@@ -210,31 +212,10 @@ class Renderer {
         }
         return names;
     }
+
     // ===== RENDERING PIPELINE METHODS =====
-    // These methods encapsulate all GL operations and should be the only place GL calls are made
 
-    /**
-     * Create VBO and EBO for display objects (VAO is now shared from ProgramInfo)
-     */
-    // public static function createBuffers(vertexCount:Int, indexCount:Int):{vbo:UInt, ebo:UInt} {
-    //     var vbo:UInt = 0; 
-    //     var ebo:UInt = 0;
-
-    //     // Generate VBO
-    //     var vboArray = [vbo];
-    //     GL.genBuffers(1, untyped __cpp__("(unsigned int*)&{0}[0]", vboArray));
-    //     vbo = vboArray[0];
-
-    //     // Always generate EBO - even if we don't need indices initially, we might later
-    //     // This is needed for tilemaps that start empty but get indices when atlas is set
-    //     var eboArray = [ebo];
-    //     GL.genBuffers(1, untyped __cpp__("(unsigned int*)&{0}[0]", eboArray));
-    //     ebo = eboArray[0];
-
-    //     return {vbo: vbo, ebo: ebo};
-    // }
-
-    public function createBuffers(vertexCount:Int, indexCount:Int):{vbo:GlUInt, ebo:GlUInt} {
+    public function createBuffers():{vbo:GlUInt, ebo:GlUInt} {
 
         var vbo:GlUInt = 0;
         var ebo:GlUInt = 0;
@@ -380,19 +361,24 @@ class Renderer {
     /**
      * Delete OpenGL buffers - cleanup
      */
-    public function deleteBuffers(vbo:UInt, ebo:UInt):Void {
-        // if (vao != 0) {
-        //     var vaoArray = [vao];
-        //     GL.deleteVertexArrays(1, untyped __cpp__("(const unsigned int*)&{0}[0]", vaoArray));
-        // }
-        if (vbo != 0) {
-            var vboArray = [vbo];
-            GL.deleteBuffers(1, untyped __cpp__("(const unsigned int*)&{0}[0]", vboArray));
-        }
-        if (ebo != 0) {
-            var eboArray = [ebo];
-            GL.deleteBuffers(1, untyped __cpp__("(const unsigned int*)&{0}[0]", eboArray));
-        }
+    // public function deleteBuffers(vbo:UInt, ebo:UInt):Void {
+    //     // if (vao != 0) {
+    //     //     var vaoArray = [vao];
+    //     //     GL.deleteVertexArrays(1, untyped __cpp__("(const unsigned int*)&{0}[0]", vaoArray));
+    //     // }
+    //     if (vbo != 0) {
+    //         var vboArray = [vbo];
+    //         GL.deleteBuffers(1, untyped __cpp__("(const unsigned int*)&{0}[0]", vboArray));
+    //     }
+    //     if (ebo != 0) {
+    //         var eboArray = [ebo];
+    //         GL.deleteBuffers(1, untyped __cpp__("(const unsigned int*)&{0}[0]", eboArray));
+    //     }
+    // }
+
+    public function deleteBuffers(vbo:GlUInt, ebo:GlUInt):Void {
+        GL.deleteBuffers(1, RawPointer.addressOf(vbo));
+        GL.deleteBuffers(1, RawPointer.addressOf(ebo));
     }
 
     /**
@@ -430,9 +416,12 @@ class Renderer {
             return null;
         }
         
-        var textureArray:Array<UInt> = [0];
-        GL.genTextures(1, untyped __cpp__("(unsigned int*)&{0}[0]", textureArray));
-        var textureId:UInt = textureArray[0];
+        // var textureArray:Array<UInt> = [0];
+        // GL.genTextures(1, untyped __cpp__("(unsigned int*)&{0}[0]", textureArray));
+        // var textureId:UInt = textureArray[0];
+
+        var textureId:GlUInt = 0;
+        GL.genTextures(1, RawPointer.addressOf(textureId));
         
         GL.bindTexture(GL.TEXTURE_2D, textureId);
         
@@ -462,24 +451,10 @@ class Renderer {
             default:
                 throw "Unsupported texture format: " + textureData.bytesPerPixel + " bytes per pixel";
         }
-        
-        // Convert UInt8Array to Bytes for OpenGL upload
-        var bytes = haxe.io.Bytes.alloc(textureData.width * textureData.height * textureData.bytesPerPixel);
-        for (i in 0...bytes.length) {
-            bytes.set(i, textureData.bytes[i]);
-        }
-        
-        untyped __cpp__("glTexImage2D(GL_TEXTURE_2D, 0, {0}, {1}, {2}, 0, {3}, GL_UNSIGNED_BYTE, (unsigned char*){4}->b->GetBase())", 
-            internalFormat, textureData.width, textureData.height, format, bytes);
-        
-        // Debug output for texture format
-        trace("Texture uploaded: " + textureData.width + "x" + textureData.height + ", BPP=" + textureData.bytesPerPixel + 
-              ", internalFormat=" + internalFormat + ", format=" + format);
-        
-        // Unbind texture
+                    
+        GL.texImage2D(GL.TEXTURE_2D, 0, internalFormat, textureData.width, textureData.height, 0, format, GL.UNSIGNED_BYTE, textureData.bytes.getData().bytes);
         GL.bindTexture(GL.TEXTURE_2D, 0);
-        
-        // Create and return Texture object
+
         var texture:Texture = {
             id: textureId,
             width: textureData.width,
@@ -487,7 +462,7 @@ class Renderer {
             bpp: textureData.bytesPerPixel,
             target: GL.TEXTURE_2D
         };
-        trace("Uploaded texture: ID=" + texture.id + " Size=" + texture.width + "x" + texture.height);
+        
         return texture;
     }
 
@@ -541,11 +516,10 @@ class Renderer {
     public function setBlendMode(enabled:Bool):Void {
         if (__currentBlendMode != enabled) {
             if (enabled) {
-                // For now, use direct call until BLEND constant is added
-                untyped __cpp__("glEnable(GL_BLEND)");
+                GL.glEnable(GL.BLEND);
                 GL.blendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA);
             } else {
-                untyped __cpp__("glDisable(GL_BLEND)");
+                GL.glDisable(GL.BLEND);
             }
             __currentBlendMode = enabled;
         }
@@ -574,9 +548,9 @@ class Renderer {
         return GL.createShader(type);
     }
 
-    public function shaderSource(shader:Int, source:String):Void {
-        untyped __cpp__("\n            const char* shaderSource = {1}.__s;\n            glShaderSource({0}, 1, &shaderSource, NULL);\n        ", shader, source);
-    }
+    // public function shaderSource(shader:Int, source:String):Void {
+    //     untyped __cpp__("\n            const char* shaderSource = {1}.__s;\n            glShaderSource({0}, 1, &shaderSource, NULL);\n        ", shader, source);
+    // }
 
     public function compileShader(shader:Int):Void {
         GL.compileShader(shader);
@@ -646,10 +620,13 @@ class Renderer {
     // ** Shader compilation and linking
 	public function compileProgramInfo(programInfo:ProgramInfo):Bool {
 		if (programInfo.isCompiled) return true;
-		
+
+        var vertContent = ConstCharStar.fromString(programInfo.vertexShaderSource);
+        var fragContent = ConstCharStar.fromString(programInfo.fragmentShaderSource);
+
 		// Vertex shader
 		programInfo.vertexShader = createShader(GL.VERTEX_SHADER);
-		shaderSource(programInfo.vertexShader, programInfo.vertexShaderSource);
+		GL.shaderSource(programInfo.vertexShader, 1, RawPointer.addressOf(vertContent), null);
 		compileShader(programInfo.vertexShader);
 		if (!checkShaderCompilation(programInfo.vertexShader, "Vertex")) {
 			trace("Vertex shader compilation failed!");
@@ -658,7 +635,7 @@ class Renderer {
 		
 		// Fragment shader
 		programInfo.fragmentShader = createShader(GL.FRAGMENT_SHADER);
-		shaderSource(programInfo.fragmentShader, programInfo.fragmentShaderSource);
+		GL.shaderSource(programInfo.fragmentShader, 1, RawPointer.addressOf(fragContent), null);
 		compileShader(programInfo.fragmentShader);
 		if (!checkShaderCompilation(programInfo.fragmentShader, "Fragment")) {
 			trace("Fragment shader compilation failed!");

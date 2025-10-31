@@ -78,7 +78,7 @@ class DisplayObject {
 
 	public function init(renderer:Renderer):Void {
 		if (active) return;
-		var buffers = renderer.createBuffers(vertices.data.length, indices.data.length);
+		var buffers = renderer.createBuffers();
 
 		vbo = buffers.vbo;
 		ebo = buffers.ebo;

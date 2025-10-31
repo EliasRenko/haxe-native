@@ -1,5 +1,6 @@
 package;
 
+import haxe.io.Bytes;
 import cpp.RawConstPointer;
 import cpp.ConstCharStar;
 import cpp.ConstPointer;
@@ -461,14 +462,16 @@ extern class GL {
     @:native("glBindTexture")
     static function bindTexture(target:Int, texture:GlUInt):Void;                                        
     
-    // ** TODO: UNTYPED
-    inline static function texImage1D(target:GlEnum, level:GlInt, internalFormat:GlInt, width:GlSizeI, border:GlInt, format:GlEnum, type:GlEnum, pixels:Any):Void {
-		untyped __cpp__("glTexImage1D({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7})", target, level, internalFormat, width, border, format, type, pixels);
+    inline static function texImage1D(target:GlEnum, level:GlInt, internalFormat:GlInt, width:GlSizeI, border:GlInt, format:GlEnum, type:GlEnum, pixels:BytesData):Void {
+		untyped __cpp__("glTexImage1D({0}, {1}, {2}, {3}, {4}, {5}, {6}, (const void*)&({7}[0]))", target, level, internalFormat, width, border, format, type, pixels);
 	}
 
-    // ** TODO: UNTYPED
-	inline static function texImage2D(target:GlEnum, level:GlInt, internalFormat:GlInt, width:GlSizeI, height:GlSizeI, border:GlInt, format:GlEnum, type:GlEnum, pixels:cpp.Star<cpp.UInt8>):Void {
-		untyped __cpp__("glTexImage2D({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8})", target, level, internalFormat, width, height, border, format, type, pixels);
+	inline static function texImage2D(target:GlEnum, level:GlInt, internalFormat:GlInt, width:GlSizeI, height:GlSizeI, border:GlInt, format:GlEnum, type:GlEnum, pixels:Bytes):Void {
+		if (pixels == null) {
+			untyped __cpp__("glTexImage2D({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, NULL)", target, level, internalFormat, width, height, border, format, type);
+		} else {
+			untyped __cpp__("glTexImage2D({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, (const unsigned char*){8}->b->GetBase())", target, level, internalFormat, width, height, border, format, type, pixels);
+		}
 	}
 
     static inline function deleteTextures(n:GlSizeI, textures:RawPointer<GlUInt>):Void {
@@ -687,6 +690,9 @@ extern class GL {
     static var SRC_ALPHA(default, null):Int;
     @:native("GL_ONE_MINUS_SRC_ALPHA")
     static var ONE_MINUS_SRC_ALPHA(default, null):Int;
+
+    @:native("GL_BLEND")
+	static var BLEND:Int;
 
     // Framebuffer constants
     @:native("GL_FRAMEBUFFER")
