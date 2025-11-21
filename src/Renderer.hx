@@ -253,7 +253,7 @@ class Renderer {
         GL.bindBuffer(GL.ARRAY_BUFFER, displayObject.vbo);
         var vertexBufferSize = maxTiles * 4 * 5 * 4; // tiles × vertices × floats × 4 bytes
         // Use GL_STREAM_DRAW for buffers that will be orphaned frequently
-        untyped __cpp__("glBufferData({0}, {1}, nullptr, {2})", GL.ARRAY_BUFFER, vertexBufferSize, GL.STREAM_DRAW);
+        untyped __cpp__("glBufferData({0}, {1}, NULL, {2})", GL.ARRAY_BUFFER, vertexBufferSize, GL.STREAM_DRAW);
         
         // Upload index buffer once (indices never change)
         if (displayObject.ebo != 0 && displayObject.indices.length > 0) {
