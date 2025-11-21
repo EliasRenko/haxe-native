@@ -153,6 +153,8 @@ extern class GL {
     static var STATIC_DRAW(default, null):Int;
     @:native("GL_DYNAMIC_DRAW")
     static var DYNAMIC_DRAW(default, null):Int;
+    @:native("GL_STREAM_DRAW")
+    static var STREAM_DRAW(default, null):Int;
 
     @:native("GL_BUFFER_SIZE")
     static var BUFFER_SIZE(default, null):GlEnum;

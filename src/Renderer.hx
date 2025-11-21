@@ -57,14 +57,10 @@ class Renderer {
     public function renderDisplayObject(displayObject:DisplayObject, viewProjectionMatrix:math.Matrix):Void {
         if (!displayObject.visible) return;
         
-        // Update buffers if needed
-        if (displayObject.needsBufferUpdate) {
-            displayObject.updateBuffers(this);
-        }
+        // ALWAYS update buffers for orphaning strategy (rebuilds every frame)
+        displayObject.updateBuffers(this);
         
         displayObject.render(viewProjectionMatrix);
-
-        // ---
 
         if (displayObject.vertices.length == 0) return;
 
@@ -77,7 +73,13 @@ class Renderer {
         // Bind VAO (shared from ProgramInfo)
         GL.bindVertexArray(displayObject.programInfo.vao);
         
+        // Bind VBO to ARRAY_BUFFER (required for compatibility with data upload)
+        GL.bindBuffer(GL.ARRAY_BUFFER, displayObject.vbo);
+        
+        // Also bind using modern ARB_vertex_attrib_binding
         GL.bindVertexBuffer(0, displayObject.vbo, 0, displayObject.programInfo.dataPerVertex);
+        
+        // Bind element buffer if available
         if (displayObject.ebo != 0 && displayObject.indices.length > 0) {
             GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, displayObject.ebo);
         }
@@ -235,6 +237,52 @@ class Renderer {
             GL.bufferUIntArray(GL.ELEMENT_ARRAY_BUFFER, displayObject.indices, GL.DYNAMIC_DRAW, displayObject.indices.length);
         }
 
+        GL.bindBuffer(GL.ARRAY_BUFFER, 0);
+        GL.bindVertexArray(0);
+    }
+    
+    /**
+     * Allocate buffers for TileBatch (called once)
+     * @param displayObject TileBatch object
+     * @param maxTiles Maximum tile capacity
+     */
+    public function allocateTileBatchBuffers(displayObject:DisplayObject, maxTiles:Int):Void {
+        GL.bindVertexArray(displayObject.programInfo.vao);
+        
+        // Allocate vertex buffer (4 vertices × 5 floats per tile)
+        GL.bindBuffer(GL.ARRAY_BUFFER, displayObject.vbo);
+        var vertexBufferSize = maxTiles * 4 * 5 * 4; // tiles × vertices × floats × 4 bytes
+        // Use GL_STREAM_DRAW for buffers that will be orphaned frequently
+        untyped __cpp__("glBufferData({0}, {1}, nullptr, {2})", GL.ARRAY_BUFFER, vertexBufferSize, GL.STREAM_DRAW);
+        
+        // Upload index buffer once (indices never change)
+        if (displayObject.ebo != 0 && displayObject.indices.length > 0) {
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, displayObject.ebo);
+            GL.bufferUIntArray(GL.ELEMENT_ARRAY_BUFFER, displayObject.indices, GL.STATIC_DRAW, displayObject.indices.length);
+        }
+        
+        GL.bindBuffer(GL.ARRAY_BUFFER, 0);
+        GL.bindVertexArray(0);
+    }
+    
+    /**
+     * Orphan and upload TileBatch vertex data (called every frame)
+     * @param displayObject TileBatch object
+     */
+    public function orphanAndUploadTileBatch(displayObject:DisplayObject):Void {
+        if (displayObject.vertices.length == 0) return;
+        
+        GL.bindVertexArray(displayObject.programInfo.vao);
+        GL.bindBuffer(GL.ARRAY_BUFFER, displayObject.vbo);
+        
+        // Orphan buffer - tell driver we don't need old data
+        var vertexBufferSize = 1000 * 4 * 5 * 4; // MAX_TILES × 4 vertices × 5 floats × 4 bytes
+        untyped __cpp__("glBufferData({0}, {1}, NULL, {2})", GL.ARRAY_BUFFER, vertexBufferSize, GL.DYNAMIC_DRAW);
+        
+        // Upload actual vertex data
+        var floatArray:Array<Float> = cast displayObject.vertices.data;
+        GL.bufferSubFloatArray(GL.ARRAY_BUFFER, 0, floatArray, floatArray.length);
+        
         GL.bindBuffer(GL.ARRAY_BUFFER, 0);
         GL.bindVertexArray(0);
     }
