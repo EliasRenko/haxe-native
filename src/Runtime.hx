@@ -1,6 +1,9 @@
 package;
 
+import haxe.io.BytesData;
 import haxe.io.Bytes;
+import cpp.RawPointer;
+import cpp.NativeArray;
 
 import SDL;
 import GL;
@@ -161,6 +164,19 @@ class Runtime {
         
         SDL.free(ptrData);
         return bytes;
+    }
+
+    public function saveBytes(path:String, data:String):Bool {
+
+        var bytes = Bytes.ofString(data);
+        var dataPtr = NativeArray.address(bytes.getData(), 0); 
+        var dataSize = bytes.length;
+
+        var result = SDL.saveFile(path, dataPtr, dataSize);
+        if (!result) {
+            __log.error(0, "Failed to save file: " + path + " - ERROR: " + SDL.getError());
+        }
+        return result;
     }
 
     // Event handling

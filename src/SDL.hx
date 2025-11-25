@@ -10,6 +10,8 @@ import cpp.ConstCharStar;
 import cpp.Pointer;
 import cpp.Struct;
 
+import haxe.io.BytesData;
+
 typedef SDL_PropertiesID = UInt64;
 typedef SDL_JoystickID = UInt32;
 
@@ -290,6 +292,9 @@ extern class SDL {
     // ** IO stream
     @:native("SDL_LoadFile")
     static function loadFile(path:String, datasize:Star<UInt64>):cpp.Pointer<cpp.Char>;
+
+    @:native("SDL_SaveFile")
+    static function saveFile(path:String, data:Pointer<UInt8>, datasize:Int):Bool;
 
     @:native("SDL_free")
     static function free(ptr:cpp.Pointer<cpp.Char>):Void;
