@@ -59,6 +59,7 @@ class Renderer {
         
         // ALWAYS update buffers for orphaning strategy (rebuilds every frame)
         displayObject.updateBuffers(this);
+        //uploadData(displayObject);
         
         displayObject.render(viewProjectionMatrix);
 
@@ -287,112 +288,6 @@ class Renderer {
         GL.bindVertexArray(0);
     }
 
-    /**
-     * Upload partial vertex data to GPU using bufferSubData for optimal performance
-     * Perfect for tilemap updates, particle effects, and dynamic content
-     * @param vbo Vertex buffer object
-     * @param offsetInFloats Offset in floats (not bytes)
-     * @param vertices Vertex data to upload
-     */
-    public function uploadVertexDataPartial(vbo:UInt, offsetInFloats:Int, vertices:Array<Float>):Void {
-        trace("Renderer.uploadVertexDataPartial: vbo=" + vbo + " offset=" + offsetInFloats + " vertices.length=" + vertices.length);
-        
-        // Validate parameters
-        if (vbo == 0) {
-            trace("Error: Invalid VBO ID (0)");
-            return;
-        }
-        
-        if (vertices.length == 0) {
-            trace("Warning: Empty vertex array passed to uploadVertexDataPartial");
-            return;
-        }
-        
-        if (offsetInFloats < 0) {
-            trace("Error: Negative offset not allowed");
-            return;
-        }
-        
-        // Debug info
-        if (vertices.length > 0) {
-            trace("  Partial update - first 5 values: " + vertices.slice(0, 5));
-        }
-        
-        // Bind buffer for update
-        GL.bindBuffer(GL.ARRAY_BUFFER, vbo);
-        
-        // Calculate byte offset (floats * 4 bytes per float)
-        var byteOffset = offsetInFloats * 4;
-        
-        try {
-            // Use the optimized GL bufferSubFloatArray method
-            GL.bufferSubFloatArray(GL.ARRAY_BUFFER, byteOffset, vertices, vertices.length);
-            trace("  Uploaded " + vertices.length + " floats at byte offset " + byteOffset);
-        } catch (e:Dynamic) {
-            trace("Error uploading vertex data: " + e);
-        }
-        
-        // Unbind buffer
-        GL.bindBuffer(GL.ARRAY_BUFFER, 0);
-    }
-
-    /**
-     * Upload partial index data to GPU using bufferSubData for optimal performance
-     * @param ebo Element buffer object
-     * @param offsetInIndices Offset in indices (not bytes)
-     * @param indices Index data to upload
-     */
-    public function uploadIndexDataPartial(ebo:UInt, offsetInIndices:Int, indices:Array<Int>):Void {
-        trace("Renderer.uploadIndexDataPartial: ebo=" + ebo + " offset=" + offsetInIndices + " indices.length=" + indices.length);
-        
-        // Validate parameters
-        if (ebo == 0) {
-            trace("Error: Invalid EBO ID (0)");
-            return;
-        }
-        
-        if (indices.length == 0) {
-            trace("Warning: Empty index array passed to uploadIndexDataPartial");
-            return;
-        }
-        
-        if (offsetInIndices < 0) {
-            trace("Error: Negative offset not allowed");
-            return;
-        }
-        
-        // Debug info
-        if (indices.length > 0) {
-            trace("  Partial update - first 5 values: " + indices.slice(0, 5));
-        }
-        
-        // Bind buffer for update
-        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, ebo);
-        
-        // Calculate byte offset (indices * 4 bytes per int)
-        var byteOffset = offsetInIndices * 4;
-        
-        try {
-            // Convert to UInt array for GL call
-            var uintIndices:Array<UInt> = [];
-            for (index in indices) {
-                if (index < 0) {
-                    throw "Negative index value not allowed: " + index;
-                }
-                uintIndices.push(index);
-            }
-            
-            // Use the optimized GL bufferSubData method
-            GL.bufferSubIntArray(GL.ELEMENT_ARRAY_BUFFER, byteOffset, uintIndices, uintIndices.length);
-            trace("  Uploaded " + indices.length + " indices at byte offset " + byteOffset);
-        } catch (e:Dynamic) {
-            trace("Error uploading index data: " + e);
-        }
-        
-        // Unbind buffer
-        GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, 0);
-    }
-
     // TODO: programInfo.setupVertexAttributes(this); This must be called in the beginning of the draw. Now it is called for every DisplayObject.
     /**
      * Set up vertex attributes and finalize buffer setup
@@ -405,24 +300,6 @@ class Renderer {
         //GL.bindBuffer(GL.ARRAY_BUFFER, 0); // TODO: We got bind and unbind separated. Union in 1 function.
         //GL.bindVertexArray(0);
     }
-
-    /**
-     * Delete OpenGL buffers - cleanup
-     */
-    // public function deleteBuffers(vbo:UInt, ebo:UInt):Void {
-    //     // if (vao != 0) {
-    //     //     var vaoArray = [vao];
-    //     //     GL.deleteVertexArrays(1, untyped __cpp__("(const unsigned int*)&{0}[0]", vaoArray));
-    //     // }
-    //     if (vbo != 0) {
-    //         var vboArray = [vbo];
-    //         GL.deleteBuffers(1, untyped __cpp__("(const unsigned int*)&{0}[0]", vboArray));
-    //     }
-    //     if (ebo != 0) {
-    //         var eboArray = [ebo];
-    //         GL.deleteBuffers(1, untyped __cpp__("(const unsigned int*)&{0}[0]", eboArray));
-    //     }
-    // }
 
     public function deleteBuffers(vbo:GlUInt, ebo:GlUInt):Void {
         GL.deleteBuffers(1, RawPointer.addressOf(vbo));

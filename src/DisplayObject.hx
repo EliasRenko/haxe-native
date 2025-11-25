@@ -3,10 +3,10 @@ package;
 import GL;
 import ProgramInfo;
 import ProgramInfo.UniformFormat;
-import math.Matrix;
 import Texture;
 import data.Vertices;
 import data.Indices;
+import math.Matrix;
 
 typedef BlendFactors = {
 	source:Int,
@@ -22,7 +22,6 @@ class BlendFactor {
 class DisplayObject {
 	//** Publics
 	public var active:Bool = false;
-	public var bufferId:UInt = 0;
 	public var mode:Int = GL.TRIANGLES; // Use proper GL constant
 	public var blendFactors:BlendFactors;
 	public var indices:Indices = new Indices([]);
@@ -84,7 +83,7 @@ class DisplayObject {
 		ebo = buffers.ebo;
 		
 		active = true;
-		updateBuffers(renderer);
+		//updateBuffers(renderer);
 	}
 	
 	public function updateBuffers(renderer:Renderer):Void {
