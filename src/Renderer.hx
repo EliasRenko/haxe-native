@@ -96,6 +96,8 @@ class Renderer {
             GL.drawElements(displayObject.mode, displayObject.__indicesToRender, GL.UNSIGNED_INT, 0);
         }
 
+        displayObject.postRender();
+
         GL.bindVertexArray(0);
     }
 

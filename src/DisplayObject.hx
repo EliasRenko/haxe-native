@@ -163,4 +163,8 @@ class DisplayObject {
 		// Set the transform matrix in uniforms map
 		uniforms.set("uMatrix", finalMatrix.data);
 	}
+
+	public function postRender():Void {
+		// Override in subclasses if needed
+	}
 }
