@@ -18,6 +18,7 @@ class Runtime {
     // Publics
     public var active(get, null):Bool;
     public var vsync(get, set):Int;
+    public var window(get, null):Window;
 
     // Privates
     private var __active:Bool = false;
@@ -74,7 +75,7 @@ class Runtime {
         SDL.setAttribute(SDL.GL_CONTEXT_PROFILE_MASK, SDL.GL_CONTEXT_PROFILE_CORE);
         
         // Create window
-        __window = new Window(SDL.createWindow(WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT, SDL.WINDOW_OPENGL));
+        __window = new Window(SDL.createWindow(WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT, SDL.WINDOW_OPENGL | SDL.WINDOW_RESIZABLE));
         if (__window.ptr == null) {
             __log.error(0, "Failed to create window: " + SDL.getError());
             release();
@@ -171,6 +172,10 @@ class Runtime {
             if (event.value.type == SDL.EVENT_QUIT) {
                 __active = false;
             } 
+
+            if (event.value.type == SDL.EVENT_WINDOW_MAXIMIZED) {
+                
+            }
 
             if (event.value.type == SDL.EVENT_WINDOW_CLOSE_REQUESTED) {
                 __active = false;
@@ -567,7 +572,7 @@ class Runtime {
     }
 
     // Getters and setters
-    public function getWindow():Dynamic {
+    public function get_window():Window {
         return __window;
     }
     
