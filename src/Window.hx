@@ -26,7 +26,7 @@ class Window {
         return { width: w, height: h };
     }
 
-    private function getWindowSizeInPixels():{ width:Int, height:Int } {
+    public function getWindowSizeInPixels():{ width:Int, height:Int } {
         var w = 0, h = 0;
         var pw:Pointer<Int> = Pointer.addressOf(w);
         var ph:Pointer<Int> = Pointer.addressOf(h);

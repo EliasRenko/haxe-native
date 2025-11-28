@@ -23,8 +23,8 @@ class Renderer {
     
     // Publics
     public var app(get, null):App;
-    public var windowWidth:Int;
-    public var windowHeight:Int;
+    //public var windowWidth:Int;
+    //public var windowHeight:Int;
     
     // Current render state tracking
     private var __currentDepthTest:Bool = true;
@@ -44,8 +44,8 @@ class Renderer {
     
     public function new(app:App, windowWidth:Int, windowHeight:Int) {
         this.__app = app;
-        this.windowWidth = windowWidth;
-        this.windowHeight = windowHeight;
+        //this.windowWidth = windowWidth;
+        //this.windowHeight = windowHeight;
     }
     
     public function render():Void {
@@ -633,8 +633,11 @@ class Renderer {
 	 * Initialize the post-processing framebuffer and fullscreen quad
 	 */
 	public function initializePostProcessing():Void {
+
+        var size = app.window.getWindowSizeInPixels();
+
 		// Create framebuffer
-		framebuffer = new Framebuffer(windowWidth, windowHeight, false, true);
+		framebuffer = new Framebuffer(size.width, size.height, false, true);
 		
 		// Create fullscreen quad for rendering
 		createFullscreenQuad();
@@ -744,9 +747,15 @@ class Renderer {
 		if (framebuffer != null) {
 			framebuffer.unbind();
 		}
-		GL.viewport(0, 0, windowWidth, windowHeight);
+
+        var size = app.window.getWindowSizeInPixels();
+		GL.viewport(0, 0, size.width, size.height);
 	}
 	
+    public function setViewport(width:Int, height:Int):Void {
+        GL.viewport(0, 0, width, height);
+    }
+
 	/**
 	 * Render the framebuffer texture to screen with post-process shader
 	 */
