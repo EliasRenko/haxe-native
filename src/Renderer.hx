@@ -243,6 +243,20 @@ class Renderer {
         GL.bindBuffer(GL.ARRAY_BUFFER, 0);
         GL.bindVertexArray(0);
     }
+
+        public function orphanAndUploadData(displayObject:DisplayObject, maxBufferSize:Int):Void {
+        GL.bindVertexArray(displayObject.programInfo.vao);
+        GL.bindBuffer(GL.ARRAY_BUFFER, displayObject.vbo);
+        untyped __cpp__("glBufferData({0}, {1}, NULL, {2})", GL.ARRAY_BUFFER, maxBufferSize, GL.STREAM_DRAW);
+        GL.bufferFloatArray(GL.ARRAY_BUFFER, displayObject.vertices, GL.STREAM_DRAW, displayObject.vertices.length);
+        if (displayObject.ebo != 0 && displayObject.indices.length > 0) {
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, displayObject.ebo);
+            GL.bufferUIntArray(GL.ELEMENT_ARRAY_BUFFER, displayObject.indices, GL.STREAM_DRAW, displayObject.indices.length);
+        }
+
+        GL.bindBuffer(GL.ARRAY_BUFFER, 0);
+        GL.bindVertexArray(0);
+    }
     
     /**
      * Allocate buffers for TileBatch (called once)
