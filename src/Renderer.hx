@@ -78,7 +78,7 @@ class Renderer {
         GL.bindBuffer(GL.ARRAY_BUFFER, displayObject.vbo);
         
         // Also bind using modern ARB_vertex_attrib_binding
-        GL.bindVertexBuffer(0, displayObject.vbo, 0, displayObject.programInfo.dataPerVertex);
+        GL.bindVertexBuffer(0, displayObject.vbo, 0, displayObject.programInfo.vertexStride);
         
         // Bind element buffer if available
         if (displayObject.ebo != 0 && displayObject.indices.length > 0) {
@@ -308,14 +308,14 @@ class Renderer {
     /**
      * Set up vertex attributes and finalize buffer setup
      */
-    public function setupVertexAttributes(programInfo:ProgramInfo):Void {
-        //GL.bindVertexArray(programInfo.vao);
-        programInfo.setupVertexAttributes(this);
-        GL.bindVertexArray(0);
-        // Unbind buffers
-        //GL.bindBuffer(GL.ARRAY_BUFFER, 0); // TODO: We got bind and unbind separated. Union in 1 function.
-        //GL.bindVertexArray(0);
-    }
+    // public function setupVertexAttributes(programInfo:ProgramInfo):Void {
+    //     //GL.bindVertexArray(programInfo.vao);
+    //     programInfo.setupVertexAttributes(this);
+    //     GL.bindVertexArray(0);
+    //     // Unbind buffers
+    //     //GL.bindBuffer(GL.ARRAY_BUFFER, 0); // TODO: We got bind and unbind separated. Union in 1 function.
+    //     //GL.bindVertexArray(0);
+    // }
 
     public function deleteBuffers(vbo:GlUInt, ebo:GlUInt):Void {
         GL.deleteBuffers(1, RawPointer.addressOf(vbo));

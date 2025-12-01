@@ -2,7 +2,6 @@ package;
 
 import GL;
 
-// OpenGL types for C++ externs
 typedef UniformLocation = GlUInt;
 typedef Program = GlUInt;
 typedef Shader = GlUInt;
@@ -96,6 +95,9 @@ class ProgramInfo {
 	// ** Vertex attributes and uniforms
 	public var attributes:Array<Attribute> = new Array<Attribute>();
 	public var uniforms:Array<Uniform> = new Array<Uniform>();
+	
+	// ** Texture samplers (separate from uniforms for conceptual clarity)
+	// Note: Textures are also added to uniformMap for O(1) lookup
 	public var textures:Array<Uniform> = new Array<Uniform>();
 	
 	// ** Performance optimization: O(1) uniform lookup map
@@ -103,21 +105,21 @@ class ProgramInfo {
 	
 	// ** Rendering properties
 	public var name(get, null):String;
-	public var dataPerVertex:UInt;
+	public var vertexStride:UInt; // Total bytes per vertex (interleaved layout)
 	public var textureCount(get, null):Int;
 	public var isCompiled:Bool = false;
 	
 	// ** VAO for shared vertex attribute configuration (modern OpenGL)
 	public var vao:GlUInt = 0;
-	//public var useModernBinding:Bool = false; // True if ARB_vertex_attrib_binding is available
+	public var useModernBinding:Bool = false; // True if ARB_vertex_attrib_binding is available
 
 	// ** Privates
 	private var __name:String;
 	
 	public function new(name:String, renderer:Renderer, ?vertexSource:String, ?fragmentSource:String) {
 		__name = name;
-		vertexShaderSource = vertexSource != null ? vertexSource : getDefaultVertexShader();
-		fragmentShaderSource = fragmentSource != null ? fragmentSource : getDefaultFragmentShader();
+		vertexShaderSource = vertexSource;
+		fragmentShaderSource = fragmentSource;
 		programId = -1;
 		
 		// Automatically compile and introspect the shader program
@@ -127,10 +129,8 @@ class ProgramInfo {
 		}
 		
 		// Automatically discover attributes and uniforms from compiled program
+		// Includes stride/offset calculation for attributes
 		introspectProgram(renderer);
-		
-		// Calculate vertex layout for interleaved data
-		finalizeVertexLayout();
 		
 		// Create VAO and set up vertex attributes using modern binding if available
 		initializeVAO(renderer);
@@ -144,61 +144,6 @@ class ProgramInfo {
 	public function getUniform(name:String):Uniform {
 		return uniformMap.get(name);
 	}
-
-	public function addAttribute(name:String, format:AttributeFormat, size:Int, stride:Int, offset:Int, location:Int):Void {
-		attributes.push({
-			name: name, 
-			format: format, 
-			size: size, 
-			stride: stride, 
-			offset: offset, 
-			location: location
-		});
-	}
-	
-	// Convenience method for calculating stride automatically (INTERLEAVED DATA)
-	public function addAttributeAuto(name:String, format:AttributeFormat, size:Int, location:Int):Void {
-		var currentOffset = calculateCurrentOffset();
-		
-		attributes.push({
-			name: name,
-			format: format,
-			size: size,
-			stride: 0,  // Will be calculated after all attributes are added
-			offset: currentOffset,
-			location: location
-		});
-	}
-	
-	// Call this AFTER adding all attributes to set correct stride for interleaved data
-	public function finalizeVertexLayout():Void {
-		if (attributes.length == 0) {
-			trace("No attributes to finalize");
-			return;
-		}
-		
-		// Sort attributes by location to ensure consistent layout
-		attributes.sort(function(a, b) return a.location - b.location);
-		
-		// Calculate offsets for interleaved data layout
-		var currentOffset = 0;
-		for (attr in attributes) {
-			attr.offset = currentOffset;
-			// Size in bytes using our AttributeFormat system
-			var sizeInBytes = AttributeFormatHelper.getBytesPerVertex(attr.format);
-			currentOffset += sizeInBytes;
-		}
-		
-		var totalVertexSize = currentOffset;
-		
-		// Set the same stride for ALL attributes (interleaved data)
-		for (attr in attributes) {
-			attr.stride = totalVertexSize;
-		}
-		
-		dataPerVertex = totalVertexSize;
-		//trace("Vertex layout finalized: " + totalVertexSize + " bytes per vertex");
-	}
 	
 	/**
 	 * Initialize VAO with vertex attribute configuration
@@ -206,38 +151,46 @@ class ProgramInfo {
 	 */
 	private function initializeVAO(renderer:Renderer):Void {
 		// Check if ARB_vertex_attrib_binding is available
-		//useModernBinding = GL.GLAD_GL_ARB_vertex_attrib_binding != 0;
+		useModernBinding = GL.GLAD_GL_ARB_vertex_attrib_binding != 0;
 		
 		// Create VAO
 		vao = GL.createVertexArray();
 		GL.bindVertexArray(vao);
 		
-		trace("Using ARB_vertex_attrib_binding for ProgramInfo '" + name + "'");
+		if (useModernBinding) {
+			trace("Using ARB_vertex_attrib_binding for ProgramInfo '" + name + "'");
+				
+			var bindingIndex:UInt = 0; // We'll use binding point 0 for all attributes
 			
-		var bindingIndex:UInt = 0; // We'll use binding point 0 for all attributes
-		
-		for (attr in attributes) {
-			// Define attribute format (no VBO binding yet!)
-			GL.vertexAttribFormat(attr.location, attr.size, getGLFormat(attr.format), false, attr.offset);
-			// Bind attribute to binding point
-			GL.vertexAttribBinding(attr.location, bindingIndex);
-			// Enable attribute
-			GL.enableVertexAttribArray(attr.location);
+			for (attr in attributes) {
+				// Define attribute format (no VBO binding yet!)
+				GL.vertexAttribFormat(attr.location, attr.size, getGLFormat(attr.format), false, attr.offset);
+				// Bind attribute to binding point
+				GL.vertexAttribBinding(attr.location, bindingIndex);
+				// Enable attribute
+				GL.enableVertexAttribArray(attr.location);
+			}
+			
+			trace("  Modern VAO setup complete - attributes will bind to VBOs at draw time");
+		} else {
+			trace("ARB_vertex_attrib_binding not available, using classic vertex attributes for ProgramInfo '" + name + "'");
+			trace("  Note: setupVertexAttributes() must be called each frame before rendering");
 		}
-		
-		trace("  Modern VAO setup complete - attributes will bind to VBOs at draw time");
 		
 		GL.bindVertexArray(0);
 	}
-	
-	// TODO: Must be called once when we init the ProgramInfo for drawing.
-	// Also can be move to Renderer class
-	// ** Setup vertex attributes using glVertexAttribPointer (classic approach)
-	public function setupVertexAttributes(renderer:Renderer):Void {
 
-		if (!isCompiled) {
-			trace("Warning: Program not compiled yet, attributes may not be bound correctly");
+	/**
+	 * Setup vertex attributes using classic glVertexAttribPointer approach
+	 * Only needed when ARB_vertex_attrib_binding is not available (useModernBinding == false)
+	 * Must be called every frame before rendering when using fallback mode
+	 */
+	public function setupVertexAttributes(renderer:Renderer):Void {
+		if (useModernBinding) {
+			// Modern binding handles this in VAO, no need to call per-frame
+			return;
 		}
+		
 		for (attr in attributes) {
 			// Enable the vertex attribute array
 			renderer.enableVertexAttribArray(attr.location);
@@ -249,7 +202,7 @@ class ProgramInfo {
 	// ** Debug method to print vertex layout
 	public function printVertexLayout():Void {
 		trace("=== Vertex Layout for " + name + " ===");
-		trace("Total vertex size: " + dataPerVertex + " bytes");
+		trace("Total vertex stride: " + vertexStride + " bytes");
 		trace("Attributes:");
 		
 		for (i in 0...attributes.length) {
@@ -299,17 +252,6 @@ class ProgramInfo {
 		}
 	}
 	
-	private function getFormatSize(format:AttributeFormat):Int {
-		return switch (format) {
-			case AttributeFormat.Float | AttributeFormat.Int | AttributeFormat.UnsignedInt: 4;
-			case AttributeFormat.Short | AttributeFormat.UnsignedShort: 2;
-			case AttributeFormat.Byte | AttributeFormat.UnsignedByte: 1;
-			case AttributeFormat.Vec2: 8;  // 2 * 4 bytes
-			case AttributeFormat.Vec3: 12; // 3 * 4 bytes  
-			case AttributeFormat.Vec4: 16; // 4 * 4 bytes
-		}
-	}
-	
 	// ** Helper: Convert AttributeFormat to GL constant for rendering
 	private function getGLFormat(format:AttributeFormat):Int {
 		return switch (format) {
@@ -321,26 +263,6 @@ class ProgramInfo {
 			case AttributeFormat.Short: 5122;        // GL_SHORT
 			case AttributeFormat.UnsignedShort: 5123;// GL_UNSIGNED_SHORT
 		}
-	}
-	
-	private function calculateCurrentOffset():Int {
-		var offset = 0;
-		for (attr in attributes) {
-			offset += AttributeFormatHelper.getBytesPerVertex(attr.format);
-		}
-		return offset;
-	}
-	
-	public function addUniform(name:String, format:UniformFormat, setter:Dynamic, ?location:UniformLocation):Void {
-		var uniformData = {name:name, format:format, setter:setter, location:location};
-		uniforms.push(uniformData);
-		uniformMap.set(name, uniformData);
-	}
-
-	public function addTexture(name:String, format:UniformFormat, setter:Dynamic, ?location:UniformLocation):Void {
-		var textureData = {name:name, format:format, setter:setter, location:location};
-		textures.push(textureData);
-		uniformMap.set(name, textureData); // Also add to uniform map for consistent lookup
 	}
 	
 	// ** Automatically discover attributes and uniforms from compiled shader program
@@ -399,16 +321,43 @@ class ProgramInfo {
 			
 			trace("Attribute " + i + ": '" + name + "' location=" + location + " type=" + type + " format=" + format + " components=" + componentCount);
 			
-			// Add to attributes array (offset and stride will be calculated later)
+			// Add to attributes array
 			attributes.push({
 				name: name,
 				format: format,
 				size: componentCount,
-				stride: 0,  // Will be calculated in finalizeVertexLayout
-				offset: 0,  // Will be calculated in finalizeVertexLayout  
+				stride: 0,  // Calculated below
+				offset: 0,  // Calculated below
 				location: location
 			});
 		}
+		
+		// Calculate vertex layout for interleaved data
+		if (attributes.length == 0) {
+			trace("No attributes discovered");
+			return;
+		}
+		
+		// Sort attributes by location to ensure consistent layout
+		attributes.sort(function(a, b) return a.location - b.location);
+		
+		// Calculate offsets for interleaved data layout
+		var currentOffset = 0;
+		for (attr in attributes) {
+			attr.offset = currentOffset;
+			var sizeInBytes = AttributeFormatHelper.getBytesPerVertex(attr.format);
+			currentOffset += sizeInBytes;
+		}
+		
+		var totalVertexSize = currentOffset;
+		
+		// Set the same stride for ALL attributes (interleaved data)
+		for (attr in attributes) {
+			attr.stride = totalVertexSize;
+		}
+		
+		vertexStride = totalVertexSize;
+		trace("Calculated vertex layout: stride=" + vertexStride + " bytes");
 	}
 	
 	// ** Discover all active uniforms
@@ -471,21 +420,6 @@ class ProgramInfo {
 				};
 				textures.push(textureData);
 			}
-		}
-	}
-	
-	// ** Helper: Get component count from OpenGL type
-	private function getComponentCount(glType:Int):Int {
-		return switch (glType) {
-			case 5126: 1;   // GL_FLOAT
-			case 35664: 2;  // GL_FLOAT_VEC2
-			case 35665: 3;  // GL_FLOAT_VEC3
-			case 35666: 4;  // GL_FLOAT_VEC4
-			case 5124: 1;   // GL_INT
-			case 35667: 2;  // GL_INT_VEC2
-			case 35668: 3;  // GL_INT_VEC3
-			case 35669: 4;  // GL_INT_VEC4
-			default: 1;     // Default to 1 for unknown types
 		}
 	}
 	
@@ -727,42 +661,6 @@ class ProgramInfo {
 			case 35680: UniformFormat.SamplerCube; // GL_SAMPLER_CUBE
 			default: UniformFormat.Float;       // Default fallback
 		}
-	}
-	
-	// ** Default shaders for basic rendering
-	private function getDefaultVertexShader():String {
-		return '
-		#version 330 core
-		layout (location = 0) in vec3 aPos;
-		layout (location = 1) in vec2 aTexCoord;
-		
-		out vec2 TexCoord;
-		
-		uniform mat4 uProjection;
-		uniform mat4 uView;
-		uniform mat4 uModel;
-		
-		void main() {
-			gl_Position = uProjection * uView * uModel * vec4(aPos, 1.0);
-			TexCoord = aTexCoord;
-		}
-		';
-	}
-	
-	private function getDefaultFragmentShader():String {
-		return '
-		#version 330 core
-		out vec4 FragColor;
-		
-		in vec2 TexCoord;
-		
-		uniform sampler2D uTexture;
-		uniform vec4 uColor;
-		
-		void main() {
-			FragColor = texture(uTexture, TexCoord) * uColor;
-		}
-		';
 	}
 	
 	// ** Cleanup
