@@ -9,11 +9,31 @@ import cpp.UInt64;
 import cpp.ConstCharStar;
 import cpp.Pointer;
 import cpp.Struct;
+import cpp.Int64;
 
 import haxe.io.BytesData;
 
 typedef SDL_PropertiesID = UInt64;
 typedef SDL_JoystickID = UInt32;
+
+// Path info structure
+@:unreflective
+@:native("SDL_PathInfo")
+extern class SDL_PathInfo {
+    var type:SDL_PathType;           // SDL_PathType (file, directory, or other)
+    var size:UInt64;                 // File size in bytes
+    var create_time:Int64;           // Creation time (SDL_Time)
+    var modify_time:Int64;           // Last modification time (SDL_Time)
+    var access_time:Int64;           // Last access time (SDL_Time)
+}
+
+@:enum
+abstract SDL_PathType(Int) from Int to Int {
+    var NONEXISTENT = 0;   // Path does not exist
+    var FILE = 1;          // A normal file
+    var DIRECTORY = 2;     // A directory
+    var OTHER = 3;         // Something else (device, socket, etc.)
+}
 
 // Context
 @:include("SDL3/SDL.h")
@@ -276,7 +296,7 @@ extern class SDL {
     static function copyFile(oldpath:String, newpath:String):Bool;
 
     @:native("SDL_GetPathInfo")
-    static function getPathInfo(path:String, info:cpp.Star<cpp.Void>):Bool; // You may want to typedef SDL_PathInfo
+    static function getPathInfo(path:String, info:Star<SDL_PathInfo>):Bool;
 
     @:native("SDL_GlobDirectory")
     static function globDirectory(
@@ -391,8 +411,8 @@ extern class SDL {
         var ptr:cpp.ConstCharStar = untyped __cpp__("SDL_GetClipboardText()");
         var str:String = ptr;
         untyped __cpp__("SDL_free((void*){0})", ptr);
-    return str;
-}
+        return str;
+    }
 
     // ** Folders
 
