@@ -183,21 +183,21 @@ class Runtime {
         return result;
     }
 
-    public function getPathInfo(path:String):PathInfo {
-        var pathInfo:SDL_PathInfo = untyped __cpp__("SDL_PathInfo()");
-        var infoPtr:Pointer<SDL_PathInfo> = untyped __cpp__("&{0}", pathInfo);
-        if (SDL.getPathInfo(path, infoPtr.ptr)) {
-            return pathInfo;
-        }
-        return null;
-    }
+    // public function getPathInfo(path:String):PathInfo {
+    //     var pathInfo:SDL_PathInfo = untyped __cpp__("SDL_PathInfo()");
+    //     var infoPtr:Pointer<SDL_PathInfo> = untyped __cpp__("&{0}", pathInfo);
+    //     if (SDL.getPathInfo(path, infoPtr.ptr)) {
+    //         return pathInfo;
+    //     }
+    //     return null;
+    // }
 
-    public function pathExists(path:String):Bool {
-		if (getPathInfo(path) != null) {
-            return true;
-        }
-        return false;
-	}
+    // public function pathExists(path:String):Bool {
+	// 	if (getPathInfo(path) != null) {
+    //         return true;
+    //     }
+    //     return false;
+	// }
 
     // Event handling
     private function handleEvents():Void {
