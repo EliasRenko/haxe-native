@@ -80,7 +80,7 @@ class Runtime {
         SDL.setAttribute(SDL.GL_CONTEXT_PROFILE_MASK, SDL.GL_CONTEXT_PROFILE_CORE);
         
         // Create window
-        __window = new Window(SDL.createWindow(WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT, SDL.WINDOW_OPENGL | SDL.WINDOW_RESIZABLE));
+        __window = new Window(SDL.createWindow(WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT, SDL.WINDOW_OPENGL | SDL.WINDOW_RESIZABLE | SDL.WINDOW_BORDERLESS));
         if (__window.ptr == null) {
             __log.error(0, "Failed to create window: " + SDL.getError());
             release();
@@ -604,6 +604,18 @@ class Runtime {
 
     public function getLastSDLError():String {
         return SDL.getError();
+    }
+
+    /**
+     * Get the native window handle (HWND on Windows)
+     * This can be used to embed the SDL window in other applications
+     */
+    public function getWindowHandle():cpp.RawPointer<cpp.Void> {
+        if (__window == null || __window.ptr == null) {
+            return null;
+        }
+        var props = SDL.getWindowProperties(__window.ptr);
+        return untyped __cpp__("SDL_GetPointerProperty({0}, SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL)", props);
     }
 
     // Getters and setters

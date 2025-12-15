@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xml>
+    <!-- Include glad.c for OpenGL loading -->
+    <files id="__lib__">
+        <compilerflag value="-I${haxelib:haxe-native}/include"/>
+        <file name="${haxelib:haxe-native}/src/glad.c"/>
+    </files>
+    
+    <!-- Link SDL3 library -->
+    <target id="haxe" tool="linker" toolid="exe">
+        <lib name="${haxelib:haxe-native}/lib/x64/SDL3.lib" if="windows"/>
+    </target>
+</xml>
