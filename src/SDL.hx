@@ -124,8 +124,7 @@ extern class SDL {
     @:native("SDL_GL_GetSwapInterval")
     public static function getSwapInterval(interval:Pointer<Int>):Bool;
 
-    // ** 
-    
+    // ** Window
     @:native("SDL_CreateWindow")
     static function createWindow(title:String, w:Int, h:Int, flags:CreateWindowFlag):WindowPtr;
 
@@ -138,6 +137,10 @@ extern class SDL {
     @:native("SDL_GetWindowProperties")
     static function getWindowProperties(window:WindowPtr):SDL_PropertiesID;
 
+    @:native("SDL_SetWindowPosition")
+    static function setWindowPosition(window:WindowPtr, x:Int, y:Int):Void;
+
+    // ** OpenGL
     @:native("SDL_GL_CreateContext")
     static function createContext(window:WindowPtr):GLContext;
 

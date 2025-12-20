@@ -42,6 +42,10 @@ class Window {
         return (pixels.width / logical.width);
     }
 
+    public function setPosition(x:Int, y:Int):Void {
+        SDL.setWindowPosition(__windowPtr, x, y);
+    }
+
     // Getters and setters
     private function get_fullscreen():Bool {
         var props:Int = SDL.getWindowProperties(__windowPtr);
