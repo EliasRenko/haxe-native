@@ -80,7 +80,7 @@ class Runtime {
         SDL.setAttribute(SDL.GL_CONTEXT_PROFILE_MASK, SDL.GL_CONTEXT_PROFILE_CORE);
         
         // Create window
-        __window = new Window(SDL.createWindow(WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT, SDL.WINDOW_OPENGL | SDL.WINDOW_RESIZABLE | SDL.WINDOW_BORDERLESS));
+        __window = new Window(SDL.createWindow(WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT, SDL.WINDOW_OPENGL | SDL.WINDOW_RESIZABLE | SDL.WINDOW_BORDERLESS | SDL.WINDOW_INPUT_FOCUS ));
         if (__window.ptr == null) {
             __log.error(0, "Failed to create window: " + SDL.getError());
             release();

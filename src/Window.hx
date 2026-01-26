@@ -9,7 +9,7 @@ class Window {
     // Publics
     public var fullscreen(get, null):Bool;
     public var ptr(get, null):WindowPtr;
-    public var size(get, null):Vec2;
+    public var size(get, set):Vec2;
 
     // Privates
     private var __windowPtr:WindowPtr;
@@ -64,6 +64,11 @@ class Window {
     private function get_size():Vec2 {
         var size = getWindowSizeInPixels();
         return new Vec2(size.width, size.height);
+    }
+
+    private function set_size(value:Vec2):Vec2 {
+        SDL.setWindowSize(__windowPtr, Std.int(value.x), Std.int(value.y));
+        return value;
     }
 }
 
