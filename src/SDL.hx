@@ -115,6 +115,9 @@ extern class SDL {
     @:native("SDL_GetWindowSize")
     static function getWindowSize(window:WindowPtr, w:Pointer<Int>, h:Pointer<Int>):Bool;
 
+    @:native("SDL_SetWindowSize")
+    static function setWindowSize(window:WindowPtr, w:Int, h:Int):Bool;
+
     @:native("SDL_GetWindowSizeInPixels")
     static function getWindowSizeInPixels(window:WindowPtr, w:Pointer<Int>, h:Pointer<Int>):Bool;
 

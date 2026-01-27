@@ -67,7 +67,10 @@ class Window {
     }
 
     private function set_size(value:Vec2):Vec2 {
-        SDL.setWindowSize(__windowPtr, Std.int(value.x), Std.int(value.y));
+        var scale = getWindowScale();
+        var logicalWidth = Std.int(value.x / scale);
+        var logicalHeight = Std.int(value.y / scale);
+        SDL.setWindowSize(__windowPtr, logicalWidth, logicalHeight);
         return value;
     }
 }
