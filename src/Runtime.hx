@@ -594,7 +594,7 @@ class Runtime {
         return SDL.getLogPriority(category);
     }
 
-    public function setLogPriority(category:Int, priority:SDL_LogPriority):Void {
+    public function setLogPriority(category:Int, priority:Int):Void {
         SDL.setLogPriority(category, priority);
     }
 
