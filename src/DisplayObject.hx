@@ -76,14 +76,11 @@ class DisplayObject {
 	}
 
 	public function init(renderer:Renderer):Void {
-		if (active) return;
 		var buffers = renderer.createBuffers();
-		// TODO: Fix createBuffers to return both VBO and EBO
 		vbo = buffers.vbo;
 		ebo = buffers.ebo;
 		
 		active = true;
-		//updateBuffers(renderer);
 	}
 	
 	public function updateBuffers(renderer:Renderer):Void {
