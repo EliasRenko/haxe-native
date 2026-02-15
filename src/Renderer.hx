@@ -13,11 +13,11 @@ import cpp.Float32;
 import cpp.UInt32;
 import Framebuffer;
 
-typedef RenderState = {
-    depthTest:Bool,
-    depthWrite:Bool,
-    blendMode:Bool
-}
+// typedef RenderState = {
+//     depthTest:Bool,
+//     depthWrite:Bool,
+//     blendMode:Bool
+// }
 
 class Renderer {
     
@@ -44,8 +44,10 @@ class Renderer {
     
     public function new(app:App, windowWidth:Int, windowHeight:Int) {
         this.__app = app;
-        //this.windowWidth = windowWidth;
-        //this.windowHeight = windowHeight;
+
+        setDepthTest(true);
+        setDepthWrite(true);
+        setBlendMode(true);
     }
     
     public function render():Void {
@@ -466,19 +468,19 @@ class Renderer {
         }
     }
     
-    public function pushRenderState():RenderState {
-        return {
-            depthTest: __currentDepthTest,
-            depthWrite: __currentDepthWrite,
-            blendMode: __currentBlendMode
-        };
-    }
+    // public function pushRenderState():RenderState {
+    //     return {
+    //         depthTest: __currentDepthTest,
+    //         depthWrite: __currentDepthWrite,
+    //         blendMode: __currentBlendMode
+    //     };
+    // }
     
-    public function popRenderState(state:RenderState):Void {
-        setDepthTest(state.depthTest);
-        setDepthWrite(state.depthWrite);
-        setBlendMode(state.blendMode);
-    }
+    // public function popRenderState(state:RenderState):Void {
+    //     setDepthTest(state.depthTest);
+    //     setDepthWrite(state.depthWrite);
+    //     setBlendMode(state.blendMode);
+    // }
 
     
     // ===== SHADER WRAPPER FUNCTIONS =====
