@@ -3,5 +3,6 @@ typedef Texture = {
     height:Int,
     bpp:Int,
     target:Int,
-    id:Int
+    id:Int,
+    src:String
 }

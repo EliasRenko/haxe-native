@@ -14,6 +14,7 @@ class TextureData {
     public var powerOfTwo(get, null):Bool;
     public var transparent(get, null):Bool;
     public var width(get, null):Int;
+    public var src(get, null):String; 
 
     // ** Privates.
 
@@ -24,13 +25,15 @@ class TextureData {
     private var __height:Int;
     private var __transparent:Bool;
     private var __width:Int;
+    private var __src:String;
     
-    public function new(data:UInt8Array, bytesPerPixel:Int, width:Int, height:Int, transparent:Bool = false) {
+    public function new(data:UInt8Array, bytesPerPixel:Int, width:Int, height:Int, transparent:Bool = false, src:String = "") {
      
         __data = data;
         __bytesPerPixel = bytesPerPixel;
         __width = width;
         __height = height;
+        __src = src;
         __transparent = transparent;
         allocated = true;
     }
@@ -70,6 +73,10 @@ class TextureData {
     public function get_width():Int {
         
         return __width;
+    }
+
+    private function get_src():String {
+        return __src;
     }
 
     // ** Methods

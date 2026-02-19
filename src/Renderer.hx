@@ -403,7 +403,8 @@ class Renderer {
             width: textureData.width,
             height: textureData.height,
             bpp: textureData.bytesPerPixel,
-            target: GL.TEXTURE_2D
+            target: GL.TEXTURE_2D,
+            src: textureData.src
         };
         
         return texture;
