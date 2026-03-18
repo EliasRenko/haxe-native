@@ -22,7 +22,7 @@ class BlendFactor {
 class DisplayObject {
 	//** Publics
 	public var active:Bool = false;
-	public var mode:Int = GL.TRIANGLES; // Use proper GL constant
+	public var mode:Int = GL.TRIANGLES;
 	public var blendFactors:BlendFactors;
 	public var indices:Indices = new Indices([]);
 	public var vertices:Vertices = new Vertices([]);
@@ -31,24 +31,11 @@ class DisplayObject {
 	public var matrix:Matrix = new Matrix();
 	public var uniforms:Map<String, Dynamic> = new Map<String, Dynamic>();
 	public var visible:Bool = true;
-
-	// public var x:Float = 0.0;
-	// public var y:Float = 0.0;
-	// public var z:Float = 0.0;
-	
-	// // 3D Rotation support (in radians)
-	// public var rotationX:Float = 0.0; // Pitch
-	// public var rotationY:Float = 0.0; // Yaw  
-	// public var rotationZ:Float = 0.0; // Roll
-	
-	// public var scaleX:Float = 1.0;
-	// public var scaleY:Float = 1.0;
-	// public var scaleZ:Float = 1.0;
 	
 	// Rendering properties
 	public var depthTest:Bool = true;
 	public var depthWrite:Bool = true;
-	public var cullFace:Bool = false; // Set to true for 3D objects
+	public var cullFace:Bool = false;
 
 	// ** Privates.
 	public var __verticesToRender:Int = 0;
@@ -58,9 +45,8 @@ class DisplayObject {
 	public var needsBufferUpdate:Bool = false;
 	
 	// VAO and VBO for this display object
-	//public var vao:GlUInt = 0;
 	public var vbo:GlUInt = 0;
-	public var ebo:GlUInt = 0; // Element buffer for indices
+	public var ebo:GlUInt = 0;
 	
 	public function new(programInfo:ProgramInfo, vertices:Vertices, ?indices:Indices) {
 		if (programInfo == null) throw 'programInfo cannot be null';

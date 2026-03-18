@@ -120,8 +120,9 @@ class ProgramInfo {
 	
 	public function new(name:String, ?vertexSource:String, ?fragmentSource:String) {
 		__name = name;
-		vertexShaderSource = vertexSource;
 		fragmentShaderSource = fragmentSource;
+		// Auto-generate a matching vertex shader when none is provided
+		vertexShaderSource = (vertexSource != null) ? vertexSource : ShaderBuilder.defaultVertexFor(fragmentSource);
 		programId = -1;
 		
 		// Automatically compile and introspect the shader program
