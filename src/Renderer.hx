@@ -13,18 +13,10 @@ import cpp.Float32;
 import cpp.UInt32;
 import Framebuffer;
 
-// typedef RenderState = {
-//     depthTest:Bool,
-//     depthWrite:Bool,
-//     blendMode:Bool
-// }
-
 class Renderer {
     
     // Publics
     public var app(get, null):App;
-    //public var windowWidth:Int;
-    //public var windowHeight:Int;
     
     // Current render state tracking
     private var __currentDepthTest:Bool = true;
@@ -149,7 +141,7 @@ class Renderer {
         }
         
         // Create new ProgramInfo and register it
-        var programInfo = new ProgramInfo(name, this, vertexShader, fragmentShader);
+        var programInfo = new ProgramInfo(name, vertexShader, fragmentShader);
         programInfos.set(name, programInfo);
 
         // TODO: Convert to proper logging system once cross-class access is resolved
@@ -202,7 +194,7 @@ class Renderer {
         }
         
         // Create new ProgramInfo and register it
-        var programInfo = new ProgramInfo(name, this, vertexShader, fragmentShader);
+        var programInfo = new ProgramInfo(name, vertexShader, fragmentShader);
         programInfos.set(name, programInfo);
         
         trace("Created ProgramInfo '" + name + "' from preloaded shaders: " + vertexShaderPath + ", " + fragmentShaderPath);
@@ -426,7 +418,7 @@ class Renderer {
         for (name in programInfos.keys()) {
             var programInfo = programInfos.get(name);
             if (programInfo != null) {
-                programInfo.dispose(this);
+                programInfo.dispose();
                 trace("Disposed ProgramInfo: " + name);
             }
         }
@@ -468,80 +460,6 @@ class Renderer {
             __currentBlendMode = enabled;
         }
     }
-    
-    // public function pushRenderState():RenderState {
-    //     return {
-    //         depthTest: __currentDepthTest,
-    //         depthWrite: __currentDepthWrite,
-    //         blendMode: __currentBlendMode
-    //     };
-    // }
-    
-    // public function popRenderState(state:RenderState):Void {
-    //     setDepthTest(state.depthTest);
-    //     setDepthWrite(state.depthWrite);
-    //     setBlendMode(state.blendMode);
-    // }
-
-    
-    // ===== SHADER WRAPPER FUNCTIONS =====
-    // These functions are used by ProgramInfo for shader compilation
-    // TODO: Consider having ProgramInfo call GL directly instead
-    
-    public function createShader(type:Int):Int {
-        return GL.createShader(type);
-    }
-
-    // public function shaderSource(shader:Int, source:String):Void {
-    //     untyped __cpp__("\n            const char* shaderSource = {1}.__s;\n            glShaderSource({0}, 1, &shaderSource, NULL);\n        ", shader, source);
-    // }
-
-    public function compileShader(shader:Int):Void {
-        GL.compileShader(shader);
-    }
-
-    public function createProgram():Int {
-        return GL.createProgram();
-    }
-
-    public function attachShader(program:Int, shader:Int):Void {
-        GL.attachShader(program, shader);
-    }
-
-    public function linkProgram(program:Int):Void {
-        GL.linkProgram(program);
-    }
-
-    public function useProgram(program:Int):Void {
-        GL.useProgram(program);
-    }
-
-    public function deleteShader(shader:Int):Void {
-        GL.deleteShader(shader);
-    }
-
-    public function getAttribLocation(program:Int, name:String):Int {
-        return GL.getAttribLocation(program, name);
-    }
-
-    public function getUniformLocation(program:Int, name:String):Int {
-        return GL.getUniformLocation(program, name);
-    }
-
-    public function enableVertexAttribArray(index:Int):Void {
-        GL.enableVertexAttribArray(index);
-    }
-
-    // ===== DEPRECATED / UNUSED FUNCTIONS =====
-    // These functions are kept for reference but are no longer used in the current architecture
-    
-    /*
-    // No-op function that was kept for compatibility
-    private function __renderAttributes(programInfo:ProgramInfo):Void {
-        // Attributes are already set up in VAO, so this is essentially a no-op
-        // for our current VAO-based implementation, but kept for compatibility
-    }
-    */
 
     // Getters and setters
     private function get_app():App {
@@ -559,87 +477,6 @@ class Renderer {
 			case AttributeFormat.Short: 5122;        // GL_SHORT
 			case AttributeFormat.UnsignedShort: 5123;// GL_UNSIGNED_SHORT
 		}
-	}
-
-    // ** Shader compilation and linking
-	public function compileProgramInfo(programInfo:ProgramInfo):Bool {
-		if (programInfo.isCompiled) return true;
-
-        var vertContent = ConstCharStar.fromString(programInfo.vertexShaderSource);
-        var fragContent = ConstCharStar.fromString(programInfo.fragmentShaderSource);
-
-		// Vertex shader
-		programInfo.vertexShader = createShader(GL.VERTEX_SHADER);
-		GL.shaderSource(programInfo.vertexShader, 1, RawPointer.addressOf(vertContent), null);
-		compileShader(programInfo.vertexShader);
-		if (!checkShaderCompilation(programInfo.vertexShader, "Vertex")) {
-			trace("Vertex shader compilation failed!");
-			return false;
-		}
-		
-		// Fragment shader
-		programInfo.fragmentShader = createShader(GL.FRAGMENT_SHADER);
-		GL.shaderSource(programInfo.fragmentShader, 1, RawPointer.addressOf(fragContent), null);
-		compileShader(programInfo.fragmentShader);
-		if (!checkShaderCompilation(programInfo.fragmentShader, "Fragment")) {
-			trace("Fragment shader compilation failed!");
-			return false;
-		}
-
-		// Create and link program
-		programInfo.program = createProgram();
-		
-		attachShader(programInfo.program, programInfo.vertexShader);
-		attachShader(programInfo.program, programInfo.fragmentShader);
-		linkProgram(programInfo.program);
-		
-		// Check program linking
-		if (!checkProgramLinking(programInfo.program)) {
-			return false;
-		}
-		
-		programInfo.isCompiled = true;
-		return true;
-	}
-
-    private function checkShaderCompilation(shader:Int, type:String):Bool {
-		var success:Int = GL.getShaderParameterValue(shader, GL.COMPILE_STATUS);
-		
-		if (success == 0) {
-			// Compilation failed, get error log
-			var errorLog:String = GL.getShaderInfoLogString(shader);
-			
-			if (errorLog.length > 0) {
-				trace(type + " shader compilation failed:");
-				trace(errorLog);
-			} else {
-				trace(type + " shader compilation failed with no error log");
-			}
-			return false;
-		}
-		
-		trace(type + " shader compiled successfully");
-		return true;
-	}
-
-	private function checkProgramLinking(program:Int):Bool {
-		var success:Int = GL.getProgramParameterValue(program, GL.LINK_STATUS);
-		
-		if (success == 0) {
-			// Linking failed, get error log
-			var errorLog:String = GL.getProgramInfoLogString(program);
-			
-			if (errorLog.length > 0) {
-				trace("Program linking failed:");
-				trace(errorLog);
-			} else {
-				trace("Program linking failed with no error log");
-			}
-			return false;
-		}
-		
-		trace("Program linked successfully");
-		return true;
 	}
 	
 	// =============================================================================

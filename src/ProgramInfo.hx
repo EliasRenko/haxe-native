@@ -1,6 +1,8 @@
 package;
 
 import GL;
+import cpp.ConstCharStar;
+import cpp.RawPointer;
 
 typedef UniformLocation = GlUInt;
 typedef Program = GlUInt;
@@ -116,26 +118,105 @@ class ProgramInfo {
 	// ** Privates
 	private var __name:String;
 	
-	public function new(name:String, renderer:Renderer, ?vertexSource:String, ?fragmentSource:String) {
+	public function new(name:String, ?vertexSource:String, ?fragmentSource:String) {
 		__name = name;
 		vertexShaderSource = vertexSource;
 		fragmentShaderSource = fragmentSource;
 		programId = -1;
 		
 		// Automatically compile and introspect the shader program
-		if (!renderer.compileProgramInfo(this)) {
+		if (!compileProgramInfo(this)) {
 			trace("Failed to compile shader program: " + name);
 			return;
 		}
 		
 		// Automatically discover attributes and uniforms from compiled program
 		// Includes stride/offset calculation for attributes
-		introspectProgram(renderer);
+		introspectProgram();
 		
 		// Create VAO and set up vertex attributes using modern binding if available
-		initializeVAO(renderer);
+		initializeVAO();
+	}
+
+	// ** Shader compilation and linking
+	public function compileProgramInfo(programInfo:ProgramInfo):Bool {
+		if (programInfo.isCompiled) return true;
+
+        var vertContent = ConstCharStar.fromString(programInfo.vertexShaderSource);
+        var fragContent = ConstCharStar.fromString(programInfo.fragmentShaderSource);
+
+		// Vertex shader
+		programInfo.vertexShader = GL.createShader(GL.VERTEX_SHADER);
+		GL.shaderSource(programInfo.vertexShader, 1, RawPointer.addressOf(vertContent), null);
+		GL.compileShader(programInfo.vertexShader);
+		if (!checkShaderCompilation(programInfo.vertexShader, "Vertex")) {
+			trace("Vertex shader compilation failed!");
+			return false;
+		}
 		
-		trace("ProgramInfo '" + name + "' created and introspected successfully!");
+		// Fragment shader
+		programInfo.fragmentShader = GL.createShader(GL.FRAGMENT_SHADER);
+		GL.shaderSource(programInfo.fragmentShader, 1, RawPointer.addressOf(fragContent), null);
+		GL.compileShader(programInfo.fragmentShader);
+		if (!checkShaderCompilation(programInfo.fragmentShader, "Fragment")) {
+			trace("Fragment shader compilation failed!");
+			return false;
+		}
+
+		// Create and link program
+		programInfo.program = GL.createProgram();
+		
+		GL.attachShader(programInfo.program, programInfo.vertexShader);
+		GL.attachShader(programInfo.program, programInfo.fragmentShader);
+		GL.linkProgram(programInfo.program);
+		
+		// Check program linking
+		if (!checkProgramLinking(programInfo.program)) {
+			return false;
+		}
+		
+		programInfo.isCompiled = true;
+		return true;
+	}
+
+    private function checkShaderCompilation(shader:Int, type:String):Bool {
+		var success:Int = GL.getShaderParameterValue(shader, GL.COMPILE_STATUS);
+		
+		if (success == 0) {
+			// Compilation failed, get error log
+			var errorLog:String = GL.getShaderInfoLogString(shader);
+			
+			if (errorLog.length > 0) {
+				trace(type + " shader compilation failed:");
+				trace(errorLog);
+			} else {
+				trace(type + " shader compilation failed with no error log");
+			}
+			return false;
+		}
+		
+		trace(type + " shader compiled successfully");
+		return true;
+	}
+
+	private function checkProgramLinking(program:Int):Bool {
+		var success:Int = GL.getProgramParameterValue(program, GL.LINK_STATUS);
+		
+		if (success == 0) {
+			// Linking failed, get error log
+			var errorLog:String = GL.getProgramInfoLogString(program);
+			
+			if (errorLog.length > 0) {
+				trace("Program linking failed:");
+				trace(errorLog);
+			} else {
+				trace("Program linking failed with no error log");
+			}
+			return false;
+		}
+		
+		trace("Program linked successfully");
+		return true;
 	}
 
 	/**
@@ -149,7 +230,7 @@ class ProgramInfo {
 	 * Initialize VAO with vertex attribute configuration
 	 * Uses ARB_vertex_attrib_binding if available, otherwise falls back to classic approach
 	 */
-	private function initializeVAO(renderer:Renderer):Void {
+	private function initializeVAO():Void {
 		// Check if ARB_vertex_attrib_binding is available
 		useModernBinding = GL.GLAD_GL_ARB_vertex_attrib_binding != 0;
 		
@@ -158,8 +239,6 @@ class ProgramInfo {
 		GL.bindVertexArray(vao);
 		
 		if (useModernBinding) {
-			trace("Using ARB_vertex_attrib_binding for ProgramInfo '" + name + "'");
-				
 			var bindingIndex:UInt = 0; // We'll use binding point 0 for all attributes
 			
 			for (attr in attributes) {
@@ -170,13 +249,9 @@ class ProgramInfo {
 				// Enable attribute
 				GL.enableVertexAttribArray(attr.location);
 			}
-			
-			trace("  Modern VAO setup complete - attributes will bind to VBOs at draw time");
 		} else {
-			trace("ARB_vertex_attrib_binding not available, using classic vertex attributes for ProgramInfo '" + name + "'");
-			trace("  Note: setupVertexAttributes() must be called each frame before rendering");
+			throw("ARB_vertex_attrib_binding not available. For proper use, setupVertexAttributes() must be called each frame before rendering");
 		}
-		
 		GL.bindVertexArray(0);
 	}
 
@@ -185,7 +260,7 @@ class ProgramInfo {
 	 * Only needed when ARB_vertex_attrib_binding is not available (useModernBinding == false)
 	 * Must be called every frame before rendering when using fallback mode
 	 */
-	public function setupVertexAttributes(renderer:Renderer):Void {
+	public function setupVertexAttributes():Void {
 		if (useModernBinding) {
 			// Modern binding handles this in VAO, no need to call per-frame
 			return;
@@ -193,11 +268,15 @@ class ProgramInfo {
 		
 		for (attr in attributes) {
 			// Enable the vertex attribute array
-			renderer.enableVertexAttribArray(attr.location);
+			GL.enableVertexAttribArray(attr.location);
 			// Set up the vertex attribute pointer  
-			renderer.vertexAttribPointer(attr.location, attr.size, getGLFormat(attr.format), false, attr.stride, attr.offset);
+			vertexAttribPointer(attr.location, attr.size, getGLFormat(attr.format), false, attr.stride, attr.offset);
 		}
 	}
+
+	public function vertexAttribPointer(index:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:Int):Void {
+        untyped __cpp__("glVertexAttribPointer({0}, {1}, {2}, {3} ? GL_TRUE : GL_FALSE, {4}, (void*)(intptr_t){5})", index, size, type, normalized, stride, offset);
+    }
 	
 	// ** Debug method to print vertex layout
 	public function printVertexLayout():Void {
@@ -266,7 +345,7 @@ class ProgramInfo {
 	}
 	
 	// ** Automatically discover attributes and uniforms from compiled shader program
-	private function introspectProgram(renderer:Renderer):Void {
+	private function introspectProgram():Void {
 		if (!isCompiled) {
 			trace("Warning: Cannot introspect program that is not compiled");
 			return;
@@ -279,16 +358,16 @@ class ProgramInfo {
 		uniforms = [];
 		
 		// Introspect active attributes
-		introspectAttributes(renderer);
+		introspectAttributes();
 		
 		// Introspect active uniforms  
-		introspectUniforms(renderer);
+		introspectUniforms();
 		
 		trace("Introspection complete!");
 	}
 	
 	// ** Discover all active vertex attributes
-	private function introspectAttributes(renderer:Renderer):Void {
+	private function introspectAttributes():Void {
 		// Get number of active attributes
 		var activeAttributes:Int = 0;
 		untyped __cpp__("glGetProgramiv({0}, GL_ACTIVE_ATTRIBUTES, &{1})", program, activeAttributes);
@@ -313,7 +392,7 @@ class ProgramInfo {
 			", maxNameLength, program, i, nameLength, size, type, name);
 			
 			// Get attribute location
-			var location:Int = renderer.getAttribLocation(program, name);
+			var location:Int = GL.getAttribLocation(program, name);
 			
 			// Convert OpenGL type to our AttributeFormat
 			var format = convertGLTypeToAttributeFormat(type);
@@ -361,7 +440,7 @@ class ProgramInfo {
 	}
 	
 	// ** Discover all active uniforms
-	private function introspectUniforms(renderer:Renderer):Void {
+	private function introspectUniforms():Void {
 		// Get number of active uniforms
 		var activeUniforms:Int = 0;
 		untyped __cpp__("glGetProgramiv({0}, GL_ACTIVE_UNIFORMS, &{1})", program, activeUniforms);
@@ -386,7 +465,7 @@ class ProgramInfo {
 			", maxNameLength, program, i, nameLength, size, type, name);
 			
 			// Get uniform location
-			var location:Int = renderer.getUniformLocation(program, name);
+			var location:Int = GL.getUniformLocation(program, name);
 			
 			// Convert OpenGL type to our UniformFormat
 			var format = convertGLTypeToUniformFormat(type);
@@ -664,11 +743,10 @@ class ProgramInfo {
 	}
 	
 	// ** Cleanup
-	public function dispose(renderer:Renderer):Void {
+	public function dispose():Void {
 		if (isCompiled) {
-			// if (program != 0) renderer.deleteProgram(program);
-			if (vertexShader != 0) renderer.deleteShader(vertexShader);
-			if (fragmentShader != 0) renderer.deleteShader(fragmentShader);
+			if (vertexShader != 0) GL.deleteShader(vertexShader);
+			if (fragmentShader != 0) GL.deleteShader(fragmentShader);
 		}
 		
 		// Delete VAO
