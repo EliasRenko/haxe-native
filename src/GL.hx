@@ -709,6 +709,10 @@ extern class GL {
     // Depth constants
     @:native("GL_DEPTH_COMPONENT")
     static var DEPTH_COMPONENT(default, null):Int;
+
+    // Depth constants
+    @:native("GL_DEPTH_COMPONENT24")
+    static var DEPTH_COMPONENT24(default, null):Int;
     
     // Renderbuffer constants
     @:native("GL_RENDERBUFFER")

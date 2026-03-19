@@ -10,8 +10,8 @@ class Framebuffer {
     
     // OpenGL handles
     public var fbo:UInt = 0;
-    public var colorTexture:UInt = 0;
-    public var depthTexture:UInt = 0;
+    public var colorTexture:Texture;
+    public var depthTexture:Texture;
     public var depthRenderbuffer:UInt = 0;
     
     // Dimensions
@@ -42,98 +42,52 @@ class Framebuffer {
         this.height = height;
         this.hasDepthTexture = useDepthTexture;
         this.hasDepthRenderbuffer = useDepthRenderbuffer && !useDepthTexture;
-        
-        initialize();
     }
     
     /**
      * Initialize the framebuffer and attachments
      */
-    private function initialize():Void {
+    public function initialize(renderer:Renderer):Void {
         // Create framebuffer
         fbo = GL.createFramebuffer();
         GL.bindFramebuffer(GL.FRAMEBUFFER, fbo);
         
         // Create color texture
-        createColorTexture();
+        colorTexture = renderer.createRenderTargetTexture(width, height, GL.RGBA, GL.RGBA, GL.UNSIGNED_BYTE);
+        GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, colorTexture.id, 0);
         
+
         // Create depth attachment if needed
         if (hasDepthTexture) {
-            createDepthTexture();
+            depthTexture = renderer.createRenderTargetTexture(width, height, GL.DEPTH_COMPONENT, GL.DEPTH_COMPONENT, GL.UNSIGNED_INT);
+            GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.TEXTURE_2D, depthTexture.id, 0);
         } else if (hasDepthRenderbuffer) {
             createDepthRenderbuffer();
         }
+
+		// Check framebuffer completeness
+		var status = GL.checkFramebufferStatus(GL.FRAMEBUFFER);
+		if (status != GL.FRAMEBUFFER_COMPLETE) {
+			trace("ERROR: Framebuffer incomplete: " + getStatusString());
+		} else {
+			trace("Framebuffer created successfully: " + width + "x" + height);
+		}
         
-        // Check framebuffer completeness
-        var status = GL.checkFramebufferStatus(GL.FRAMEBUFFER);
-        if (status != GL.FRAMEBUFFER_COMPLETE) {
-            trace("ERROR: Framebuffer is not complete! Status: " + status);
-            trace("  FBO: " + fbo);
-            trace("  Color texture: " + colorTexture);
-            trace("  Depth texture: " + depthTexture);
-            trace("  Depth renderbuffer: " + depthRenderbuffer);
-        } else {
-            trace("Framebuffer created successfully: " + width + "x" + height);
-        }
         
         // Unbind framebuffer
         GL.bindFramebuffer(GL.FRAMEBUFFER, 0);
     }
     
     /**
-     * Create the color texture attachment
-     */
-    private function createColorTexture():Void {
-        colorTexture = GL.createTexture();
-        GL.bindTexture(GL.TEXTURE_2D, colorTexture);
-        
-        // Allocate texture storage
-        GL.texImage2D(GL.TEXTURE_2D, 0, colorFormat, width, height, 0, GL.RGBA, GL.UNSIGNED_BYTE, null);
-        
-        // Set texture parameters
-        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, minFilter);
-        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, magFilter);
-        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, wrapS);
-        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, wrapT);
-        
-        // Attach to framebuffer
-        GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, colorTexture, 0);
-        
-        GL.bindTexture(GL.TEXTURE_2D, 0);
-    }
-    
-    /**
-     * Create a depth texture attachment (for shadow mapping, depth-based effects)
-     */
-    private function createDepthTexture():Void {
-        depthTexture = GL.createTexture();
-        GL.bindTexture(GL.TEXTURE_2D, depthTexture);
-        
-        // Allocate depth texture storage
-        GL.texImage2D(GL.TEXTURE_2D, 0, GL.DEPTH_COMPONENT, width, height, 0, GL.DEPTH_COMPONENT, GL.FLOAT, null);
-        
-        // Set texture parameters
-        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
-        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST);
-        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
-        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
-        
-        // Attach to framebuffer
-        GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.TEXTURE_2D, depthTexture, 0);
-        
-        GL.bindTexture(GL.TEXTURE_2D, 0);
-    }
-    
-    /**
      * Create a depth renderbuffer attachment (for depth testing only, not readable)
      */
     private function createDepthRenderbuffer():Void {
-        var rboArray = [0];
+        var rboArray:Array<UInt> = [0];
         GL.genRenderbuffers(1, untyped __cpp__("(unsigned int*)&{0}[0]", rboArray));
         depthRenderbuffer = rboArray[0];
         
         GL.bindRenderbuffer(GL.RENDERBUFFER, depthRenderbuffer);
-        GL.renderbufferStorage(GL.RENDERBUFFER, GL.DEPTH_COMPONENT, width, height);
+        GL.renderbufferStorage(GL.RENDERBUFFER, GL.DEPTH_COMPONENT24, width, height);
         GL.framebufferRenderbuffer(GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.RENDERBUFFER, depthRenderbuffer);
         
         GL.bindRenderbuffer(GL.RENDERBUFFER, 0);
@@ -160,7 +114,7 @@ class Framebuffer {
      */
     public function bindColorTexture(textureUnit:Int = 0):Void {
         GL.activeTexture(GL.TEXTURE0 + textureUnit);
-        GL.bindTexture(GL.TEXTURE_2D, colorTexture);
+        GL.bindTexture(GL.TEXTURE_2D, colorTexture.id);
     }
     
     /**
@@ -173,7 +127,7 @@ class Framebuffer {
             return;
         }
         GL.activeTexture(GL.TEXTURE0 + textureUnit);
-        GL.bindTexture(GL.TEXTURE_2D, depthTexture);
+        GL.bindTexture(GL.TEXTURE_2D, depthTexture.id);
     }
     
     /**
@@ -200,7 +154,7 @@ class Framebuffer {
      * @param newWidth New width
      * @param newHeight New height
      */
-    public function resize(newWidth:Int, newHeight:Int):Void {
+    public function resize(renderer:Renderer, newWidth:Int, newHeight:Int):Void {
         if (newWidth == width && newHeight == height) {
             return; // No change
         }
@@ -215,23 +169,23 @@ class Framebuffer {
         height = newHeight;
         
         // Recreate framebuffer
-        initialize();
+        initialize(renderer);
     }
     
     /**
      * Clean up OpenGL resources
      */
     public function dispose():Void {
-        if (colorTexture != 0) {
-            var texArray = [colorTexture];
+        if (colorTexture != null) {
+            var texArray = [colorTexture.id];
             GL.deleteTextures(1, untyped __cpp__("(unsigned int*)&{0}[0]", texArray));
-            colorTexture = 0;
+            colorTexture = null;
         }
         
-        if (depthTexture != 0) {
-            var texArray = [depthTexture];
+        if (depthTexture != null) {
+            var texArray = [depthTexture.id];
             GL.deleteTextures(1, untyped __cpp__("(unsigned int*)&{0}[0]", texArray));
-            depthTexture = 0;
+            depthTexture = null;
         }
         
         if (depthRenderbuffer != 0) {

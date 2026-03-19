@@ -34,8 +34,8 @@ class Renderer {
     public var usePostProcessing:Bool = false; // Toggle post-processing on/off
     private var currentProgram:Int = -1;
     
-    public function new(app:App, windowWidth:Int, windowHeight:Int) {
-        this.__app = app;
+    public function new(app:App) {
+        __app = app;
 
         setDepthTest(true);
         setDepthWrite(true);
@@ -402,6 +402,31 @@ class Renderer {
         return texture;
     }
 
+    public function createRenderTargetTexture(width:Int, height:Int, internalFormat:Int, format:Int, type:Int):Texture {
+        var textureId:GlUInt = 0;
+        GL.genTextures(1, RawPointer.addressOf(textureId));
+        GL.bindTexture(GL.TEXTURE_2D, textureId);
+
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST);
+
+        // Allocate texture storage without uploading data
+        untyped __cpp__("glTexImage2D({0}, 0, {1}, {2}, {3}, 0, {4}, {5}, NULL);", GL.TEXTURE_2D, internalFormat, width, height, format, type);
+
+        GL.bindTexture(GL.TEXTURE_2D, 0);
+
+        return {
+            id: textureId,
+            width: width,
+            height: height,
+            bpp: (format == GL.RGBA ? 4 : 1),
+            target: GL.TEXTURE_2D,
+            src: ""
+        };
+    }
+
     public function release():Void {
         // Reset render state
         setDepthTest(true);
@@ -465,19 +490,6 @@ class Renderer {
     private function get_app():App {
         return __app;
     }
-
-    // ** Helper: Convert AttributeFormat to GL constant for rendering
-	private function getGLFormat(format:AttributeFormat):Int {
-		return switch (format) {
-			case AttributeFormat.Float | AttributeFormat.Vec2 | AttributeFormat.Vec3 | AttributeFormat.Vec4: 5126; // GL_FLOAT
-			case AttributeFormat.Int: 5124;          // GL_INT
-			case AttributeFormat.UnsignedInt: 5125;  // GL_UNSIGNED_INT
-			case AttributeFormat.Byte: 5120;         // GL_BYTE
-			case AttributeFormat.UnsignedByte: 5121; // GL_UNSIGNED_BYTE
-			case AttributeFormat.Short: 5122;        // GL_SHORT
-			case AttributeFormat.UnsignedShort: 5123;// GL_UNSIGNED_SHORT
-		}
-	}
 	
 	// =============================================================================
 	// FRAMEBUFFER AND POST-PROCESSING
@@ -492,6 +504,7 @@ class Renderer {
 
 		// Create framebuffer
 		framebuffer = new Framebuffer(size.width, size.height, false, true);
+        framebuffer.initialize(this);
 		
 		// Create fullscreen quad for rendering
 		createFullscreenQuad();
@@ -606,8 +619,13 @@ class Renderer {
 		GL.viewport(0, 0, size.width, size.height);
 	}
 	
-    public function setViewport(width:Int, height:Int):Void {
+    private function setViewport(width:Int, height:Int):Void {
         GL.viewport(0, 0, width, height);
+    }
+
+    public function resize(width:Int, height:Int):Void {
+        setViewport(width, height);
+        framebuffer.resize(this, width, height);
     }
 
 	/**
