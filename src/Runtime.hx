@@ -29,23 +29,20 @@ class Runtime {
     private var __active:Bool = false;
     private var __window:Window;
     private var __context:GLContext;
-
-    // TODO: Move log to App
-    private var __log:Log;
     
     public function new() {}
     
     public function init():Bool {
         // Initialize SDL video
         if (!SDL.init(SDL.INIT_VIDEO)) {
-            __log.error(0, "Failed to initialize SDL video: " + SDL.getError());
+            logError(19, "Failed to initialize SDL video: " + SDL.getError());
             return false;
         }
 
         // Initialize SDL audio
         #if !no_audio
         if (!SDL.init(SDL.INIT_AUDIO)) {
-            __log.error(0, "Failed to initialize SDL audio: " + SDL.getError());
+            logError(19, "Failed to initialize SDL audio: " + SDL.getError());
             return false;
         }
         #end
@@ -53,7 +50,7 @@ class Runtime {
         // Initialize SDL joystick
         #if !no_joystick
         if (!SDL.init(SDL.INIT_JOYSTICK)) {
-            __log.error(0, "Failed to initialize SDL joystick: " + SDL.getError());
+            logError(19, "Failed to initialize SDL joystick: " + SDL.getError());
             return false;
         }
         #end
@@ -61,7 +58,7 @@ class Runtime {
         // Initialize gamepad
         #if !no_gamepad
         if (!SDL.init(SDL.INIT_GAMEPAD)) {
-            __log.error(0, "Failed to initialize SDL gamepad: " + SDL.getError());
+            logError(19, "Failed to initialize SDL gamepad: " + SDL.getError());
             return false;
         }
         #end
@@ -69,7 +66,7 @@ class Runtime {
         #if !no_haptic
         // Initialize SDL haptic
         if (!SDL.init(SDL.INIT_HAPTIC)) {
-            __log.error(0, "Failed to initialize SDL haptic: " + SDL.getError());
+            logError(19, "Failed to initialize SDL haptic: " + SDL.getError());
             return false;
         }
         #end
@@ -82,7 +79,7 @@ class Runtime {
         // Create window
         __window = new Window(SDL.createWindow(WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT, SDL.WINDOW_OPENGL | SDL.WINDOW_RESIZABLE | SDL.WINDOW_BORDERLESS | SDL.WINDOW_INPUT_FOCUS ));
         if (__window.ptr == null) {
-            __log.error(0, "Failed to create window: " + SDL.getError());
+            logError(19, "Failed to create window: " + SDL.getError());
             release();
             return false;
         }
@@ -90,7 +87,7 @@ class Runtime {
         // Create OpenGL context
         __context = SDL.createContext(__window.ptr);
         if (__context == null) {
-            __log.error(0, "Failed to create OpenGL context: " + SDL.getError());
+            logError(19, "Failed to create OpenGL context: " + SDL.getError());
             release();
             return false;
         }
@@ -100,12 +97,12 @@ class Runtime {
         // Load OpenGL functions
         var gladResult = GL.gladLoadGLLoader(SDL.getProcAddress);
         if (gladResult == 0) {
-            __log.error(0, "Failed to load OpenGL functions");
+            logError(19, "Failed to load OpenGL functions");
             release();
             return false;
         }
         
-        SDL.logInfo(0, "[OpenGL] " + "OpenGL version: " + GL.version.major + "." + GL.version.minor + " has been loaded.");
+        logInfo(19, "[OpenGL] " + "OpenGL version: " + GL.version.major + "." + GL.version.minor + " has been loaded.");
         
         // Set viewport to match window size
         GL.viewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -114,13 +111,7 @@ class Runtime {
     }
 
     public function release():Void {
-        __log.info(0, "Finalizing runtime.");
-        
-        // Cleanup log system last
-        if (__log != null) {
-            __log.release();
-            __log = null;
-        }
+        logInfo(19, "Finalizing runtime.");
 
         SDL.quit();
     }
@@ -178,7 +169,7 @@ class Runtime {
 
         var result = SDL.saveFile(path, dataPtr, dataSize);
         if (!result) {
-            __log.error(0, "Failed to save file: " + path + " - ERROR: " + SDL.getError());
+            logError(19, "Failed to save file: " + path + " - ERROR: " + SDL.getError());
         }
         return result;
     }
@@ -562,33 +553,13 @@ class Runtime {
 
     // Log functions
     // Priority hierarchy (low to high): TRACE (0) < VERBOSE (1) < DEBUG (2) < INFO (3) < WARN (4) < ERROR (5) < CRITICAL (6)
-    public function logTrace(category:Int, message:String):Void {
-        SDL.logTrace(category, message);
-    }
-
-    public function logVerbose(category:Int, message:String):Void {
-        SDL.logVerbose(category, message);
-    }
-
-    public function logDebug(category:Int, message:String):Void {
-        SDL.logDebug(category, message);
-    }
-
-    public function logInfo(category:Int, message:String):Void {
-        SDL.logInfo(category, message);
-    }
-
-    public function logWarn(category:Int, message:String):Void {
-        SDL.logWarn(category, message);
-    }
-
-    public function logError(category:Int, message:String):Void {
-        SDL.logError(category, message);
-    }
-
-    public function logCritical(category:Int, message:String):Void {
-        SDL.logCritical(category, message);
-    }
+    public function logTrace(category:Int, message:String):Void { SDL.logTrace(category, message); }
+    public function logVerbose(category:Int, message:String):Void { SDL.logVerbose(category, message); }
+    public function logDebug(category:Int, message:String):Void { SDL.logDebug(category, message); }
+    public function logInfo(category:Int, message:String):Void { SDL.logInfo(category, message); }
+    public function logWarn(category:Int, message:String):Void { SDL.logWarn(category, message); }
+    public function logError(category:Int, message:String):Void { SDL.logError(category, message); }
+    public function logCritical(category:Int, message:String):Void { SDL.logCritical(category, message); }
 
     public function getLogPriority(category:Int):Int {
         return SDL.getLogPriority(category);
@@ -606,10 +577,7 @@ class Runtime {
         return SDL.getError();
     }
 
-    /**
-     * Get the native window handle (HWND on Windows)
-     * This can be used to embed the SDL window in other applications
-     */
+    // Get native window handle (HWND on Windows)
     public function getWindowHandle():cpp.RawPointer<cpp.Void> {
         if (__window == null || __window.ptr == null) {
             return null;
