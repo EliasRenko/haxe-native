@@ -32,18 +32,18 @@ class Runtime {
     
     public function new() {}
     
-    public function init():Bool {
+    public function init():Void {
         // Initialize SDL video
         if (!SDL.init(SDL.INIT_VIDEO)) {
             logError(19, "Failed to initialize SDL video: " + SDL.getError());
-            return false;
+            return;
         }
 
         // Initialize SDL audio
         #if !no_audio
         if (!SDL.init(SDL.INIT_AUDIO)) {
             logError(19, "Failed to initialize SDL audio: " + SDL.getError());
-            return false;
+            return;
         }
         #end
 
@@ -51,7 +51,7 @@ class Runtime {
         #if !no_joystick
         if (!SDL.init(SDL.INIT_JOYSTICK)) {
             logError(19, "Failed to initialize SDL joystick: " + SDL.getError());
-            return false;
+            return;
         }
         #end
 
@@ -59,7 +59,7 @@ class Runtime {
         #if !no_gamepad
         if (!SDL.init(SDL.INIT_GAMEPAD)) {
             logError(19, "Failed to initialize SDL gamepad: " + SDL.getError());
-            return false;
+            return;
         }
         #end
 
@@ -67,7 +67,7 @@ class Runtime {
         // Initialize SDL haptic
         if (!SDL.init(SDL.INIT_HAPTIC)) {
             logError(19, "Failed to initialize SDL haptic: " + SDL.getError());
-            return false;
+            return;
         }
         #end
         
@@ -81,7 +81,7 @@ class Runtime {
         if (__window.ptr == null) {
             logError(19, "Failed to create window: " + SDL.getError());
             release();
-            return false;
+            return;
         }
         
         // Create OpenGL context
@@ -89,7 +89,7 @@ class Runtime {
         if (__context == null) {
             logError(19, "Failed to create OpenGL context: " + SDL.getError());
             release();
-            return false;
+            return;
         }
         
         SDL.makeCurrent(__window.ptr, __context);
@@ -99,15 +99,13 @@ class Runtime {
         if (gladResult == 0) {
             logError(19, "Failed to load OpenGL functions");
             release();
-            return false;
+            return;
         }
         
         logInfo(19, "[OpenGL] " + "OpenGL version: " + GL.version.major + "." + GL.version.minor + " has been loaded.");
         
         // Set viewport to match window size
         GL.viewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-
-        return true;
     }
 
     public function release():Void {
@@ -139,8 +137,8 @@ class Runtime {
         release();
     }
 
-    private function update():Void {}
-    private function render():Void {}
+    public function update():Void {}
+    public function render():Void {}
 
     public function loadBytes(path:String):Bytes {
         
