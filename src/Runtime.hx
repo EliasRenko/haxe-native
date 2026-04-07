@@ -172,6 +172,14 @@ class Runtime {
         return result;
     }
 
+    public function copyFile(srcPath:String, destPath:String):Bool {
+        var result = SDL.copyFile(srcPath, destPath);
+        if (!result) {
+            logError(19, "Failed to copy file from " + srcPath + " to " + destPath + " - ERROR: " + SDL.getError());
+        }
+        return result;
+    }
+
     // public function getPathInfo(path:String):PathInfo {
     //     var pathInfo:SDL_PathInfo = untyped __cpp__("SDL_PathInfo()");
     //     var infoPtr:Pointer<SDL_PathInfo> = untyped __cpp__("&{0}", pathInfo);
