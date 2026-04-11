@@ -409,11 +409,13 @@ class Renderer {
 
         GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
         GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
-        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
-        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST);
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR);
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
 
         // Allocate texture storage without uploading data
         untyped __cpp__("glTexImage2D({0}, 0, {1}, {2}, {3}, 0, {4}, {5}, NULL);", GL.TEXTURE_2D, internalFormat, width, height, format, type);
+
+        GL.generateMipmap(GL.TEXTURE_2D);
 
         GL.bindTexture(GL.TEXTURE_2D, 0);
 
