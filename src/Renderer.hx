@@ -50,6 +50,7 @@ class Renderer {
     // ** New method to render display objects with provided view-projection matrix
     public function renderDisplayObject(displayObject:DisplayObject, viewProjectionMatrix:math.Matrix):Void {
         if (!displayObject.visible) return;
+        if (displayObject.programInfo == null) return;
         
         // ALWAYS update buffers for orphaning strategy (rebuilds every frame)
         displayObject.updateBuffers(this);
@@ -172,22 +173,24 @@ class Renderer {
      * Create and register a ProgramInfo from preloaded shader files
      * This method uses the App's resource system to load shader files
      */
-    public function createProgramInfoFromFiles(name:String, vertexShaderPath:String, fragmentShaderPath:String):ProgramInfo {
+    public function createProgramInfoFromFiles(name:String, ?vertexShaderPath:String, fragmentShaderPath:String):ProgramInfo {
         // Check if this ProgramInfo already exists
         if (programInfos.exists(name)) {
             trace("ProgramInfo '" + name + "' already exists, reusing...");
             return programInfos.get(name);
         }
         
-        // Get shader source from preloaded resources
-        var vertexShader = app.resources.getText(vertexShaderPath);
-        var fragmentShader = app.resources.getText(fragmentShaderPath);
-        
-        if (vertexShader == null) {
-            trace("Error: Vertex shader '" + vertexShaderPath + "' not found in preloaded resources!");
-            return null;
+        // Vertex shader is optional; null means ShaderBuilder auto-generates it
+        var vertexShader:String = null;
+        if (vertexShaderPath != null) {
+            vertexShader = app.resources.getText(vertexShaderPath);
+            if (vertexShader == null) {
+                trace("Error: Vertex shader '" + vertexShaderPath + "' not found in preloaded resources!");
+                return null;
+            }
         }
         
+        var fragmentShader = app.resources.getText(fragmentShaderPath);
         if (fragmentShader == null) {
             trace("Error: Fragment shader '" + fragmentShaderPath + "' not found in preloaded resources!");
             return null;
@@ -238,7 +241,7 @@ class Renderer {
         GL.bindVertexArray(0);
     }
 
-        public function orphanAndUploadData(displayObject:DisplayObject, maxBufferSize:Int):Void {
+    public function orphanAndUploadData(displayObject:DisplayObject, maxBufferSize:Int):Void {
         GL.bindVertexArray(displayObject.programInfo.vao);
         GL.bindBuffer(GL.ARRAY_BUFFER, displayObject.vbo);
         untyped __cpp__("glBufferData({0}, {1}, NULL, {2})", GL.ARRAY_BUFFER, maxBufferSize, GL.STREAM_DRAW);
@@ -409,11 +412,13 @@ class Renderer {
 
         GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
         GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
-        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
-        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST);
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR);
+        GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
 
         // Allocate texture storage without uploading data
         untyped __cpp__("glTexImage2D({0}, 0, {1}, {2}, {3}, 0, {4}, {5}, NULL);", GL.TEXTURE_2D, internalFormat, width, height, format, type);
+
+        GL.generateMipmap(GL.TEXTURE_2D);
 
         GL.bindTexture(GL.TEXTURE_2D, 0);
 

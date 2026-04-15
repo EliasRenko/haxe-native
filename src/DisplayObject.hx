@@ -3,6 +3,7 @@ package;
 import GL;
 import ProgramInfo;
 import ProgramInfo.UniformFormat;
+import Renderer;
 import Texture;
 import data.Vertices;
 import data.Indices;
@@ -19,7 +20,8 @@ class BlendFactor {
 	public static var ONE_MINUS_SRC_ALPHA:Int = 771;  // GL.ONE_MINUS_SRC_ALPHA
 }
 
-class DisplayObject {
+@:autoBuild(ShaderMacro.build())
+abstract class DisplayObject {
 	//** Publics
 	public var active:Bool = false;
 	public var mode:Int = GL.TRIANGLES;
@@ -48,26 +50,35 @@ class DisplayObject {
 	public var vbo:GlUInt = 0;
 	public var ebo:GlUInt = 0;
 	
-	public function new(programInfo:ProgramInfo, vertices:Vertices, ?indices:Indices) {
-		if (programInfo == null) throw 'programInfo cannot be null';
-		this.programInfo = programInfo;
-
+	public function new(renderer:Renderer, vertices:Vertices, ?indices:Indices) {
+		// Initialize vertices and indices
 		this.vertices = vertices;
 		this.indices = indices != null ? indices : new Indices([]);
 
-		blendFactors = { 
+		blendFactors = {
 			source: BlendFactor.SRC_ALPHA,
 			destination: BlendFactor.ONE_MINUS_SRC_ALPHA
 		};
-	}
 
-	public function init(renderer:Renderer):Void {
+		// Auto-resolve programInfo by looking up the pre-compiled shader in the
+		// renderer's map. The state must register the ProgramInfo before creating
+		// any instance of this class (virtual dispatch is safe in HxCPP).
+		var shaderName = getShaderName();
+		if (shaderName != null) {
+			this.programInfo = renderer.getProgramInfo(shaderName);
+			if (this.programInfo == null) {
+				throw 'DisplayObject: ProgramInfo "$shaderName" not found. Pre-register it in the state before creating this object.';
+			}
+		}
+
 		var buffers = renderer.createBuffers();
 		vbo = buffers.vbo;
 		ebo = buffers.ebo;
-		
 		active = true;
 	}
+
+	/** Override in subclasses (or use @:shader metadata) to declare the shader name. */
+	public function getShaderName():String { return null; }
 	
 	public function updateBuffers(renderer:Renderer):Void {
 		if (!active) return;
