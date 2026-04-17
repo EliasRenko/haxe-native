@@ -6,6 +6,7 @@
  * must be queried after a context has been made current.
  */
 
+#include <stddef.h>
 #include "openal_efx.h"
 #include "AL/efx.h"
 
