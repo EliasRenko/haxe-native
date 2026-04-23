@@ -1,5 +1,6 @@
 package;
 
+#if !js
 import cpp.RawPointer;
 import cpp.UInt8;
 import cpp.UInt16;
@@ -1139,6 +1140,7 @@ abstract SDL_DisplayOrientation(Int) from Int to Int {
     var PORTRAIT = 3;
     var PORTRAIT_FLIPPED = 4;
 }
+#end
 
 @:enum
 abstract SDL_KeyboardEventType(UInt) from UInt to UInt {

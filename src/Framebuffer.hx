@@ -82,10 +82,14 @@ class Framebuffer {
      * Create a depth renderbuffer attachment (for depth testing only, not readable)
      */
     private function createDepthRenderbuffer():Void {
+        #if !js
         var rboArray:Array<UInt> = [0];
         GL.genRenderbuffers(1, untyped __cpp__("(unsigned int*)&{0}[0]", rboArray));
         depthRenderbuffer = rboArray[0];
-        
+        #else
+        depthRenderbuffer = GL.createRenderbuffer();
+        #end
+
         GL.bindRenderbuffer(GL.RENDERBUFFER, depthRenderbuffer);
         GL.renderbufferStorage(GL.RENDERBUFFER, GL.DEPTH_COMPONENT24, width, height);
         GL.framebufferRenderbuffer(GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.RENDERBUFFER, depthRenderbuffer);
@@ -177,26 +181,42 @@ class Framebuffer {
      */
     public function dispose():Void {
         if (colorTexture != null) {
+            #if !js
             var texArray = [colorTexture.id];
             GL.deleteTextures(1, untyped __cpp__("(unsigned int*)&{0}[0]", texArray));
+            #else
+            GL.deleteTexture(colorTexture.id);
+            #end
             colorTexture = null;
         }
         
         if (depthTexture != null) {
+            #if !js
             var texArray = [depthTexture.id];
             GL.deleteTextures(1, untyped __cpp__("(unsigned int*)&{0}[0]", texArray));
+            #else
+            GL.deleteTexture(depthTexture.id);
+            #end
             depthTexture = null;
         }
         
         if (depthRenderbuffer != 0) {
+            #if !js
             var rboArray = [depthRenderbuffer];
             GL.deleteRenderbuffers(1, untyped __cpp__("(unsigned int*)&{0}[0]", rboArray));
+            #else
+            GL.deleteRenderbuffers(1, depthRenderbuffer);
+            #end
             depthRenderbuffer = 0;
         }
         
         if (fbo != 0) {
+            #if !js
             var fboArray = [fbo];
             GL.deleteFramebuffers(1, untyped __cpp__("(unsigned int*)&{0}[0]", fboArray));
+            #else
+            GL.deleteFramebuffers(1, fbo);
+            #end
             fbo = 0;
         }
         

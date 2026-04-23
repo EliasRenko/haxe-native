@@ -1,13 +1,17 @@
 package data;
 
-import cpp.Float32;
+#if js
+typedef FloatData = Float;
+#else
+typedef FloatData = cpp.Float32;
+#end
 
 @:forward(length, pop, push)
-abstract Vertices(Array<Float32>) from Array<Float32> to Array<Float32> {
+abstract Vertices(Array<FloatData>) from Array<FloatData> to Array<FloatData> {
 	// Publics
-	public var data(get, never):Array<Float32>;
+	public var data(get, never):Array<FloatData>;
 
-    inline public function new(data:Array<Float32> = null) {
+    inline public function new(data:Array<FloatData> = null) {
 		this = data;
     }
 
@@ -17,17 +21,17 @@ abstract Vertices(Array<Float32>) from Array<Float32> to Array<Float32> {
 		}
     }
     
-	public function insert(count:UInt, ?value:Float32):Void {
+	public function insert(count:UInt, ?value:FloatData):Void {
 		for (value in 0...count) {
 			this.push(1);
 		}
 	}
 
-	public function set(pos:Int, value:Float):Void {
+	public function set(pos:Int, value:FloatData):Void {
 		this[pos] = value;
 	}
 
-	private function get_data():Array<Float32> {
+	private function get_data():Array<FloatData> {
 		return this;
 	}
 }

@@ -9,6 +9,12 @@ import data.Vertices;
 import data.Indices;
 import math.Matrix;
 
+#if js
+typedef GlUInt = UInt;
+#else
+typedef GlUInt = GL.GlUInt;
+#end
+
 typedef BlendFactors = {
 	source:Int,
 	destination:Int

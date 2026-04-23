@@ -1,13 +1,17 @@
 package data;
 
-import cpp.UInt32;
+#if js
+typedef UIntData = UInt;
+#else
+typedef UIntData = cpp.UInt32;
+#end
 
 @:forward(length, pop, push)
-abstract Indices(Array<UInt32>) from Array<UInt32> to Array<UInt32> {
+abstract Indices(Array<UIntData>) from Array<UIntData> to Array<UIntData> {
 	// Publics
-	public var data(get, never):Array<UInt32>;
+	public var data(get, never):Array<UIntData>;
 
-    inline public function new(data:Array<UInt32> = null) {
+    inline public function new(data:Array<UIntData> = null) {
 		this = data;
     }
 
@@ -17,17 +21,17 @@ abstract Indices(Array<UInt32>) from Array<UInt32> to Array<UInt32> {
 		}
     }
 
-	public function insert(count:UInt, ?value:UInt32):Void {
+	public function insert(count:UInt, ?value:UIntData):Void {
 		for (value in 0...count) {
 			this.push(1);
 		}
 	}
 
-	public function set(pos:Int, value:UInt32):Void {
+	public function set(pos:Int, value:UIntData):Void {
 		this[pos] = value;
 	}
 
-	private function get_data():Array<UInt32> {
+	private function get_data():Array<UIntData> {
 		return this;
 	}
 }
