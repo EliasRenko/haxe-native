@@ -52,8 +52,8 @@ class Framebuffer {
         fbo = GL.createFramebuffer();
         GL.bindFramebuffer(GL.FRAMEBUFFER, fbo);
         
-        // Create color texture
-        colorTexture = renderer.createRenderTargetTexture(width, height, GL.RGBA, GL.RGBA, GL.UNSIGNED_BYTE);
+        // Create color texture (use sized internal format GL_RGBA8 — required by WebGL2 for color-renderable FBO attachments)
+        colorTexture = renderer.createRenderTargetTexture(width, height, GL.RGBA8, GL.RGBA, GL.UNSIGNED_BYTE);
         GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, colorTexture.id, 0);
         
 

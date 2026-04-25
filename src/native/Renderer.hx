@@ -418,8 +418,6 @@ class Renderer {
         // Allocate texture storage without uploading data
         untyped __cpp__("glTexImage2D({0}, 0, {1}, {2}, {3}, 0, {4}, {5}, NULL);", GL.TEXTURE_2D, internalFormat, width, height, format, type);
 
-        GL.generateMipmap(GL.TEXTURE_2D);
-
         GL.bindTexture(GL.TEXTURE_2D, 0);
 
         return {
@@ -629,6 +627,7 @@ class Renderer {
     }
 
     public function resize(width:Int, height:Int):Void {
+        if (width <= 0 || height <= 0) return; // Ignore degenerate resize (e.g. window minimised)
         setViewport(width, height);
         framebuffer.resize(this, width, height);
     }

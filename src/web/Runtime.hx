@@ -63,7 +63,7 @@ class Runtime {
         __window = new Window(canvas);
 
         // Initialise WebGL2
-        var gl:RenderingContext = cast canvas.getContextWebGL2({ antialias: false, alpha: false });
+        var gl:RenderingContext = cast canvas.getContextWebGL2({ antialias: false, alpha: false, depth: true });
         if (gl == null) {
             logError(19, "Failed to create WebGL2 context. Browser may not support WebGL2.");
             return;

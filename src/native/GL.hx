@@ -307,6 +307,9 @@ extern class GL {
     @:native("GL_RGBA")
     static var RGBA(default, null):Int;
 
+    @:native("GL_RGBA8")
+    static var RGBA8(default, null):Int;
+
     @:native("GL_RED")
     static var RED(default, null):Int;
 

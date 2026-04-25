@@ -394,7 +394,6 @@ class Renderer {
         GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
 
         GL.texImage2D(GL.TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, null);
-        GL.generateMipmap(GL.TEXTURE_2D);
         GL.bindTexture(GL.TEXTURE_2D, 0);
 
         return {
@@ -486,6 +485,7 @@ class Renderer {
     }
 
     public function resize(width:Int, height:Int):Void {
+        if (width <= 0 || height <= 0) return; // Ignore degenerate resize (e.g. canvas inside display:none)
         GL.viewport(0, 0, width, height);
         if (framebuffer != null) framebuffer.resize(this, width, height);
     }
