@@ -11,8 +11,9 @@ import math.Matrix;
 
 #if js
 typedef GlUInt = UInt;
-#else
-typedef GlUInt = GL.GlUInt;
+#elseif cpp
+import cpp.UInt32;
+typedef GlUInt = UInt32;
 #end
 
 typedef BlendFactors = {
@@ -27,7 +28,7 @@ class BlendFactor {
 }
 
 @:autoBuild(ShaderMacro.build())
-abstract class DisplayObject {
+class DisplayObject {
 	//** Publics
 	public var active:Bool = false;
 	public var mode:Int = GL.TRIANGLES;

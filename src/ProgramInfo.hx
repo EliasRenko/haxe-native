@@ -15,13 +15,13 @@ typedef UniformFormat         = web.ProgramInfo.UniformFormat;
 #else
 
 typedef ProgramInfo           = native.ProgramInfo;
-typedef UniformLocation       = native.UniformLocation;
-typedef Program               = native.Program;
-typedef Shader                = native.Shader;
-typedef AttributeFormat       = native.AttributeFormat;
-typedef AttributeFormatHelper = native.AttributeFormatHelper;
-typedef UniformFormat         = native.UniformFormat;
-typedef Attribute             = native.Attribute;
-typedef Uniform               = native.Uniform;
+typedef UniformLocation       = native.ProgramInfo.UniformLocation;
+typedef Program               = native.ProgramInfo.Program;
+typedef Shader                = native.ProgramInfo.Shader;
+typedef AttributeFormat       = native.ProgramInfo.AttributeFormat;
+typedef AttributeFormatHelper = native.ProgramInfo.AttributeFormatHelper;
+typedef UniformFormat         = native.ProgramInfo.UniformFormat;
+typedef Attribute             = native.ProgramInfo.Attribute;
+typedef Uniform               = native.ProgramInfo.Uniform;
 
 #end

@@ -206,7 +206,7 @@ class Runtime {
         });
 
         canvas.addEventListener("wheel", function(e:WheelEvent) {
-            onMouseWheel(e.deltaX, e.deltaY);
+            onMouseWheel(e.deltaX, e.deltaY, 0);
             e.preventDefault();
         }, { passive: false });
 
@@ -314,7 +314,7 @@ class Runtime {
     private function onMouseButtonDown(x:Float, y:Float, button:Int, windowId:Int):Void {}
     private function onMouseButtonUp(x:Float, y:Float, button:Int, windowId:Int):Void {}
     private function onMouseMotion(x:Float, y:Float, xrel:Float, yrel:Float, windowId:Int):Void {}
-    private function onMouseWheel(x:Float, y:Float):Void {}
+    private function onMouseWheel(x:Float, y:Float, windowId:Int):Void {}
     private function onMouseAdded(deviceId:Int):Void {}
     private function onMouseRemoved(deviceId:Int):Void {}
 

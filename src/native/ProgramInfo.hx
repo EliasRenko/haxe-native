@@ -4,9 +4,9 @@ import GL;
 import cpp.ConstCharStar;
 import cpp.RawPointer;
 
-typedef UniformLocation = GlUInt;
-typedef Program = GlUInt;
-typedef Shader = GlUInt;
+typedef UniformLocation = GL.GlUInt;
+typedef Program = GL.GlUInt;
+typedef Shader = GL.GlUInt;
 
 // Attribute data formats
 enum AttributeFormat {
@@ -112,7 +112,7 @@ class ProgramInfo {
 	public var isCompiled:Bool = false;
 	
 	// ** VAO for shared vertex attribute configuration (modern OpenGL)
-	public var vao:GlUInt = 0;
+	public var vao:GL.GlUInt = 0;
 	public var useModernBinding:Bool = false; // True if ARB_vertex_attrib_binding is available
 
 	// ** Privates
