@@ -311,6 +311,19 @@ class ProgramInfo {
                 });
             }
         }
+
+        // TODO
+        // getActiveUniform order is implementation-defined; sort by declaration
+        // order in the fragment shader so textures[i] always matches drawable.textures[i].
+        if (fragmentShaderSource != null && textures.length > 1) {
+            textures.sort(function(a, b) {
+                var posA = fragmentShaderSource.indexOf(a.name);
+                var posB = fragmentShaderSource.indexOf(b.name);
+                if (posA < 0) posA = 0x7fffffff;
+                if (posB < 0) posB = 0x7fffffff;
+                return posA - posB;
+            });
+        }
     }
 
     // -------------------------------------------------------------------------
