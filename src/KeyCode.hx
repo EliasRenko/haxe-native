@@ -1,7 +1,6 @@
 package;
 
-@:enum
-abstract Keycode(Int) from Int to Int {
+enum abstract Keycode(Int) from Int to Int {
     var UNKNOWN = 0;
     var RETURN = 13;
     var ESCAPE = 27;

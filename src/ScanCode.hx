@@ -1,7 +1,6 @@
 package;
 
-@:enum
-abstract Scancode(Int) from Int to Int {
+enum abstract Scancode(Int) from Int to Int {
     var UNKNOWN = 0;
     var A = 4;
     var B = 5;
@@ -251,6 +250,138 @@ abstract Scancode(Int) from Int to Int {
     var ENDCALL = 290;
     //var RESERVED = 400;
     //var COUNT = 512;
+
+    public static function fromWebCode(code:String):Scancode {
+        return switch (code) {
+            // Letters
+            case "KeyA": A;
+            case "KeyB": B;
+            case "KeyC": C;
+            case "KeyD": D;
+            case "KeyE": E;
+            case "KeyF": F;
+            case "KeyG": G;
+            case "KeyH": H;
+            case "KeyI": I;
+            case "KeyJ": J;
+            case "KeyK": K;
+            case "KeyL": L;
+            case "KeyM": M;
+            case "KeyN": N;
+            case "KeyO": O;
+            case "KeyP": P;
+            case "KeyQ": Q;
+            case "KeyR": R;
+            case "KeyS": S;
+            case "KeyT": T;
+            case "KeyU": U;
+            case "KeyV": V;
+            case "KeyW": W;
+            case "KeyX": X;
+            case "KeyY": Y;
+            case "KeyZ": Z;
+            // Top-row digits
+            case "Digit1": KEY_1;
+            case "Digit2": KEY_2;
+            case "Digit3": KEY_3;
+            case "Digit4": KEY_4;
+            case "Digit5": KEY_5;
+            case "Digit6": KEY_6;
+            case "Digit7": KEY_7;
+            case "Digit8": KEY_8;
+            case "Digit9": KEY_9;
+            case "Digit0": KEY_0;
+            // Control / editing
+            case "Enter":        RETURN;
+            case "Escape":       ESCAPE;
+            case "Backspace":    BACKSPACE;
+            case "Tab":          TAB;
+            case "Space":        SPACE;
+            case "Minus":        MINUS;
+            case "Equal":        EQUALS;
+            case "BracketLeft":  LEFTBRACKET;
+            case "BracketRight": RIGHTBRACKET;
+            case "Backslash":    BACKSLASH;
+            case "Semicolon":    SEMICOLON;
+            case "Quote":        APOSTROPHE;
+            case "Backquote":    GRAVE;
+            case "Comma":        COMMA;
+            case "Period":       PERIOD;
+            case "Slash":        SLASH;
+            case "CapsLock":     CAPSLOCK;
+            // Function keys
+            case "F1":  F1;
+            case "F2":  F2;
+            case "F3":  F3;
+            case "F4":  F4;
+            case "F5":  F5;
+            case "F6":  F6;
+            case "F7":  F7;
+            case "F8":  F8;
+            case "F9":  F9;
+            case "F10": F10;
+            case "F11": F11;
+            case "F12": F12;
+            case "F13": F13;
+            case "F14": F14;
+            case "F15": F15;
+            case "F16": F16;
+            case "F17": F17;
+            case "F18": F18;
+            case "F19": F19;
+            case "F20": F20;
+            case "F21": F21;
+            case "F22": F22;
+            case "F23": F23;
+            case "F24": F24;
+            // Navigation cluster
+            case "PrintScreen": PRINTSCREEN;
+            case "ScrollLock":  SCROLLLOCK;
+            case "Pause":       PAUSE;
+            case "Insert":      INSERT;
+            case "Home":        HOME;
+            case "PageUp":      PAGEUP;
+            case "Delete":      DELETE;
+            case "End":         END;
+            case "PageDown":    PAGEDOWN;
+            case "ArrowRight":  RIGHT;
+            case "ArrowLeft":   LEFT;
+            case "ArrowDown":   DOWN;
+            case "ArrowUp":     UP;
+            // Numpad
+            case "NumLock":        NUMLOCKCLEAR;
+            case "NumpadDivide":   KP_DIVIDE;
+            case "NumpadMultiply": KP_MULTIPLY;
+            case "NumpadSubtract": KP_MINUS;
+            case "NumpadAdd":      KP_PLUS;
+            case "NumpadEnter":    KP_ENTER;
+            case "Numpad1":        KP_1;
+            case "Numpad2":        KP_2;
+            case "Numpad3":        KP_3;
+            case "Numpad4":        KP_4;
+            case "Numpad5":        KP_5;
+            case "Numpad6":        KP_6;
+            case "Numpad7":        KP_7;
+            case "Numpad8":        KP_8;
+            case "Numpad9":        KP_9;
+            case "Numpad0":        KP_0;
+            case "NumpadDecimal":  KP_PERIOD;
+            case "NumpadEqual":    KP_EQUALS;
+            case "NumpadComma":    KP_COMMA;
+            // Modifiers
+            case "ShiftLeft":    LSHIFT;
+            case "ShiftRight":   RSHIFT;
+            case "ControlLeft":  LCTRL;
+            case "ControlRight": RCTRL;
+            case "AltLeft":      LALT;
+            case "AltRight":     RALT;
+            case "MetaLeft":     LGUI;
+            case "MetaRight":    RGUI;
+            // Misc
+            case "ContextMenu":  APPLICATION;
+            default:             UNKNOWN;
+        }
+    }
 
     public static function toString(scancode:Scancode):String {
         return switch (scancode) {
