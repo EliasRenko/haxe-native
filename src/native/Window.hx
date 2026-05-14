@@ -1,6 +1,5 @@
 package native;
 
-import math.Vec2;
 import cpp.Pointer;
 import SDL;
 
@@ -9,7 +8,7 @@ class Window {
     // Publics
     public var fullscreen(get, null):Bool;
     public var ptr(get, null):WindowPtr;
-    public var size(get, set):Vec2;
+    public var size(get, set):{x:Float, y:Float};
 
     // Privates
     private var __windowPtr:WindowPtr;
@@ -61,12 +60,12 @@ class Window {
         return __windowPtr;
     }
 
-    private function get_size():Vec2 {
+    private function get_size():{x:Float, y:Float} {
         var size = getWindowSizeInPixels();
-        return new Vec2(size.width, size.height);
+        return {x: size.width, y: size.height};
     }
 
-    private function set_size(value:Vec2):Vec2 {
+    private function set_size(value:{x:Float, y:Float}):{x:Float, y:Float} {
         //var scale = getWindowScale();
         //var logicalWidth = Std.int(value.x / scale);
         //var logicalHeight = Std.int(value.y / scale);

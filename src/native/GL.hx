@@ -691,6 +691,8 @@ extern class GL {
     static var SAMPLER_CUBE_SHADOW(default, null):Int;
     
     // Blend function constants
+    @:native("GL_ONE")
+    static var ONE(default, null):Int;
     @:native("GL_SRC_ALPHA")
     static var SRC_ALPHA(default, null):Int;
     @:native("GL_ONE_MINUS_SRC_ALPHA")

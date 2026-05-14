@@ -3,7 +3,6 @@ package web;
 #if js
 import js.Browser;
 import js.html.CanvasElement;
-import math.Vec2;
 
 /**
  * Web window abstraction wrapping an HTML5 <canvas> element.
@@ -13,7 +12,7 @@ class Window {
 
     // Publics
     public var fullscreen(get, set):Bool;
-    public var size(get, set):Vec2;
+    public var size(get, set):{x:Float, y:Float};
 
     // Privates
     private var __canvas:CanvasElement;
@@ -55,11 +54,11 @@ class Window {
         return enable;
     }
 
-    private function get_size():Vec2 {
-        return new Vec2(__canvas.width, __canvas.height);
+    private function get_size():{x:Float, y:Float} {
+        return {x: __canvas.width, y: __canvas.height};
     }
 
-    private function set_size(value:Vec2):Vec2 {
+    private function set_size(value:{x:Float, y:Float}):{x:Float, y:Float} {
         __canvas.width  = Std.int(value.x);
         __canvas.height = Std.int(value.y);
         return value;
