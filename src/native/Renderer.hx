@@ -60,10 +60,8 @@ class Renderer {
         if (!displayObject.visible) return;
         if (displayObject.programInfo == null) return;
         
-        if (displayObject.needsBufferUpdate) {
-            displayObject.updateBuffers(this);
-        }
-
+        displayObject.updateBuffers(this);
+        
         if (displayObject.vertices.length == 0) return;
 
         displayObject.render(viewProjectionMatrix);

@@ -144,7 +144,7 @@ class DisplayObject {
 	}
 
 	public function updateTransform():Void {
-		// Transform updates should not trigger geometry buffer uploads.
+		//needsBufferUpdate = true;
 	}
 
 	// Fallback/default rendering implementation
