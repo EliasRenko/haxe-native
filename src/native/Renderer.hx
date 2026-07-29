@@ -24,6 +24,8 @@ class Renderer {
     private var __currentDepthTest:Bool = true;
     private var __currentDepthWrite:Bool = true;
     private var __currentBlendMode:Bool = false;
+    private var __currentBlendSource:Int = -1;
+    private var __currentBlendDestination:Int = -1;
     private var __app:App;
     private var __frameCount:Int = 0;
 
@@ -47,6 +49,8 @@ class Renderer {
     
     public function render():Void {
         currentProgram = -1;
+        __currentBlendSource = -1;
+        __currentBlendDestination = -1;
         __frameCount++;
     }
     
@@ -64,14 +68,13 @@ class Renderer {
         
         displayObject.render(viewProjectionMatrix);
 
-        // Use the program
+        // Use the program and bind the matching VAO when the shader changes.
         if (displayObject.programInfo.program != currentProgram) {
             GL.useProgram(displayObject.programInfo.program);
+            GL.bindVertexArray(displayObject.programInfo.vao);
+
             currentProgram = displayObject.programInfo.program;
         }
-
-        // Bind VAO (shared from ProgramInfo)
-        GL.bindVertexArray(displayObject.programInfo.vao);
         
         // Bind VBO to ARRAY_BUFFER (required for compatibility with data upload)
         GL.bindBuffer(GL.ARRAY_BUFFER, displayObject.vbo);
@@ -83,6 +86,8 @@ class Renderer {
         if (displayObject.ebo != 0 && displayObject.indices.length > 0) {
             GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, displayObject.ebo);
         }
+
+        __setBlendFunction(displayObject.blendFactors.source, displayObject.blendFactors.destination);
 
         // Render uniforms and textures
         __renderUniforms(displayObject.programInfo, displayObject);
@@ -96,17 +101,24 @@ class Renderer {
         }
 
         displayObject.postRender();
-
-        GL.bindVertexArray(0);
     }
 
-    private function __renderUniforms(programInfo:ProgramInfo, drawable:DisplayObject):Void {
-        for (name => value in drawable.uniforms) {
+    private function __setBlendFunction(source:Int, destination:Int):Void {
+        if (__currentBlendSource != source || __currentBlendDestination != destination) {
+            GL.blendFunc(source, destination);
+            __currentBlendSource = source;
+            __currentBlendDestination = destination;
+        }
+    }
+
+    private function __renderUniforms(programInfo:ProgramInfo, displayObject:DisplayObject):Void {
+        for (name => value in displayObject.uniforms) {
             var uniformInfo = programInfo.getUniform(name);
             
             // If the uniform doesn't exist in the shader, log a warning and skip it
             if (uniformInfo == null) {
-                app.log.warn(LogCategory.RENDERER, "Uniform '" + name + "' doesn't exist in shader");
+                __app.log.warn(LogCategory.RENDERER, "Uniform '" + name + "' doesn't exist in shader");
+
                 continue;
             }
             
@@ -114,20 +126,20 @@ class Renderer {
         }
     }
 
-    private function __renderTextures(programInfo:ProgramInfo, drawable:DisplayObject):Void {
+    private function __renderTextures(programInfo:ProgramInfo, displayObject:DisplayObject):Void {
         for (i in 0...programInfo.textures.length) {
             var x = GL.TEXTURE0 + i;
+
             GL.activeTexture(x);
 
-            if (i < drawable.textures.length) {
-                var texture = drawable.textures[i];
+            if (i < displayObject.textures.length) {
+                var texture = displayObject.textures[i];
                 var textureId = texture != null ? texture.id : 0;
+
                 GL.bindTexture(GL.TEXTURE_2D, textureId);
             }
-
-            GL.blendFunc(drawable.blendFactors.source, drawable.blendFactors.destination);
             
-            drawable.programInfo.textures[i].setter(i);
+            displayObject.programInfo.textures[i].setter(i);
         }
     }
     
@@ -136,7 +148,6 @@ class Renderer {
      * This is the proper way for States to request ProgramInfos from Renderer
      */
     public function createProgramInfo(name:String, vertexShader:String, fragmentShader:String):ProgramInfo {
-        // Check if this ProgramInfo already exists
         if (programInfos.exists(name)) {
             return programInfos.get(name);
         }
@@ -145,8 +156,8 @@ class Renderer {
         var programInfo = new ProgramInfo(name, vertexShader, fragmentShader);
         programInfos.set(name, programInfo);
 
-        // TODO: Convert to proper logging system once cross-class access is resolved
-        // trace("Created and registered ProgramInfo: " + name);
+        __app.log.info(LogCategory.RENDERER, "Created and registered ProgramInfo: " + name);
+
         return programInfo;
     }
     
@@ -183,14 +194,14 @@ class Renderer {
         // Vertex shader is optional; null means ShaderBuilder auto-generates it
         var vertexShader:String = null;
         if (vertexShaderPath != null) {
-            vertexShader = app.resources.getText(vertexShaderPath);
+            vertexShader = __app.resources.getText(vertexShaderPath);
             if (vertexShader == null) {
                 trace("Error: Vertex shader '" + vertexShaderPath + "' not found in preloaded resources!");
                 return null;
             }
         }
         
-        var fragmentShader = app.resources.getText(fragmentShaderPath);
+        var fragmentShader = __app.resources.getText(fragmentShaderPath);
         if (fragmentShader == null) {
             trace("Error: Fragment shader '" + fragmentShaderPath + "' not found in preloaded resources!");
             return null;
@@ -209,18 +220,20 @@ class Renderer {
      */
     public function getProgramInfoNames():Array<String> {
         var names:Array<String> = [];
+
         for (name in programInfos.keys()) {
             names.push(name);
         }
+
         return names;
     }
 
     // ===== RENDERING PIPELINE METHODS =====
 
     public function createBuffers():{vbo:GlUInt, ebo:GlUInt} {
-
         var vbo:GlUInt = 0;
         var ebo:GlUInt = 0;
+
         GL.genBuffers(1, RawPointer.addressOf(vbo));
         GL.genBuffers(1, RawPointer.addressOf(ebo));
 
@@ -481,7 +494,7 @@ class Renderer {
         if (__currentBlendMode != enabled) {
             if (enabled) {
                 GL.glEnable(GL.BLEND);
-                GL.blendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA);
+                __setBlendFunction(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA);
             } else {
                 GL.glDisable(GL.BLEND);
             }
