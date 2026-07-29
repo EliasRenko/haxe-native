@@ -139,8 +139,12 @@ class DisplayObject {
 		return (textures.length > 0 && textures[0] != null) ? textures[0].id : 0;
 	}
 
-	public function updateTransform():Void {
+	public function markBufferDirty():Void {
 		needsBufferUpdate = true;
+	}
+
+	public function updateTransform():Void {
+		// Transform updates should not trigger geometry buffer uploads.
 	}
 
 	// Fallback/default rendering implementation

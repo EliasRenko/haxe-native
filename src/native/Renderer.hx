@@ -65,7 +65,7 @@ class Renderer {
         }
 
         if (displayObject.vertices.length == 0) return;
-        
+
         displayObject.render(viewProjectionMatrix);
 
         // Use the program and bind the matching VAO when the shader changes.
