@@ -12,18 +12,21 @@ import math.Matrix;
 import cpp.Float32;
 import cpp.UInt32;
 import Framebuffer;
+import Log;
 
 class Renderer {
     
     // Publics
     public var app(get, null):App;
-    
+    public var frameCount(get, null):Int;
+
     // Current render state tracking
     private var __currentDepthTest:Bool = true;
     private var __currentDepthWrite:Bool = true;
     private var __currentBlendMode:Bool = false;
     private var __app:App;
-    private var frameCount:Int = 0;
+    private var __frameCount:Int = 0;
+
     private var programInfos:Map<String, ProgramInfo> = new Map<String, ProgramInfo>();
 
     // Framebuffer for post-processing
@@ -44,21 +47,22 @@ class Renderer {
     
     public function render():Void {
         currentProgram = -1;
-        frameCount++;
+        __frameCount++;
     }
     
     // ** New method to render display objects with provided view-projection matrix
     public function renderDisplayObject(displayObject:DisplayObject, viewProjectionMatrix:math.Matrix):Void {
+        
         if (!displayObject.visible) return;
         if (displayObject.programInfo == null) return;
         
-        // ALWAYS update buffers for orphaning strategy (rebuilds every frame)
-        displayObject.updateBuffers(this);
-        //uploadData(displayObject);
-        
-        displayObject.render(viewProjectionMatrix);
+        if (displayObject.needsBufferUpdate) {
+            displayObject.updateBuffers(this);
+        }
 
         if (displayObject.vertices.length == 0) return;
+        
+        displayObject.render(viewProjectionMatrix);
 
         // Use the program
         if (displayObject.programInfo.program != currentProgram) {
@@ -81,7 +85,7 @@ class Renderer {
         }
 
         // Render uniforms and textures
-        __renderUniforms(displayObject.programInfo, displayObject.uniforms);
+        __renderUniforms(displayObject.programInfo, displayObject);
         __renderTextures(displayObject.programInfo, displayObject);
 
         // Draw the object
@@ -96,20 +100,16 @@ class Renderer {
         GL.bindVertexArray(0);
     }
 
-    private function __renderUniforms(programInfo:ProgramInfo, uniforms:Map<String, Dynamic>):Void {
-        // Use pre-computed uniform setters for optimal performance - no more switch/case in render loop!
-        for (name => value in uniforms) {
-            // O(1) lookup using pre-computed uniform map
+    private function __renderUniforms(programInfo:ProgramInfo, drawable:DisplayObject):Void {
+        for (name => value in drawable.uniforms) {
             var uniformInfo = programInfo.getUniform(name);
             
+            // If the uniform doesn't exist in the shader, log a warning and skip it
             if (uniformInfo == null) {
-                // TODO: Convert to proper logging - __app.trace(21, "Warning: Uniform '" + name + "' not found in shader");
-                trace("Warning: Uniform '" + name + "' not found in shader");
-                continue; // Uniform doesn't exist in shader
+                app.log.warn(LogCategory.RENDERER, "Uniform '" + name + "' doesn't exist in shader");
+                continue;
             }
             
-            // Use pre-computed setter function - direct function call, no branching!
-            // This eliminates the switch/case overhead completely
             uniformInfo.setter(value);
         }
     }
@@ -658,4 +658,10 @@ class Renderer {
 		GL.drawElements(GL.TRIANGLES, 6, GL.UNSIGNED_INT, 0);
 		GL.bindVertexArray(0);
 	}
+
+    // Getters and setters
+
+    private function get_frameCount():Int {
+        return __frameCount;
+    }
 }

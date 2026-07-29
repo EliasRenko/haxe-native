@@ -1,6 +1,6 @@
 package;
 
-enum abstract Scancode(Int) from Int to Int {
+enum abstract ScanCode(Int) from Int to Int {
     var UNKNOWN = 0;
     var A = 4;
     var B = 5;
@@ -251,7 +251,7 @@ enum abstract Scancode(Int) from Int to Int {
     //var RESERVED = 400;
     //var COUNT = 512;
 
-    public static function fromWebCode(code:String):Scancode {
+    public static function fromWebCode(code:String):ScanCode {
         return switch (code) {
             // Letters
             case "KeyA": A;
@@ -383,7 +383,7 @@ enum abstract Scancode(Int) from Int to Int {
         }
     }
 
-    public static function toString(scancode:Scancode):String {
+    public static function toString(scancode:ScanCode):String {
         return switch (scancode) {
             case UNKNOWN: "Unknown";
             case A: "A";

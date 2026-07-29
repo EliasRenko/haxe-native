@@ -88,7 +88,7 @@ class DisplayObject {
 	public function getShaderName():String { return null; }
 	
 	public function updateBuffers(renderer:Renderer):Void {
-		if (!active) return;
+		if (!active || !needsBufferUpdate) return;
 	
 		renderer.uploadData(this);
 		needsBufferUpdate = false;
