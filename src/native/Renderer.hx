@@ -13,6 +13,7 @@ import cpp.Float32;
 import cpp.UInt32;
 import Framebuffer;
 import Log;
+import PostProcessPass;
 
 class Renderer {
     
@@ -34,9 +35,10 @@ class Renderer {
     // Framebuffer for post-processing
     public var framebuffer:Framebuffer = null;
     public var postProcessShader:ProgramInfo = null;
+    private var __postProcessPass:PostProcessPass = null;
     private var __fullscreenQuadVAO:Int = 0;
     private var __fullscreenQuadVBO:Int = 0;
-    public var usePostProcessing:Bool = false; // Toggle post-processing on/off
+    public var usePostProcessing:Bool = true; // Toggle post-processing on/off
     private var currentProgram:Int = -1;
     
     public function new(app:App) {
@@ -448,10 +450,12 @@ class Renderer {
         setBlendMode(false);
         
         // Cleanup framebuffer
-        if (framebuffer != null) {
-            framebuffer.dispose();
-            framebuffer = null;
+        if (__postProcessPass != null) {
+            __postProcessPass.dispose();
+            __postProcessPass = null;
         }
+        framebuffer = null;
+        postProcessShader = null;
         
         // Cleanup all registered ProgramInfos
         for (name in programInfos.keys()) {
@@ -517,110 +521,33 @@ class Renderer {
 	 * Initialize the post-processing framebuffer and fullscreen quad
 	 */
 	public function initializePostProcessing():Void {
-
         var size = app.window.getWindowSizeInPixels();
 
-		// Create framebuffer
-		framebuffer = new Framebuffer(size.width, size.height, false, true);
-        framebuffer.initialize(this);
-		
-		// Create fullscreen quad for rendering
-		createFullscreenQuad();
-		
-		// Create default post-process shader (passthrough)
-		var vertShader = '
-			#version 330 core
-			layout (location = 0) in vec2 aPos;
-			layout (location = 1) in vec2 aTexCoord;
-			out vec2 TexCoord;
-			
-			void main() {
-				gl_Position = vec4(aPos.x, aPos.y, 0.0, 1.0);
-				TexCoord = aTexCoord;
-			}
-		';
-		
-		var fragShader = '
-			#version 330 core
-			in vec2 TexCoord;
-			out vec4 FragColor;
-			uniform sampler2D uScreenTexture;
-			
-			void main() {
-				FragColor = texture(uScreenTexture, TexCoord);
-			}
-		';
-		
-		postProcessShader = createProgramInfo("PostProcess", vertShader, fragShader);
-		
-		trace("Renderer: Post-processing initialized");
+        __postProcessPass = new PostProcessPass(this, size.width, size.height);
+        framebuffer = __postProcessPass.framebuffer;
+        postProcessShader = __postProcessPass.shader;
+
+        trace("Renderer: Post-processing initialized");
 	}
 	
 	/**
 	 * Create a fullscreen quad (2 triangles)
 	 */
 	private function createFullscreenQuad():Void {
-		// Fullscreen quad vertices: position (x,y) + texcoord (u,v)
-		var quadVertices:Array<Float> = [
-			// positions  // texCoords
-			-1.0,  1.0,  0.0, 1.0, // top-left
-			-1.0, -1.0,  0.0, 0.0, // bottom-left
-			 1.0, -1.0,  1.0, 0.0, // bottom-right
-			 1.0,  1.0,  1.0, 1.0  // top-right
-		];
-		
-		var quadIndices:Array<UInt> = [
-			0, 1, 2, // first triangle
-			0, 2, 3  // second triangle
-		];
-		
-		// Create VAO
-		__fullscreenQuadVAO = GL.createVertexArray();
-		GL.bindVertexArray(__fullscreenQuadVAO);
-		
-		// Create VBO
-		__fullscreenQuadVBO = GL.createBuffer();
-		GL.bindBuffer(GL.ARRAY_BUFFER, __fullscreenQuadVBO);
-		
-		// Convert vertex array to bytes
-		var vertexBytes = haxe.io.Bytes.alloc(quadVertices.length * 4);
-		for (i in 0...quadVertices.length) {
-			vertexBytes.setFloat(i * 4, quadVertices[i]);
+		if (__postProcessPass != null) {
+			__postProcessPass.initialize(this);
+			framebuffer = __postProcessPass.framebuffer;
+			postProcessShader = __postProcessPass.shader;
 		}
-		GL.bufferData(GL.ARRAY_BUFFER, vertexBytes.length, vertexBytes.getData(), GL.STATIC_DRAW);
-		
-		// Create EBO
-		var ebo = GL.createBuffer();
-		GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, ebo);
-		
-		// Convert index array to bytes
-		var indexBytes = haxe.io.Bytes.alloc(quadIndices.length * 4);
-		for (i in 0...quadIndices.length) {
-			indexBytes.setInt32(i * 4, quadIndices[i]);
-		}
-        
-		GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, indexBytes.length, indexBytes.getData(), GL.STATIC_DRAW);
-		
-		// Position attribute
-		
-        GL.vertexAttribPointer(0, 2, GL.FLOAT, false, 4 * 4, untyped __cpp__("(void*)0")); // 4 floats per vertex, stride = 16 bytes
-
-		GL.enableVertexAttribArray(0);
-		
-		// TexCoord attribute
-		GL.vertexAttribPointer(1, 2, GL.FLOAT, false, 4 * 4, untyped __cpp__("(void*){0}", 2 * 4)); // offset = 8 bytes
-		GL.enableVertexAttribArray(1);
-		
-		GL.bindVertexArray(0);
-		
-		trace("Renderer: Created fullscreen quad");
 	}
 	
 	/**
 	 * Bind the framebuffer for rendering
 	 */
 	public function bindFramebuffer():Void {
-		if (framebuffer != null) {
+		if (__postProcessPass != null) {
+			__postProcessPass.begin();
+		} else if (framebuffer != null) {
 			framebuffer.bind();
 		}
 	}
@@ -629,7 +556,9 @@ class Renderer {
 	 * Unbind the framebuffer (render to screen)
 	 */
 	public function unbindFramebuffer():Void {
-		if (framebuffer != null) {
+		if (__postProcessPass != null) {
+			__postProcessPass.end();
+		} else if (framebuffer != null) {
 			framebuffer.unbind();
 		}
 
@@ -644,13 +573,24 @@ class Renderer {
     public function resize(width:Int, height:Int):Void {
         if (width <= 0 || height <= 0) return; // Ignore degenerate resize (e.g. window minimised)
         setViewport(width, height);
-        framebuffer.resize(this, width, height);
+        if (__postProcessPass != null) {
+            __postProcessPass.resize(width, height);
+            framebuffer = __postProcessPass.framebuffer;
+            postProcessShader = __postProcessPass.shader;
+        } else if (framebuffer != null) {
+            framebuffer.resize(this, width, height);
+        }
     }
 
 	/**
 	 * Render the framebuffer texture to screen with post-process shader
 	 */
 	public function renderToScreen():Void {
+		if (__postProcessPass != null) {
+			__postProcessPass.render(this);
+			return;
+		}
+
 		if (framebuffer == null || postProcessShader == null) {
 			trace("Warning: Post-processing not initialized");
 			return;
