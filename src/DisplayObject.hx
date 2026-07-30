@@ -29,7 +29,7 @@ class BlendFactor {
 
 @:autoBuild(ShaderMacro.build())
 class DisplayObject {
-	//** Publics
+	// Publics
 	public var active:Bool = false;
 	public var mode:Int = GL.TRIANGLES;
 	public var blendFactors:BlendFactors;
@@ -46,7 +46,7 @@ class DisplayObject {
 	public var depthWrite:Bool = true;
 	public var cullFace:Bool = false;
 
-	// ** Privates.
+	// Privates
 	public var __verticesToRender:Int = 0;
 	public var __indicesToRender:UInt = 0;
 	
@@ -58,7 +58,6 @@ class DisplayObject {
 	public var ebo:GlUInt = 0;
 	
 	public function new(renderer:Renderer, vertices:Vertices, ?indices:Indices) {
-		// Initialize vertices and indices
 		this.vertices = vertices;
 		this.indices = indices != null ? indices : new Indices([]);
 

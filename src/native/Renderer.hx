@@ -504,6 +504,10 @@ class Renderer {
     private function get_app():App {
         return __app;
     }
+
+    private function get_frameCount():Int {
+        return __frameCount;
+    }
 	
 	// =============================================================================
 	// FRAMEBUFFER AND POST-PROCESSING
@@ -669,10 +673,4 @@ class Renderer {
 		GL.drawElements(GL.TRIANGLES, 6, GL.UNSIGNED_INT, 0);
 		GL.bindVertexArray(0);
 	}
-
-    // Getters and setters
-
-    private function get_frameCount():Int {
-        return __frameCount;
-    }
 }
