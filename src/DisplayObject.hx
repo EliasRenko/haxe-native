@@ -144,17 +144,12 @@ class DisplayObject {
 		__transformDirty = true;
 	}
 
-	public function updateTransform():Void {
-		//needsBufferUpdate = true;
-	}
-
 	public function render(cameraMatrix:Matrix, cameraDirty:Bool):Void {
 		if (!visible) return;
 		if (!__transformDirty && !cameraDirty) return;
 
 		__transformDirty = false;
 
-		updateTransform();
 		var finalMatrix = Matrix.copy(matrix);
 		finalMatrix.append(cameraMatrix);
 		uniforms.set("uMatrix", finalMatrix.data);
