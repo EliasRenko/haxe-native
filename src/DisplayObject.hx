@@ -145,14 +145,12 @@ class DisplayObject {
 	}
 
 	public function render(cameraMatrix:Matrix, cameraDirty:Bool):Void {
-		if (!visible) return;
-		if (!__transformDirty && !cameraDirty) return;
-
-		__transformDirty = false;
-
-		var finalMatrix = Matrix.copy(matrix);
-		finalMatrix.append(cameraMatrix);
-		uniforms.set("uMatrix", finalMatrix.data);
+		if (__transformDirty || cameraDirty) {
+			__transformDirty = false;
+			var finalMatrix = Matrix.copy(matrix);
+			finalMatrix.append(cameraMatrix);
+			uniforms.set("uMatrix", finalMatrix.data);
+		}
 	}
 
 	public function postRender():Void {
