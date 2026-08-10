@@ -40,6 +40,9 @@ class Renderer {
     private var __fullscreenQuadVBO:Int = 0;
     public var usePostProcessing:Bool = true; // Toggle post-processing on/off
     private var currentProgram:Int = -1;
+    private var currentVbo:Int = 0;
+    private var currentEbo:Int = 0;
+    private var currentTextures:Array<Int> = [-1, -1, -1, -1, -1, -1, -1, -1];
     
     public function new(app:App) {
         __app = app;
@@ -51,6 +54,9 @@ class Renderer {
     
     public function render():Void {
         currentProgram = -1;
+        currentVbo = 0;
+        currentEbo = 0;
+        for (i in 0...currentTextures.length) currentTextures[i] = -1;
         __currentBlendSource = -1;
         __currentBlendDestination = -1;
         __frameCount++;
@@ -72,19 +78,24 @@ class Renderer {
         if (displayObject.programInfo.program != currentProgram) {
             GL.useProgram(displayObject.programInfo.program);
             GL.bindVertexArray(displayObject.programInfo.vao);
-
             currentProgram = displayObject.programInfo.program;
+            currentVbo = 0;   // VAO switch invalidates bindVertexBuffer state
+            currentEbo = 0;   // VAO stores EBO binding, may be stale
         }
         
-        // Bind VBO to ARRAY_BUFFER (required for compatibility with data upload)
-        GL.bindBuffer(GL.ARRAY_BUFFER, displayObject.vbo);
+        // Dont needed with modern ARB_vertex_attrib_binding, but keep for compatibility
+        // GL.bindBuffer(GL.ARRAY_BUFFER, displayObject.vbo);
         
         // Also bind using modern ARB_vertex_attrib_binding
-        GL.bindVertexBuffer(0, displayObject.vbo, 0, displayObject.programInfo.vertexStride);
+        if (displayObject.vbo != currentVbo) {
+            GL.bindVertexBuffer(0, displayObject.vbo, 0, displayObject.programInfo.vertexStride);
+            currentVbo = displayObject.vbo;
+        }
         
         // Bind element buffer if available
-        if (displayObject.ebo != 0 && displayObject.indices.length > 0) {
+        if (displayObject.ebo != 0 && displayObject.indices.length > 0 && displayObject.ebo != currentEbo) {
             GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, displayObject.ebo);
+            currentEbo = displayObject.ebo;
         }
 
         __setBlendFunction(displayObject.blendFactors.source, displayObject.blendFactors.destination);
