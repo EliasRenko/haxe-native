@@ -52,6 +52,8 @@ class DisplayObject {
 	
 	// Flag to indicate buffers need updating
 	public var needsBufferUpdate:Bool = false;
+	// Skips matrix recompute and uniform upload when neither object nor camera changed
+	public var __transformDirty:Bool = true;
 	
 	// VAO and VBO for this display object
 	public var vbo:GlUInt = 0;
@@ -138,28 +140,23 @@ class DisplayObject {
 		return (textures.length > 0 && textures[0] != null) ? textures[0].id : 0;
 	}
 
-	public function markBufferDirty():Void {
-		needsBufferUpdate = true;
+	public function markTransformDirty():Void {
+		__transformDirty = true;
 	}
 
 	public function updateTransform():Void {
 		//needsBufferUpdate = true;
 	}
 
-	// Fallback/default rendering implementation
-	// This method can be overridden by specific display objects for custom rendering behavior
-	public function render(cameraMatrix:Matrix):Void {
+	public function render(cameraMatrix:Matrix, cameraDirty:Bool):Void {
 		if (!visible) return;
-		
-		// Update transformation matrix based on current properties
+		if (!__transformDirty && !cameraDirty) return;
+
+		__transformDirty = false;
+
 		updateTransform();
-		
-		// Create final matrix by combining object matrix with camera matrix
-		// Order: finalMatrix = objectMatrix * cameraMatrix  
 		var finalMatrix = Matrix.copy(matrix);
 		finalMatrix.append(cameraMatrix);
-		
-		// Set the transform matrix in uniforms map
 		uniforms.set("uMatrix", finalMatrix.data);
 	}
 

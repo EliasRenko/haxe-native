@@ -71,17 +71,17 @@ class Renderer {
     // Display object rendering
     // -------------------------------------------------------------------------
 
-    public function renderDisplayObject(displayObject:DisplayObject, viewProjectionMatrix:Matrix):Void {
+    public function renderDisplayObject(displayObject:DisplayObject, viewProjectionMatrix:Matrix, cameraDirty:Bool):Void {
         if (!displayObject.visible) return;
         if (displayObject.programInfo == null) return;
 
         if (displayObject.needsBufferUpdate) {
-+            displayObject.updateBuffers(this);
-+       }
+            displayObject.updateBuffers(this);
+        }
 
         if (displayObject.vertices.length == 0) return;
 
-        displayObject.render(viewProjectionMatrix);
+        displayObject.render(viewProjectionMatrix, cameraDirty);
 
         // Use the program
         if (displayObject.programInfo.program != currentProgram) {

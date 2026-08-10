@@ -57,7 +57,7 @@ class Renderer {
     }
     
     // ** New method to render display objects with provided view-projection matrix
-    public function renderDisplayObject(displayObject:DisplayObject, viewProjectionMatrix:math.Matrix):Void {
+    public function renderDisplayObject(displayObject:DisplayObject, viewProjectionMatrix:math.Matrix, cameraDirty:Bool):Void {
         
         if (!displayObject.visible) return;
         if (displayObject.programInfo == null) return;
@@ -66,7 +66,7 @@ class Renderer {
         
         if (displayObject.vertices.length == 0) return;
 
-        displayObject.render(viewProjectionMatrix);
+        displayObject.render(viewProjectionMatrix, cameraDirty);
 
         // Use the program and bind the matching VAO when the shader changes.
         if (displayObject.programInfo.program != currentProgram) {

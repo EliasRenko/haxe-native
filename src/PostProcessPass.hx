@@ -65,7 +65,7 @@ class PostProcessPass {
             screenQuad.setTexture(null);
         }
 
-        renderer.renderDisplayObject(screenQuad, new Matrix());
+        renderer.renderDisplayObject(screenQuad, new Matrix(), true);
     }
 
     public function resize(width:Int, height:Int):Void {
@@ -117,14 +117,14 @@ class ScreenQuadDisplayObject extends DisplayObject {
         __verticesToRender = 4;
         __indicesToRender = 6;
         mode = GL.TRIANGLES;
-        markBufferDirty();
+        needsBufferUpdate = true;
         blendFactors = {
             source: BlendFactor.SRC_ALPHA,
             destination: BlendFactor.ONE_MINUS_SRC_ALPHA
         };
     }
 
-    override public function render(cameraMatrix:Matrix):Void {
+    override public function render(cameraMatrix:Matrix, cameraDirty:Bool):Void {
         uniforms.set("uScreenTexture", 0);
     }
 }
