@@ -139,17 +139,15 @@ class Renderer {
 
     private function __renderTextures(programInfo:ProgramInfo, displayObject:DisplayObject):Void {
         for (i in 0...programInfo.textures.length) {
-            var x = GL.TEXTURE0 + i;
-
-            GL.activeTexture(x);
-
             if (i < displayObject.textures.length) {
                 var texture = displayObject.textures[i];
                 var textureId = texture != null ? texture.id : 0;
-
-                GL.bindTexture(GL.TEXTURE_2D, textureId);
+                if (textureId != currentTextures[i]) {
+                    GL.activeTexture(GL.TEXTURE0 + i);
+                    GL.bindTexture(GL.TEXTURE_2D, textureId);
+                    currentTextures[i] = textureId;
+                }
             }
-            
             displayObject.programInfo.textures[i].setter(i);
         }
     }
