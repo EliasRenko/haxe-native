@@ -38,7 +38,7 @@ class Renderer {
     private var __postProcessPass:PostProcessPass = null;
     private var __fullscreenQuadVAO:Int = 0;
     private var __fullscreenQuadVBO:Int = 0;
-    public var usePostProcessing:Bool = true; // Toggle post-processing on/off
+    public var usePostProcessing:Bool = false; // Toggle post-processing on/off
     private var currentProgram:Int = -1;
     private var currentVbo:Int = 0;
     private var currentEbo:Int = 0;
@@ -112,6 +112,10 @@ class Renderer {
         }
 
         displayObject.postRender();
+    }
+
+    public function draw():Void {
+        
     }
 
     private function __setBlendFunction(source:Int, destination:Int):Void {

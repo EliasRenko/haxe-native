@@ -28,7 +28,7 @@ class BlendFactor {
 }
 
 @:autoBuild(ShaderMacro.build())
-class DisplayObject {
+abstract class DisplayObject {
 	// Publics
 	public var active:Bool = false;
 	public var mode:Int = GL.TRIANGLES;
@@ -37,7 +37,6 @@ class DisplayObject {
 	public var vertices:Vertices = new Vertices([]);
 	public var programInfo:ProgramInfo;
 	public var textures:Array<Texture> = new Array<Texture>();
-	public var matrix:Matrix = new Matrix();
 	public var uniforms:Map<String, Dynamic> = new Map<String, Dynamic>();
 	public var visible:Bool = true;
 	
@@ -49,15 +48,15 @@ class DisplayObject {
 	// Privates
 	public var __verticesToRender:Int = 0;
 	public var __indicesToRender:UInt = 0;
+	private var matrix:Matrix = new Matrix();
 	
 	// Flag to indicate buffers need updating
 	public var needsBufferUpdate:Bool = false;
-	// Skips matrix recompute and uniform upload when neither object nor camera changed
-	public var __transformDirty:Bool = true;
 	
-	// VAO and VBO for this display object
-	public var vbo:GlUInt = 0;
-	public var ebo:GlUInt = 0;
+	@:allow(native.Renderer) 
+	private var vbo:GlUInt = 0; // Vertex Buffer Object
+	@:allow(native.Renderer)
+	private var ebo:GlUInt = 0; // Element Buffer Object
 	
 	public function new(renderer:Renderer, vertices:Vertices, ?indices:Indices) {
 		this.vertices = vertices;
@@ -140,17 +139,16 @@ class DisplayObject {
 		return (textures.length > 0 && textures[0] != null) ? textures[0].id : 0;
 	}
 
-	public function markTransformDirty():Void {
-		__transformDirty = true;
-	}
-
 	public function render(cameraMatrix:Matrix, cameraDirty:Bool):Void {
-		if (__transformDirty || cameraDirty) {
-			__transformDirty = false;
+		if (cameraDirty) {
 			var finalMatrix = Matrix.copy(matrix);
 			finalMatrix.append(cameraMatrix);
 			uniforms.set("uMatrix", finalMatrix.data);
 		}
+	}
+
+	public function draw(renderer:Renderer):Void {
+		renderer.draw(this);
 	}
 
 	public function postRender():Void {
