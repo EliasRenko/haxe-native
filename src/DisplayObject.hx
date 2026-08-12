@@ -5,6 +5,7 @@ import ProgramInfo;
 import ProgramInfo.UniformFormat;
 import Renderer;
 import Texture;
+import data.BlendFactors;
 import data.Vertices;
 import data.Indices;
 import math.Matrix;
@@ -16,15 +17,9 @@ import cpp.UInt32;
 typedef GlUInt = UInt32;
 #end
 
-typedef BlendFactors = {
+typedef Blending = {
 	source:Int,
 	destination:Int
-}
-
-// Blend factor constants
-class BlendFactor {
-	public static var SRC_ALPHA:Int = 770;  // GL.SRC_ALPHA
-	public static var ONE_MINUS_SRC_ALPHA:Int = 771;  // GL.ONE_MINUS_SRC_ALPHA
 }
 
 @:autoBuild(ShaderMacro.build())
@@ -32,7 +27,7 @@ abstract class DisplayObject {
 	// Publics
 	public var active:Bool = false;
 	public var mode:Int = GL.TRIANGLES;
-	public var blendFactors:BlendFactors;
+	public var blending:Blending;
 	public var indices:Indices = new Indices([]);
 	public var vertices:Vertices = new Vertices([]);
 	public var programInfo:ProgramInfo;
@@ -62,9 +57,9 @@ abstract class DisplayObject {
 		this.vertices = vertices;
 		this.indices = indices != null ? indices : new Indices([]);
 
-		blendFactors = {
-			source: BlendFactor.SRC_ALPHA,
-			destination: BlendFactor.ONE_MINUS_SRC_ALPHA
+		blending = {
+			source: BlendFactors.SRC_ALPHA,
+			destination: BlendFactors.ONE_MINUS_SRC_ALPHA
 		};
 
 		// Auto-resolve programInfo by looking up the pre-compiled shader in the
@@ -145,10 +140,6 @@ abstract class DisplayObject {
 			finalMatrix.append(cameraMatrix);
 			uniforms.set("uMatrix", finalMatrix.data);
 		}
-	}
-
-	public function draw(renderer:Renderer):Void {
-		renderer.draw(this);
 	}
 
 	public function postRender():Void {

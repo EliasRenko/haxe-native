@@ -98,7 +98,7 @@ class Renderer {
             currentEbo = displayObject.ebo;
         }
 
-        __setBlendFunction(displayObject.blendFactors.source, displayObject.blendFactors.destination);
+        __setBlendFunction(displayObject.blending.source, displayObject.blending.destination);
 
         // Render uniforms and textures
         __renderUniforms(displayObject.programInfo, displayObject);
@@ -112,10 +112,6 @@ class Renderer {
         }
 
         displayObject.postRender();
-    }
-
-    public function draw():Void {
-        
     }
 
     private function __setBlendFunction(source:Int, destination:Int):Void {

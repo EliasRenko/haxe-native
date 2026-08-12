@@ -2,6 +2,7 @@ package;
 
 import GL;
 import DisplayObject;
+import data.BlendFactors;
 import data.Indices;
 import data.Vertices;
 import math.Matrix;
@@ -118,9 +119,9 @@ class ScreenQuadDisplayObject extends DisplayObject {
         __indicesToRender = 6;
         mode = GL.TRIANGLES;
         needsBufferUpdate = true;
-        blendFactors = {
-            source: BlendFactor.SRC_ALPHA,
-            destination: BlendFactor.ONE_MINUS_SRC_ALPHA
+        blending = {
+            source: BlendFactors.SRC_ALPHA,
+            destination: BlendFactors.ONE_MINUS_SRC_ALPHA
         };
     }
 
