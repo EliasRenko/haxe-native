@@ -66,7 +66,10 @@ class Renderer {
     public function renderDisplayObject(displayObject:DisplayObject, viewProjectionMatrix:math.Matrix, cameraDirty:Bool):Void {
         
         if (!displayObject.visible) return;
-        if (displayObject.programInfo == null) return;
+
+        var programInfo = getProgramInfo(displayObject.programInfoName);
+
+        if (programInfo == null) return;
         
         displayObject.updateBuffers(this);
         
@@ -75,12 +78,12 @@ class Renderer {
         displayObject.render(viewProjectionMatrix, cameraDirty);
 
         // Use the program and bind the matching VAO when the shader changes.
-        if (displayObject.programInfo.program != currentProgram) {
-            GL.useProgram(displayObject.programInfo.program);
-            GL.bindVertexArray(displayObject.programInfo.vao);
-            currentProgram = displayObject.programInfo.program;
-            currentVbo = 0;   // VAO switch invalidates bindVertexBuffer state
-            currentEbo = 0;   // VAO stores EBO binding, may be stale
+        if (programInfo.program != currentProgram) {
+            GL.useProgram(programInfo.program);
+            GL.bindVertexArray(programInfo.vao);
+            currentProgram = programInfo.program;
+            currentVbo = 0; // VAO switch invalidates bindVertexBuffer state
+            currentEbo = 0; // VAO stores EBO binding, may be stale
         }
         
         // Dont needed with modern ARB_vertex_attrib_binding, but keep for compatibility
@@ -88,7 +91,7 @@ class Renderer {
         
         // Also bind using modern ARB_vertex_attrib_binding
         if (displayObject.vbo != currentVbo) {
-            GL.bindVertexBuffer(0, displayObject.vbo, 0, displayObject.programInfo.vertexStride);
+            GL.bindVertexBuffer(0, displayObject.vbo, 0, programInfo.vertexStride);
             currentVbo = displayObject.vbo;
         }
         
@@ -101,8 +104,8 @@ class Renderer {
         __setBlendFunction(displayObject.blending.source, displayObject.blending.destination);
 
         // Render uniforms and textures
-        __renderUniforms(displayObject.programInfo, displayObject);
-        __renderTextures(displayObject.programInfo, displayObject);
+        __renderUniforms(programInfo, displayObject);
+        __renderTextures(programInfo, displayObject);
 
         // Draw the object
         if (displayObject.__indicesToRender == 0) {
@@ -148,7 +151,7 @@ class Renderer {
                     currentTextures[i] = textureId;
                 }
             }
-            displayObject.programInfo.textures[i].setter(i);
+            programInfo.textures[i].setter(i);
         }
     }
     
@@ -251,7 +254,9 @@ class Renderer {
 
     // Upload vertex data to GPU
     public function uploadData(displayObject:DisplayObject):Void {
-        GL.bindVertexArray(displayObject.programInfo.vao);
+        var programInfo = getProgramInfo(displayObject.programInfoName);
+
+        GL.bindVertexArray(programInfo.vao);
         GL.bindBuffer(GL.ARRAY_BUFFER, displayObject.vbo);
         GL.bufferFloatArray(GL.ARRAY_BUFFER, displayObject.vertices, GL.DYNAMIC_DRAW, displayObject.vertices.length);
         if (displayObject.ebo != 0 && displayObject.indices.length > 0) {
@@ -264,7 +269,9 @@ class Renderer {
     }
 
     public function orphanAndUploadData(displayObject:DisplayObject, maxBufferSize:Int):Void {
-        GL.bindVertexArray(displayObject.programInfo.vao);
+        var programInfo = getProgramInfo(displayObject.programInfoName);
+
+        GL.bindVertexArray(programInfo.vao);
         GL.bindBuffer(GL.ARRAY_BUFFER, displayObject.vbo);
         untyped __cpp__("glBufferData({0}, {1}, NULL, {2})", GL.ARRAY_BUFFER, maxBufferSize, GL.STREAM_DRAW);
         GL.bufferFloatArray(GL.ARRAY_BUFFER, displayObject.vertices, GL.STREAM_DRAW, displayObject.vertices.length);
@@ -283,7 +290,8 @@ class Renderer {
      * @param maxTiles Maximum tile capacity
      */
     public function allocateTileBatchBuffers(displayObject:DisplayObject, maxTiles:Int):Void {
-        GL.bindVertexArray(displayObject.programInfo.vao);
+        var programInfo = getProgramInfo(displayObject.programInfoName);
+        GL.bindVertexArray(programInfo.vao);
         
         // Allocate vertex buffer (4 vertices × 5 floats per tile)
         GL.bindBuffer(GL.ARRAY_BUFFER, displayObject.vbo);
@@ -308,7 +316,8 @@ class Renderer {
     public function orphanAndUploadTileBatch(displayObject:DisplayObject):Void {
         if (displayObject.vertices.length == 0) return;
         
-        GL.bindVertexArray(displayObject.programInfo.vao);
+        var programInfo = getProgramInfo(displayObject.programInfoName);
+        GL.bindVertexArray(programInfo.vao);
         GL.bindBuffer(GL.ARRAY_BUFFER, displayObject.vbo);
         
         // Orphan buffer - tell driver we don't need old data

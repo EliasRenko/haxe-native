@@ -98,6 +98,9 @@ extern class GL {
     @:native("glCreateProgram")
     static function createProgram():UInt;
 
+    @:native("glDeleteProgram")
+    static function deleteProgram(program:UInt):Void;
+
     @:native("glUseProgram")
     static function useProgram(program:UInt):Void;
 

@@ -24,13 +24,16 @@ typedef Blending = {
 
 @:autoBuild(ShaderMacro.build())
 abstract class DisplayObject {
+
 	// Publics
 	public var active:Bool = false;
 	public var mode:Int = GL.TRIANGLES;
 	public var blending:Blending;
 	public var indices:Indices = new Indices([]);
 	public var vertices:Vertices = new Vertices([]);
-	public var programInfo:ProgramInfo;
+	//public var programInfo:ProgramInfo;
+	public var programInfoName:String;
+
 	public var textures:Array<Texture> = new Array<Texture>();
 	public var uniforms:Map<String, Dynamic> = new Map<String, Dynamic>();
 	public var visible:Bool = true;
@@ -65,13 +68,13 @@ abstract class DisplayObject {
 		// Auto-resolve programInfo by looking up the pre-compiled shader in the
 		// renderer's map. The state must register the ProgramInfo before creating
 		// any instance of this class (virtual dispatch is safe in HxCPP).
-		var shaderName = getShaderName();
-		if (shaderName != null) {
-			this.programInfo = renderer.getProgramInfo(shaderName);
-			if (this.programInfo == null) {
-				throw 'DisplayObject: ProgramInfo "$shaderName" not found. Pre-register it in the state before creating this object.';
-			}
-		}
+		programInfoName = getShaderName();
+		// if (programInfoName != null) {
+		// 	this.programInfo = renderer.getProgramInfo(programInfoName);
+		// 	if (this.programInfo == null) {
+		// 		throw 'DisplayObject: ProgramInfo "$programInfoName" not found. Pre-register it in the state before creating this object.';
+		// 	}
+		// }
 
 		var buffers = renderer.createBuffers();
 		vbo = buffers.vbo;

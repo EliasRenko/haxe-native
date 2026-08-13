@@ -92,7 +92,6 @@ class ProgramInfo {
 	public var vertexShader:Shader;
 	public var fragmentShader:Shader;
 	public var program:Program;
-	public var programId:Int;
 	
 	// ** Vertex attributes and uniforms
 	public var attributes:Array<Attribute> = new Array<Attribute>();
@@ -112,6 +111,8 @@ class ProgramInfo {
 	public var isCompiled:Bool = false;
 	
 	// ** VAO for shared vertex attribute configuration (modern OpenGL)
+	// ** VAO stores the vertex attribute layout for this ProgramInfo.
+	// ** Individual DisplayObjects provide their VBO/EBO at draw time.
 	public var vao:GL.GlUInt = 0;
 	public var useModernBinding:Bool = false; // True if ARB_vertex_attrib_binding is available
 
@@ -123,7 +124,6 @@ class ProgramInfo {
 		fragmentShaderSource = fragmentSource;
 		// Auto-generate a matching vertex shader when none is provided
 		vertexShaderSource = (vertexSource != null) ? vertexSource : ShaderBuilder.defaultVertexFor(fragmentSource);
-		programId = -1;
 		
 		// Automatically compile and introspect the shader program
 		if (!compileProgramInfo(this)) {
@@ -760,18 +760,24 @@ class ProgramInfo {
 	
 	// ** Cleanup
 	public function dispose():Void {
-		if (isCompiled) {
-			if (vertexShader != 0) GL.deleteShader(vertexShader);
-			if (fragmentShader != 0) GL.deleteShader(fragmentShader);
-		}
-		
 		// Delete VAO
 		if (vao != 0) {
 			var vaoArray = [vao];
 			GL.deleteVertexArrays(1, untyped __cpp__("(const unsigned int*)&{0}[0]", vaoArray));
 			vao = 0;
 		}
-		
+
+		if (isCompiled) {
+			if (vertexShader != 0) GL.deleteShader(vertexShader);
+			if (fragmentShader != 0) GL.deleteShader(fragmentShader);
+		}
+
+		// Delete program
+		if (program != 0) {	
+			GL.deleteProgram(program);
+			program = 0;
+		}
+
 		isCompiled = false;
 	}
 	
