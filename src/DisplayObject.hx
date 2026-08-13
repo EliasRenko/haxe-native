@@ -17,11 +17,11 @@ typedef Blending = {
 abstract class DisplayObject {
 
 	// Publics
-	private var active:Bool = false;
 	public var mode:Int = GL.TRIANGLES;
 	public var blending:Blending;
-	public var indices:Indices = new Indices([]);
-	public var vertices:Vertices = new Vertices([]);
+	public var indices(get, null):Indices = new Indices([]);
+	public var vertices(get, null):Vertices = new Vertices([]);
+	public var matrix(get, null):Matrix;
 	public var programInfoName:String;
 
 	public var textures:Array<Texture> = new Array<Texture>();
@@ -34,16 +34,20 @@ abstract class DisplayObject {
 	public var cullFace:Bool = false;
 
 	// Privates
+	private var __active:Bool = false;
+	private var __matrix:Matrix = new Matrix();
+	private var __indices:Indices = new Indices([]);
+	private var __vertices:Vertices = new Vertices([]);
+	
 	public var __verticesToRender:Int = 0;
 	public var __indicesToRender:UInt = 0;
-	private var matrix:Matrix = new Matrix();
-	
+
 	// Flag to indicate buffers need updating
 	public var needsBufferUpdate:Bool = false;
 	
 	public function new(renderer:Renderer, vertices:Vertices, ?indices:Indices) {
-		this.vertices = vertices;
-		this.indices = indices != null ? indices : new Indices([]);
+		__vertices = vertices;
+		__indices = indices != null ? indices : new Indices([]);
 
 		blending = {
 			source: BlendFactors.SRC_ALPHA,
@@ -53,23 +57,13 @@ abstract class DisplayObject {
 		programInfoName = getShaderName();
 
 		renderer.createBuffers(this);
-		active = true;
-	}
-
-	/** Override in subclasses (or use @:shader metadata) to declare the shader name. */
-	public function getShaderName():String { return null; }
-	
-	public function updateBuffers(renderer:Renderer):Void {
-		if (!active || !needsBufferUpdate) return;
-	
-		renderer.uploadData(this);
-		needsBufferUpdate = false;
+		__active = true;
 	}
 
 	public function release(renderer:Renderer):Void {
-		if (active) {
+		if (__active) {
 			renderer.deleteBuffers(this);
-			active = false;
+			__active = false;
 		}
 	}
 	
@@ -111,13 +105,36 @@ abstract class DisplayObject {
 
 	public function render(cameraMatrix:Matrix, cameraDirty:Bool):Void {
 		if (cameraDirty) {
-			var finalMatrix = Matrix.copy(matrix);
+			var finalMatrix = Matrix.copy(__matrix);
 			finalMatrix.append(cameraMatrix);
 			uniforms.set("uMatrix", finalMatrix.data);
 		}
 	}
 
-	public function postRender():Void {
-		// Override in subclasses if needed
+	public function updateBuffers(renderer:Renderer):Void {
+		if (!__active || !needsBufferUpdate) return;
+
+		renderer.uploadData(this);
+		needsBufferUpdate = false;
+	}
+
+	public function postRender():Void {}
+
+	// Macros
+
+	/** Override in subclasses (or use @:shader metadata) to declare the shader name. */
+	public function getShaderName():String { return null; }
+
+	// Getter and setter for matrix
+	private function get_matrix():Matrix {
+		return __matrix;
+	}
+
+	private function get_indices():Indices {
+		return __indices;
+	}
+
+	private function get_vertices():Vertices {
+		return __vertices;
 	}
 }

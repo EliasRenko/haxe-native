@@ -375,13 +375,13 @@ class Renderer {
     // }
 
     public function deleteBuffers(displayObject:DisplayObject):Void {
-        var buffers = buffers.get(displayObject);
-        if (buffers == null) return;
+        var buffersObj = buffers.get(displayObject);
+        if (buffersObj == null) return;
         //GL.deleteBuffers(1, RawPointer.addressOf(buffers.vbo));
         //GL.deleteBuffers(1, RawPointer.addressOf(buffers.ebo));
 
-        GL.deleteBuffers(1, RawPointer.addressOf(buffers.vbo));
-        GL.deleteBuffers(1, RawPointer.addressOf(buffers.ebo));
+        GL.deleteBuffers(1, RawPointer.addressOf(buffersObj.vbo));
+        GL.deleteBuffers(1, RawPointer.addressOf(buffersObj.ebo));
 
         buffers.remove(displayObject);
     }
@@ -519,7 +519,7 @@ class Renderer {
                 trace("Disposed ProgramInfo: " + name);
             }
         }
-        
+
         programInfos.clear();
         buffers.clear();
         
