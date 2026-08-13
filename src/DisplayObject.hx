@@ -1,21 +1,12 @@
 package;
 
 import GL;
-import ProgramInfo;
-import ProgramInfo.UniformFormat;
 import Renderer;
 import Texture;
 import data.BlendFactors;
 import data.Vertices;
 import data.Indices;
 import math.Matrix;
-
-#if js
-typedef GlUInt = UInt;
-#elseif cpp
-import cpp.UInt32;
-typedef GlUInt = UInt32;
-#end
 
 typedef Blending = {
 	source:Int,
@@ -26,12 +17,11 @@ typedef Blending = {
 abstract class DisplayObject {
 
 	// Publics
-	public var active:Bool = false;
+	private var active:Bool = false;
 	public var mode:Int = GL.TRIANGLES;
 	public var blending:Blending;
 	public var indices:Indices = new Indices([]);
 	public var vertices:Vertices = new Vertices([]);
-	//public var programInfo:ProgramInfo;
 	public var programInfoName:String;
 
 	public var textures:Array<Texture> = new Array<Texture>();
@@ -51,11 +41,6 @@ abstract class DisplayObject {
 	// Flag to indicate buffers need updating
 	public var needsBufferUpdate:Bool = false;
 	
-	@:allow(native.Renderer) 
-	private var vbo:GlUInt = 0; // Vertex Buffer Object
-	@:allow(native.Renderer)
-	private var ebo:GlUInt = 0; // Element Buffer Object
-	
 	public function new(renderer:Renderer, vertices:Vertices, ?indices:Indices) {
 		this.vertices = vertices;
 		this.indices = indices != null ? indices : new Indices([]);
@@ -65,20 +50,9 @@ abstract class DisplayObject {
 			destination: BlendFactors.ONE_MINUS_SRC_ALPHA
 		};
 
-		// Auto-resolve programInfo by looking up the pre-compiled shader in the
-		// renderer's map. The state must register the ProgramInfo before creating
-		// any instance of this class (virtual dispatch is safe in HxCPP).
 		programInfoName = getShaderName();
-		// if (programInfoName != null) {
-		// 	this.programInfo = renderer.getProgramInfo(programInfoName);
-		// 	if (this.programInfo == null) {
-		// 		throw 'DisplayObject: ProgramInfo "$programInfoName" not found. Pre-register it in the state before creating this object.';
-		// 	}
-		// }
 
-		var buffers = renderer.createBuffers();
-		vbo = buffers.vbo;
-		ebo = buffers.ebo;
+		renderer.createBuffers(this);
 		active = true;
 	}
 
@@ -94,9 +68,7 @@ abstract class DisplayObject {
 
 	public function release(renderer:Renderer):Void {
 		if (active) {
-			renderer.deleteBuffers(vbo, ebo);
-			vbo = 0;
-			ebo = 0;
+			renderer.deleteBuffers(this);
 			active = false;
 		}
 	}
