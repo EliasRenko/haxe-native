@@ -15,13 +15,6 @@ import Framebuffer;
 import Log;
 import PostProcessPass;
 
-// #if js
-// typedef GlUInt = UInt;
-// #elseif cpp
-// import cpp.UInt32;
-// typedef GlUInt = UInt32;
-// #end
-
 class Buffers {
 	public var vbo:UInt32;
 	public var ebo:UInt32;
@@ -80,8 +73,6 @@ class Renderer {
         __frameCount++;
     }
     
-    // ** New method to render display objects with provided view-projection matrix
-    //public function renderDisplayObject(displayObject:DisplayObject, viewProjectionMatrix:math.Matrix, cameraDirty:Bool):Void {
     public function renderDisplayObject(displayObject:DisplayObject):Void {
         
         if (!displayObject.visible) return;
