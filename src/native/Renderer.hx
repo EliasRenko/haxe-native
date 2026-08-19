@@ -21,10 +21,12 @@ import PostProcessPass;
 class Buffers {
 	public var vbo:UInt32;
 	public var ebo:UInt32;
+    public var programInfo:ProgramInfo;
 
-    public function new(vbo:UInt32, ebo:UInt32) {
+    public function new(vbo:UInt32, ebo:UInt32, programInfo:ProgramInfo) {
         this.vbo = vbo;
         this.ebo = ebo;
+        this.programInfo = programInfo;
     }
 }
 
@@ -34,13 +36,13 @@ class Renderer {
     public var app(get, null):App;
     public var frameCount(get, null):Int;
 
-    // Current render state tracking
+    // Privates
+    private var __app:App;
     private var __currentDepthTest:Bool = true;
     private var __currentDepthWrite:Bool = true;
     private var __currentBlendMode:Bool = false;
     private var __currentBlendSource:Int = -1;
     private var __currentBlendDestination:Int = -1;
-    private var __app:App;
     private var __frameCount:Int = 0;
 
     private var programInfos:Map<String, ProgramInfo> = new Map<String, ProgramInfo>();
@@ -90,12 +92,8 @@ class Renderer {
             trace("Error: Buffers not found for DisplayObject. Ensure createBuffers() was called.");
             return;
         }
-        
-        //displayObject.updateBuffers(this);
-        
+          
         if (displayObject.vertices.length == 0) return;
-
-        //displayObject.render(viewProjectionMatrix, cameraDirty);
 
         // Use the program and bind the matching VAO when the shader changes.
         if (programInfo.program != currentProgram) {
@@ -262,7 +260,7 @@ class Renderer {
 
     // ===== RENDERING PIPELINE METHODS =====
 
-    public function createBuffers():Int {
+    public function createBuffers(programInfoName:String):Int {
         var vbo:UInt32 = 0;
         var ebo:UInt32 = 0;
 
@@ -270,25 +268,29 @@ class Renderer {
         GL.genBuffers(1, RawPointer.addressOf(ebo));
 
         //buffers.set(displayObject, new Buffers(vbo, ebo));
-        return buffers.add(new Buffers(vbo, ebo));
+        return buffers.add(new Buffers(vbo, ebo, getProgramInfo(programInfoName)));
+    }
+
+    public function getBuffers(bufferId:Int):Buffers {
+        return buffers.get(bufferId);
     }
 
     // Upload vertex data to GPU
-    public function uploadData(bufferId:Int, programInfoName:String, vertices:Vertices, indices:Indices):Void {
-        var buffersObjs = buffers.get(bufferId);
-        var programInfo = getProgramInfo(programInfoName);
+    public function uploadData(bufferId:Int, vertices:Vertices, indices:Indices):Void {
+        var bufferInfo = buffers.get(bufferId);
 
-        GL.bindVertexArray(programInfo.vao);
-        GL.bindBuffer(GL.ARRAY_BUFFER, buffersObjs.vbo);
+        GL.bindVertexArray(bufferInfo.programInfo.vao);
+        GL.bindBuffer(GL.ARRAY_BUFFER, bufferInfo.vbo);
         GL.bufferFloatArray(GL.ARRAY_BUFFER, vertices, GL.DYNAMIC_DRAW, vertices.length);
-        if (buffersObjs.ebo != 0 && indices.length > 0) {
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffersObjs.ebo);
+        if (bufferInfo.ebo != 0 && indices.length > 0) {
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, bufferInfo.ebo);
             GL.bufferUIntArray(GL.ELEMENT_ARRAY_BUFFER, indices, GL.DYNAMIC_DRAW, indices.length);
         }
 
         GL.bindBuffer(GL.ARRAY_BUFFER, 0);
         GL.bindVertexArray(0);
     }
+
     // public function uploadData(displayObject:DisplayObject):Void {
     //     var programInfo = getProgramInfo(displayObject.programInfoName);
     //     var buffersObjs = buffers.get(displayObject.__bufferId);
@@ -305,16 +307,16 @@ class Renderer {
     //     GL.bindVertexArray(0);
     // }
 
-    public function orphanAndUploadData(bufferId:Int, programInfoName:String, vertices:Vertices, indices:Indices, maxBufferSize:Int):Void {
-        var buffersObjs = buffers.get(bufferId);
-        var programInfo = getProgramInfo(programInfoName);
+    public function orphanAndUploadData(bufferId:Int, vertices:Vertices, indices:Indices, maxBufferSize:Int):Void {
+        var bufferInfo = buffers.get(bufferId);
+        //var programInfo = getProgramInfo(programInfoName);
 
-        GL.bindVertexArray(programInfo.vao);
-        GL.bindBuffer(GL.ARRAY_BUFFER, buffersObjs.vbo);
+        GL.bindVertexArray(bufferInfo.programInfo.vao);
+        GL.bindBuffer(GL.ARRAY_BUFFER, bufferInfo.vbo);
         untyped __cpp__("glBufferData({0}, {1}, NULL, {2})", GL.ARRAY_BUFFER, maxBufferSize, GL.STREAM_DRAW);
         GL.bufferFloatArray(GL.ARRAY_BUFFER, vertices, GL.STREAM_DRAW, vertices.length);
-        if (buffersObjs.ebo != 0 && indices.length > 0) {
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffersObjs.ebo);
+        if (bufferInfo.ebo != 0 && indices.length > 0) {
+            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, bufferInfo.ebo);
             GL.bufferUIntArray(GL.ELEMENT_ARRAY_BUFFER, indices, GL.STREAM_DRAW, indices.length);
         }
 
@@ -417,7 +419,6 @@ class Renderer {
         GL.glDisable(GL.CULL_FACE);
     }
 
-
     // TODO: Move to GL
     public function vertexAttribPointer(index:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:Int):Void {
         untyped __cpp__("glVertexAttribPointer({0}, {1}, {2}, {3} ? GL_TRUE : GL_FALSE, {4}, (void*)(intptr_t){5})", index, size, type, normalized, stride, offset);
@@ -431,10 +432,6 @@ class Renderer {
             trace("Error: Cannot upload null texture data");
             return null;
         }
-        
-        // var textureArray:Array<UInt> = [0];
-        // GL.genTextures(1, untyped __cpp__("(unsigned int*)&{0}[0]", textureArray));
-        // var textureId:UInt = textureArray[0];
 
         var textureId:UInt32 = 0;
         GL.genTextures(1, RawPointer.addressOf(textureId));

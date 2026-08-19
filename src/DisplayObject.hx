@@ -57,14 +57,14 @@ abstract class DisplayObject {
 
 		programInfoName = getShaderName();
 
-		__bufferId = renderer.createBuffers();
+		__bufferId = renderer.createBuffers(programInfoName);
 		__active = true;
 	}
 
 	public function release(renderer:Renderer):Void {
 		if (__active) {
 			renderer.deleteBuffers(__bufferId);
-			__bufferId = null;
+			__bufferId = -1;
 			__active = false;
 		}
 	}
@@ -123,7 +123,7 @@ abstract class DisplayObject {
 	public function updateBuffers(renderer:Renderer):Void {
 		if (!__active || !needsBufferUpdate) return;
 
-		renderer.uploadData(__bufferId, programInfoName, vertices, indices);
+		renderer.uploadData(__bufferId, vertices, indices);
 		needsBufferUpdate = false;
 	}
 
