@@ -103,12 +103,19 @@ abstract class DisplayObject {
 		return (textures.length > 0 && textures[0] != null) ? textures[0].id : 0;
 	}
 
-	public function render(cameraMatrix:Matrix, cameraDirty:Bool):Void {
-		if (cameraDirty) {
-			var finalMatrix = Matrix.copy(__matrix);
-			finalMatrix.append(cameraMatrix);
-			uniforms.set("uMatrix", finalMatrix.data);
-		}
+	public function render(renderer:Renderer, cameraMatrix:Matrix, cameraDirty:Bool):Void {
+		// if (!__active) return;
+		
+		// // renderer.uploadData(this); can be added here
+		updateBuffers(renderer);
+
+		// if (cameraDirty) {
+		// 	var finalMatrix = Matrix.copy(matrix);
+		// 	finalMatrix.append(cameraMatrix);
+		// 	uniforms.set("uMatrix", finalMatrix.data);
+		// }
+
+		renderer.renderDisplayObject(this);
 	}
 
 	public function updateBuffers(renderer:Renderer):Void {
@@ -120,12 +127,7 @@ abstract class DisplayObject {
 
 	public function postRender():Void {}
 
-	// Macros
-
-	/** Override in subclasses (or use @:shader metadata) to declare the shader name. */
-	public function getShaderName():String { return null; }
-
-	// Getter and setter for matrix
+	// Getters and setters
 	private function get_matrix():Matrix {
 		return __matrix;
 	}
@@ -137,4 +139,9 @@ abstract class DisplayObject {
 	private function get_vertices():Vertices {
 		return __vertices;
 	}
+
+	// Macros
+
+	// Override in subclasses (or use @:shader metadata) to declare the shader name.
+	public function getShaderName():String { return null; }
 }
