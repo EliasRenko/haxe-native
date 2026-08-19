@@ -55,6 +55,17 @@ class SlotArray<T> {
         return -1;
     }
 
+    public function clear():Void {
+        _freeList = [];
+        _count = 0;
+
+        // Mark every slot as free.
+        for (i in 0..._slots.length) {
+            _slots[i] = null;
+            _freeList.push(i);
+        }
+    }
+
     /** Iterates only live (non-null) slots. */
     public function iterator():Iterator<T> {
         var i = 0;

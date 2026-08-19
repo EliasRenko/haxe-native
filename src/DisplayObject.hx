@@ -38,6 +38,7 @@ abstract class DisplayObject {
 	private var __matrix:Matrix = new Matrix();
 	private var __indices:Indices = new Indices([]);
 	private var __vertices:Vertices = new Vertices([]);
+	public var __bufferId:Int;
 	
 	public var __verticesToRender:Int = 0;
 	public var __indicesToRender:UInt = 0;
@@ -56,13 +57,14 @@ abstract class DisplayObject {
 
 		programInfoName = getShaderName();
 
-		renderer.createBuffers(this);
+		__bufferId = renderer.createBuffers();
 		__active = true;
 	}
 
 	public function release(renderer:Renderer):Void {
 		if (__active) {
-			renderer.deleteBuffers(this);
+			renderer.deleteBuffers(__bufferId);
+			__bufferId = null;
 			__active = false;
 		}
 	}
@@ -121,7 +123,7 @@ abstract class DisplayObject {
 	public function updateBuffers(renderer:Renderer):Void {
 		if (!__active || !needsBufferUpdate) return;
 
-		renderer.uploadData(this);
+		renderer.uploadData(__bufferId, programInfoName, vertices, indices);
 		needsBufferUpdate = false;
 	}
 

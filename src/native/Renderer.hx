@@ -1,5 +1,8 @@
 package native;
 
+import data.Vertices;
+import data.Indices;
+import ds.SlotArray;
 import cpp.RawConstPointer;
 import cpp.ConstCharStar;
 import cpp.RawPointer;
@@ -41,7 +44,9 @@ class Renderer {
     private var __frameCount:Int = 0;
 
     private var programInfos:Map<String, ProgramInfo> = new Map<String, ProgramInfo>();
-    private var buffers:Map<DisplayObject, Buffers> = new Map<DisplayObject, Buffers>();
+
+    //private var buffers:Map<DisplayObject, Buffers> = new Map<DisplayObject, Buffers>();
+    private var buffers:SlotArray<Buffers> = new SlotArray<Buffers>(32);
 
     // Framebuffer for post-processing
     public var framebuffer:Framebuffer = null;
@@ -80,7 +85,7 @@ class Renderer {
         var programInfo = getProgramInfo(displayObject.programInfoName);
         if (programInfo == null) return;
 
-        var buffersObjs = buffers.get(displayObject);
+        var buffersObjs = buffers.get(displayObject.__bufferId);
         if (buffersObjs == null) {
             trace("Error: Buffers not found for DisplayObject. Ensure createBuffers() was called.");
             return;
@@ -257,44 +262,60 @@ class Renderer {
 
     // ===== RENDERING PIPELINE METHODS =====
 
-    public function createBuffers(displayObject:DisplayObject):Void {
+    public function createBuffers():Int {
         var vbo:UInt32 = 0;
         var ebo:UInt32 = 0;
 
         GL.genBuffers(1, RawPointer.addressOf(vbo));
         GL.genBuffers(1, RawPointer.addressOf(ebo));
 
-        buffers.set(displayObject, new Buffers(vbo, ebo));
+        //buffers.set(displayObject, new Buffers(vbo, ebo));
+        return buffers.add(new Buffers(vbo, ebo));
     }
 
     // Upload vertex data to GPU
-    public function uploadData(displayObject:DisplayObject):Void {
-        var programInfo = getProgramInfo(displayObject.programInfoName);
-        var buffersObjs = buffers.get(displayObject);
+    public function uploadData(bufferId:Int, programInfoName:String, vertices:Vertices, indices:Indices):Void {
+        var buffersObjs = buffers.get(bufferId);
+        var programInfo = getProgramInfo(programInfoName);
 
         GL.bindVertexArray(programInfo.vao);
         GL.bindBuffer(GL.ARRAY_BUFFER, buffersObjs.vbo);
-        GL.bufferFloatArray(GL.ARRAY_BUFFER, displayObject.vertices, GL.DYNAMIC_DRAW, displayObject.vertices.length);
-        if (buffersObjs.ebo != 0 && displayObject.indices.length > 0) {
+        GL.bufferFloatArray(GL.ARRAY_BUFFER, vertices, GL.DYNAMIC_DRAW, vertices.length);
+        if (buffersObjs.ebo != 0 && indices.length > 0) {
             GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffersObjs.ebo);
-            GL.bufferUIntArray(GL.ELEMENT_ARRAY_BUFFER, displayObject.indices, GL.DYNAMIC_DRAW, displayObject.indices.length);
+            GL.bufferUIntArray(GL.ELEMENT_ARRAY_BUFFER, indices, GL.DYNAMIC_DRAW, indices.length);
         }
 
         GL.bindBuffer(GL.ARRAY_BUFFER, 0);
         GL.bindVertexArray(0);
     }
+    // public function uploadData(displayObject:DisplayObject):Void {
+    //     var programInfo = getProgramInfo(displayObject.programInfoName);
+    //     var buffersObjs = buffers.get(displayObject.__bufferId);
 
-    public function orphanAndUploadData(displayObject:DisplayObject, maxBufferSize:Int):Void {
-        var programInfo = getProgramInfo(displayObject.programInfoName);
-        var buffersObjs = buffers.get(displayObject);
+    //     GL.bindVertexArray(programInfo.vao);
+    //     GL.bindBuffer(GL.ARRAY_BUFFER, buffersObjs.vbo);
+    //     GL.bufferFloatArray(GL.ARRAY_BUFFER, displayObject.vertices, GL.DYNAMIC_DRAW, displayObject.vertices.length);
+    //     if (buffersObjs.ebo != 0 && displayObject.indices.length > 0) {
+    //         GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffersObjs.ebo);
+    //         GL.bufferUIntArray(GL.ELEMENT_ARRAY_BUFFER, displayObject.indices, GL.DYNAMIC_DRAW, displayObject.indices.length);
+    //     }
+
+    //     GL.bindBuffer(GL.ARRAY_BUFFER, 0);
+    //     GL.bindVertexArray(0);
+    // }
+
+    public function orphanAndUploadData(bufferId:Int, programInfoName:String, vertices:Vertices, indices:Indices, maxBufferSize:Int):Void {
+        var buffersObjs = buffers.get(bufferId);
+        var programInfo = getProgramInfo(programInfoName);
 
         GL.bindVertexArray(programInfo.vao);
         GL.bindBuffer(GL.ARRAY_BUFFER, buffersObjs.vbo);
         untyped __cpp__("glBufferData({0}, {1}, NULL, {2})", GL.ARRAY_BUFFER, maxBufferSize, GL.STREAM_DRAW);
-        GL.bufferFloatArray(GL.ARRAY_BUFFER, displayObject.vertices, GL.STREAM_DRAW, displayObject.vertices.length);
-        if (buffersObjs.ebo != 0 && displayObject.indices.length > 0) {
+        GL.bufferFloatArray(GL.ARRAY_BUFFER, vertices, GL.STREAM_DRAW, vertices.length);
+        if (buffersObjs.ebo != 0 && indices.length > 0) {
             GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffersObjs.ebo);
-            GL.bufferUIntArray(GL.ELEMENT_ARRAY_BUFFER, displayObject.indices, GL.STREAM_DRAW, displayObject.indices.length);
+            GL.bufferUIntArray(GL.ELEMENT_ARRAY_BUFFER, indices, GL.STREAM_DRAW, indices.length);
         }
 
         GL.bindBuffer(GL.ARRAY_BUFFER, 0);
@@ -306,52 +327,52 @@ class Renderer {
      * @param displayObject TileBatch object
      * @param maxTiles Maximum tile capacity
      */
-    public function allocateTileBatchBuffers(displayObject:DisplayObject, maxTiles:Int):Void {
-        var programInfo = getProgramInfo(displayObject.programInfoName);
-        var buffersObjs = buffers.get(displayObject);
+    // public function allocateTileBatchBuffers(displayObject:DisplayObject, maxTiles:Int):Void {
+    //     var programInfo = getProgramInfo(displayObject.programInfoName);
+    //     var buffersObjs = buffers.get(displayObject.__bufferId);
 
-        GL.bindVertexArray(programInfo.vao);
+    //     GL.bindVertexArray(programInfo.vao);
         
-        // Allocate vertex buffer (4 vertices × 5 floats per tile)
-        GL.bindBuffer(GL.ARRAY_BUFFER, buffersObjs.vbo);
-        var vertexBufferSize = maxTiles * 4 * 5 * 4; // tiles × vertices × floats × 4 bytes
-        // Use GL_STREAM_DRAW for buffers that will be orphaned frequently
-        untyped __cpp__("glBufferData({0}, {1}, NULL, {2})", GL.ARRAY_BUFFER, vertexBufferSize, GL.STREAM_DRAW);
+    //     // Allocate vertex buffer (4 vertices × 5 floats per tile)
+    //     GL.bindBuffer(GL.ARRAY_BUFFER, buffersObjs.vbo);
+    //     var vertexBufferSize = maxTiles * 4 * 5 * 4; // tiles × vertices × floats × 4 bytes
+    //     // Use GL_STREAM_DRAW for buffers that will be orphaned frequently
+    //     untyped __cpp__("glBufferData({0}, {1}, NULL, {2})", GL.ARRAY_BUFFER, vertexBufferSize, GL.STREAM_DRAW);
         
-        // Upload index buffer once (indices never change)
-        if (buffersObjs.ebo != 0 && displayObject.indices.length > 0) {
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffersObjs.ebo);
-            GL.bufferUIntArray(GL.ELEMENT_ARRAY_BUFFER, displayObject.indices, GL.STATIC_DRAW, displayObject.indices.length);
-        }
+    //     // Upload index buffer once (indices never change)
+    //     if (buffersObjs.ebo != 0 && displayObject.indices.length > 0) {
+    //         GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffersObjs.ebo);
+    //         GL.bufferUIntArray(GL.ELEMENT_ARRAY_BUFFER, displayObject.indices, GL.STATIC_DRAW, displayObject.indices.length);
+    //     }
         
-        GL.bindBuffer(GL.ARRAY_BUFFER, 0);
-        GL.bindVertexArray(0);
-    }
+    //     GL.bindBuffer(GL.ARRAY_BUFFER, 0);
+    //     GL.bindVertexArray(0);
+    // }
     
     /**
      * Orphan and upload TileBatch vertex data (called every frame)
      * @param displayObject TileBatch object
      */
-    public function orphanAndUploadTileBatch(displayObject:DisplayObject):Void {
-        if (displayObject.vertices.length == 0) return;
+    // public function orphanAndUploadTileBatch(displayObject:DisplayObject):Void {
+    //     if (displayObject.vertices.length == 0) return;
         
-        var programInfo = getProgramInfo(displayObject.programInfoName);
-        var buffersObjs = buffers.get(displayObject);   
+    //     var programInfo = getProgramInfo(displayObject.programInfoName);
+    //     var buffersObjs = buffers.get(displayObject.__bufferId);   
 
-        GL.bindVertexArray(programInfo.vao);
-        GL.bindBuffer(GL.ARRAY_BUFFER, buffersObjs.vbo);
+    //     GL.bindVertexArray(programInfo.vao);
+    //     GL.bindBuffer(GL.ARRAY_BUFFER, buffersObjs.vbo);
         
-        // Orphan buffer - tell driver we don't need old data
-        var vertexBufferSize = 1000 * 4 * 5 * 4; // MAX_TILES × 4 vertices × 5 floats × 4 bytes
-        untyped __cpp__("glBufferData({0}, {1}, NULL, {2})", GL.ARRAY_BUFFER, vertexBufferSize, GL.DYNAMIC_DRAW);
+    //     // Orphan buffer - tell driver we don't need old data
+    //     var vertexBufferSize = 1000 * 4 * 5 * 4; // MAX_TILES × 4 vertices × 5 floats × 4 bytes
+    //     untyped __cpp__("glBufferData({0}, {1}, NULL, {2})", GL.ARRAY_BUFFER, vertexBufferSize, GL.DYNAMIC_DRAW);
         
-        // Upload actual vertex data
-        var floatArray:Array<Float> = cast displayObject.vertices.data;
-        GL.bufferSubFloatArray(GL.ARRAY_BUFFER, 0, floatArray, floatArray.length);
+    //     // Upload actual vertex data
+    //     var floatArray:Array<Float> = cast displayObject.vertices.data;
+    //     GL.bufferSubFloatArray(GL.ARRAY_BUFFER, 0, floatArray, floatArray.length);
         
-        GL.bindBuffer(GL.ARRAY_BUFFER, 0);
-        GL.bindVertexArray(0);
-    }
+    //     GL.bindBuffer(GL.ARRAY_BUFFER, 0);
+    //     GL.bindVertexArray(0);
+    // }
 
     // TODO: programInfo.setupVertexAttributes(this); This must be called in the beginning of the draw. Now it is called for every DisplayObject.
     /**
@@ -366,16 +387,14 @@ class Renderer {
     //     //GL.bindVertexArray(0);
     // }
 
-    public function deleteBuffers(displayObject:DisplayObject):Void {
-        var buffersObj = buffers.get(displayObject);
+    public function deleteBuffers(bufferId:Int):Void {
+        var buffersObj = buffers.get(bufferId);
         if (buffersObj == null) return;
-        //GL.deleteBuffers(1, RawPointer.addressOf(buffers.vbo));
-        //GL.deleteBuffers(1, RawPointer.addressOf(buffers.ebo));
 
         GL.deleteBuffers(1, RawPointer.addressOf(buffersObj.vbo));
         GL.deleteBuffers(1, RawPointer.addressOf(buffersObj.ebo));
 
-        buffers.remove(displayObject);
+        buffers.remove(bufferId);
     }
 
     /**
