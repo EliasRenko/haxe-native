@@ -655,26 +655,32 @@ class Renderer {
 			return;
 		}
 
-		if (framebuffer == null || postProcessShader == null) {
-			trace("Warning: Post-processing not initialized");
-			return;
-		}
+		// if (framebuffer == null || postProcessShader == null) {
+		// 	trace("Warning: Post-processing not initialized");
+		// 	return;
+		// }
 		
-		// Use post-process shader
-		GL.useProgram(postProcessShader.program);
+		// // Use post-process shader
+		// GL.useProgram(postProcessShader.program);
 		
-		// Bind framebuffer's color texture
-		framebuffer.bindColorTexture(0);
+		// // Bind framebuffer's color texture
+		// framebuffer.bindColorTexture(0);
 		
-		// Set uniform
-		var uniformInfo = postProcessShader.getUniform("uScreenTexture");
-		if (uniformInfo != null) {
-			uniformInfo.setter(0);
-		}
+		// // Set uniform
+		// var uniformInfo = postProcessShader.getUniform("uScreenTexture");
+		// if (uniformInfo != null) {
+		// 	uniformInfo.setter(0);
+		// }
 		
+        // var bufferInfo = buffers.get(displayObject.__bufferId);
+        // if (bufferInfo == null) {
+        //     throw("Error: Buffers not found for PostProcess. Ensure createBuffers() was called.");
+        //     return;
+        // }
+
 		// Render fullscreen quad
-		GL.bindVertexArray(__fullscreenQuadVAO);
-		GL.drawElements(GL.TRIANGLES, 6, GL.UNSIGNED_INT, 0);
-		GL.bindVertexArray(0);
+		// GL.bindVertexArray(__fullscreenQuadVAO);
+		// GL.drawElements(GL.TRIANGLES, 6, GL.UNSIGNED_INT, 0);
+		// GL.bindVertexArray(0);
 	}
 }

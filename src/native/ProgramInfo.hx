@@ -3,6 +3,7 @@ package native;
 import GL;
 import cpp.ConstCharStar;
 import cpp.RawPointer;
+import macros.ShaderBuilder;
 
 typedef UniformLocation = GL.GlUInt;
 typedef Program = GL.GlUInt;

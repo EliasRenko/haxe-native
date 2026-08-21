@@ -1,3 +1,5 @@
+package;
+
 typedef Texture = {
     width:Int,
     height:Int,

@@ -2,13 +2,12 @@ package native;
 
 import haxe.io.BytesData;
 import haxe.io.Bytes;
-import cpp.RawPointer;
-import cpp.NativeArray;
-
 import SDL;
 import GL;
 import Renderer;
 import Log;
+import cpp.RawPointer;
+import cpp.NativeArray;
 import cpp.UInt64;
 import cpp.Pointer;
 

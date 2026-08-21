@@ -1,3 +1,5 @@
+package macros;
+
 /**
  * Generates a standard vertex shader from a fragment shader source.
  *
