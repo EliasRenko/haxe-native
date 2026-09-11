@@ -51,8 +51,6 @@ class Renderer {
     private var buffers:SlotArray<Buffers> = new SlotArray<Buffers>(32);
 
     // Framebuffer for post-processing
-    public var framebuffer:Framebuffer = null;
-    public var postProcessShader:ProgramInfo = null;
     private var __postProcessPass:PostProcessPass = null;
     private var __fullscreenQuadVAO:Int = 0;
     private var __fullscreenQuadVBO:Int = 0;
@@ -516,8 +514,6 @@ class Renderer {
             __postProcessPass.dispose();
             __postProcessPass = null;
         }
-        framebuffer = null;
-        postProcessShader = null;
         
         // Cleanup all registered ProgramInfos
         for (name in programInfos.keys()) {
@@ -587,9 +583,12 @@ class Renderer {
 	public function initializePostProcessing():Void {
         var size = app.window.getWindowSizeInPixels();
 
+        var vertShader = app.resources.getText("shaders/postprocess.vert");
+        var fragShader = app.resources.getText("shaders/postprocess.frag");
+        
+        createProgramInfo("postprocess", vertShader, fragShader);
+
         __postProcessPass = new PostProcessPass(this, size.width, size.height);
-        framebuffer = __postProcessPass.framebuffer;
-        postProcessShader = __postProcessPass.shader;
 
         trace("Renderer: Post-processing initialized");
 	}
@@ -600,8 +599,6 @@ class Renderer {
 	private function createFullscreenQuad():Void {
 		if (__postProcessPass != null) {
 			__postProcessPass.initialize(this);
-			framebuffer = __postProcessPass.framebuffer;
-			postProcessShader = __postProcessPass.shader;
 		}
 	}
 	
@@ -611,9 +608,7 @@ class Renderer {
 	public function bindFramebuffer():Void {
 		if (__postProcessPass != null) {
 			__postProcessPass.begin();
-		} else if (framebuffer != null) {
-			framebuffer.bind();
-		}
+		} 
 	}
 	
 	/**
@@ -622,8 +617,6 @@ class Renderer {
 	public function unbindFramebuffer():Void {
 		if (__postProcessPass != null) {
 			__postProcessPass.end();
-		} else if (framebuffer != null) {
-			framebuffer.unbind();
 		}
 
         var size = app.window.getWindowSizeInPixels();
@@ -639,10 +632,6 @@ class Renderer {
         setViewport(width, height);
         if (__postProcessPass != null) {
             __postProcessPass.resize(width, height);
-            framebuffer = __postProcessPass.framebuffer;
-            postProcessShader = __postProcessPass.shader;
-        } else if (framebuffer != null) {
-            framebuffer.resize(this, width, height);
         }
     }
 
@@ -654,33 +643,5 @@ class Renderer {
 			__postProcessPass.render(this);
 			return;
 		}
-
-		// if (framebuffer == null || postProcessShader == null) {
-		// 	trace("Warning: Post-processing not initialized");
-		// 	return;
-		// }
-		
-		// // Use post-process shader
-		// GL.useProgram(postProcessShader.program);
-		
-		// // Bind framebuffer's color texture
-		// framebuffer.bindColorTexture(0);
-		
-		// // Set uniform
-		// var uniformInfo = postProcessShader.getUniform("uScreenTexture");
-		// if (uniformInfo != null) {
-		// 	uniformInfo.setter(0);
-		// }
-		
-        // var bufferInfo = buffers.get(displayObject.__bufferId);
-        // if (bufferInfo == null) {
-        //     throw("Error: Buffers not found for PostProcess. Ensure createBuffers() was called.");
-        //     return;
-        // }
-
-		// Render fullscreen quad
-		// GL.bindVertexArray(__fullscreenQuadVAO);
-		// GL.drawElements(GL.TRIANGLES, 6, GL.UNSIGNED_INT, 0);
-		// GL.bindVertexArray(0);
 	}
 }

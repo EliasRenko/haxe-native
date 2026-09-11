@@ -21,14 +21,6 @@ class Framebuffer {
     // Configuration
     public var hasDepthTexture:Bool;
     public var hasDepthRenderbuffer:Bool;
-    public var colorFormat:Int = GL.RGBA;
-    public var depthFormat:Int = GL.DEPTH_COMPONENT;
-    
-    // Texture filtering
-    public var minFilter:Int = GL.LINEAR;
-    public var magFilter:Int = GL.LINEAR;
-    public var wrapS:Int = GL.CLAMP_TO_EDGE;
-    public var wrapT:Int = GL.CLAMP_TO_EDGE;
     
     /**
      * Create a new framebuffer

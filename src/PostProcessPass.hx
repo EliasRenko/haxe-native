@@ -9,7 +9,6 @@ import math.Matrix;
 
 class PostProcessPass {
     public var framebuffer:Framebuffer = null;
-    public var shader:ProgramInfo = null;
     public var screenQuad:ScreenQuadDisplayObject = null;
     public var enabled:Bool = true;
 
@@ -34,10 +33,10 @@ class PostProcessPass {
             return;
         }
 
-        framebuffer = new Framebuffer(__width, __height, false, true);
+        framebuffer = new Framebuffer(__width, __height, false, false);
         framebuffer.initialize(renderer);
 
-        createScreenQuad(renderer);
+        screenQuad = new ScreenQuadDisplayObject(renderer);
     }
 
     public function begin():Void {
@@ -56,7 +55,7 @@ class PostProcessPass {
     }
 
     public function render(renderer:Renderer):Void {
-        if (!enabled || framebuffer == null || screenQuad == null || shader == null) {
+        if (!enabled || framebuffer == null || screenQuad == null) {
             return;
         }
 
@@ -90,16 +89,6 @@ class PostProcessPass {
             framebuffer.dispose();
             framebuffer = null;
         }
-
-        shader = null;
-    }
-
-    private function createScreenQuad(renderer:Renderer):Void {
-        var vertShader = renderer.app.resources.getText("shaders/postprocess.vert");
-        var fragShader = renderer.app.resources.getText("shaders/postprocess.frag");
-        
-        shader = renderer.createProgramInfo("postprocess", vertShader, fragShader);
-        screenQuad = new ScreenQuadDisplayObject(renderer);
     }
 }
 
@@ -125,6 +114,10 @@ class ScreenQuadDisplayObject extends DisplayObject {
             destination: BlendFactors.ONE_MINUS_SRC_ALPHA
         };
     }
+
+    override public function updateBuffers(renderer:Renderer):Void {
+        super.updateBuffers(renderer);
+	}
 
     override public function render(renderer:Renderer, cameraMatrix:Matrix, cameraDirty:Bool):Void {
         uniforms.set("uScreenTexture", 0);
