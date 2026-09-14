@@ -25,6 +25,7 @@ class Window {
         return { width: w, height: h };
     }
 
+    // TODO: Cache the pixel size and only update when the window is resized
     public function getWindowSizeInPixels():{ width:Int, height:Int } {
         var w = 0, h = 0;
         var pw:Pointer<Int> = Pointer.addressOf(w);

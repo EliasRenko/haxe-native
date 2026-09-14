@@ -33,8 +33,8 @@ class PostProcessPass {
             return;
         }
 
-        framebuffer = new Framebuffer(__width, __height, false, false);
-        framebuffer.initialize(renderer);
+        //framebuffer = new Framebuffer(__width, __height, false, false);
+        //framebuffer.initialize(renderer);
 
         screenQuad = new ScreenQuadDisplayObject(renderer);
     }
@@ -107,8 +107,11 @@ class ScreenQuadDisplayObject extends DisplayObject {
 
         __verticesToRender = 4;
         __indicesToRender = 6;
+
         mode = GL.TRIANGLES;
+
         needsBufferUpdate = true;
+
         blending = {
             source: BlendFactors.SRC_ALPHA,
             destination: BlendFactors.ONE_MINUS_SRC_ALPHA

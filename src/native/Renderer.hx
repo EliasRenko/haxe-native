@@ -17,6 +17,7 @@ import cpp.UInt32;
 import Framebuffer;
 import Log;
 import PostProcessPass;
+import display.PostProcessDisplayObject;
 
 class Buffers {
 	public var vbo:UInt32;
@@ -49,9 +50,12 @@ class Renderer {
 
     //private var buffers:Map<DisplayObject, Buffers> = new Map<DisplayObject, Buffers>();
     private var buffers:SlotArray<Buffers> = new SlotArray<Buffers>(32);
+    public var framebuffers:SlotArray<Framebuffer> = new SlotArray<Framebuffer>(8);
 
     // Framebuffer for post-processing
-    private var __postProcessPass:PostProcessPass = null;
+    //private var __postProcessPass:PostProcessPass = null;
+
+    public var postProcessDisplayObject:PostProcessDisplayObject = null;
     private var __fullscreenQuadVAO:Int = 0;
     private var __fullscreenQuadVBO:Int = 0;
     public var usePostProcessing:Bool = false; // Toggle post-processing on/off
@@ -510,11 +514,14 @@ class Renderer {
         setBlendMode(false);
         
         // Cleanup framebuffer
-        if (__postProcessPass != null) {
-            __postProcessPass.dispose();
-            __postProcessPass = null;
-        }
-        
+        // if (__postProcessPass != null) {
+        //     __postProcessPass.dispose();
+        //     __postProcessPass = null;
+        // }
+
+        postProcessDisplayObject.dispose(this);
+        postProcessDisplayObject = null;
+
         // Cleanup all registered ProgramInfos
         for (name in programInfos.keys()) {
             var programInfo = programInfos.get(name);
@@ -577,6 +584,8 @@ class Renderer {
 	// FRAMEBUFFER AND POST-PROCESSING
 	// =============================================================================
 	
+    
+
 	/**
 	 * Initialize the post-processing framebuffer and fullscreen quad
 	 */
@@ -588,39 +597,47 @@ class Renderer {
         
         createProgramInfo("postprocess", vertShader, fragShader);
 
-        __postProcessPass = new PostProcessPass(this, size.width, size.height);
+        postProcessDisplayObject = new PostProcessDisplayObject(this, size.width, size.height);
+
+
+        //__postProcessPass = new PostProcessPass(this, size.width, size.height);
+
+
 
         trace("Renderer: Post-processing initialized");
 	}
-	
-	/**
-	 * Create a fullscreen quad (2 triangles)
-	 */
-	private function createFullscreenQuad():Void {
-		if (__postProcessPass != null) {
-			__postProcessPass.initialize(this);
-		}
-	}
-	
-	/**
-	 * Bind the framebuffer for rendering
-	 */
-	public function bindFramebuffer():Void {
-		if (__postProcessPass != null) {
-			__postProcessPass.begin();
-		} 
+
+    public function createFramebuffer(width:Int, height:Int):Int {
+        
+        var framebuffer = new Framebuffer(width, height, false, false);
+        framebuffer.initialize(this);
+
+        return framebuffers.add(framebuffer);
+    }
+
+    public function bindFramebuffer(frameBufferId:Int):Void {
+
+        var framebuffer = framebuffers.get(frameBufferId);
+        if (framebuffer != null) {
+            framebuffer.bind();
+        } else {
+            trace("Error: Framebuffer with ID " + frameBufferId + " not found.");
+        }
 	}
 	
 	/**
 	 * Unbind the framebuffer (render to screen)
 	 */
-	public function unbindFramebuffer():Void {
-		if (__postProcessPass != null) {
-			__postProcessPass.end();
-		}
+	public function unbindFramebuffer(frameBufferId:Int):Void {
+        var framebuffer = framebuffers.get(frameBufferId);
+        if (framebuffer != null) {
+            framebuffer.unbind();
+        } else {
+            trace("Error: Framebuffer with ID " + frameBufferId + " not found.");
+        }
 
         var size = app.window.getWindowSizeInPixels();
-		GL.viewport(0, 0, size.width, size.height);
+		setViewport(size.width, size.height);
 	}
 	
     private function setViewport(width:Int, height:Int):Void {
@@ -630,18 +647,27 @@ class Renderer {
     public function resize(width:Int, height:Int):Void {
         if (width <= 0 || height <= 0) return; // Ignore degenerate resize (e.g. window minimised)
         setViewport(width, height);
-        if (__postProcessPass != null) {
-            __postProcessPass.resize(width, height);
+        
+        postProcessDisplayObject.resize(this, width, height);
+    }
+
+    public function disposeFramebuffer(frameBufferId:Int):Void {
+        var framebuffer = framebuffers.get(frameBufferId);
+        if (framebuffer != null) {
+            framebuffer.dispose();
+            framebuffers.remove(frameBufferId);
+        } else {
+            trace("Error: Framebuffer with ID " + frameBufferId + " not found.");
         }
     }
 
 	/**
 	 * Render the framebuffer texture to screen with post-process shader
 	 */
-	public function renderToScreen():Void {
-		if (__postProcessPass != null) {
-			__postProcessPass.render(this);
-			return;
-		}
-	}
+	// public function renderToScreen():Void {
+	// 	if (__postProcessPass != null) {
+	// 		__postProcessPass.render(this);
+	// 		return;
+	// 	}
+	// }
 }
