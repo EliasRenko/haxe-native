@@ -94,9 +94,8 @@ class ProgramInfo {
 	public var fragmentShader:Shader;
 	public var program:Program;
 	
-	// ** Vertex attributes and uniforms
+	// ** Vertex attributes
 	public var attributes:Array<Attribute> = new Array<Attribute>();
-	public var uniforms:Array<Uniform> = new Array<Uniform>();
 	
 	// ** Texture samplers (separate from uniforms for conceptual clarity)
 	// Note: Textures are also added to uniformMap for O(1) lookup
@@ -358,7 +357,6 @@ class ProgramInfo {
 		
 		// Clear existing arrays
 		attributes = [];
-		uniforms = [];
 		
 		// Introspect active attributes
 		introspectAttributes();
@@ -483,10 +481,7 @@ class ProgramInfo {
 				setter: setter, // Pre-computed setter function for O(1) uniform setting
 				location: (location : UniformLocation)
 			};
-			
-			// Add to uniforms array
-			uniforms.push(uniformData);
-			
+		
 			// Add to uniform map for O(1) lookup performance
 			uniformMap.set(name, uniformData);
 			

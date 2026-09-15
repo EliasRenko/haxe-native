@@ -9,7 +9,7 @@ import data.Indices;
 import math.Matrix;
 
 @:shader("postprocess")
-class PostProcessDisplayObject extends DisplayObject {
+class ScreenPass extends DisplayObject {
 
     public var framebufferId:Null<Int> = null;
     public var width:Int;

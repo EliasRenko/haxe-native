@@ -131,7 +131,6 @@ class Image extends Transform {
 		
 		__height = value;
 		
-		// Mark for buffer update on next render
 		if (__active) {
 			needsBufferUpdate = true;
 		}
@@ -147,9 +146,7 @@ class Image extends Transform {
 		vertices.set(15, 0 - originX);
 		
 		__width = value;
-		//markTransformDirty();
 		
-		// Mark for buffer update on next render
 		if (__active) {
 			needsBufferUpdate = true;
 		}

@@ -17,7 +17,7 @@ import cpp.UInt32;
 import Framebuffer;
 import Log;
 import PostProcessPass;
-import display.PostProcessDisplayObject;
+import display.ScreenPass;
 
 class Buffers {
 	public var vbo:UInt32;
@@ -47,15 +47,10 @@ class Renderer {
     private var __frameCount:Int = 0;
 
     private var programInfos:Map<String, ProgramInfo> = new Map<String, ProgramInfo>();
-
-    //private var buffers:Map<DisplayObject, Buffers> = new Map<DisplayObject, Buffers>();
     private var buffers:SlotArray<Buffers> = new SlotArray<Buffers>(32);
     public var framebuffers:SlotArray<Framebuffer> = new SlotArray<Framebuffer>(8);
 
-    // Framebuffer for post-processing
-    //private var __postProcessPass:PostProcessPass = null;
-
-    public var postProcessDisplayObject:PostProcessDisplayObject = null;
+    public var postProcessDisplayObject:ScreenPass = null;
     private var __fullscreenQuadVAO:Int = 0;
     private var __fullscreenQuadVBO:Int = 0;
     public var usePostProcessing:Bool = false; // Toggle post-processing on/off
@@ -580,15 +575,6 @@ class Renderer {
         return __frameCount;
     }
 	
-	// =============================================================================
-	// FRAMEBUFFER AND POST-PROCESSING
-	// =============================================================================
-	
-    
-
-	/**
-	 * Initialize the post-processing framebuffer and fullscreen quad
-	 */
 	public function initializePostProcessing():Void {
         var size = app.window.getWindowSizeInPixels();
 
@@ -597,12 +583,7 @@ class Renderer {
         
         createProgramInfo("postprocess", vertShader, fragShader);
 
-        postProcessDisplayObject = new PostProcessDisplayObject(this, size.width, size.height);
-
-
-        //__postProcessPass = new PostProcessPass(this, size.width, size.height);
-
-
+        postProcessDisplayObject = new ScreenPass(this, size.width, size.height);
 
         trace("Renderer: Post-processing initialized");
 	}
@@ -625,9 +606,6 @@ class Renderer {
         }
 	}
 	
-	/**
-	 * Unbind the framebuffer (render to screen)
-	 */
 	public function unbindFramebuffer(frameBufferId:Int):Void {
         var framebuffer = framebuffers.get(frameBufferId);
         if (framebuffer != null) {
@@ -660,14 +638,4 @@ class Renderer {
             trace("Error: Framebuffer with ID " + frameBufferId + " not found.");
         }
     }
-
-	/**
-	 * Render the framebuffer texture to screen with post-process shader
-	 */
-	// public function renderToScreen():Void {
-	// 	if (__postProcessPass != null) {
-	// 		__postProcessPass.render(this);
-	// 		return;
-	// 	}
-	// }
 }
