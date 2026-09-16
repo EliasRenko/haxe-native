@@ -8,7 +8,7 @@ import math.Matrix;
 import Texture;
 
 @:shader("textured")
-class Image extends Transform {
+class ImageNew extends Transform {
 	
 	// Publics
 	public var angle(get, set):Float;
@@ -99,20 +99,6 @@ class Image extends Transform {
 			needsBufferUpdate = true;
 		}
 	}
-
-	// override function render(renderer:Renderer, cameraMatrix:Matrix, cameraDirty:Bool):Void {
-	// 	if (!__active) return;
-
-	// 	if (__transformDirty || cameraDirty) {
-	// 		__transformDirty = false;
-	// 		updateTransform();
-	// 		var finalMatrix = Matrix.copy(matrix);
-	// 		finalMatrix.append(cameraMatrix);
-	// 		uniforms.set("uMatrix", finalMatrix.data);
-	// 	}
-
-	// 	super.render(renderer, cameraMatrix, cameraDirty);
-	// }
 
 	override function render(renderer:Renderer, cameraMatrix:Matrix, cameraDirty:Bool):Void {
 		if (!__active) return;

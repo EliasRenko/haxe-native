@@ -76,6 +76,78 @@ class Renderer {
         __currentBlendDestination = -1;
         __frameCount++;
     }
+
+    public function useProgram(programInfo:ProgramInfo):Void {
+        if (programInfo.program != currentProgram) {
+            GL.useProgram(programInfo.program);
+            GL.bindVertexArray(programInfo.vao);
+            currentProgram = programInfo.program;
+            currentVbo = 0; // VAO switch invalidates bindVertexBuffer state
+            currentEbo = 0; // VAO stores EBO binding, may be stale
+        }
+    }
+
+	public function bindBuffers(bufferId:Int, stride:Int):Void {
+		var buffersObjs = buffers.get(bufferId);
+		if (buffersObjs == null) {
+			trace("Error: Buffers not found for bufferId: " + bufferId);
+			return;
+		}
+
+		// Also bind using modern ARB_vertex_attrib_binding
+		if (buffersObjs.vbo != currentVbo) {
+			GL.bindVertexBuffer(0, buffersObjs.vbo, 0, stride);
+			currentVbo = buffersObjs.vbo;
+		}
+
+		// Bind element buffer if available
+		if (buffersObjs.ebo != 0 && buffersObjs.ebo != currentEbo) {
+			GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffersObjs.ebo);
+			currentEbo = buffersObjs.ebo;
+		}
+	}
+
+	public function setBlendFunction(source:Int, destination:Int):Void {
+		if (__currentBlendSource != source || __currentBlendDestination != destination) {
+			GL.blendFunc(source, destination);
+			__currentBlendSource = source;
+			__currentBlendDestination = destination;
+		}
+	}
+
+    public function renderUniforms(programInfo:ProgramInfo, displayObject:DisplayObject):Void {
+        for (name => value in displayObject.uniforms) {
+            var uniformInfo = programInfo.getUniform(name);
+            
+            // If the uniform doesn't exist in the shader, log a warning and skip it
+            if (uniformInfo == null) {
+                __app.log.warn(LogCategory.RENDERER, "Uniform '" + name + "' doesn't exist in shader");
+
+                continue;
+            }
+            
+            uniformInfo.setter(value);
+        }
+    }
+
+    public function renderTextures(programInfo:ProgramInfo, displayObject:DisplayObject):Void {
+        for (i in 0...programInfo.textures.length) {
+            if (i < displayObject.textures.length) {
+                var texture = displayObject.textures[i];
+                var textureId = texture != null ? texture.id : 0;
+                if (textureId != currentTextures[i]) {
+                    GL.activeTexture(GL.TEXTURE0 + i);
+                    GL.bindTexture(GL.TEXTURE_2D, textureId);
+                    currentTextures[i] = textureId;
+                }
+            }
+            programInfo.textures[i].setter(i);
+        }
+    }
+
+    public function drawElements(mode:Int, count:Int):Void {
+        GL.drawElements(mode, count, GL.UNSIGNED_INT, 0);
+    }
     
     public function renderDisplayObject(displayObject:DisplayObject):Void {
         
@@ -111,16 +183,16 @@ class Renderer {
         }
         
         // Bind element buffer if available
-        if (buffersObjs.ebo != 0 && displayObject.indices.length > 0 && buffersObjs.ebo != currentEbo) {
+        if (buffersObjs.ebo != 0 && buffersObjs.ebo != currentEbo) {
             GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffersObjs.ebo);
             currentEbo = buffersObjs.ebo;
         }
 
-        __setBlendFunction(displayObject.blending.source, displayObject.blending.destination);
+        setBlendFunction(displayObject.blending.source, displayObject.blending.destination);
 
         // Render uniforms and textures
-        __renderUniforms(programInfo, displayObject);
-        __renderTextures(programInfo, displayObject);
+        renderUniforms(programInfo, displayObject);
+        renderTextures(programInfo, displayObject);
 
         // Draw the object
         if (displayObject.__indicesToRender == 0) {
@@ -130,44 +202,6 @@ class Renderer {
         }
 
         displayObject.postRender();
-    }
-
-    private function __setBlendFunction(source:Int, destination:Int):Void {
-        if (__currentBlendSource != source || __currentBlendDestination != destination) {
-            GL.blendFunc(source, destination);
-            __currentBlendSource = source;
-            __currentBlendDestination = destination;
-        }
-    }
-
-    private function __renderUniforms(programInfo:ProgramInfo, displayObject:DisplayObject):Void {
-        for (name => value in displayObject.uniforms) {
-            var uniformInfo = programInfo.getUniform(name);
-            
-            // If the uniform doesn't exist in the shader, log a warning and skip it
-            if (uniformInfo == null) {
-                __app.log.warn(LogCategory.RENDERER, "Uniform '" + name + "' doesn't exist in shader");
-
-                continue;
-            }
-            
-            uniformInfo.setter(value);
-        }
-    }
-
-    private function __renderTextures(programInfo:ProgramInfo, displayObject:DisplayObject):Void {
-        for (i in 0...programInfo.textures.length) {
-            if (i < displayObject.textures.length) {
-                var texture = displayObject.textures[i];
-                var textureId = texture != null ? texture.id : 0;
-                if (textureId != currentTextures[i]) {
-                    GL.activeTexture(GL.TEXTURE0 + i);
-                    GL.bindTexture(GL.TEXTURE_2D, textureId);
-                    currentTextures[i] = textureId;
-                }
-            }
-            programInfo.textures[i].setter(i);
-        }
     }
     
     /**
@@ -558,7 +592,7 @@ class Renderer {
         if (__currentBlendMode != enabled) {
             if (enabled) {
                 GL.glEnable(GL.BLEND);
-                __setBlendFunction(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA);
+                setBlendFunction(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA);
             } else {
                 GL.glDisable(GL.BLEND);
             }

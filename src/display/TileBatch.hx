@@ -311,6 +311,25 @@ class TileBatch extends DisplayObject {
      * Render the tile batch
      * Just sets uniforms - vertex data already updated in updateBuffers()
      */
+    // override public function render(renderer:Renderer,cameraMatrix:Matrix, cameraDirty:Bool):Void {
+    //     if (!__active || textures[0] == null) return;
+
+    //     vertices.dispose();
+    //     __verticesToRender = 0;
+    //     __indicesToRender = 0;
+
+    //     needsBufferUpdate = true;
+    //     updateBuffers(renderer);
+
+    //     if (__verticesToRender == 0 || __indicesToRender == 0) return;
+
+    //     var finalMatrix = Matrix.copy(matrix);
+    //     finalMatrix.append(cameraMatrix);
+    //     uniforms.set("uMatrix", finalMatrix.data);
+
+    //     renderer.renderDisplayObject(this);
+    // }
+
     override public function render(renderer:Renderer,cameraMatrix:Matrix, cameraDirty:Bool):Void {
         if (!__active || textures[0] == null) return;
 
@@ -327,7 +346,26 @@ class TileBatch extends DisplayObject {
         finalMatrix.append(cameraMatrix);
         uniforms.set("uMatrix", finalMatrix.data);
 
-        renderer.renderDisplayObject(this);
+        // 1. Get the program info for the current shader program
+		var programInfo = renderer.getProgramInfo(getShaderName());
+
+		// 2. Use the shader program (binds the program and VAO)
+		renderer.useProgram(programInfo);
+
+		// 3. Bind the buffers (VAO) for this object
+		renderer.bindBuffers(__bufferId, programInfo.vertexStride);
+
+		// 4. Set the blending factors for transparency
+		renderer.setBlendFunction(blending.source, blending.destination);
+
+		// 5. Set the uniform values for the shader program
+		renderer.renderUniforms(programInfo, this);
+
+		// 6. Set the textures for the shader program
+		renderer.renderTextures(programInfo, this);
+
+		// 7. Draw the object using the specified mode and count
+		renderer.drawElements(mode, __indicesToRender);
     }
 
     override public function postRender():Void {
