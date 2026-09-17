@@ -37,6 +37,7 @@ class TileBatch extends DisplayObject {
     
     //public var atlasTexture:Texture = null;
     public var atlasRegions:Map<Int, AtlasRegion> = new Map(); // regionId -> AtlasRegion
+    public var texture:Texture; // The atlas texture for all tiles
     
     // Current tile data (set each frame)
     //private var __currentTileData:Array<{x:Float, y:Float, width:Float, height:Float, regionId:Int, visible:Bool}> = [];
@@ -75,7 +76,7 @@ class TileBatch extends DisplayObject {
         };
         
         // Set the texture for the display object
-        setTexture(texture);
+        this.texture = texture;
         
         __bufferCapacity = 0; // Will be allocated on first init
     }
@@ -123,10 +124,10 @@ class TileBatch extends DisplayObject {
         
         // Convert pixel coordinates to UV coordinates
         // No V-flipping needed since TGA loader now handles proper orientation
-        region.u1 = atlasX / textures[0].width;
-        region.v1 = atlasY / textures[0].height;
-        region.u2 = (atlasX + atlasWidth) / textures[0].width;
-        region.v2 = (atlasY + atlasHeight) / textures[0].height;
+        region.u1 = atlasX / texture.width;
+        region.v1 = atlasY / texture.height;
+        region.u2 = (atlasX + atlasWidth) / texture.width;
+        region.v2 = (atlasY + atlasHeight) / texture.height;
         
         atlasRegions.set(regionId, region);
         
@@ -153,10 +154,10 @@ class TileBatch extends DisplayObject {
         region.width = atlasWidth;
         region.height = atlasHeight;
 
-        region.u1 = atlasX / textures[0].width;
-        region.v1 = atlasY / textures[0].height;
-        region.u2 = (atlasX + atlasWidth) / textures[0].width;
-        region.v2 = (atlasY + atlasHeight) / textures[0].height;
+        region.u1 = atlasX / texture.width;
+        region.v1 = atlasY / texture.height;
+        region.u2 = (atlasX + atlasWidth) / texture.width;
+        region.v2 = (atlasY + atlasHeight) / texture.height;
 
         return true;
     }
@@ -272,7 +273,7 @@ class TileBatch extends DisplayObject {
      * Called BEFORE render to update vertex data
      */
     override public function updateBuffers(renderer:Renderer):Void {
-        if (!__active || textures[0] == null) return;
+        if (!__active || texture == null) return;
 
         //__verticesToRender = 0;
         //__indicesToRender = 0;
@@ -332,7 +333,7 @@ class TileBatch extends DisplayObject {
     // }
 
     override public function render(renderer:Renderer):Void {
-        if (!__active || textures[0] == null) return;
+        if (!__active || texture == null) return;
 
         vertices.dispose();
         __verticesToRender = 0;
@@ -363,7 +364,7 @@ class TileBatch extends DisplayObject {
 		renderer.renderUniforms(programInfo, this);
 
 		// 6. Set the textures for the shader program
-		renderer.renderTextures(programInfo, this);
+		renderer.bindTexture(programInfo, texture, 0);
 
 		// 7. Draw the object using the specified mode and count
 		renderer.drawElements(mode, __indicesToRender);

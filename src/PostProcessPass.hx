@@ -1,130 +1,129 @@
-package;
+// package;
 
-import GL;
-import DisplayObject;
-import data.BlendFactors;
-import data.Indices;
-import data.Vertices;
-import math.Matrix;
+// import GL;
+// import DisplayObject;
+// import data.BlendFactors;
+// import data.Indices;
+// import data.Vertices;
+// import math.Matrix;
 
-class PostProcessPass {
-    public var framebuffer:Framebuffer = null;
-    public var screenQuad:ScreenQuadDisplayObject = null;
-    public var enabled:Bool = true;
+// class PostProcessPass {
+//     public var framebuffer:Framebuffer = null;
+//     public var screenQuad:ScreenQuadDisplayObject = null;
+//     public var enabled:Bool = true;
 
-    private var __renderer:Renderer;
-    private var __width:Int;
-    private var __height:Int;
+//     private var __renderer:Renderer;
+//     private var __width:Int;
+//     private var __height:Int;
 
-    public function new(renderer:Renderer, width:Int, height:Int) {
-        __renderer = renderer;
-        __width = width;
-        __height = height;
-        initialize(renderer);
-    }
+//     public function new(renderer:Renderer, width:Int, height:Int) {
+//         __renderer = renderer;
+//         __width = width;
+//         __height = height;
+//         initialize(renderer);
+//     }
 
-    public function initialize(renderer:Renderer):Void {
-        if (framebuffer != null) {
-            framebuffer.dispose();
-            framebuffer = null;
-        }
+//     public function initialize(renderer:Renderer):Void {
+//         if (framebuffer != null) {
+//             framebuffer.dispose();
+//             framebuffer = null;
+//         }
 
-        if (__width <= 0 || __height <= 0) {
-            return;
-        }
+//         if (__width <= 0 || __height <= 0) {
+//             return;
+//         }
 
-        //framebuffer = new Framebuffer(__width, __height, false, false);
-        //framebuffer.initialize(renderer);
+//         //framebuffer = new Framebuffer(__width, __height, false, false);
+//         //framebuffer.initialize(renderer);
 
-        screenQuad = new ScreenQuadDisplayObject(renderer);
-    }
+//         screenQuad = new ScreenQuadDisplayObject(renderer);
+//     }
 
-    public function begin():Void {
-        if (framebuffer != null) {
-            framebuffer.bind();
-        }
-    }
+//     public function begin():Void {
+//         if (framebuffer != null) {
+//             framebuffer.bind();
+//         }
+//     }
 
-    public function end():Void {
-        if (framebuffer != null) {
-            framebuffer.unbind();
-        }
+//     public function end():Void {
+//         if (framebuffer != null) {
+//             framebuffer.unbind();
+//         }
 
-        var size = __renderer.app.window.getWindowSizeInPixels();
-        GL.viewport(0, 0, size.width, size.height);
-    }
+//         var size = __renderer.app.window.getWindowSizeInPixels();
+//         GL.viewport(0, 0, size.width, size.height);
+//     }
 
-    public function render(renderer:Renderer):Void {
-        if (!enabled || framebuffer == null || screenQuad == null) {
-            return;
-        }
+//     public function render(renderer:Renderer):Void {
+//         if (!enabled || framebuffer == null || screenQuad == null) {
+//             return;
+//         }
 
-        if (framebuffer.colorTexture != null) {
-            screenQuad.setTexture(framebuffer.colorTexture);
-        } else {
-            screenQuad.setTexture(null);
-        }
+//         if (framebuffer.colorTexture != null) {
+//             screenQuad.setTexture(framebuffer.colorTexture);
+//         } else {
+//             screenQuad.setTexture(null);
+//         }
 
-        //renderer.renderDisplayObject(screenQuad, new Matrix(), true);
-        screenQuad.render(renderer);
-    }
+//         screenQuad.render(renderer);
+//     }
 
-    public function resize(width:Int, height:Int):Void {
-        if (width <= 0 || height <= 0) {
-            return;
-        }
+//     public function resize(width:Int, height:Int):Void {
+//         if (width <= 0 || height <= 0) {
+//             return;
+//         }
 
-        __width = width;
-        __height = height;
-        initialize(__renderer);
-    }
+//         __width = width;
+//         __height = height;
+//         initialize(__renderer);
+//     }
 
-    public function dispose():Void {
-        if (screenQuad != null) {
-            screenQuad.release(__renderer);
-            screenQuad = null;
-        }
+//     public function dispose():Void {
+//         if (screenQuad != null) {
+//             screenQuad.release(__renderer);
+//             screenQuad = null;
+//         }
 
-        if (framebuffer != null) {
-            framebuffer.dispose();
-            framebuffer = null;
-        }
-    }
-}
+//         if (framebuffer != null) {
+//             framebuffer.dispose();
+//             framebuffer = null;
+//         }
+//     }
+// }
 
-@:shader("postprocess")
-class ScreenQuadDisplayObject extends DisplayObject {
-    public function new(renderer:Renderer) {
-        var vertices = new Vertices([
-            -1.0,  1.0,  0.0, 1.0,
-            -1.0, -1.0,  0.0, 0.0,
-             1.0, -1.0,  1.0, 0.0,
-             1.0,  1.0,  1.0, 1.0
-        ]);
+// @:shader("postprocess")
+// class ScreenQuadDisplayObject extends DisplayObject {
+//     public function new(renderer:Renderer) {
+//         var vertices = new Vertices([
+//             -1.0,  1.0,  0.0, 1.0,
+//             -1.0, -1.0,  0.0, 0.0,
+//              1.0, -1.0,  1.0, 0.0,
+//              1.0,  1.0,  1.0, 1.0
+//         ]);
 
-        var indices = new Indices([0, 1, 2, 0, 2, 3]);
-        super(renderer, vertices, indices);
+//         var indices = new Indices([0, 1, 2, 0, 2, 3]);
+//         super(renderer, vertices, indices);
 
-        __verticesToRender = 4;
-        __indicesToRender = 6;
+//         __verticesToRender = 4;
+//         __indicesToRender = 6;
 
-        mode = GL.TRIANGLES;
+//         mode = GL.TRIANGLES;
 
-        needsBufferUpdate = true;
+//         needsBufferUpdate = true;
 
-        blending = {
-            source: BlendFactors.SRC_ALPHA,
-            destination: BlendFactors.ONE_MINUS_SRC_ALPHA
-        };
-    }
+//         blending = {
+//             source: BlendFactors.SRC_ALPHA,
+//             destination: BlendFactors.ONE_MINUS_SRC_ALPHA
+//         };
+//     }
 
-    override public function updateBuffers(renderer:Renderer):Void {
-        super.updateBuffers(renderer);
-	}
+//     override public function updateBuffers(renderer:Renderer):Void {
+//         super.updateBuffers(renderer);
+// 	}
 
-    override public function render(renderer:Renderer):Void {
-        uniforms.set("uScreenTexture", 0);
+//     override public function render(renderer:Renderer):Void {
+//         uniforms.set("uScreenTexture", 0);
 
-        super.render(renderer);
-    }
-}
+//         super.render(renderer);
+//     }
+// }

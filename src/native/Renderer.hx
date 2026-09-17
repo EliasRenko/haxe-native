@@ -131,18 +131,26 @@ class Renderer {
         }
     }
 
-    public function renderTextures(programInfo:ProgramInfo, displayObject:DisplayObject):Void {
-        for (i in 0...programInfo.textures.length) {
-            if (i < displayObject.textures.length) {
-                var texture = displayObject.textures[i];
-                var textureId = texture != null ? texture.id : 0;
-                if (textureId != currentTextures[i]) {
-                    GL.activeTexture(GL.TEXTURE0 + i);
-                    GL.bindTexture(GL.TEXTURE_2D, textureId);
-                    currentTextures[i] = textureId;
-                }
-            }
-            programInfo.textures[i].setter(i);
+    // public function renderTextures(programInfo:ProgramInfo, displayObject:DisplayObject):Void {
+    //     for (i in 0...programInfo.textures.length) {
+    //         if (i < displayObject.textures.length) {
+    //             var texture = displayObject.textures[i];
+    //             var textureId = texture != null ? texture.id : 0;
+    //             if (textureId != currentTextures[i]) {
+    //                 GL.activeTexture(GL.TEXTURE0 + i);
+    //                 GL.bindTexture(GL.TEXTURE_2D, textureId);
+    //                 currentTextures[i] = textureId;
+    //             }
+    //         }
+    //         programInfo.textures[i].setter(i);
+    //     }
+    // }
+
+    public function bindTexture(programInfo:ProgramInfo, texture:Texture, index:Int):Void {
+        if (texture != null) {
+            GL.activeTexture(GL.TEXTURE0 + index);
+            GL.bindTexture(GL.TEXTURE_2D, texture.id);
+            programInfo.textures[index].setter(index);
         }
     }
 

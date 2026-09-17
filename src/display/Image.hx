@@ -1,5 +1,6 @@
 package display;
 
+import DisplayObject.TextureSlot;
 import data.Indices;
 import data.Vertices;
 import GL;
@@ -16,6 +17,7 @@ class Image extends Transform {
 	public var width(get, set):Float;
 	public var originX(get, set):Float;
 	public var originY(get, set):Float;
+	public var texture:Texture;
 
 	// Privates
 	private var __angle:Float = 0;
@@ -53,7 +55,10 @@ class Image extends Transform {
 		__indicesToRender = 6;
 		
 		// Set the texture using the full Texture object
-		setTexture(texture);
+		this.texture = texture;
+
+		// Always pass 0 - 1 values
+		setUV(0, 0, 1, 1);
 		
 		// Initialize dimensions from texture
 		__width = texture.width;
@@ -67,20 +72,20 @@ class Image extends Transform {
 		originY = __height / 2;
 	}
 
-	public function setTextures(textureObjects:Array<Texture>, width:Int, height:Int) {
-		if (textureObjects.length == 0) {
-			return;
-		}
+	// public function setTextures(textureObjects:Array<Texture>, width:Int, height:Int) {
+	// 	if (textureObjects.length == 0) {
+	// 		return;
+	// 	}
 
-		// Set the first texture (Image only supports single texture for now)
-		setTexture(textureObjects[0]);
+	// 	// Set the first texture (Image only supports single texture for now)
+	// 	setTexture(textureObjects[0]);
 		
-		// Set the width and height
-		this.width = width;
-		this.height = height;
+	// 	// Set the width and height
+	// 	this.width = width;
+	// 	this.height = height;
 
-		setUV(0, 0, 1, 1); // Always pass 0 - 1 values
-	}
+	// 	setUV(0, 0, 1, 1); // Always pass 0 - 1 values
+	// }
 	
 	public function setUV(x:Float, y:Float, width:Float, height:Float):Void {
 		// Update UV coordinates - vertex order: [top-left, top-right, bottom-right, bottom-left]
@@ -143,7 +148,8 @@ class Image extends Transform {
 		renderer.renderUniforms(programInfo, this);
 
 		// 6. Set the textures for the shader program
-		renderer.renderTextures(programInfo, this);
+		//renderer.renderTextures(programInfo, this);
+		renderer.bindTexture(programInfo, texture, 0);
 
 		// 7. Draw the object using the specified mode and count
 		renderer.drawElements(mode, __indicesToRender);

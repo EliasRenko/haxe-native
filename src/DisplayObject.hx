@@ -13,6 +13,11 @@ typedef Blending = {
 	destination:Int
 }
 
+typedef TextureSlot = {
+    var texture:Texture;
+    var slot:Int;
+}
+
 @:autoBuild(ShaderMacro.build())
 abstract class DisplayObject {
 
@@ -23,7 +28,7 @@ abstract class DisplayObject {
 	public var vertices(get, null):Vertices = new Vertices([]);
 	public var programInfoName:String;
 
-	public var textures:Array<Texture> = new Array<Texture>();
+	//public var textures:Array<Texture> = new Array<Texture>();
 	public var uniforms:Map<String, Dynamic> = new Map<String, Dynamic>();
 	public var visible:Bool = true;
 	
@@ -67,41 +72,41 @@ abstract class DisplayObject {
 		}
 	}
 	
-	/**
-	 * Convenience method to set the primary texture
-	 * @param texture Texture object (null to remove texture)
-	 */
-	public function setTexture(texture:Texture):Void {
-		if (texture == null) {
-			textures = [];
-		} else {
-			textures = [texture];
-		}
-	}
+	// /**
+	//  * Convenience method to set the primary texture
+	//  * @param texture Texture object (null to remove texture)
+	//  */
+	// public function setTexture(texture:Texture):Void {
+	// 	if (texture == null) {
+	// 		textures = [];
+	// 	} else {
+	// 		textures = [texture];
+	// 	}
+	// }
 	
-	/**
-	 * Add an additional texture to the texture array
-	 * @param texture Texture object
-	 * @return The texture slot index
-	 */
-	public function addTexture(texture:Texture):Int {
-		textures.push(texture);
-		return textures.length - 1;
-	}
+	// /**
+	//  * Add an additional texture to the texture array
+	//  * @param texture Texture object
+	//  * @return The texture slot index
+	//  */
+	// public function addTexture(texture:Texture):Int {
+	// 	textures.push(texture);
+	// 	return textures.length - 1;
+	// }
 	
-	/**
-	 * Check if this object has any textures assigned
-	 */
-	public function hasTextures():Bool {
-		return textures.length > 0 && textures[0] != null;
-	}
+	// /**
+	//  * Check if this object has any textures assigned
+	//  */
+	// public function hasTextures():Bool {
+	// 	return textures.length > 0 && textures[0] != null;
+	// }
 	
 	/**
 	 * Get the primary texture ID for OpenGL operations
 	 */
-	public function getTextureId():Int {
-		return (textures.length > 0 && textures[0] != null) ? textures[0].id : 0;
-	}
+	// public function getTextureId():Int {
+	// 	return (textures.length > 0 && textures[0] != null) ? textures[0].id : 0;
+	// }
 	
 	public function render(renderer:Renderer):Void {
 		
@@ -123,7 +128,8 @@ abstract class DisplayObject {
 		renderer.renderUniforms(programInfo, this);
 
 		// 6. Set the textures for the shader program
-		renderer.renderTextures(programInfo, this);
+		// renderer.renderTextures(programInfo, this);
+
 
 		// 7. Draw the object using the specified mode and count
 		renderer.drawElements(mode, __indicesToRender);

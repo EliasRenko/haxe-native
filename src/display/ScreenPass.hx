@@ -14,6 +14,7 @@ class ScreenPass extends DisplayObject {
     public var framebufferId:Null<Int> = null;
     public var width:Int;
     public var height:Int;
+    public var texture:Texture;
 
     public function new(renderer:Renderer, width:Int, height:Int) {
         this.width = width;
@@ -83,11 +84,35 @@ class ScreenPass extends DisplayObject {
         var framebuffer = renderer.framebuffers.get(framebufferId);
 
         if (framebuffer.colorTexture != null) {
-            setTexture(framebuffer.colorTexture);
+            texture = framebuffer.colorTexture;
         } else {
-            setTexture(null);
+            texture = null;
         }
 
-        super.render(renderer);
+        updateBuffers(renderer);
+
+		// 1. Get the program info for the current shader program
+		var programInfo = renderer.getProgramInfo(getShaderName());
+
+		// 2. Use the shader program (binds the program and VAO)
+		renderer.useProgram(programInfo);
+
+		// 3. Bind the buffers (VAO) for this object
+		renderer.bindBuffers(__bufferId, programInfo.vertexStride);
+
+		// 4. Set the blending factors for transparency
+		renderer.setBlendFunction(blending.source, blending.destination);
+
+		// 5. Set the uniform values for the shader program
+		renderer.renderUniforms(programInfo, this);
+
+		// 6. Set the textures for the shader program
+		// renderer.renderTextures(programInfo, this);
+        renderer.bindTexture(programInfo, texture, 0);
+
+		// 7. Draw the object using the specified mode and count
+		renderer.drawElements(mode, __indicesToRender);
+
+        //super.render(renderer);
     }
 }
