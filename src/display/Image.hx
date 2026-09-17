@@ -114,14 +114,14 @@ class Image extends Transform {
 	// 	super.render(renderer, cameraMatrix, cameraDirty);
 	// }
 
-	override function render(renderer:Renderer, cameraMatrix:Matrix, cameraDirty:Bool):Void {
+	override function render(renderer:Renderer):Void {
 		if (!__active) return;
 
-		if (__transformDirty || cameraDirty) {
+		if (__transformDirty) {
 			__transformDirty = false;
 			updateTransform();
 			var finalMatrix = Matrix.copy(matrix);
-			finalMatrix.append(cameraMatrix);
+			finalMatrix.append(renderer.matrix);
 			uniforms.set("uMatrix", finalMatrix.data);
 		}
 

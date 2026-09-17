@@ -21,7 +21,6 @@ abstract class DisplayObject {
 	public var blending:Blending;
 	public var indices(get, null):Indices = new Indices([]);
 	public var vertices(get, null):Vertices = new Vertices([]);
-	public var matrix(get, null):Matrix;
 	public var programInfoName:String;
 
 	public var textures:Array<Texture> = new Array<Texture>();
@@ -35,7 +34,6 @@ abstract class DisplayObject {
 
 	// Privates
 	private var __active:Bool = false;
-	private var __matrix:Matrix = new Matrix();
 	private var __indices:Indices = new Indices([]);
 	private var __vertices:Vertices = new Vertices([]);
 	public var __bufferId:Int;
@@ -104,20 +102,31 @@ abstract class DisplayObject {
 	public function getTextureId():Int {
 		return (textures.length > 0 && textures[0] != null) ? textures[0].id : 0;
 	}
-
-	public function render(renderer:Renderer, cameraMatrix:Matrix, cameraDirty:Bool):Void {
-		// if (!__active) return;
+	
+	public function render(renderer:Renderer):Void {
 		
-		// // renderer.uploadData(this); can be added here
 		updateBuffers(renderer);
 
-		// if (cameraDirty) {
-		// 	var finalMatrix = Matrix.copy(matrix);
-		// 	finalMatrix.append(cameraMatrix);
-		// 	uniforms.set("uMatrix", finalMatrix.data);
-		// }
+		// 1. Get the program info for the current shader program
+		var programInfo = renderer.getProgramInfo(getShaderName());
 
-		renderer.renderDisplayObject(this);
+		// 2. Use the shader program (binds the program and VAO)
+		renderer.useProgram(programInfo);
+
+		// 3. Bind the buffers (VAO) for this object
+		renderer.bindBuffers(__bufferId, programInfo.vertexStride);
+
+		// 4. Set the blending factors for transparency
+		renderer.setBlendFunction(blending.source, blending.destination);
+
+		// 5. Set the uniform values for the shader program
+		renderer.renderUniforms(programInfo, this);
+
+		// 6. Set the textures for the shader program
+		renderer.renderTextures(programInfo, this);
+
+		// 7. Draw the object using the specified mode and count
+		renderer.drawElements(mode, __indicesToRender);
 	}
 
 	public function updateBuffers(renderer:Renderer):Void {
@@ -130,10 +139,6 @@ abstract class DisplayObject {
 	public function postRender():Void {}
 
 	// Getters and setters
-	private function get_matrix():Matrix {
-		return __matrix;
-	}
-
 	private function get_indices():Indices {
 		return __indices;
 	}

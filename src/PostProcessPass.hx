@@ -66,7 +66,7 @@ class PostProcessPass {
         }
 
         //renderer.renderDisplayObject(screenQuad, new Matrix(), true);
-        screenQuad.render(renderer, new Matrix(), true);
+        screenQuad.render(renderer);
     }
 
     public function resize(width:Int, height:Int):Void {
@@ -122,9 +122,9 @@ class ScreenQuadDisplayObject extends DisplayObject {
         super.updateBuffers(renderer);
 	}
 
-    override public function render(renderer:Renderer, cameraMatrix:Matrix, cameraDirty:Bool):Void {
+    override public function render(renderer:Renderer):Void {
         uniforms.set("uScreenTexture", 0);
 
-        super.render(renderer, cameraMatrix, cameraDirty);
+        super.render(renderer);
     }
 }

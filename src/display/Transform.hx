@@ -2,10 +2,12 @@ package display;
 
 import data.Indices;
 import data.Vertices;
+import math.Matrix;
 import Renderer;
 
 class Transform extends DisplayObject {
 
+	public var matrix(get, null):Matrix;
 	public var x(get, set):Float;
 	public var y(get, set):Float;
 	public var z(get, set):Float;
@@ -15,6 +17,7 @@ class Transform extends DisplayObject {
 	public var scaleX(get, set):Float;
 	public var scaleY(get, set):Float;
 
+	private var __matrix:Matrix = new Matrix();
 	private var __x:Float = 0;
 	private var __y:Float = 0;
 	private var __z:Float = 0;
@@ -31,12 +34,12 @@ class Transform extends DisplayObject {
     }
 
     public function updateTransform():Void {
-		matrix.identity();
-		matrix.appendScale(__scaleX, __scaleY, 1);
-		matrix.appendRotationX(__rotationX);
-		matrix.appendRotationY(__rotationY);
-		matrix.appendRotationZ(-__rotationZ * Math.PI / 180.0);
-		matrix.appendTranslation(__x, __y, __z);
+		__matrix.identity();
+		__matrix.appendScale(__scaleX, __scaleY, 1);
+		__matrix.appendRotationX(__rotationX);
+		__matrix.appendRotationY(__rotationY);
+		__matrix.appendRotationZ(-__rotationZ * Math.PI / 180.0);
+		__matrix.appendTranslation(__x, __y, __z);
 	}
 
 	private function get_x():Float      { return __x; }
@@ -56,4 +59,8 @@ class Transform extends DisplayObject {
 	private function set_rotationZ(v:Float):Float { __rotationZ = v; __transformDirty = true; return v; }
 	private function set_scaleX(v:Float):Float { __scaleX = v;    __transformDirty = true; return v; }
 	private function set_scaleY(v:Float):Float { __scaleY = v;    __transformDirty = true; return v; }
+
+	private function get_matrix():Matrix {
+		return __matrix;
+	}
 }

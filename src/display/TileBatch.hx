@@ -44,7 +44,8 @@ class TileBatch extends DisplayObject {
     // Buffer management
     private var __nextRegionId:Int = 1; // Auto-incrementing region ID
     private var __bufferCapacity:Int = 0; // Current buffer capacity in tiles
-    
+    private var __matrix:Matrix = new Matrix();
+
     /**
      * Create a new TileBatch
      * @param programInfo Shader program for rendering
@@ -330,7 +331,7 @@ class TileBatch extends DisplayObject {
     //     renderer.renderDisplayObject(this);
     // }
 
-    override public function render(renderer:Renderer,cameraMatrix:Matrix, cameraDirty:Bool):Void {
+    override public function render(renderer:Renderer):Void {
         if (!__active || textures[0] == null) return;
 
         vertices.dispose();
@@ -342,8 +343,8 @@ class TileBatch extends DisplayObject {
 
         if (__verticesToRender == 0 || __indicesToRender == 0) return;
 
-        var finalMatrix = Matrix.copy(matrix);
-        finalMatrix.append(cameraMatrix);
+        var finalMatrix = Matrix.copy(__matrix);
+        finalMatrix.append(renderer.matrix);
         uniforms.set("uMatrix", finalMatrix.data);
 
         // 1. Get the program info for the current shader program
