@@ -306,32 +306,9 @@ class TileBatch extends DisplayObject {
             //renderer.uploadData(this);
         }
         
-        needsBufferUpdate = false;
+        __needsBufferUpdate = false;
     }
     
-    /**
-     * Render the tile batch
-     * Just sets uniforms - vertex data already updated in updateBuffers()
-     */
-    // override public function render(renderer:Renderer,cameraMatrix:Matrix, cameraDirty:Bool):Void {
-    //     if (!__active || textures[0] == null) return;
-
-    //     vertices.dispose();
-    //     __verticesToRender = 0;
-    //     __indicesToRender = 0;
-
-    //     needsBufferUpdate = true;
-    //     updateBuffers(renderer);
-
-    //     if (__verticesToRender == 0 || __indicesToRender == 0) return;
-
-    //     var finalMatrix = Matrix.copy(matrix);
-    //     finalMatrix.append(cameraMatrix);
-    //     uniforms.set("uMatrix", finalMatrix.data);
-
-    //     renderer.renderDisplayObject(this);
-    // }
-
     override public function render(renderer:Renderer):Void {
         if (!__active || texture == null) return;
 
@@ -339,7 +316,7 @@ class TileBatch extends DisplayObject {
         __verticesToRender = 0;
         __indicesToRender = 0;
 
-        needsBufferUpdate = true;
+        __needsBufferUpdate = true;
         updateBuffers(renderer);
 
         if (__verticesToRender == 0 || __indicesToRender == 0) return;
@@ -349,7 +326,7 @@ class TileBatch extends DisplayObject {
         uniforms.set("uMatrix", finalMatrix.data);
 
         // 1. Get the program info for the current shader program
-		var programInfo = renderer.getProgramInfo(getShaderName());
+		var programInfo = renderer.getProgramInfo(programInfoName);
 
 		// 2. Use the shader program (binds the program and VAO)
 		renderer.useProgram(programInfo);
@@ -364,18 +341,10 @@ class TileBatch extends DisplayObject {
 		renderer.renderUniforms(programInfo, this);
 
 		// 6. Set the textures for the shader program
-		renderer.bindTexture(programInfo, texture, 0);
+		renderer.bindTexture(texture.id, 0);
 
 		// 7. Draw the object using the specified mode and count
 		renderer.drawElements(mode, __indicesToRender);
-    }
-
-    override public function postRender():Void {
-        // Reset counts after rendering
-        // __verticesToRender = 0;
-        // __indicesToRender = 0;
-
-        // vertices = [];
     }
     
     /**

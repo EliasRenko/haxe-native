@@ -13,11 +13,6 @@ typedef Blending = {
 	destination:Int
 }
 
-typedef TextureSlot = {
-    var texture:Texture;
-    var slot:Int;
-}
-
 @:autoBuild(ShaderMacro.build())
 abstract class DisplayObject {
 
@@ -27,27 +22,20 @@ abstract class DisplayObject {
 	public var indices(get, null):Indices = new Indices([]);
 	public var vertices(get, null):Vertices = new Vertices([]);
 	public var programInfoName:String;
-
-	//public var textures:Array<Texture> = new Array<Texture>();
-	public var uniforms:Map<String, Dynamic> = new Map<String, Dynamic>();
-	public var visible:Bool = true;
-	
-	// Rendering properties
 	public var depthTest:Bool = true;
 	public var depthWrite:Bool = true;
 	public var cullFace:Bool = false;
+	public var uniforms:Map<String, Dynamic> = new Map<String, Dynamic>();
+	public var visible:Bool = true;
 
 	// Privates
 	private var __active:Bool = false;
 	private var __indices:Indices = new Indices([]);
 	private var __vertices:Vertices = new Vertices([]);
-	public var __bufferId:Int;
-	
-	public var __verticesToRender:Int = 0;
-	public var __indicesToRender:UInt = 0;
-
-	// Flag to indicate buffers need updating
-	public var needsBufferUpdate:Bool = false;
+	private var __bufferId:Int;
+	private var __verticesToRender:Int = 0;
+	private var __indicesToRender:UInt = 0;
+	private var __needsBufferUpdate:Bool = false;
 	
 	public function new(renderer:Renderer, vertices:Vertices, ?indices:Indices) {
 		__vertices = vertices;
@@ -72,48 +60,12 @@ abstract class DisplayObject {
 		}
 	}
 	
-	// /**
-	//  * Convenience method to set the primary texture
-	//  * @param texture Texture object (null to remove texture)
-	//  */
-	// public function setTexture(texture:Texture):Void {
-	// 	if (texture == null) {
-	// 		textures = [];
-	// 	} else {
-	// 		textures = [texture];
-	// 	}
-	// }
-	
-	// /**
-	//  * Add an additional texture to the texture array
-	//  * @param texture Texture object
-	//  * @return The texture slot index
-	//  */
-	// public function addTexture(texture:Texture):Int {
-	// 	textures.push(texture);
-	// 	return textures.length - 1;
-	// }
-	
-	// /**
-	//  * Check if this object has any textures assigned
-	//  */
-	// public function hasTextures():Bool {
-	// 	return textures.length > 0 && textures[0] != null;
-	// }
-	
-	/**
-	 * Get the primary texture ID for OpenGL operations
-	 */
-	// public function getTextureId():Int {
-	// 	return (textures.length > 0 && textures[0] != null) ? textures[0].id : 0;
-	// }
-	
 	public function render(renderer:Renderer):Void {
 		
 		updateBuffers(renderer);
 
 		// 1. Get the program info for the current shader program
-		var programInfo = renderer.getProgramInfo(getShaderName());
+		var programInfo = renderer.getProgramInfo(programInfoName);
 
 		// 2. Use the shader program (binds the program and VAO)
 		renderer.useProgram(programInfo);
@@ -130,19 +82,16 @@ abstract class DisplayObject {
 		// 6. Set the textures for the shader program
 		// renderer.renderTextures(programInfo, this);
 
-
 		// 7. Draw the object using the specified mode and count
 		renderer.drawElements(mode, __indicesToRender);
 	}
 
-	public function updateBuffers(renderer:Renderer):Void {
-		if (!__active || !needsBufferUpdate) return;
+	private function updateBuffers(renderer:Renderer):Void {
+		if (!__active || !__needsBufferUpdate) return;
 
 		renderer.uploadData(__bufferId, vertices, indices);
-		needsBufferUpdate = false;
+		__needsBufferUpdate = false;
 	}
-
-	public function postRender():Void {}
 
 	// Getters and setters
 	private function get_indices():Indices {
@@ -156,5 +105,5 @@ abstract class DisplayObject {
 	// Macros
 
 	// Override in subclasses (or use @:shader metadata) to declare the shader name.
-	public function getShaderName():String { return null; }
+	private function getShaderName():String { return null; }
 }

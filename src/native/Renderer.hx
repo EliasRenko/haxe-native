@@ -16,7 +16,6 @@ import cpp.Float32;
 import cpp.UInt32;
 import Framebuffer;
 import Log;
-import PostProcessPass;
 import display.ScreenPass;
 
 class Buffers {
@@ -146,11 +145,17 @@ class Renderer {
     //     }
     // }
 
-    public function bindTexture(programInfo:ProgramInfo, texture:Texture, index:Int):Void {
-        if (texture != null) {
+    public function assignTexture(programInfoName:String, index:Int):Void {
+        var programInfo = getProgramInfo(programInfoName);
+        GL.useProgram(programInfo.program);
+        programInfo.textures[index].setter(index);
+    }
+
+    public function bindTexture(textureId:Int, index:Int):Void {
+        if (textureId != 0) {
             GL.activeTexture(GL.TEXTURE0 + index);
-            GL.bindTexture(GL.TEXTURE_2D, texture.id);
-            programInfo.textures[index].setter(index);
+            GL.bindTexture(GL.TEXTURE_2D, textureId);
+            //programInfo.textures[index].setter(index);
         }
     }
 

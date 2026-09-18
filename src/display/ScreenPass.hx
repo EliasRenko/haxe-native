@@ -36,7 +36,7 @@ class ScreenPass extends DisplayObject {
 
         mode = GL.TRIANGLES;
 
-        needsBufferUpdate = true;
+        __needsBufferUpdate = true;
         
         blending = {
             source: BlendFactors.SRC_ALPHA,
@@ -107,8 +107,8 @@ class ScreenPass extends DisplayObject {
 		renderer.renderUniforms(programInfo, this);
 
 		// 6. Set the textures for the shader program
-		// renderer.renderTextures(programInfo, this);
-        renderer.bindTexture(programInfo, texture, 0);
+        renderer.assignTexture(programInfoName, 0);
+        renderer.bindTexture(texture.id, 0);
 
 		// 7. Draw the object using the specified mode and count
 		renderer.drawElements(mode, __indicesToRender);

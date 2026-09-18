@@ -1,6 +1,5 @@
 package display;
 
-import DisplayObject.TextureSlot;
 import data.Indices;
 import data.Vertices;
 import GL;
@@ -64,7 +63,7 @@ class Image extends Transform {
 		__width = texture.width;
 		__height = texture.height;
 
-		needsBufferUpdate = true;
+		__needsBufferUpdate = true;
 	}
 
 	public function centerOrigin():Void {
@@ -101,7 +100,7 @@ class Image extends Transform {
 		
 		// Mark for buffer update on next render
 		if (__active) {
-			needsBufferUpdate = true;
+			__needsBufferUpdate = true;
 		}
 	}
 
@@ -133,7 +132,7 @@ class Image extends Transform {
 		updateBuffers(renderer);
 
 		// 1. Get the program info for the current shader program
-		var programInfo = renderer.getProgramInfo(getShaderName());
+		var programInfo = renderer.getProgramInfo(programInfoName);
 
 		// 2. Use the shader program (binds the program and VAO)
 		renderer.useProgram(programInfo);
@@ -149,7 +148,7 @@ class Image extends Transform {
 
 		// 6. Set the textures for the shader program
 		//renderer.renderTextures(programInfo, this);
-		renderer.bindTexture(programInfo, texture, 0);
+		renderer.bindTexture(texture.id, 0);
 
 		// 7. Draw the object using the specified mode and count
 		renderer.drawElements(mode, __indicesToRender);
@@ -173,7 +172,7 @@ class Image extends Transform {
 		__height = value;
 		
 		if (__active) {
-			needsBufferUpdate = true;
+			__needsBufferUpdate = true;
 		}
 
 		return value;
@@ -189,7 +188,7 @@ class Image extends Transform {
 		__width = value;
 		
 		if (__active) {
-			needsBufferUpdate = true;
+			__needsBufferUpdate = true;
 		}
 
 		return value;
