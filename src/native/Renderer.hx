@@ -57,7 +57,6 @@ class Renderer {
     private var currentProgram:Int = -1;
     private var currentVbo:Int = 0;
     private var currentEbo:Int = 0;
-    private var currentTextures:Array<Int> = [-1, -1, -1, -1, -1, -1, -1, -1];
     
     public function new(app:App) {
         __app = app;
@@ -71,7 +70,6 @@ class Renderer {
         currentProgram = -1;
         currentVbo = 0;
         currentEbo = 0;
-        for (i in 0...currentTextures.length) currentTextures[i] = -1;
         __currentBlendSource = -1;
         __currentBlendDestination = -1;
         __frameCount++;
@@ -130,32 +128,10 @@ class Renderer {
         }
     }
 
-    // public function renderTextures(programInfo:ProgramInfo, displayObject:DisplayObject):Void {
-    //     for (i in 0...programInfo.textures.length) {
-    //         if (i < displayObject.textures.length) {
-    //             var texture = displayObject.textures[i];
-    //             var textureId = texture != null ? texture.id : 0;
-    //             if (textureId != currentTextures[i]) {
-    //                 GL.activeTexture(GL.TEXTURE0 + i);
-    //                 GL.bindTexture(GL.TEXTURE_2D, textureId);
-    //                 currentTextures[i] = textureId;
-    //             }
-    //         }
-    //         programInfo.textures[i].setter(i);
-    //     }
-    // }
-
-    public function assignTexture(programInfoName:String, index:Int):Void {
-        var programInfo = getProgramInfo(programInfoName);
-        GL.useProgram(programInfo.program);
-        programInfo.textures[index].setter(index);
-    }
-
     public function bindTexture(textureId:Int, index:Int):Void {
         if (textureId != 0) {
             GL.activeTexture(GL.TEXTURE0 + index);
             GL.bindTexture(GL.TEXTURE_2D, textureId);
-            //programInfo.textures[index].setter(index);
         }
     }
 

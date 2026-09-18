@@ -31,9 +31,6 @@ class ScreenPass extends DisplayObject {
 
         framebufferId = renderer.createFramebuffer(width, height);
 
-        __verticesToRender = 4;
-        __indicesToRender = 6;
-
         mode = GL.TRIANGLES;
 
         __needsBufferUpdate = true;
@@ -92,7 +89,7 @@ class ScreenPass extends DisplayObject {
         updateBuffers(renderer);
 
 		// 1. Get the program info for the current shader program
-		var programInfo = renderer.getProgramInfo(getShaderName());
+		var programInfo = renderer.getProgramInfo(getProgramInfoName());
 
 		// 2. Use the shader program (binds the program and VAO)
 		renderer.useProgram(programInfo);
@@ -107,11 +104,11 @@ class ScreenPass extends DisplayObject {
 		renderer.renderUniforms(programInfo, this);
 
 		// 6. Set the textures for the shader program
-        renderer.assignTexture(programInfoName, 0);
+        //renderer.assignTexture(programInfoName, 0);
         renderer.bindTexture(texture.id, 0);
 
 		// 7. Draw the object using the specified mode and count
-		renderer.drawElements(mode, __indicesToRender);
+		renderer.drawElements(mode, indices.length);
 
         //super.render(renderer);
     }

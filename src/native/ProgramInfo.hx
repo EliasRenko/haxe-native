@@ -375,6 +375,8 @@ class ProgramInfo {
 		for (i in 0...textures.length) {
 			textures[i].setter(i);
 		}
+
+		GL.useProgram(0);
 	}
 	
 	// ** Discover all active vertex attributes

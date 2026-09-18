@@ -46,6 +46,8 @@ class TileBatch extends DisplayObject {
     private var __nextRegionId:Int = 1; // Auto-incrementing region ID
     private var __bufferCapacity:Int = 0; // Current buffer capacity in tiles
     private var __matrix:Matrix = new Matrix();
+    private var __verticesToRender:Int = 0;
+	private var __indicesToRender:UInt = 0;
 
     /**
      * Create a new TileBatch
@@ -273,8 +275,7 @@ class TileBatch extends DisplayObject {
      * Called BEFORE render to update vertex data
      */
     override public function updateBuffers(renderer:Renderer):Void {
-        if (!__active || texture == null) return;
-
+        
         //__verticesToRender = 0;
         //__indicesToRender = 0;
         
@@ -310,8 +311,6 @@ class TileBatch extends DisplayObject {
     }
     
     override public function render(renderer:Renderer):Void {
-        if (!__active || texture == null) return;
-
         vertices.dispose();
         __verticesToRender = 0;
         __indicesToRender = 0;
@@ -326,7 +325,7 @@ class TileBatch extends DisplayObject {
         uniforms.set("uMatrix", finalMatrix.data);
 
         // 1. Get the program info for the current shader program
-		var programInfo = renderer.getProgramInfo(programInfoName);
+		var programInfo = renderer.getProgramInfo(getProgramInfoName());
 
 		// 2. Use the shader program (binds the program and VAO)
 		renderer.useProgram(programInfo);

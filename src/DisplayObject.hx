@@ -4,6 +4,7 @@ import GL;
 import Renderer;
 import Texture;
 import data.BlendFactors;
+import data.DrawingMode;
 import data.Vertices;
 import data.Indices;
 import math.Matrix;
@@ -17,77 +18,63 @@ typedef Blending = {
 abstract class DisplayObject {
 
 	// Publics
-	public var mode:Int = GL.TRIANGLES;
 	public var blending:Blending;
-	public var indices(get, null):Indices = new Indices([]);
-	public var vertices(get, null):Vertices = new Vertices([]);
-	public var programInfoName:String;
+	public var culling:Bool = false;
 	public var depthTest:Bool = true;
 	public var depthWrite:Bool = true;
-	public var cullFace:Bool = false;
+	public var indices(get, null):Indices;
+	public var mode:Int = DrawingMode.TRIANGLES;
 	public var uniforms:Map<String, Dynamic> = new Map<String, Dynamic>();
+	public var vertices(get, null):Vertices;
 	public var visible:Bool = true;
 
 	// Privates
-	private var __active:Bool = false;
-	private var __indices:Indices = new Indices([]);
-	private var __vertices:Vertices = new Vertices([]);
 	private var __bufferId:Int;
-	private var __verticesToRender:Int = 0;
-	private var __indicesToRender:UInt = 0;
+	private var __indices:Indices = new Indices([]);
 	private var __needsBufferUpdate:Bool = false;
+	private var __vertices:Vertices = new Vertices([]);
 	
 	public function new(renderer:Renderer, vertices:Vertices, ?indices:Indices) {
 		__vertices = vertices;
 		__indices = indices != null ? indices : new Indices([]);
 
+		__bufferId = renderer.createBuffers(getProgramInfoName());
+
 		blending = {
 			source: BlendFactors.SRC_ALPHA,
 			destination: BlendFactors.ONE_MINUS_SRC_ALPHA
 		};
-
-		programInfoName = getShaderName();
-
-		__bufferId = renderer.createBuffers(programInfoName);
-		__active = true;
 	}
 
 	public function release(renderer:Renderer):Void {
-		if (__active) {
-			renderer.deleteBuffers(__bufferId);
-			__bufferId = -1;
-			__active = false;
-		}
+		renderer.deleteBuffers(__bufferId);
+		__bufferId = -1;
 	}
 	
 	public function render(renderer:Renderer):Void {
 		
-		updateBuffers(renderer);
+		if (!visible) return;
 
+		// 0. Update buffers (if needed) and set uniforms before rendering
+		//updateBuffers(renderer);
 		// 1. Get the program info for the current shader program
-		var programInfo = renderer.getProgramInfo(programInfoName);
-
+		//var programInfo = renderer.getProgramInfo(getProgramInfoName());
 		// 2. Use the shader program (binds the program and VAO)
-		renderer.useProgram(programInfo);
-
+		//renderer.useProgram(programInfo);
 		// 3. Bind the buffers (VAO) for this object
-		renderer.bindBuffers(__bufferId, programInfo.vertexStride);
-
+		//renderer.bindBuffers(__bufferId, programInfo.vertexStride);
 		// 4. Set the blending factors for transparency
-		renderer.setBlendFunction(blending.source, blending.destination);
-
+		//renderer.setBlendFunction(blending.source, blending.destination);
 		// 5. Set the uniform values for the shader program
-		renderer.renderUniforms(programInfo, this);
-
+		//renderer.renderUniforms(programInfo, this);
 		// 6. Set the textures for the shader program
-		// renderer.renderTextures(programInfo, this);
-
+		//renderer.bindTexture(texture.id, 0);
 		// 7. Draw the object using the specified mode and count
-		renderer.drawElements(mode, __indicesToRender);
+		//renderer.drawElements(mode, indices.length);
 	}
 
 	private function updateBuffers(renderer:Renderer):Void {
-		if (!__active || !__needsBufferUpdate) return;
+		if (!__needsBufferUpdate) return;
 
 		renderer.uploadData(__bufferId, vertices, indices);
 		__needsBufferUpdate = false;
@@ -103,7 +90,5 @@ abstract class DisplayObject {
 	}
 
 	// Macros
-
-	// Override in subclasses (or use @:shader metadata) to declare the shader name.
-	private function getShaderName():String { return null; }
+	private function getProgramInfoName():String { return null; }
 }
