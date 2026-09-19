@@ -37,6 +37,7 @@ class TileBatch extends DisplayObject {
     
     //public var atlasTexture:Texture = null;
     public var atlasRegions:Map<Int, AtlasRegion> = new Map(); // regionId -> AtlasRegion
+    public var texture:Texture; // The atlas texture for all tiles
     
     // Current tile data (set each frame)
     //private var __currentTileData:Array<{x:Float, y:Float, width:Float, height:Float, regionId:Int, visible:Bool}> = [];
@@ -44,7 +45,10 @@ class TileBatch extends DisplayObject {
     // Buffer management
     private var __nextRegionId:Int = 1; // Auto-incrementing region ID
     private var __bufferCapacity:Int = 0; // Current buffer capacity in tiles
-    
+    private var __matrix:Matrix = new Matrix();
+    private var __verticesToRender:Int = 0;
+	private var __indicesToRender:UInt = 0;
+
     /**
      * Create a new TileBatch
      * @param programInfo Shader program for rendering
@@ -74,7 +78,7 @@ class TileBatch extends DisplayObject {
         };
         
         // Set the texture for the display object
-        setTexture(texture);
+        this.texture = texture;
         
         __bufferCapacity = 0; // Will be allocated on first init
     }
@@ -122,10 +126,10 @@ class TileBatch extends DisplayObject {
         
         // Convert pixel coordinates to UV coordinates
         // No V-flipping needed since TGA loader now handles proper orientation
-        region.u1 = atlasX / textures[0].width;
-        region.v1 = atlasY / textures[0].height;
-        region.u2 = (atlasX + atlasWidth) / textures[0].width;
-        region.v2 = (atlasY + atlasHeight) / textures[0].height;
+        region.u1 = atlasX / texture.width;
+        region.v1 = atlasY / texture.height;
+        region.u2 = (atlasX + atlasWidth) / texture.width;
+        region.v2 = (atlasY + atlasHeight) / texture.height;
         
         atlasRegions.set(regionId, region);
         
@@ -152,10 +156,10 @@ class TileBatch extends DisplayObject {
         region.width = atlasWidth;
         region.height = atlasHeight;
 
-        region.u1 = atlasX / textures[0].width;
-        region.v1 = atlasY / textures[0].height;
-        region.u2 = (atlasX + atlasWidth) / textures[0].width;
-        region.v2 = (atlasY + atlasHeight) / textures[0].height;
+        region.u1 = atlasX / texture.width;
+        region.v1 = atlasY / texture.height;
+        region.u2 = (atlasX + atlasWidth) / texture.width;
+        region.v2 = (atlasY + atlasHeight) / texture.height;
 
         return true;
     }
@@ -271,8 +275,7 @@ class TileBatch extends DisplayObject {
      * Called BEFORE render to update vertex data
      */
     override public function updateBuffers(renderer:Renderer):Void {
-        if (!__active || textures[0] == null) return;
-
+        
         //__verticesToRender = 0;
         //__indicesToRender = 0;
         
@@ -304,38 +307,43 @@ class TileBatch extends DisplayObject {
             //renderer.uploadData(this);
         }
         
-        needsBufferUpdate = false;
+        __needsBufferUpdate = false;
     }
     
-    /**
-     * Render the tile batch
-     * Just sets uniforms - vertex data already updated in updateBuffers()
-     */
-    override public function render(renderer:Renderer,cameraMatrix:Matrix, cameraDirty:Bool):Void {
-        if (!__active || textures[0] == null) return;
-
+    override public function render(renderer:Renderer):Void {
         vertices.dispose();
         __verticesToRender = 0;
         __indicesToRender = 0;
 
-        needsBufferUpdate = true;
+        __needsBufferUpdate = true;
         updateBuffers(renderer);
 
         if (__verticesToRender == 0 || __indicesToRender == 0) return;
 
-        var finalMatrix = Matrix.copy(matrix);
-        finalMatrix.append(cameraMatrix);
+        var finalMatrix = Matrix.copy(__matrix);
+        finalMatrix.append(renderer.matrix);
         uniforms.set("uMatrix", finalMatrix.data);
 
-        renderer.renderDisplayObject(this);
-    }
+        // 1. Get the program info for the current shader program
+		var programInfo = renderer.getProgramInfo(getProgramInfoName());
 
-    override public function postRender():Void {
-        // Reset counts after rendering
-        // __verticesToRender = 0;
-        // __indicesToRender = 0;
+		// 2. Use the shader program (binds the program and VAO)
+		renderer.useProgram(programInfo);
 
-        // vertices = [];
+		// 3. Bind the buffers (VAO) for this object
+		renderer.bindBuffers(__bufferId, programInfo.vertexStride);
+
+		// 4. Set the blending factors for transparency
+		renderer.setBlendFunction(blending.source, blending.destination);
+
+		// 5. Set the uniform values for the shader program
+		renderer.renderUniforms(programInfo, this);
+
+		// 6. Set the textures for the shader program
+		renderer.bindTexture(texture.id, 0);
+
+		// 7. Draw the object using the specified mode and count
+		renderer.drawElements(mode, __indicesToRender);
     }
     
     /**

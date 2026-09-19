@@ -16,7 +16,6 @@ import cpp.Float32;
 import cpp.UInt32;
 import Framebuffer;
 import Log;
-import PostProcessPass;
 import display.ScreenPass;
 
 class Buffers {
@@ -36,6 +35,7 @@ class Renderer {
     // Publics
     public var app(get, null):App;
     public var frameCount(get, null):Int;
+    public var matrix:Matrix = new Matrix();
 
     // Privates
     private var __app:App;
@@ -57,7 +57,6 @@ class Renderer {
     private var currentProgram:Int = -1;
     private var currentVbo:Int = 0;
     private var currentEbo:Int = 0;
-    private var currentTextures:Array<Int> = [-1, -1, -1, -1, -1, -1, -1, -1];
     
     public function new(app:App) {
         __app = app;
@@ -71,28 +70,12 @@ class Renderer {
         currentProgram = -1;
         currentVbo = 0;
         currentEbo = 0;
-        for (i in 0...currentTextures.length) currentTextures[i] = -1;
         __currentBlendSource = -1;
         __currentBlendDestination = -1;
         __frameCount++;
     }
-    
-    public function renderDisplayObject(displayObject:DisplayObject):Void {
-        
-        if (!displayObject.visible) return;
 
-        var programInfo = getProgramInfo(displayObject.programInfoName);
-        if (programInfo == null) return;
-
-        var buffersObjs = buffers.get(displayObject.__bufferId);
-        if (buffersObjs == null) {
-            trace("Error: Buffers not found for DisplayObject. Ensure createBuffers() was called.");
-            return;
-        }
-          
-        if (displayObject.vertices.length == 0) return;
-
-        // Use the program and bind the matching VAO when the shader changes.
+    public function useProgram(programInfo:ProgramInfo):Void {
         if (programInfo.program != currentProgram) {
             GL.useProgram(programInfo.program);
             GL.bindVertexArray(programInfo.vao);
@@ -100,47 +83,37 @@ class Renderer {
             currentVbo = 0; // VAO switch invalidates bindVertexBuffer state
             currentEbo = 0; // VAO stores EBO binding, may be stale
         }
-        
-        // Dont needed with modern ARB_vertex_attrib_binding, but keep for compatibility
-        // GL.bindBuffer(GL.ARRAY_BUFFER, displayObject.vbo);
-        
-        // Also bind using modern ARB_vertex_attrib_binding
-        if (buffersObjs.vbo != currentVbo) {
-            GL.bindVertexBuffer(0, buffersObjs.vbo, 0, programInfo.vertexStride);
-            currentVbo = buffersObjs.vbo;
-        }
-        
-        // Bind element buffer if available
-        if (buffersObjs.ebo != 0 && displayObject.indices.length > 0 && buffersObjs.ebo != currentEbo) {
-            GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffersObjs.ebo);
-            currentEbo = buffersObjs.ebo;
-        }
-
-        __setBlendFunction(displayObject.blending.source, displayObject.blending.destination);
-
-        // Render uniforms and textures
-        __renderUniforms(programInfo, displayObject);
-        __renderTextures(programInfo, displayObject);
-
-        // Draw the object
-        if (displayObject.__indicesToRender == 0) {
-            GL.drawArrays(displayObject.mode, 0, displayObject.__verticesToRender);
-        } else {
-            GL.drawElements(displayObject.mode, displayObject.__indicesToRender, GL.UNSIGNED_INT, 0);
-        }
-
-        displayObject.postRender();
     }
 
-    private function __setBlendFunction(source:Int, destination:Int):Void {
-        if (__currentBlendSource != source || __currentBlendDestination != destination) {
-            GL.blendFunc(source, destination);
-            __currentBlendSource = source;
-            __currentBlendDestination = destination;
-        }
-    }
+	public function bindBuffers(bufferId:Int, stride:Int):Void {
+		var buffersObjs = buffers.get(bufferId);
+		if (buffersObjs == null) {
+			trace("Error: Buffers not found for bufferId: " + bufferId);
+			return;
+		}
 
-    private function __renderUniforms(programInfo:ProgramInfo, displayObject:DisplayObject):Void {
+		// Also bind using modern ARB_vertex_attrib_binding
+		if (buffersObjs.vbo != currentVbo) {
+			GL.bindVertexBuffer(0, buffersObjs.vbo, 0, stride);
+			currentVbo = buffersObjs.vbo;
+		}
+
+		// Bind element buffer if available
+		if (buffersObjs.ebo != 0 && buffersObjs.ebo != currentEbo) {
+			GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffersObjs.ebo);
+			currentEbo = buffersObjs.ebo;
+		}
+	}
+
+	public function setBlendFunction(source:Int, destination:Int):Void {
+		if (__currentBlendSource != source || __currentBlendDestination != destination) {
+			GL.blendFunc(source, destination);
+			__currentBlendSource = source;
+			__currentBlendDestination = destination;
+		}
+	}
+
+    public function renderUniforms(programInfo:ProgramInfo, displayObject:DisplayObject):Void {
         for (name => value in displayObject.uniforms) {
             var uniformInfo = programInfo.getUniform(name);
             
@@ -155,20 +128,71 @@ class Renderer {
         }
     }
 
-    private function __renderTextures(programInfo:ProgramInfo, displayObject:DisplayObject):Void {
-        for (i in 0...programInfo.textures.length) {
-            if (i < displayObject.textures.length) {
-                var texture = displayObject.textures[i];
-                var textureId = texture != null ? texture.id : 0;
-                if (textureId != currentTextures[i]) {
-                    GL.activeTexture(GL.TEXTURE0 + i);
-                    GL.bindTexture(GL.TEXTURE_2D, textureId);
-                    currentTextures[i] = textureId;
-                }
-            }
-            programInfo.textures[i].setter(i);
+    public function bindTexture(textureId:Int, index:Int):Void {
+        if (textureId != 0) {
+            GL.activeTexture(GL.TEXTURE0 + index);
+            GL.bindTexture(GL.TEXTURE_2D, textureId);
         }
     }
+
+    public function drawElements(mode:Int, count:Int):Void {
+        GL.drawElements(mode, count, GL.UNSIGNED_INT, 0);
+    }
+    
+    // public function renderDisplayObject(displayObject:DisplayObject):Void {
+        
+    //     if (!displayObject.visible) return;
+
+    //     var programInfo = getProgramInfo(displayObject.programInfoName);
+    //     if (programInfo == null) return;
+
+    //     var buffersObjs = buffers.get(displayObject.__bufferId);
+    //     if (buffersObjs == null) {
+    //         trace("Error: Buffers not found for DisplayObject. Ensure createBuffers() was called.");
+    //         return;
+    //     }
+          
+    //     if (displayObject.vertices.length == 0) return;
+
+    //     // Use the program and bind the matching VAO when the shader changes.
+    //     if (programInfo.program != currentProgram) {
+    //         GL.useProgram(programInfo.program);
+    //         GL.bindVertexArray(programInfo.vao);
+    //         currentProgram = programInfo.program;
+    //         currentVbo = 0; // VAO switch invalidates bindVertexBuffer state
+    //         currentEbo = 0; // VAO stores EBO binding, may be stale
+    //     }
+        
+    //     // Dont needed with modern ARB_vertex_attrib_binding, but keep for compatibility
+    //     // GL.bindBuffer(GL.ARRAY_BUFFER, displayObject.vbo);
+        
+    //     // Also bind using modern ARB_vertex_attrib_binding
+    //     if (buffersObjs.vbo != currentVbo) {
+    //         GL.bindVertexBuffer(0, buffersObjs.vbo, 0, programInfo.vertexStride);
+    //         currentVbo = buffersObjs.vbo;
+    //     }
+        
+    //     // Bind element buffer if available
+    //     if (buffersObjs.ebo != 0 && buffersObjs.ebo != currentEbo) {
+    //         GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffersObjs.ebo);
+    //         currentEbo = buffersObjs.ebo;
+    //     }
+
+    //     setBlendFunction(displayObject.blending.source, displayObject.blending.destination);
+
+    //     // Render uniforms and textures
+    //     renderUniforms(programInfo, displayObject);
+    //     renderTextures(programInfo, displayObject);
+
+    //     // Draw the object
+    //     if (displayObject.__indicesToRender == 0) {
+    //         GL.drawArrays(displayObject.mode, 0, displayObject.__verticesToRender);
+    //     } else {
+    //         GL.drawElements(displayObject.mode, displayObject.__indicesToRender, GL.UNSIGNED_INT, 0);
+    //     }
+
+    //     displayObject.postRender();
+    // }
     
     /**
      * Create and register a ProgramInfo if it doesn't exist, or return existing one
@@ -558,7 +582,7 @@ class Renderer {
         if (__currentBlendMode != enabled) {
             if (enabled) {
                 GL.glEnable(GL.BLEND);
-                __setBlendFunction(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA);
+                setBlendFunction(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA);
             } else {
                 GL.glDisable(GL.BLEND);
             }

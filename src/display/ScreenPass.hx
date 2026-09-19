@@ -14,6 +14,7 @@ class ScreenPass extends DisplayObject {
     public var framebufferId:Null<Int> = null;
     public var width:Int;
     public var height:Int;
+    public var texture:Texture;
 
     public function new(renderer:Renderer, width:Int, height:Int) {
         this.width = width;
@@ -30,12 +31,9 @@ class ScreenPass extends DisplayObject {
 
         framebufferId = renderer.createFramebuffer(width, height);
 
-        __verticesToRender = 4;
-        __indicesToRender = 6;
-
         mode = GL.TRIANGLES;
 
-        needsBufferUpdate = true;
+        __needsBufferUpdate = true;
         
         blending = {
             source: BlendFactors.SRC_ALPHA,
@@ -77,17 +75,41 @@ class ScreenPass extends DisplayObject {
         super.updateBuffers(renderer);
 	}
 
-    override public function render(renderer:Renderer, cameraMatrix:Matrix, cameraDirty:Bool):Void {
+    override public function render(renderer:Renderer):Void {
         uniforms.set("uScreenTexture", 0);
 
         var framebuffer = renderer.framebuffers.get(framebufferId);
 
         if (framebuffer.colorTexture != null) {
-            setTexture(framebuffer.colorTexture);
+            texture = framebuffer.colorTexture;
         } else {
-            setTexture(null);
+            texture = null;
         }
 
-        super.render(renderer, cameraMatrix, cameraDirty);
+        updateBuffers(renderer);
+
+		// 1. Get the program info for the current shader program
+		var programInfo = renderer.getProgramInfo(getProgramInfoName());
+
+		// 2. Use the shader program (binds the program and VAO)
+		renderer.useProgram(programInfo);
+
+		// 3. Bind the buffers (VAO) for this object
+		renderer.bindBuffers(__bufferId, programInfo.vertexStride);
+
+		// 4. Set the blending factors for transparency
+		renderer.setBlendFunction(blending.source, blending.destination);
+
+		// 5. Set the uniform values for the shader program
+		renderer.renderUniforms(programInfo, this);
+
+		// 6. Set the textures for the shader program
+        //renderer.assignTexture(programInfoName, 0);
+        renderer.bindTexture(texture.id, 0);
+
+		// 7. Draw the object using the specified mode and count
+		renderer.drawElements(mode, indices.length);
+
+        //super.render(renderer);
     }
 }

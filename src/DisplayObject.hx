@@ -4,6 +4,7 @@ import GL;
 import Renderer;
 import Texture;
 import data.BlendFactors;
+import data.DrawingMode;
 import data.Vertices;
 import data.Indices;
 import math.Matrix;
@@ -17,123 +18,69 @@ typedef Blending = {
 abstract class DisplayObject {
 
 	// Publics
-	public var mode:Int = GL.TRIANGLES;
 	public var blending:Blending;
-	public var indices(get, null):Indices = new Indices([]);
-	public var vertices(get, null):Vertices = new Vertices([]);
-	public var matrix(get, null):Matrix;
-	public var programInfoName:String;
-
-	public var textures:Array<Texture> = new Array<Texture>();
-	public var uniforms:Map<String, Dynamic> = new Map<String, Dynamic>();
-	public var visible:Bool = true;
-	
-	// Rendering properties
+	public var culling:Bool = false;
 	public var depthTest:Bool = true;
 	public var depthWrite:Bool = true;
-	public var cullFace:Bool = false;
+	public var indices(get, null):Indices;
+	public var mode:Int = DrawingMode.TRIANGLES;
+	public var uniforms:Map<String, Dynamic> = new Map<String, Dynamic>();
+	public var vertices(get, null):Vertices;
+	public var visible:Bool = true;
 
 	// Privates
-	private var __active:Bool = false;
-	private var __matrix:Matrix = new Matrix();
+	private var __bufferId:Int;
 	private var __indices:Indices = new Indices([]);
+	private var __needsBufferUpdate:Bool = false;
 	private var __vertices:Vertices = new Vertices([]);
-	public var __bufferId:Int;
-	
-	public var __verticesToRender:Int = 0;
-	public var __indicesToRender:UInt = 0;
-
-	// Flag to indicate buffers need updating
-	public var needsBufferUpdate:Bool = false;
 	
 	public function new(renderer:Renderer, vertices:Vertices, ?indices:Indices) {
 		__vertices = vertices;
 		__indices = indices != null ? indices : new Indices([]);
 
+		__bufferId = renderer.createBuffers(getProgramInfoName());
+
 		blending = {
 			source: BlendFactors.SRC_ALPHA,
 			destination: BlendFactors.ONE_MINUS_SRC_ALPHA
 		};
-
-		programInfoName = getShaderName();
-
-		__bufferId = renderer.createBuffers(programInfoName);
-		__active = true;
 	}
 
 	public function release(renderer:Renderer):Void {
-		if (__active) {
-			renderer.deleteBuffers(__bufferId);
-			__bufferId = -1;
-			__active = false;
-		}
+		renderer.deleteBuffers(__bufferId);
+		__bufferId = -1;
 	}
 	
-	/**
-	 * Convenience method to set the primary texture
-	 * @param texture Texture object (null to remove texture)
-	 */
-	public function setTexture(texture:Texture):Void {
-		if (texture == null) {
-			textures = [];
-		} else {
-			textures = [texture];
-		}
-	}
-	
-	/**
-	 * Add an additional texture to the texture array
-	 * @param texture Texture object
-	 * @return The texture slot index
-	 */
-	public function addTexture(texture:Texture):Int {
-		textures.push(texture);
-		return textures.length - 1;
-	}
-	
-	/**
-	 * Check if this object has any textures assigned
-	 */
-	public function hasTextures():Bool {
-		return textures.length > 0 && textures[0] != null;
-	}
-	
-	/**
-	 * Get the primary texture ID for OpenGL operations
-	 */
-	public function getTextureId():Int {
-		return (textures.length > 0 && textures[0] != null) ? textures[0].id : 0;
-	}
-
-	public function render(renderer:Renderer, cameraMatrix:Matrix, cameraDirty:Bool):Void {
-		// if (!__active) return;
+	public function render(renderer:Renderer):Void {
 		
-		// // renderer.uploadData(this); can be added here
-		updateBuffers(renderer);
+		if (!visible) return;
 
-		// if (cameraDirty) {
-		// 	var finalMatrix = Matrix.copy(matrix);
-		// 	finalMatrix.append(cameraMatrix);
-		// 	uniforms.set("uMatrix", finalMatrix.data);
-		// }
-
-		renderer.renderDisplayObject(this);
+		// 0. Update buffers (if needed) and set uniforms before rendering
+		//updateBuffers(renderer);
+		// 1. Get the program info for the current shader program
+		//var programInfo = renderer.getProgramInfo(getProgramInfoName());
+		// 2. Use the shader program (binds the program and VAO)
+		//renderer.useProgram(programInfo);
+		// 3. Bind the buffers (VAO) for this object
+		//renderer.bindBuffers(__bufferId, programInfo.vertexStride);
+		// 4. Set the blending factors for transparency
+		//renderer.setBlendFunction(blending.source, blending.destination);
+		// 5. Set the uniform values for the shader program
+		//renderer.renderUniforms(programInfo, this);
+		// 6. Set the textures for the shader program
+		//renderer.bindTexture(texture.id, 0);
+		// 7. Draw the object using the specified mode and count
+		//renderer.drawElements(mode, indices.length);
 	}
 
-	public function updateBuffers(renderer:Renderer):Void {
-		if (!__active || !needsBufferUpdate) return;
+	private function updateBuffers(renderer:Renderer):Void {
+		if (!__needsBufferUpdate) return;
 
 		renderer.uploadData(__bufferId, vertices, indices);
-		needsBufferUpdate = false;
+		__needsBufferUpdate = false;
 	}
-
-	public function postRender():Void {}
 
 	// Getters and setters
-	private function get_matrix():Matrix {
-		return __matrix;
-	}
-
 	private function get_indices():Indices {
 		return __indices;
 	}
@@ -143,7 +90,5 @@ abstract class DisplayObject {
 	}
 
 	// Macros
-
-	// Override in subclasses (or use @:shader metadata) to declare the shader name.
-	public function getShaderName():String { return null; }
+	private function getProgramInfoName():String { return null; }
 }

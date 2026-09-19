@@ -2,6 +2,7 @@ package display;
 
 import data.Indices;
 import data.Vertices;
+import data.DrawingMode;
 import GL;
 import Renderer;
 import math.Matrix;
@@ -16,6 +17,7 @@ class Image extends Transform {
 	public var width(get, set):Float;
 	public var originX(get, set):Float;
 	public var originY(get, set):Float;
+	public var texture:Texture;
 
 	// Privates
 	private var __angle:Float = 0;
@@ -25,9 +27,8 @@ class Image extends Transform {
 	private var __originY:Float = 0;
 
 	public function new(renderer:Renderer, texture:Texture) {
-		// Use texture dimensions directly
-		var w = texture.width;
-		var h = texture.height;
+		var __width = texture.width;
+		var __height = texture.height;
 		
 		// Create quad vertices (position + UV coordinates)
 		// Format: x, y, z, u, v (5 floats per vertex)
@@ -36,11 +37,11 @@ class Image extends Transform {
 			// Top-left (origin) - UV (0,0) maps to top-left of texture
 			0.0,  0.0,  0.0,  0.0, 0.0,
 			// Top-right - UV (1,0) maps to top-right of texture
-			w,    0.0,  0.0,  1.0, 0.0,
+			__width,    0.0,  0.0,  1.0, 0.0,
 			// Bottom-right - UV (1,1) maps to bottom-right of texture
-			w,    h,    0.0,  1.0, 1.0,
+			__width,    __height,    0.0,  1.0, 1.0,
 			// Bottom-left - UV (0,1) maps to bottom-left of texture
-			0.0,  h,    0.0,  0.0, 1.0
+			0.0,  __height,    0.0,  0.0, 1.0
 		];
 
 		var indices:Indices = [0, 1, 2, 0, 2, 3]; // Two triangles to make a quad
@@ -48,38 +49,21 @@ class Image extends Transform {
 		super(renderer, vertices, indices);
 
 		// Set OpenGL properties
-		mode = GL.TRIANGLES;
-		__verticesToRender = 4;
-		__indicesToRender = 6;
+		mode = DrawingMode.TRIANGLES;
 		
 		// Set the texture using the full Texture object
-		setTexture(texture);
-		
-		// Initialize dimensions from texture
-		__width = texture.width;
-		__height = texture.height;
+		this.texture = texture;
 
-		needsBufferUpdate = true;
+		// Always pass 0 - 1 values
+		setUV(0, 0, 1, 1);
+
+		//__needsBufferUpdate = true;
+		updateBuffers(renderer);
 	}
 
 	public function centerOrigin():Void {
 		originX = __width / 2;
 		originY = __height / 2;
-	}
-
-	public function setTextures(textureObjects:Array<Texture>, width:Int, height:Int) {
-		if (textureObjects.length == 0) {
-			return;
-		}
-
-		// Set the first texture (Image only supports single texture for now)
-		setTexture(textureObjects[0]);
-		
-		// Set the width and height
-		this.width = width;
-		this.height = height;
-
-		setUV(0, 0, 1, 1); // Always pass 0 - 1 values
 	}
 	
 	public function setUV(x:Float, y:Float, width:Float, height:Float):Void {
@@ -94,24 +78,39 @@ class Image extends Transform {
 		vertices.set(14, y + height);    // Bottom-right V
 		vertices.set(19, y + height);    // Bottom-left V
 		
-		// Mark for buffer update on next render
-		if (__active) {
-			needsBufferUpdate = true;
-		}
+		__needsBufferUpdate = true;
 	}
 
-	override function render(renderer:Renderer, cameraMatrix:Matrix, cameraDirty:Bool):Void {
-		if (!__active) return;
+	override function render(renderer:Renderer):Void {
 
-		if (__transformDirty || cameraDirty) {
+		if (__transformDirty) {
 			__transformDirty = false;
 			updateTransform();
 			var finalMatrix = Matrix.copy(matrix);
-			finalMatrix.append(cameraMatrix);
+			finalMatrix.append(renderer.matrix);
 			uniforms.set("uMatrix", finalMatrix.data);
 		}
 
-		super.render(renderer, cameraMatrix, cameraDirty);
+		// 1. Get the program info for the current shader program
+		var programInfo = renderer.getProgramInfo(getProgramInfoName());
+
+		// 2. Use the shader program (binds the program and VAO)
+		renderer.useProgram(programInfo);
+
+		// 3. Bind the buffers (VAO) for this object
+		renderer.bindBuffers(__bufferId, programInfo.vertexStride);
+
+		// 4. Set the blending factors for transparency
+		renderer.setBlendFunction(blending.source, blending.destination);
+
+		// 5. Set the uniform values for the shader program
+		renderer.renderUniforms(programInfo, this);
+
+		// 6. Set the textures for the shader program
+		renderer.bindTexture(texture.id, 0);
+
+		// 7. Draw the object using the specified mode and count
+		renderer.drawElements(mode, indices.length);
 	}
 
 	//** Getters and setters.
@@ -130,10 +129,7 @@ class Image extends Transform {
 		vertices.set(16, -(value * scaleY) - originY);
 		
 		__height = value;
-		
-		if (__active) {
-			needsBufferUpdate = true;
-		}
+		__needsBufferUpdate = true;
 
 		return value;
 	}
@@ -146,10 +142,7 @@ class Image extends Transform {
 		vertices.set(15, 0 - originX);
 		
 		__width = value;
-		
-		if (__active) {
-			needsBufferUpdate = true;
-		}
+		__needsBufferUpdate = true;
 
 		return value;
 	}

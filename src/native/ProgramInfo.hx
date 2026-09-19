@@ -363,8 +363,20 @@ class ProgramInfo {
 		
 		// Introspect active uniforms  
 		introspectUniforms();
+
+		initializeTextures();
 		
 		trace("Introspection complete!");
+	}
+
+	private function initializeTextures():Void {
+		GL.useProgram(program);
+
+		for (i in 0...textures.length) {
+			textures[i].setter(i);
+		}
+
+		GL.useProgram(0);
 	}
 	
 	// ** Discover all active vertex attributes

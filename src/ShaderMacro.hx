@@ -35,7 +35,7 @@ class ShaderMacro {
         var shaderName = extractString(meta.params[0]);
 
         fields.push({
-            name:   "getShaderName",
+            name:   "getProgramInfoName",
             pos:    meta.pos,
             access: [APublic, AOverride],
             kind:   FFun({ args: [], ret: macro :String, expr: macro return $v{shaderName} })
