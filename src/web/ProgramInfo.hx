@@ -30,29 +30,6 @@ enum AttributeFormat {
     UnsignedShort;
 }
 
-class AttributeFormatHelper {
-    public static function getValuesPerVertex(format:AttributeFormat):Int {
-        return switch (format) {
-            case Float: 1;
-            case Vec2:  2;
-            case Vec3:  3;
-            case Vec4:  4;
-            case _:     1;
-        };
-    }
-
-    public static function getBytesPerVertex(format:AttributeFormat):Int {
-        return switch (format) {
-            case Float | Int | UnsignedInt: 4;
-            case Vec2:  8;
-            case Vec3: 12;
-            case Vec4: 16;
-            case Short | UnsignedShort: 2;
-            case Byte  | UnsignedByte:  1;
-        };
-    }
-}
-
 enum UniformFormat {
     Float;
     Vec2;
@@ -247,7 +224,7 @@ class ProgramInfo {
             var glType:Int      = info.type;
             var location:Int    = GL.getAttribLocation(program, attrName);
             var format          = convertGLTypeToAttributeFormat(glType);
-            var components      = AttributeFormatHelper.getValuesPerVertex(format);
+            var components      = getValuesPerVertex(format);
 
             trace('Attribute $i: "$attrName" loc=$location type=$glType');
             attributes.push({
@@ -268,7 +245,7 @@ class ProgramInfo {
         var offset = 0;
         for (attr in attributes) {
             attr.offset = offset;
-            offset += AttributeFormatHelper.getBytesPerVertex(attr.format);
+            offset += getBytesPerVertex(attr.format);
         }
         vertexStride = offset;
         for (attr in attributes) attr.stride = vertexStride;

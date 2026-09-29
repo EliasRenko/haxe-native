@@ -4,8 +4,7 @@ import haxe.io.UInt8Array;
 
 class TextureData {
 
-    // ** Publics.
-
+    // Publics
     public var allocated:Bool = false;
     public var bytes(get, null):UInt8Array;
     public var bytesPerPixel(get, null):Int;
@@ -16,8 +15,7 @@ class TextureData {
     public var width(get, null):Int;
     public var src(get, null):String; 
 
-    // ** Privates.
-
+    //Privates
     private var __id:UInt;
     private var __data:UInt8Array;
     private var __bytesPerPixel:Int;
@@ -28,7 +26,6 @@ class TextureData {
     private var __src:String;
     
     public function new(data:UInt8Array, bytesPerPixel:Int, width:Int, height:Int, transparent:Bool = false, src:String = "") {
-     
         __data = data;
         __bytesPerPixel = bytesPerPixel;
         __width = width;
@@ -41,32 +38,26 @@ class TextureData {
     /** Getters and setters. **/
 
     private function get_bytes():UInt8Array {
-
         return __data;
     }
 
     private function get_bytesPerPixel():Int {
-
         return __bytesPerPixel;
     }
 
     private function get_dirty():Bool {
-        
         return __dirty;
     }
 
     public function get_height():Int {
-        
         return __height;
     }
 
     private function get_powerOfTwo():Bool {
-
         return ((__width != 0) && ((__width & (~__width + 1)) == __width)) && ((__height != 0) && ((__height & (~__height + 1)) == __height));
     }
 
     private function get_transparent():Bool {
-
         return __transparent;
     }
     
