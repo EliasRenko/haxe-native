@@ -310,7 +310,7 @@ class TileBatch extends DisplayObject {
         __needsBufferUpdate = false;
     }
     
-    override public function render(renderer:Renderer):Void {
+    public function render(renderer:Renderer):Void {
         vertices.dispose();
         __verticesToRender = 0;
         __indicesToRender = 0;

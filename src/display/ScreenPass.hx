@@ -75,7 +75,7 @@ class ScreenPass extends DisplayObject {
         super.updateBuffers(renderer);
 	}
 
-    override public function render(renderer:Renderer):Void {
+    public function render(renderer:Renderer):Void {
         uniforms.set("uScreenTexture", 0);
 
         var framebuffer = renderer.framebuffers.get(framebufferId);

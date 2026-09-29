@@ -1,11 +1,13 @@
-package display;
+package data;
 
 import data.Indices;
 import data.Vertices;
 import math.Matrix;
+
 import Renderer;
 
-class Transform extends DisplayObject {
+
+class Transform {
 
 	public var matrix(get, null):Matrix;
 	public var x(get, set):Float;
@@ -16,6 +18,7 @@ class Transform extends DisplayObject {
 	public var rotationZ(get, set):Float;
 	public var scaleX(get, set):Float;
 	public var scaleY(get, set):Float;
+	public var dirty:Bool = true;
 
 	private var __matrix:Matrix = new Matrix();
 	private var __x:Float = 0;
@@ -27,10 +30,8 @@ class Transform extends DisplayObject {
 	private var __scaleX:Float = 1;
 	private var __scaleY:Float = 1;
 
-	private var __transformDirty:Bool = true;
-
-	public function new(renderer:Renderer, vertices:Vertices, indices:Indices) {
-        super(renderer, vertices, indices);
+	public function new() {
+        //super(renderer, vertices, indices);
     }
 
     public function updateTransform():Void {
@@ -51,14 +52,17 @@ class Transform extends DisplayObject {
 	private function get_scaleX():Float { return __scaleX; }
 	private function get_scaleY():Float { return __scaleY; }
 
-	private function set_x(v:Float):Float      { __x = v;         __transformDirty = true; return v; }
-	private function set_y(v:Float):Float      { __y = v;         __transformDirty = true; return v; }
-	private function set_z(v:Float):Float      { __z = v;         __transformDirty = true; return v; }
-	private function set_rotationX(v:Float):Float { __rotationX = v; __transformDirty = true; return v; }
-	private function set_rotationY(v:Float):Float { __rotationY = v; __transformDirty = true; return v; }
-	private function set_rotationZ(v:Float):Float { __rotationZ = v; __transformDirty = true; return v; }
-	private function set_scaleX(v:Float):Float { __scaleX = v;    __transformDirty = true; return v; }
-	private function set_scaleY(v:Float):Float { __scaleY = v;    __transformDirty = true; return v; }
+	private function set_x(v:Float):Float      { __x = v;         dirty = true; return v; }
+	private function set_y(v:Float):Float      { __y = v;         dirty = true; return v; }
+	private function set_z(v:Float):Float      { __z = v;         dirty = true; return v; }
+	private function set_rotationX(v:Float):Float { __rotationX = v; dirty = true; return v; }
+	private function set_rotationY(v:Float):Float { __rotationY = v; dirty = true; return v; }
+	private function set_rotationZ(v:Float):Float { __rotationZ = v; dirty = true; return v; }
+	private function set_scaleX(v:Float):Float { __scaleX = v;    dirty = true; return v; }
+	private function set_scaleY(v:Float):Float { __scaleY = v;    dirty = true; return v; }
+
+	public function render(renderer:Renderer):Void {
+	}
 
 	private function get_matrix():Matrix {
 		return __matrix;

@@ -51,27 +51,29 @@ abstract class DisplayObject {
 		__bufferId = -1;
 	}
 	
-	public function render(renderer:Renderer):Void {
-		
-		if (!visible) return;
+	public abstract function render(renderer:Renderer):Void;
 
-		// 0. Update buffers (if needed) and set uniforms before rendering
-		//updateBuffers(renderer);
-		// 1. Get the program info for the current shader program
-		//var programInfo = renderer.getProgramInfo(getProgramInfoName());
-		// 2. Use the shader program (binds the program and VAO)
-		//renderer.useProgram(programInfo);
-		// 3. Bind the buffers (VAO) for this object
-		//renderer.bindBuffers(__bufferId, programInfo.vertexStride);
-		// 4. Set the blending factors for transparency
-		//renderer.setBlendFunction(blending.source, blending.destination);
-		// 5. Set the uniform values for the shader program
-		//renderer.renderUniforms(programInfo, this);
-		// 6. Set the textures for the shader program
-		//renderer.bindTexture(texture.id, 0);
-		// 7. Draw the object using the specified mode and count
-		//renderer.drawElements(mode, indices.length);
-	}
+	// public function render(renderer:Renderer):Void {
+		
+	// 	if (!visible) return;
+
+	// 	0. Update buffers (if needed) and set uniforms before rendering
+	// 	updateBuffers(renderer);
+	// 	1. Get the program info for the current shader program
+	// 	var programInfo = renderer.getProgramInfo(getProgramInfoName());
+	// 	2. Use the shader program (binds the program and VAO)
+	// 	renderer.useProgram(programInfo);
+	// 	3. Bind the buffers (VAO) for this object
+	// 	renderer.bindBuffers(__bufferId, programInfo.vertexStride);
+	// 	4. Set the blending factors for transparency
+	// 	renderer.setBlendFunction(blending.source, blending.destination);
+	// 	5. Set the uniform values for the shader program
+	// 	renderer.renderUniforms(programInfo, this);
+	// 	6. Set the textures for the shader program
+	// 	renderer.bindTexture(texture.id, 0);
+	// 	7. Draw the object using the specified mode and count
+	// 	renderer.drawElements(mode, indices.length);
+	// }
 
 	private function updateBuffers(renderer:Renderer):Void {
 		if (!__needsBufferUpdate) return;

@@ -3,13 +3,14 @@ package display;
 import data.Indices;
 import data.Vertices;
 import data.DrawingMode;
+import data.Transform;
 import GL;
 import Renderer;
 import math.Matrix;
 import Texture;
 
 @:shader("textured")
-class Image extends Transform {
+class Image extends DisplayObject {
 	
 	// Publics
 	public var angle(get, set):Float;
@@ -18,6 +19,7 @@ class Image extends Transform {
 	public var originX(get, set):Float;
 	public var originY(get, set):Float;
 	public var texture:Texture;
+	public var transform:Transform = new Transform();
 
 	// Privates
 	private var __angle:Float = 0;
@@ -81,12 +83,12 @@ class Image extends Transform {
 		__needsBufferUpdate = true;
 	}
 
-	override function render(renderer:Renderer):Void {
+	public function render(renderer:Renderer):Void {
 
-		if (__transformDirty) {
-			__transformDirty = false;
-			updateTransform();
-			var finalMatrix = Matrix.copy(matrix);
+		if (transform.dirty) {
+			transform.dirty = false;
+			transform.updateTransform();
+			var finalMatrix = Matrix.copy(transform.matrix);
 			finalMatrix.append(renderer.matrix);
 			uniforms.set("uMatrix", finalMatrix.data);
 		}
@@ -117,7 +119,7 @@ class Image extends Transform {
 	
 	private function set_angle(value:Float):Float {
 		__angle = (value %= 360) >= 0 ? value : (value + 360);
-		__transformDirty = true;
+		transform.dirty = true;
 		return value;
 	}
 
@@ -125,8 +127,8 @@ class Image extends Transform {
 		// Vertices: [top-left, top-right, bottom-right, bottom-left]
 		vertices.set(1, 0 - originY);
 		vertices.set(6, 0 - originY);
-		vertices.set(11, -(value * scaleY) - originY);
-		vertices.set(16, -(value * scaleY) - originY);
+		vertices.set(11, -(value * transform.scaleY) - originY);
+		vertices.set(16, -(value * transform.scaleY) - originY);
 		
 		__height = value;
 		__needsBufferUpdate = true;
@@ -137,8 +139,8 @@ class Image extends Transform {
 	private function set_width(value:Float):Float {
 		// Vertices: [top-left, top-right, bottom-right, bottom-left]
 		vertices.set(0, 0 - originX);                      
-		vertices.set(5, (value * scaleX) - originX);
-		vertices.set(10, (value * scaleX) - originX);
+		vertices.set(5, (value * transform.scaleX) - originX);
+		vertices.set(10, (value * transform.scaleX) - originX);
 		vertices.set(15, 0 - originX);
 		
 		__width = value;
@@ -175,7 +177,7 @@ class Image extends Transform {
 		return __originY;
 	}
 
-	function get_angle():Float {
+	private function get_angle():Float {
 		return __angle;
 	}
 }
