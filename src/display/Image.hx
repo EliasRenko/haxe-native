@@ -18,8 +18,9 @@ class Image extends DisplayObject {
 	public var width(get, set):Float;
 	public var originX(get, set):Float;
 	public var originY(get, set):Float;
+	public var x(get, set):Float;
+	public var y(get, set):Float;
 	public var texture:Texture;
-	public var transform:Transform = new Transform();
 
 	// Privates
 	private var __angle:Float = 0;
@@ -27,6 +28,7 @@ class Image extends DisplayObject {
 	private var __width:Float = 0;
 	private var __originX:Float = 0;
 	private var __originY:Float = 0;
+	private var transform:Transform = new Transform();
 
 	public function new(renderer:Renderer, texture:Texture) {
 		var __width = texture.width;
@@ -179,5 +181,23 @@ class Image extends DisplayObject {
 
 	private function get_angle():Float {
 		return __angle;
+	}
+
+	private function set_x(value:Float):Float {
+		transform.x = value;
+		return value;
+	}
+
+	private function get_x():Float {
+		return transform.x;
+	}
+
+	private function set_y(value:Float):Float {
+		transform.y = value;
+		return value;
+	}
+
+	private function get_y():Float {
+		return transform.y;
 	}
 }

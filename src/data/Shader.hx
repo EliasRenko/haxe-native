@@ -2,7 +2,9 @@ package data;
 
 class Shader {
 
-    public function new(programInfo:ProgramInfo) {
+    public final programInfoIndex:Int;
+
+    public function new() {
             
     }
     

@@ -23,29 +23,6 @@ enum AttributeFormat {
 	UnsignedShort;
 }
 
-// class AttributeFormatHelper {
-// 	public static function getValuesPerVertex(format:AttributeFormat):Int {
-// 		return switch (format) {
-// 			case Float: 1;
-// 			case Vec2: 2;
-// 			case Vec3: 3;
-// 			case Vec4: 4;
-// 			case Int | UnsignedInt | Byte | UnsignedByte | Short | UnsignedShort: 1;
-// 		}
-// 	}
-	
-// 	public static function getBytesPerVertex(format:AttributeFormat):Int {
-// 		return switch (format) {
-// 			case Float | Int | UnsignedInt: 4;
-// 			case Vec2: 8;
-// 			case Vec3: 12;
-// 			case Vec4: 16;
-// 			case Short | UnsignedShort: 2;
-// 			case Byte | UnsignedByte: 1;
-// 		}
-// 	}
-// }
-
 // Uniform data formats
 enum UniformFormat {
 	Float;
