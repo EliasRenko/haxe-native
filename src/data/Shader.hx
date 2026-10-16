@@ -1,11 +1,7 @@
 package data;
 
+@:autoBuild(ShaderGenMacro.buildId())
 class Shader {
-
-    public final programInfoIndex:Int;
-
     public function new() {
-            
     }
-    
 }

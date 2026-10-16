@@ -1,6 +1,9 @@
 package shaders;
 
-@:shaderVert("
+import data.Shader;
+import math.Matrix;
+
+@:shaderSourceVert("
     #version 300 es
 
     layout(location = 0) in vec3 aPosition;
@@ -16,7 +19,7 @@ package shaders;
     }
 ")
 
-@:shaderFrag("
+@:shaderSourceFrag("
     #version 300 es
 
     precision mediump float;
@@ -31,6 +34,7 @@ package shaders;
         fragColor = texture(uTexture, vTexCoord);
     }
 ")
+
 class TexturedShader extends Shader {
 
     @:uniform("uMatrix", 0)

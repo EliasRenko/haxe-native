@@ -11,5 +11,5 @@ typedef Shader                = native.ProgramInfo.Shader;
 typedef AttributeFormat       = native.ProgramInfo.AttributeFormat;
 typedef UniformFormat         = native.ProgramInfo.UniformFormat;
 typedef Attribute             = native.ProgramInfo.Attribute;
-typedef Uniform               = native.ProgramInfo.Uniform;
+typedef UniformInfo               = native.ProgramInfo.UniformInfo;
 #end

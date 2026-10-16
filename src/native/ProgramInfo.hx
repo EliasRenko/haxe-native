@@ -53,7 +53,7 @@ typedef Attribute = {
 	var location:Int;           // Shader attribute location (required)
 }
 
-typedef Uniform = {
+typedef UniformInfo = {
 	var name:String;
 	var format:UniformFormat;
 	var setter:Dynamic;
@@ -76,10 +76,12 @@ class ProgramInfo {
 	
 	// ** Texture samplers (separate from uniforms for conceptual clarity)
 	// Note: Textures are also added to uniformMap for O(1) lookup
-	public var textures:Array<Uniform> = new Array<Uniform>();
+	public var textures:Array<UniformInfo> = new Array<UniformInfo>();
 	
 	// ** Performance optimization: O(1) uniform lookup map
-	private var uniformMap:Map<String, Uniform> = new Map<String, Uniform>();
+	private var uniformMap:Map<String, UniformInfo> = new Map<String, UniformInfo>();
+
+	public var uniforms:Array<UniformInfo> = [];
 	
 	// ** Rendering properties
 	public var name(get, null):String;
@@ -200,7 +202,7 @@ class ProgramInfo {
 	/**
 	 * Get uniform by name with O(1) lookup performance
 	 */
-	public function getUniform(name:String):Uniform {
+	public function getUniform(name:String):UniformInfo {
 		return uniformMap.get(name);
 	}
 	
