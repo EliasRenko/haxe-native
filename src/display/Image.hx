@@ -8,6 +8,7 @@ import GL;
 import Renderer;
 import math.Matrix;
 import Texture;
+import shaders.TexturedShader;
 
 @:shader("textured")
 class Image extends DisplayObject {
@@ -30,9 +31,11 @@ class Image extends DisplayObject {
 	private var __originY:Float = 0;
 	private var transform:Transform = new Transform();
 
+	private var shader:TexturedShader = new TexturedShader();
+
 	public function new(renderer:Renderer, texture:Texture) {
-		var __width = texture.width;
-		var __height = texture.height;
+		__width = texture.width;
+		__height = texture.height;
 		
 		// Create quad vertices (position + UV coordinates)
 		// Format: x, y, z, u, v (5 floats per vertex)
@@ -51,6 +54,8 @@ class Image extends DisplayObject {
 		var indices:Indices = [0, 1, 2, 0, 2, 3]; // Two triangles to make a quad
 
 		super(renderer, vertices, indices);
+
+		__bufferId = renderer.createBuffers(shader.programInfoIndex);
 
 		// Set OpenGL properties
 		mode = DrawingMode.TRIANGLES;
@@ -92,11 +97,14 @@ class Image extends DisplayObject {
 			transform.updateTransform();
 			var finalMatrix = Matrix.copy(transform.matrix);
 			finalMatrix.append(renderer.matrix);
-			uniforms.set("uMatrix", finalMatrix.data);
+			//uniforms.set("uMatrix", finalMatrix.data);
+
+			shader.matrix.value = finalMatrix;
 		}
 
 		// 1. Get the program info for the current shader program
-		var programInfo = renderer.getProgramInfo(getProgramInfoName());
+		//var programInfo = renderer.getProgramInfo(getProgramInfoName());
+		var programInfo = renderer.programInfosGen[shader.programInfoIndex];
 
 		// 2. Use the shader program (binds the program and VAO)
 		renderer.useProgram(programInfo);
@@ -108,7 +116,12 @@ class Image extends DisplayObject {
 		renderer.setBlendFunction(blending.source, blending.destination);
 
 		// 5. Set the uniform values for the shader program
-		renderer.renderUniforms(programInfo, this);
+		//renderer.renderUniforms(programInfo, this);
+
+		var matrixU = programInfo.getUniformAt(shader.matrix.index);
+		if (matrixU != null) {
+			matrixU.setter(shader.matrix.value.data);
+		}
 
 		// 6. Set the textures for the shader program
 		renderer.bindTexture(texture.id, 0);

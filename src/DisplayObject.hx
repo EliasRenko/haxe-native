@@ -38,7 +38,7 @@ abstract class DisplayObject {
 		__vertices = vertices;
 		__indices = indices != null ? indices : new Indices([]);
 
-		__bufferId = renderer.createBuffers(getProgramInfoName());
+		//__bufferId = renderer.createBuffers(getProgramInfoName());
 
 		blending = {
 			source: BlendFactors.SRC_ALPHA,

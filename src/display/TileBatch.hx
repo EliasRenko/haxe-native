@@ -9,6 +9,7 @@ import math.Matrix;
 import data.Vertices;
 import data.Indices;
 import display.Tile;
+import shaders.TexturedShader;
 
 #if js
 typedef UIntData = UInt;
@@ -49,6 +50,8 @@ class TileBatch extends DisplayObject {
     private var __verticesToRender:Int = 0;
 	private var __indicesToRender:UInt = 0;
 
+    private var shader:TexturedShader = new TexturedShader();
+
     /**
      * Create a new TileBatch
      * @param programInfo Shader program for rendering
@@ -66,6 +69,8 @@ class TileBatch extends DisplayObject {
         super(renderer, emptyVertices, indices);
         //if (programInfo != null) this.programInfo = programInfo;
         
+        //__bufferId = renderer.createBuffers(shader.programInfoIndex);
+
         // Set OpenGL properties
         mode = GL.TRIANGLES;
         
@@ -322,7 +327,9 @@ class TileBatch extends DisplayObject {
 
         var finalMatrix = Matrix.copy(__matrix);
         finalMatrix.append(renderer.matrix);
-        uniforms.set("uMatrix", finalMatrix.data);
+        //uniforms.set("uMatrix", finalMatrix.data);
+
+        shader.matrix.value = finalMatrix;
 
         // 1. Get the program info for the current shader program
 		var programInfo = renderer.getProgramInfo(getProgramInfoName());
@@ -337,7 +344,12 @@ class TileBatch extends DisplayObject {
 		renderer.setBlendFunction(blending.source, blending.destination);
 
 		// 5. Set the uniform values for the shader program
-		renderer.renderUniforms(programInfo, this);
+		//renderer.renderUniforms(programInfo, this);
+
+        var matrixU = programInfo.getUniformAt(shader.matrix.index);
+		if (matrixU != null) {
+			matrixU.setter(shader.matrix.value);
+		}
 
 		// 6. Set the textures for the shader program
 		renderer.bindTexture(texture.id, 0);

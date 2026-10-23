@@ -4,44 +4,41 @@ import data.Shader;
 import math.Matrix;
 
 @:shaderSourceVert("
-    #version 300 es
+    #version 330 core
 
-    layout(location = 0) in vec3 aPosition;
-    layout(location = 1) in vec2 aTexCoord;
+    layout (location = 0) in vec3 aPos;
+    layout (location = 1) in vec2 aTexCoord;
+
+    out vec2 TexCoord;
 
     uniform mat4 uMatrix;
 
-    out vec2 vTexCoord;
-
     void main() {
-        gl_Position = uMatrix * vec4(aPosition, 1.0);
-        vTexCoord = aTexCoord;
+        gl_Position = uMatrix * vec4(aPos, 1.0);
+        TexCoord = aTexCoord;
     }
 ")
 
 @:shaderSourceFrag("
-    #version 300 es
+    #version 330 core
 
-    precision mediump float;
+    in vec2 TexCoord;
+    out vec4 FragColor;
 
     uniform sampler2D uTexture;
 
-    in vec2 vTexCoord;
-
-    out vec4 fragColor;
-
     void main() {
-        fragColor = texture(uTexture, vTexCoord);
+        FragColor = texture(uTexture, TexCoord);
     }
 ")
 
 class TexturedShader extends Shader {
 
     @:uniform("uMatrix", 0)
-    public var matrix:Uniform<Matrix>;
+    public var matrix:Uniform<Matrix> = new Uniform<Matrix>(0);
 
     @:uniform("uTexture", 1)
-    public var texture:Uniform<Texture>;
+    public var texture:Uniform<Texture> = new Uniform<Texture>(1);
 
     public function new() {
         super();

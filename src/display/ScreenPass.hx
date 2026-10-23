@@ -8,6 +8,8 @@ import data.Vertices;
 import data.Indices;
 import math.Matrix;
 
+import shaders.PostProccessingShader;
+
 @:shader("postprocess")
 class ScreenPass extends DisplayObject {
 
@@ -15,6 +17,8 @@ class ScreenPass extends DisplayObject {
     public var width:Int;
     public var height:Int;
     public var texture:Texture;
+
+    private var shader:PostProccessingShader = new PostProccessingShader();
 
     public function new(renderer:Renderer, width:Int, height:Int) {
         this.width = width;
@@ -29,6 +33,7 @@ class ScreenPass extends DisplayObject {
         var indices = new Indices([0, 1, 2, 0, 2, 3]);
         super(renderer, vertices, indices);
 
+        __bufferId = renderer.createBuffers(shader.programInfoIndex);
         framebufferId = renderer.createFramebuffer(width, height);
 
         mode = GL.TRIANGLES;
@@ -76,7 +81,7 @@ class ScreenPass extends DisplayObject {
 	}
 
     public function render(renderer:Renderer):Void {
-        uniforms.set("uScreenTexture", 0);
+        //uniforms.set("uScreenTexture", 0);
 
         var framebuffer = renderer.framebuffers.get(framebufferId);
 
@@ -89,7 +94,8 @@ class ScreenPass extends DisplayObject {
         updateBuffers(renderer);
 
 		// 1. Get the program info for the current shader program
-		var programInfo = renderer.getProgramInfo(getProgramInfoName());
+		//var programInfo = renderer.getProgramInfo(getProgramInfoName());
+        var programInfo = renderer.programInfosGen[shader.programInfoIndex];
 
 		// 2. Use the shader program (binds the program and VAO)
 		renderer.useProgram(programInfo);

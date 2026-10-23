@@ -20,7 +20,7 @@ import display.ScreenPass;
 import ShaderRegistryEntry;
 
 import shaders.TexturedShader;
-import shaders.TexturedShader2;
+import shaders.UiShader;
 
 class Buffers {
 	public var vbo:UInt32;
@@ -74,14 +74,14 @@ class Renderer {
         // ---
 
         var id = TexturedShader.shaderId;
-        var id2 = TexturedShader2.shaderId;
+        var id2 = UiShader.shaderId;
 
         for (shaderClass in ShaderRegistry.shaderClasses) {
             trace(Type.getClassName(shaderClass));
         }
 
 		for (definition in ShaderRegistry.definitions) {
-			var programInfo = new ProgramInfo(definition.name, definition.vertexSource, definition.fragmentSource);
+			var programInfo = new ProgramInfo(definition);
 
 			programInfosGen[definition.shaderId] = programInfo;
 		}
@@ -236,16 +236,20 @@ class Renderer {
      * Create and register a ProgramInfo if it doesn't exist, or return existing one
      * This is the proper way for States to request ProgramInfos from Renderer
      */
-    public function createProgramInfo(name:String, vertexShader:String, fragmentShader:String):ProgramInfo {
-        if (programInfos.exists(name)) {
-            return programInfos.get(name);
-        }
+    public function createProgramInfo(shaderDef:ShaderDefinition):ProgramInfo {
+        // if (programInfos.exists(name)) {
+        //     return programInfos.get(name);
+        // }
+
+        var programInfo = new ProgramInfo(shaderDef);
+
+        programInfosGen[shaderDef.shaderId] = programInfo;
         
         // Create new ProgramInfo and register it
-        var programInfo = new ProgramInfo(name, vertexShader, fragmentShader);
-        programInfos.set(name, programInfo);
+        //var programInfo = new ProgramInfo(name, vertexShader, fragmentShader);
+        //programInfos.set(name, programInfo);
 
-        __app.log.info(LogCategory.RENDERER, "Created and registered ProgramInfo: " + name);
+        __app.log.info(LogCategory.RENDERER, "Created and registered ProgramInfo: " + shaderDef.name);
 
         return programInfo;
     }
@@ -273,36 +277,36 @@ class Renderer {
      * Create and register a ProgramInfo from preloaded shader files
      * This method uses the App's resource system to load shader files
      */
-    public function createProgramInfoFromFiles(name:String, ?vertexShaderPath:String, fragmentShaderPath:String):ProgramInfo {
-        // Check if this ProgramInfo already exists
-        if (programInfos.exists(name)) {
-            trace("ProgramInfo '" + name + "' already exists, reusing...");
-            return programInfos.get(name);
-        }
+    // public function createProgramInfoFromFiles(name:String, ?vertexShaderPath:String, fragmentShaderPath:String):ProgramInfo {
+    //     // Check if this ProgramInfo already exists
+    //     if (programInfos.exists(name)) {
+    //         trace("ProgramInfo '" + name + "' already exists, reusing...");
+    //         return programInfos.get(name);
+    //     }
         
-        // Vertex shader is optional; null means ShaderBuilder auto-generates it
-        var vertexShader:String = null;
-        if (vertexShaderPath != null) {
-            vertexShader = __app.resources.getText(vertexShaderPath);
-            if (vertexShader == null) {
-                trace("Error: Vertex shader '" + vertexShaderPath + "' not found in preloaded resources!");
-                return null;
-            }
-        }
+    //     // Vertex shader is optional; null means ShaderBuilder auto-generates it
+    //     var vertexShader:String = null;
+    //     if (vertexShaderPath != null) {
+    //         vertexShader = __app.resources.getText(vertexShaderPath);
+    //         if (vertexShader == null) {
+    //             trace("Error: Vertex shader '" + vertexShaderPath + "' not found in preloaded resources!");
+    //             return null;
+    //         }
+    //     }
         
-        var fragmentShader = __app.resources.getText(fragmentShaderPath);
-        if (fragmentShader == null) {
-            trace("Error: Fragment shader '" + fragmentShaderPath + "' not found in preloaded resources!");
-            return null;
-        }
+    //     var fragmentShader = __app.resources.getText(fragmentShaderPath);
+    //     if (fragmentShader == null) {
+    //         trace("Error: Fragment shader '" + fragmentShaderPath + "' not found in preloaded resources!");
+    //         return null;
+    //     }
         
-        // Create new ProgramInfo and register it
-        var programInfo = new ProgramInfo(name, vertexShader, fragmentShader);
-        programInfos.set(name, programInfo);
+    //     // Create new ProgramInfo and register it
+    //     var programInfo = new ProgramInfo(name, vertexShader, fragmentShader);
+    //     programInfos.set(name, programInfo);
         
-        trace("Created ProgramInfo '" + name + "' from preloaded shaders: " + vertexShaderPath + ", " + fragmentShaderPath);
-        return programInfo;
-    }
+    //     trace("Created ProgramInfo '" + name + "' from preloaded shaders: " + vertexShaderPath + ", " + fragmentShaderPath);
+    //     return programInfo;
+    // }
     
     /**
      * Get all registered ProgramInfo names
@@ -319,7 +323,7 @@ class Renderer {
 
     // ===== RENDERING PIPELINE METHODS =====
 
-    public function createBuffers(programInfoName:String):Int {
+    public function createBuffers(programInfoIndex:Int):Int {
         var vbo:UInt32 = 0;
         var ebo:UInt32 = 0;
 
@@ -327,7 +331,7 @@ class Renderer {
         GL.genBuffers(1, RawPointer.addressOf(ebo));
 
         //buffers.set(displayObject, new Buffers(vbo, ebo));
-        return buffers.add(new Buffers(vbo, ebo, getProgramInfo(programInfoName)));
+        return buffers.add(new Buffers(vbo, ebo, programInfosGen[programInfoIndex]));
     }
 
     public function getBuffers(bufferId:Int):Buffers {
@@ -640,10 +644,10 @@ class Renderer {
 	public function initializePostProcessing():Void {
         var size = app.window.getWindowSizeInPixels();
 
-        var vertShader = app.resources.getText("shaders/postprocess.vert");
-        var fragShader = app.resources.getText("shaders/postprocess.frag");
+        //var vertShader = app.resources.getText("shaders/postprocess.vert");
+        //var fragShader = app.resources.getText("shaders/postprocess.frag");
         
-        createProgramInfo("postprocess", vertShader, fragShader);
+        //createProgramInfo("postprocess", vertShader, fragShader);
 
         postProcessDisplayObject = new ScreenPass(this, size.width, size.height);
 

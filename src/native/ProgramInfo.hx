@@ -4,6 +4,8 @@ import GL;
 import cpp.ConstCharStar;
 import cpp.RawPointer;
 import macros.ShaderBuilder;
+import ShaderDefinition;
+import UniformDefinition;
 
 typedef UniformLocation = GL.GlUInt;
 typedef Program = GL.GlUInt;
@@ -81,7 +83,11 @@ class ProgramInfo {
 	// ** Performance optimization: O(1) uniform lookup map
 	private var uniformMap:Map<String, UniformInfo> = new Map<String, UniformInfo>();
 
+	// Uniforms are stored by the stable index declared in ShaderDefinition,
+	// not by OpenGL's implementation-defined active-uniform enumeration order.
 	public var uniforms:Array<UniformInfo> = [];
+	private var uniformDefinitionsByName:Map<String, UniformDefinition> = new Map<String, UniformDefinition>();
+	private var shaderDefinition:ShaderDefinition;
 	
 	// ** Rendering properties
 	public var name(get, null):String;
@@ -98,23 +104,35 @@ class ProgramInfo {
 	// ** Privates
 	private var __name:String;
 	
-	public function new(name:String, ?vertexSource:String, ?fragmentSource:String) {
-		__name = name;
-		fragmentShaderSource = fragmentSource;
-		// Auto-generate a matching vertex shader when none is provided
-		vertexShaderSource = (vertexSource != null) ? vertexSource : ShaderBuilder.defaultVertexFor(fragmentSource);
-		
-		// Automatically compile and introspect the shader program
+	public function new(definition:ShaderDefinition) {
+		shaderDefinition = definition;
+		__name = definition.name;
+
+		fragmentShaderSource = definition.fragmentSource;
+		var resolvedVertexSource = definition.vertexSource;
+		// Retain the existing generated-vertex fallback for definitions without a vertex source.
+		vertexShaderSource = resolvedVertexSource != null
+			? resolvedVertexSource
+			: ShaderBuilder.defaultVertexFor(fragmentShaderSource);
+
+		for (uniformDefinition in definition.uniforms) {
+			uniformDefinitionsByName.set(uniformDefinition.name, uniformDefinition);
+		}
+		// Preserve empty slots for uniforms optimized out by the GLSL compiler.
+		for (_ in 0...definition.uniforms.length) {
+			uniforms.push(cast null);
+		}
+
+		// Automatically compile and introspect the shader program.
 		if (!compileProgramInfo(this)) {
-			trace("Failed to compile shader program: " + name);
+			trace("Failed to compile shader program: " + __name);
 			return;
 		}
-		
-		// Automatically discover attributes and uniforms from compiled program
-		// Includes stride/offset calculation for attributes
+
+		// Automatically discover attributes and uniforms from the compiled program.
 		introspectProgram();
-		
-		// Create VAO and set up vertex attributes using modern binding if available
+
+		// Create VAO and set up vertex attributes using modern binding if available.
 		initializeVAO();
 	}
 
@@ -203,7 +221,19 @@ class ProgramInfo {
 	 * Get uniform by name with O(1) lookup performance
 	 */
 	public function getUniform(name:String):UniformInfo {
-		return uniformMap.get(name);
+		var uniform = uniformMap.get(name);
+		if (uniform != null) return uniform;
+		// OpenGL may report the first element of a uniform array with a [0] suffix.
+		if (StringTools.endsWith(name, "[0]")) {
+			return uniformMap.get(name.substr(0, name.length - 3));
+		}
+		return null;
+	}
+
+	/** Get an active uniform by its stable engine-defined index. */
+	public function getUniformAt(index:Int):Null<UniformInfo> {
+		if (index < 0 || index >= uniforms.length) return null;
+		return uniforms[index];
 	}
 	
 	/**
@@ -475,67 +505,85 @@ class ProgramInfo {
 	
 	// ** Discover all active uniforms
 	private function introspectUniforms():Void {
-		// Get number of active uniforms
+		// Get number of active uniforms.
 		var activeUniforms:Int = 0;
 		untyped __cpp__("glGetProgramiv({0}, GL_ACTIVE_UNIFORMS, &{1})", program, activeUniforms);
 		trace("Found " + activeUniforms + " active uniforms");
-		
-		// Get maximum uniform name length
+
+		// Get maximum uniform name length.
 		var maxNameLength:Int = 0;
 		untyped __cpp__("glGetProgramiv({0}, GL_ACTIVE_UNIFORM_MAX_LENGTH, &{1})", program, maxNameLength);
-		
+
+		// Rebuild runtime lookup collections in case introspection is repeated.
+		uniformMap = new Map<String, UniformInfo>();
+		textures = [];
+
 		for (i in 0...activeUniforms) {
 			var nameLength:Int = 0;
 			var size:Int = 0;
 			var type:Int = 0;
 			var name:String = "";
-			
-			// Get uniform info using C++ code with dynamic allocation
+
+			// Get uniform info using C++ code with dynamic allocation.
 			untyped __cpp__("
 				char* nameBuffer = new char[{0}];
 				glGetActiveUniform({1}, {2}, {0}, &{3}, &{4}, (GLenum*)&{5}, nameBuffer);
 				{6} = String(nameBuffer);
 				delete[] nameBuffer;
 			", maxNameLength, program, i, nameLength, size, type, name);
-			
-			// Get uniform location
+
 			var location:Int = GL.getUniformLocation(program, name);
-			
-			// Convert OpenGL type to our UniformFormat
 			var format = convertGLTypeToUniformFormat(type);
-			
 			trace("Uniform " + i + ": '" + name + "' location=" + location + " type=" + type + " format=" + format);
-			
-			// Create the uniform data with pre-computed setter function
-			var setter = createUniformSetter(format, location);
-			var uniformData = {
+
+			var uniformData:UniformInfo = {
 				name: name,
 				format: format,
-				setter: setter, // Pre-computed setter function for O(1) uniform setting
+				setter: createUniformSetter(format, location),
 				location: (location : UniformLocation)
 			};
-		
-			// Add to uniform map for O(1) lookup performance
+
+			// Keep name lookup independent of the stable indexed storage.
 			uniformMap.set(name, uniformData);
-			
-			// If it's a texture sampler, also add to textures array with proper setter
+			var canonicalName = StringTools.endsWith(name, "[0]")
+				? name.substr(0, name.length - 3)
+				: name;
+			if (canonicalName != name) uniformMap.set(canonicalName, uniformData);
+
+			// Place annotated uniforms into their declared engine slot. OpenGL's
+			// active-uniform order is not stable across drivers or platforms.
+			var uniformDefinition = uniformDefinitionsByName.get(canonicalName);
+			if (uniformDefinition == null) {
+				uniformDefinition = uniformDefinitionsByName.get(name);
+			}
+			if (uniformDefinition != null) {
+				if (uniformDefinition.index >= 0 && uniformDefinition.index < uniforms.length) {
+					uniforms[uniformDefinition.index] = uniformData;
+				} else {
+					trace("Warning: Uniform '" + name + "' has out-of-range declared index " + uniformDefinition.index);
+				}
+			} else {
+				trace("Warning: Active uniform '" + name + "' has no matching @:uniform definition");
+			}
+
+			// Texture samplers use their own ordered list and texture-unit indices;
+			// they are deliberately separate from the engine uniform index.
 			if (format == UniformFormat.Sampler2D) {
-				var textureData = {
+				var samplerLocation = location;
+				textures.push({
 					name: name,
 					format: format,
 					setter: function(slot:Int) {
-						GL.uniform1i(location, slot);
+						GL.uniform1i(samplerLocation, slot);
 					},
 					location: (location : UniformLocation)
-				};
-				textures.push(textureData);
+				});
 			}
 		}
 
-		// glGetActiveUniform returns samplers in implementation-defined order, which
-		// differs between desktop GL drivers.  Sort by declaration order in the
-		// fragment shader source so that textures[0] always corresponds to
-		// drawable.textures[0], etc.
+		// glGetActiveUniform returns samplers in implementation-defined order.
+		// Sort by occurrence in the fragment shader so textures[0] corresponds to
+		// drawable.textures[0], and so on.
 		if (fragmentShaderSource != null && textures.length > 1) {
 			textures.sort(function(a, b) {
 				var posA = fragmentShaderSource.indexOf(a.name);
@@ -546,7 +594,7 @@ class ProgramInfo {
 			});
 		}
 	}
-	
+
 	// ** Pre-computed uniform setter creation for optimal performance
 	private function createUniformSetter(format:UniformFormat, location:UniformLocation):Dynamic {
 		return switch (format) {
@@ -630,9 +678,38 @@ class ProgramInfo {
 			}
 		};
 	}
+
+	// private function floatMat4Setter(location:UniformLocation):Dynamic {
+	// 	return function(value:Array<Float>):Void {
+	// 		if (value == null) return;
+
+	// 		// Check if it's already a Haxe Array
+	// 		var matrixData:Array<Float> = Std.isOfType(value, Array) ? value : null;
+
+	// 		var matrixArray = new Array<Float>();
+	// 		for (i in 0...16) {
+	// 			matrixArray[i] = matrixData[i];
+	// 		}
+
+	// 		untyped __cpp__("
+	// 			float matData[16];
+	// 			// If it's a Haxe array, extract safely using __get()
+	// 			if ({1} != NULL) {
+	// 				for(int i = 0; i < 16; i++) {
+	// 					matData[i] = (float){1}->__get(i);
+	// 				}
+	// 			} else {
+	// 				// Fallback: if value is a different type/pointer, 
+	// 				// handle or zero-out to prevent crashes
+	// 				for(int i = 0; i < 16; i++) { matData[i] = 0.0f; }
+	// 			}
+	// 			glUniformMatrix4fv({0}, 1, GL_FALSE, matData);
+	// 		", location, matrixArray);
+	// 	};
+	// }
 	
 	private function floatMat4Setter(location:UniformLocation):Dynamic {
-		return function(value:Dynamic):Void {
+		return function(value:Array<Float>):Void {
 			var matrixData:Array<Float> = cast value;
 			// Create a copy to ensure proper memory layout
 			var matrixArray = new Array<Float>();
@@ -649,6 +726,23 @@ class ProgramInfo {
 			", location, matrixArray);
 		};
 	}
+
+	// private function floatMat4Setter(location:UniformLocation):Dynamic {
+	// 	return function(value:Dynamic):Void {
+	// 		var matrixData:Array<Float> = cast value;
+	// 		if (matrixData == null)
+	// 			return;
+
+	// 		untyped __cpp__("
+    //         float matData[16];
+    //         for(int i = 0; i < 16; i++) {
+    //             // __get(i) safely retrieves elements from the Haxe Array object
+    //             matData[i] = (float){1}->__get(i);
+    //         }
+    //         glUniformMatrix4fv({0}, 1, GL_FALSE, matData);
+    //     ", location, matrixData);
+	// 	};
+	// }
 	
 	private function sampler2DSetter(location:UniformLocation):Dynamic {
 		return function(value:Dynamic):Void {
