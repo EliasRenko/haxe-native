@@ -1,5 +1,7 @@
 package display;
 
+import data.TileBatch;
+
 class Tile {
     public var x:Float = 0.0;          // World X position
     public var y:Float = 0.0;          // World Y position

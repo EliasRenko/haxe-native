@@ -8,13 +8,13 @@ import data.DrawingMode;
 import data.Vertices;
 import data.Indices;
 import math.Matrix;
+import data.Shader;
 
 typedef Blending = {
 	source:Int,
 	destination:Int
 }
 
-@:autoBuild(ShaderMacro.build())
 abstract class DisplayObject {
 
 	// Publics
@@ -33,6 +33,7 @@ abstract class DisplayObject {
 	private var __indices:Indices = new Indices([]);
 	private var __needsBufferUpdate:Bool = false;
 	private var __vertices:Vertices = new Vertices([]);
+	private var __shader:Shader;
 	
 	public function new(renderer:Renderer, vertices:Vertices, ?indices:Indices) {
 		__vertices = vertices;

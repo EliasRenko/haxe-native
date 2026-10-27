@@ -17,7 +17,6 @@ import cpp.UInt32;
 import Framebuffer;
 import Log;
 import display.ScreenPass;
-import ShaderRegistryEntry;
 
 import shaders.TexturedShader;
 import shaders.UiShader;
@@ -85,23 +84,6 @@ class Renderer {
 
 			programInfosGen[definition.shaderId] = programInfo;
 		}
-
-        // for (entry in ShaderRegistry.entries) {
-
-        //     var definition = entry.definition;
-
-        //     var programInfo = new ProgramInfo(
-        //         definition.name,
-        //         definition.vertexSource,
-        //         definition.fragmentSource
-        //     );
-
-        //     //var programInfoIndex = programInfosGen.add(programInfo);
-
-        //     // entry.setProgramInfoIndex(
-        //     //     programInfoIndex
-        //     // );
-        // }
     }
     
     public function render():Void {

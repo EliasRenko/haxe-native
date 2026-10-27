@@ -710,20 +710,13 @@ class ProgramInfo {
 	
 	private function floatMat4Setter(location:UniformLocation):Dynamic {
 		return function(value:Array<Float>):Void {
-			var matrixData:Array<Float> = cast value;
-			// Create a copy to ensure proper memory layout
-			var matrixArray = new Array<Float>();
-			for (i in 0...16) {
-				matrixArray[i] = matrixData[i];
-			}
-			// Use transpose=false for column-major OpenGL matrix format
 			untyped __cpp__("
 				float matData[16];
 				for(int i = 0; i < 16; i++) {
 					matData[i] = {1}[i];
 				}
 				glUniformMatrix4fv({0}, 1, GL_FALSE, matData);
-			", location, matrixArray);
+			", location, value);
 		};
 	}
 

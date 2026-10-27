@@ -1,60 +1,40 @@
 package display;
 
-import GL;
-import DisplayObject;
 import ProgramInfo;
 import Renderer;
 import Texture;
-import math.Matrix;
 import data.Vertices;
 import data.Indices;
+import math.Matrix;
 import display.Tile;
 import shaders.TexturedShader;
 
-#if js
-typedef UIntData = UInt;
-#else
-typedef UIntData = cpp.UInt32;
-#end
-
 /**
- * TileBatch - Primitive orphaning renderer
+ * ManagedTileBatch - Extends TileBatch with tile management
  * 
- * Strategy:
- * - Allocate buffer once for MAX_TILES capacity (GL_STREAM_DRAW)
- * - Pre-generate all indices (uploaded once with GL_STATIC_DRAW)
- * - Every frame: take tile data and build vertex array
- * - Orphan buffer with glBufferData(NULL, size, GL_STREAM_DRAW)
- * - Upload actual data with glBufferFloatArray()
- * - Draw using actual vertex/index counts
- * 
- * This prevents GPU stalls by allowing the driver to allocate new buffer
- * regions while the GPU is still reading from old ones.
+ * Provides the full TileBatch API for adding, removing, and updating tiles,
+ * while using the primitive TileBatch for efficient rendering.
  */
-class TileBatch extends DisplayObject {
+class ManagedTileBatch extends DisplayObject {
     
-    // Maximum tile capacity (buffer allocated for this many tiles)
-    private static inline var MAX_TILES:Int = 1000;
-    
-    //public var atlasTexture:Texture = null;
+    public static inline var MAX_TILES:Int = 1000; // Maximum tiles supported
+
     public var atlasRegions:Map<Int, AtlasRegion> = new Map(); // regionId -> AtlasRegion
     public var texture:Texture; // The atlas texture for all tiles
     
-    // Current tile data (set each frame)
-    //private var __currentTileData:Array<{x:Float, y:Float, width:Float, height:Float, regionId:Int, visible:Bool}> = [];
-    
-    // Buffer management
     private var __nextRegionId:Int = 1; // Auto-incrementing region ID
     private var __bufferCapacity:Int = 0; // Current buffer capacity in tiles
     private var __matrix:Matrix = new Matrix();
     private var __verticesToRender:Int = 0;
 	private var __indicesToRender:UInt = 0;
 
+    private var tiles:Map<Int, Tile> = new Map(); // tileId -> TileInstance
+    private var __nextTileId:Int = 1; // Auto-incrementing tile ID
     private var shader:TexturedShader = new TexturedShader();
-
+    
     /**
-     * Create a new TileBatch
-     * @param programInfo Shader program for rendering
+     * Create a new ManagedTileBatch
+     * @param programInfo Shader program for rendering (optional when subclass uses @:shader)
      * @param texture Atlas texture for all tiles
      */
     public function new(renderer:Renderer, texture:Texture) {
@@ -88,6 +68,129 @@ class TileBatch extends DisplayObject {
         __bufferCapacity = 0; // Will be allocated on first init
     }
     
+    /**
+     * Add a tile to the batch using a predefined atlas region
+     * @param x World X position
+     * @param y World Y position
+     * @param width Tile width in world units
+     * @param height Tile height in world units
+     * @param regionId Atlas region ID (from defineRegion)
+     * @return Tile ID for future reference
+     */
+    public function addTile(x:Float, y:Float, width:Float, height:Float, regionId:Int):Int {
+        if (!atlasRegions.exists(regionId)) {
+            trace("ManagedTileBatch: Error - Region ID " + regionId + " does not exist!");
+            return -1;
+        }
+        
+        var tileId = __nextTileId++;
+        
+        var tile = new Tile(null);
+        tile.x = x;
+        tile.y = y;
+        tile.width = width;
+        tile.height = height;
+        tile.regionId = regionId;
+        
+        tiles.set(tileId, tile);
+        
+        return tileId;
+    }
+
+    /**
+     * Add existing Tile instance
+     */
+    public function addTileInstance(tile:Tile):Void {
+        if (tile == null) return;
+        var tileId = __nextTileId++;
+        tiles.set(tileId, tile);
+    }
+    
+    /**
+     * Remove a tile from the batch
+     * @param tileId Tile ID to remove
+     * @return True if tile was found and removed
+     */
+    public function removeTile(tileId:Int):Bool {
+        return tiles.remove(tileId);
+    }
+    
+    /**
+     * Remove tile instance
+     */
+    public function removeTileInstance(tile:Tile):Bool {
+        for (tileId in tiles.keys()) {
+            if (tiles.get(tileId) == tile) {
+                tiles.remove(tileId);
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Update a tile's position
+     * @param tileId Tile ID to update
+     * @param x New world X position
+     * @param y New world Y position
+     * @return True if tile was found and updated
+     */
+    public function updateTilePosition(tileId:Int, x:Float, y:Float):Bool {
+        if (tiles.exists(tileId)) {
+            var tile = tiles.get(tileId);
+            tile.x = x;
+            tile.y = y;
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Clear all tiles from the batch
+     */
+    public function clear():Void {
+        tiles.clear();
+    }
+    
+    /**
+     * Get the number of tiles in the batch
+     */
+    public function getTileCount():Int {
+        var count = 0;
+        for (key in tiles.keys()) count++;
+        return count;
+    }
+    
+    /**
+     * Check if a tile exists
+     */
+    public function hasTile(tileId:Int):Bool {
+        return tiles.exists(tileId);
+    }
+    
+    /**
+     * Get tile instance (for reading properties)
+     */
+    public function getTile(tileId:Int):Tile {
+        return tiles.get(tileId);
+    }
+    
+    /**
+     * Update buffers - build tile data from stored tiles and pass to base class
+     */
+    override public function updateBuffers(renderer:Renderer):Void {
+        // Build all tiles into the vertices/indices arrays
+        for (tile in tiles) {
+            if (tile.visible) buildTile(tile);
+        }
+        
+        if (vertices.length > 0) {
+            renderer.orphanAndUploadData(__bufferId, vertices, indices, MAX_TILES * 4 * 5 * 4);
+        }
+        
+        __needsBufferUpdate = false;
+    }
+
     /**
      * Pre-generate all indices for maximum tile capacity
      * Indices never change, so we generate them once
@@ -242,77 +345,10 @@ class TileBatch extends DisplayObject {
         vertices.push(uv2);
     }
 
-    /**
-     * Build vertex array from current tile data
-     * Called every frame - no dirty tracking needed
-     */
-    // private function buildVertexArray():Void {
-    //     vertices = [];
-        
-    //     var tileCount = 0;
-        
-    //     // Generate vertices for each tile in current data
-    //     for (tileData in __currentTileData) {
-    //         if (!tileData.visible) continue;
-            
-    //         // Generate vertices for this tile
-    //         var tileVertices = generateTileVertices(tileData);
-    //         for (vertex in tileVertices) {
-    //             vertices.push(vertex);
-    //         }
-            
-    //         tileCount++;
-    //     }
-        
-    //     // Update render counts (indices are pre-generated, just set count)
-    //     __verticesToRender = tileCount * 4;  // 4 vertices per tile
-    //     __indicesToRender = tileCount * 6;   // 6 indices per tile (2 triangles)
-    // }
-    
     public function buildTile(tile:Tile):Void {
         generateTileVertices(tile);
         __verticesToRender += 4;
         __indicesToRender += 6;
-    }
-
-    /**
-     * Update buffers - orphan and upload strategy
-     * Called BEFORE render to update vertex data
-     */
-    override public function updateBuffers(renderer:Renderer):Void {
-        
-        //__verticesToRender = 0;
-        //__indicesToRender = 0;
-        
-        // Allocate buffer on first update only
-        // if (__bufferCapacity == 0) {
-        //     __bufferCapacity = MAX_TILES;
-        //     renderer.allocateTileBatchBuffers(this, MAX_TILES);
-        // }
-        
-        // Rebuild vertex array from visible tiles (every frame)
-        //buildVertexArray();
-        
-        // Update vertices object for renderer
-        //this.vertices = new Vertices(__vertexCache);
-
-        if (vertices.length > 0) {
-
-            // GL.bindBuffer(GL.ARRAY_BUFFER, vbo);
-            
-            // // Orphan old buffer storage
-            // var maxBufferSize = MAX_TILES * 4 * 5 * 4;
-            // untyped __cpp__("glBufferData({0}, {1}, NULL, {2})", GL.ARRAY_BUFFER, maxBufferSize, GL.STREAM_DRAW);
-            
-            // // Now upload the actual data using standard method
-            // GL.bufferFloatArray(GL.ARRAY_BUFFER, vertices, GL.STREAM_DRAW, vertices.length);
-            
-            // GL.bindBuffer(GL.ARRAY_BUFFER, 0);
-            renderer.orphanAndUploadData(__bufferId, vertices, indices, MAX_TILES * 4 * 5 * 4);
-            //renderer.uploadData(this);
-        }
-        
-        __needsBufferUpdate = false;
     }
     
     public function render(renderer:Renderer):Void {
@@ -387,9 +423,6 @@ class TileBatch extends DisplayObject {
     }
 }
 
-/**
- * Data structure representing an atlas region
- */
 class AtlasRegion {
     public var x:Int = 0;              // Atlas X coordinate in pixels
     public var y:Int = 0;              // Atlas Y coordinate in pixels

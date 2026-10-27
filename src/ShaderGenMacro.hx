@@ -79,6 +79,10 @@ class ShaderGenMacro {
             pos: pos
         });
 
+        var cls = Context.getLocalClass().get();
+        var classPath = cls.pack.concat([cls.name]);
+        macro this.shaderType = $p{classPath};
+
         Context.info(
             'Assigned shader ID $id',
             pos
@@ -86,8 +90,6 @@ class ShaderGenMacro {
 
         return fields;
     }
-
-
 
     /**
      * Applied automatically to Shader subclasses through @:autoBuild.
