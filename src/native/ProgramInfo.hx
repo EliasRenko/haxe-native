@@ -4,6 +4,8 @@ import GL;
 import cpp.ConstCharStar;
 import cpp.RawPointer;
 import macros.ShaderBuilder;
+import haxe.ds.IntMap;
+import haxe.ds.StringMap;
 
 typedef UniformLocation = GL.GlUInt;
 typedef Program = GL.GlUInt;
@@ -60,6 +62,27 @@ typedef UniformInfo = {
 	var ?location:UniformLocation;
 }
 
+abstract UniformName(String) from String to String {
+    private static var currentId:Int = 0;
+    private static var stringToIdMap:StringMap<Int> = new StringMap<Int>();
+
+    public var id(get, never):Int;
+
+    private inline function get_id():Int {
+        // This check only runs once per unique string name across the application lifetime
+        if (!stringToIdMap.exists(this)) {
+            stringToIdMap.set(this, currentId);
+            currentId++;
+        }
+        return stringToIdMap.get(this);
+    }
+
+    // Allows you to get the raw string back when calling native WebGL/OpenGL APIs
+    public inline function toString():String {
+        return this;
+    }
+}
+
 class ProgramInfo {
 	
 	// ** Shader source code
@@ -79,9 +102,8 @@ class ProgramInfo {
 	public var textures:Array<UniformInfo> = new Array<UniformInfo>();
 	
 	// ** Performance optimization: O(1) uniform lookup map
-	private var uniformMap:Map<String, UniformInfo> = new Map<String, UniformInfo>();
-
-	public var uniforms:Array<UniformInfo> = [];
+	//private var uniformMap:Map<String, UniformInfo> = new Map<String, UniformInfo>();
+	private var uniforms:IntMap<UniformInfo>;
 	
 	// ** Rendering properties
 	public var name(get, null):String;
@@ -473,6 +495,10 @@ class ProgramInfo {
 		trace("Calculated vertex layout: stride=" + vertexStride + " bytes");
 	}
 	
+	private function registerName(name:UniformName, uniformInfo:UniformInfo):Void {
+		uniforms.set(name.id, uniformInfo);
+	}
+
 	// ** Discover all active uniforms
 	private function introspectUniforms():Void {
 		// Get number of active uniforms
@@ -508,7 +534,7 @@ class ProgramInfo {
 			
 			// Create the uniform data with pre-computed setter function
 			var setter = createUniformSetter(format, location);
-			var uniformData = {
+			var uniformData:ProgramInfo.UniformInfo = {
 				name: name,
 				format: format,
 				setter: setter, // Pre-computed setter function for O(1) uniform setting

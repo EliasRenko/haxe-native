@@ -17,10 +17,6 @@ import cpp.UInt32;
 import Framebuffer;
 import Log;
 import display.ScreenPass;
-import ShaderRegistryEntry;
-
-import shaders.TexturedShader;
-import shaders.TexturedShader2;
 
 class Buffers {
 	public var vbo:UInt32;
@@ -70,38 +66,6 @@ class Renderer {
         setDepthTest(true);
         setDepthWrite(true);
         setBlendMode(true);
-
-        // ---
-
-        var id = TexturedShader.shaderId;
-        var id2 = TexturedShader2.shaderId;
-
-        for (shaderClass in ShaderRegistry.shaderClasses) {
-            trace(Type.getClassName(shaderClass));
-        }
-
-		for (definition in ShaderRegistry.definitions) {
-			var programInfo = new ProgramInfo(definition.name, definition.vertexSource, definition.fragmentSource);
-
-			programInfosGen[definition.shaderId] = programInfo;
-		}
-
-        // for (entry in ShaderRegistry.entries) {
-
-        //     var definition = entry.definition;
-
-        //     var programInfo = new ProgramInfo(
-        //         definition.name,
-        //         definition.vertexSource,
-        //         definition.fragmentSource
-        //     );
-
-        //     //var programInfoIndex = programInfosGen.add(programInfo);
-
-        //     // entry.setProgramInfoIndex(
-        //     //     programInfoIndex
-        //     // );
-        // }
     }
     
     public function render():Void {
