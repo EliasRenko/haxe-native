@@ -1,7 +1,6 @@
 package shaders;
 
 import data.Shader;
-import math.Matrix;
 
 @:shaderSourceVert("
     #version 330 core
@@ -32,13 +31,9 @@ import math.Matrix;
     }
 ")
 
+@:uniform("uMatrix", Matrix)
+@:uniform("uTexture", Texture)
 class TexturedShader extends Shader {
-
-    @:uniform("uMatrix", 0)
-    public var matrix:Uniform<Matrix> = new Uniform<Matrix>(0);
-
-    @:uniform("uTexture", 1)
-    public var texture:Uniform<Texture> = new Uniform<Texture>(1);
 
     public function new() {
         super();

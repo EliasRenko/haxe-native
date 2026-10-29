@@ -24,11 +24,10 @@ class Tilemap extends DisplayObject {
 	private var __verticesToRender:Int = 0;
 	private var __indicesToRender:UInt = 0;
 
-	private var shader:TexturedShader = new TexturedShader();
-
 	public function new(renderer:Renderer, texture:Texture) {
 		super(renderer, new Vertices([]), generateIndices(MAX_TILES));
 
+		shader = new TexturedShader();
 		this.texture = texture;
 		this.tileBatch = new TileBatch(texture.width, texture.height);
 
@@ -295,18 +294,15 @@ class Tilemap extends DisplayObject {
 
 		var finalMatrix = Matrix.copy(__matrix);
 		finalMatrix.append(renderer.matrix);
-		shader.matrix.value = finalMatrix;
+		shader.setUniform("uMatrix", finalMatrix.data);
 
-		var programInfo = renderer.getProgramInfo(getProgramInfoName());
+		var programInfo = renderer.programInfosGen[shader.programInfoIndex];
 
 		renderer.useProgram(programInfo);
 		renderer.bindBuffers(__bufferId, programInfo.vertexStride);
 		renderer.setBlendFunction(blending.source, blending.destination);
 
-		var matrixU = programInfo.getUniformAt(shader.matrix.index);
-		if (matrixU != null) {
-			matrixU.setter(shader.matrix.value);
-		}
+		renderer.renderUniforms(programInfo, this);
 
 		renderer.bindTexture(texture.id, 0);
 		renderer.drawElements(mode, __indicesToRender);

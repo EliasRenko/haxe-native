@@ -3,6 +3,7 @@ package web;
 #if js
 import web.GL;
 import ShaderBuilder;
+import data.Shader as DataShader;
 
 // -------------------------------------------------------------------------
 // Type aliases — keep the same names as the native ProgramInfo so shared
@@ -87,9 +88,6 @@ class ProgramInfo {
     public var uniforms:Array<Uniform>     = [];
     public var textures:Array<Uniform>     = [];
 
-    // ** Performance: O(1) uniform lookup
-    private var uniformMap:Map<String, Uniform> = new Map();
-
     // ** Rendering properties
     public var name(get, null):String;
     public var vertexStride:Int = 0;
@@ -129,7 +127,7 @@ class ProgramInfo {
         if (defaults.keys().hasNext()) {
             GL.useProgram(program);
             for (uname => value in defaults) {
-                var u = uniformMap.get(uname);
+                var u = getUniform(uname);
                 if (u != null) u.setter(value);
             }
             GL.useProgram(0);
@@ -276,8 +274,7 @@ class ProgramInfo {
                 location: location
             };
 
-            uniforms.push(uniformData);
-            uniformMap.set(uName, uniformData);
+            setUniformAt(DataShader.getUniformId(canonicalUniformName(uName)), uniformData);
 
             if (format == UniformFormat.Sampler2D) {
                 textures.push({
@@ -308,7 +305,25 @@ class ProgramInfo {
     // -------------------------------------------------------------------------
 
     public function getUniform(name:String):Uniform {
-        return uniformMap.get(name);
+        return getUniformAt(DataShader.getUniformId(canonicalUniformName(name)));
+    }
+
+    public function getUniformAt(index:Int):Null<Uniform> {
+        if (index < 0 || index >= uniforms.length) return null;
+        return uniforms[index];
+    }
+
+    private function canonicalUniformName(name:String):String {
+        return StringTools.endsWith(name, "[0]")
+            ? name.substr(0, name.length - 3)
+            : name;
+    }
+
+    private function setUniformAt(index:Int, uniform:Uniform):Void {
+        while (uniforms.length <= index) {
+            uniforms.push(cast null);
+        }
+        uniforms[index] = uniform;
     }
 
     public function setupVertexAttributes():Void {

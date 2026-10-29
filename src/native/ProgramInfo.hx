@@ -5,7 +5,7 @@ import cpp.ConstCharStar;
 import cpp.RawPointer;
 import macros.ShaderBuilder;
 import ShaderDefinition;
-import UniformDefinition;
+import data.Shader as DataShader;
 
 typedef UniformLocation = GL.GlUInt;
 typedef Program = GL.GlUInt;
@@ -77,17 +77,10 @@ class ProgramInfo {
 	public var attributes:Array<Attribute> = new Array<Attribute>();
 	
 	// ** Texture samplers (separate from uniforms for conceptual clarity)
-	// Note: Textures are also added to uniformMap for O(1) lookup
 	public var textures:Array<UniformInfo> = new Array<UniformInfo>();
-	
-	// ** Performance optimization: O(1) uniform lookup map
-	private var uniformMap:Map<String, UniformInfo> = new Map<String, UniformInfo>();
 
-	// Uniforms are stored by the stable index declared in ShaderDefinition,
-	// not by OpenGL's implementation-defined active-uniform enumeration order.
+	// Uniform slots are indexed by the interned uniform name ID.
 	public var uniforms:Array<UniformInfo> = [];
-	private var uniformDefinitionsByName:Map<String, UniformDefinition> = new Map<String, UniformDefinition>();
-	private var shaderDefinition:ShaderDefinition;
 	
 	// ** Rendering properties
 	public var name(get, null):String;
@@ -105,7 +98,6 @@ class ProgramInfo {
 	private var __name:String;
 	
 	public function new(definition:ShaderDefinition) {
-		shaderDefinition = definition;
 		__name = definition.name;
 
 		fragmentShaderSource = definition.fragmentSource;
@@ -114,14 +106,6 @@ class ProgramInfo {
 		vertexShaderSource = resolvedVertexSource != null
 			? resolvedVertexSource
 			: ShaderBuilder.defaultVertexFor(fragmentShaderSource);
-
-		for (uniformDefinition in definition.uniforms) {
-			uniformDefinitionsByName.set(uniformDefinition.name, uniformDefinition);
-		}
-		// Preserve empty slots for uniforms optimized out by the GLSL compiler.
-		for (_ in 0...definition.uniforms.length) {
-			uniforms.push(cast null);
-		}
 
 		// Automatically compile and introspect the shader program.
 		if (!compileProgramInfo(this)) {
@@ -218,22 +202,30 @@ class ProgramInfo {
 	}
 
 	/**
-	 * Get uniform by name with O(1) lookup performance
+	 * Resolve a uniform name to its stable integer slot.
 	 */
 	public function getUniform(name:String):UniformInfo {
-		var uniform = uniformMap.get(name);
-		if (uniform != null) return uniform;
-		// OpenGL may report the first element of a uniform array with a [0] suffix.
-		if (StringTools.endsWith(name, "[0]")) {
-			return uniformMap.get(name.substr(0, name.length - 3));
-		}
-		return null;
+		var canonicalName = canonicalUniformName(name);
+		return getUniformAt(DataShader.getUniformId(canonicalName));
 	}
 
-	/** Get an active uniform by its stable engine-defined index. */
+	/** Get an active uniform by its interned integer ID. */
 	public function getUniformAt(index:Int):Null<UniformInfo> {
 		if (index < 0 || index >= uniforms.length) return null;
 		return uniforms[index];
+	}
+
+	private function canonicalUniformName(name:String):String {
+		return StringTools.endsWith(name, "[0]")
+			? name.substr(0, name.length - 3)
+			: name;
+	}
+
+	private function setUniformAt(index:Int, uniform:UniformInfo):Void {
+		while (uniforms.length <= index) {
+			uniforms.push(cast null);
+		}
+		uniforms[index] = uniform;
 	}
 	
 	/**
@@ -514,8 +506,8 @@ class ProgramInfo {
 		var maxNameLength:Int = 0;
 		untyped __cpp__("glGetProgramiv({0}, GL_ACTIVE_UNIFORM_MAX_LENGTH, &{1})", program, maxNameLength);
 
-		// Rebuild runtime lookup collections in case introspection is repeated.
-		uniformMap = new Map<String, UniformInfo>();
+		// Rebuild runtime collections in case introspection is repeated.
+		uniforms = [];
 		textures = [];
 
 		for (i in 0...activeUniforms) {
@@ -543,28 +535,10 @@ class ProgramInfo {
 				location: (location : UniformLocation)
 			};
 
-			// Keep name lookup independent of the stable indexed storage.
-			uniformMap.set(name, uniformData);
-			var canonicalName = StringTools.endsWith(name, "[0]")
-				? name.substr(0, name.length - 3)
-				: name;
-			if (canonicalName != name) uniformMap.set(canonicalName, uniformData);
-
-			// Place annotated uniforms into their declared engine slot. OpenGL's
-			// active-uniform order is not stable across drivers or platforms.
-			var uniformDefinition = uniformDefinitionsByName.get(canonicalName);
-			if (uniformDefinition == null) {
-				uniformDefinition = uniformDefinitionsByName.get(name);
-			}
-			if (uniformDefinition != null) {
-				if (uniformDefinition.index >= 0 && uniformDefinition.index < uniforms.length) {
-					uniforms[uniformDefinition.index] = uniformData;
-				} else {
-					trace("Warning: Uniform '" + name + "' has out-of-range declared index " + uniformDefinition.index);
-				}
-			} else {
-				trace("Warning: Active uniform '" + name + "' has no matching @:uniform definition");
-			}
+			// Store by interned ID so renderer lookups do not depend on GL's
+			// implementation-defined active-uniform enumeration order.
+			var canonicalName = canonicalUniformName(name);
+			setUniformAt(DataShader.getUniformId(canonicalName), uniformData);
 
 			// Texture samplers use their own ordered list and texture-unit indices;
 			// they are deliberately separate from the engine uniform index.

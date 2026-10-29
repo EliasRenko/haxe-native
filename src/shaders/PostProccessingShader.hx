@@ -34,10 +34,8 @@ void main() {
 }
 ")
 
+@:uniform("uScreenTexture", Texture)
 class PostProccessingShader extends Shader {
-
-    @:uniform("uScreenTexture", 0)
-    public var texture:Uniform<Texture>;
 
     public function new() {
         super();

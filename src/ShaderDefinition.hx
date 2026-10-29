@@ -7,17 +7,11 @@ class ShaderDefinition {
     public final fragmentSource:String;
     public final uniforms:Array<UniformDefinition>;
 
-    public function new(
-        name:String,
-        shaderId:Int,
-        vertexSource:String,
-        fragmentSource:String,
-        uniforms:Array<UniformDefinition>
-    ) {
-        this.name = name;
-        this.shaderId = shaderId;
-        this.vertexSource = vertexSource;
-        this.fragmentSource = fragmentSource;
-        this.uniforms = uniforms;
-    }
+	public function new(name:String, shaderId:Int, vertexSource:String, fragmentSource:String, uniforms:Array<UniformDefinition>) {
+		this.name = name;
+		this.shaderId = shaderId;
+		this.vertexSource = vertexSource;
+		this.fragmentSource = fragmentSource;
+		this.uniforms = uniforms;
+	}
 }

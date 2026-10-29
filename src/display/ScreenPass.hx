@@ -18,8 +18,6 @@ class ScreenPass extends DisplayObject {
     public var height:Int;
     public var texture:Texture;
 
-    private var shader:PostProccessingShader = new PostProccessingShader();
-
     public function new(renderer:Renderer, width:Int, height:Int) {
         this.width = width;
         this.height = height;
@@ -33,6 +31,7 @@ class ScreenPass extends DisplayObject {
         var indices = new Indices([0, 1, 2, 0, 2, 3]);
         super(renderer, vertices, indices);
 
+        shader = new PostProccessingShader();
         __bufferId = renderer.createBuffers(shader.programInfoIndex);
         framebufferId = renderer.createFramebuffer(width, height);
 

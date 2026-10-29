@@ -134,17 +134,23 @@ class Renderer {
 	}
 
     public function renderUniforms(programInfo:ProgramInfo, displayObject:DisplayObject):Void {
-        for (name => value in displayObject.uniforms) {
-            var uniformInfo = programInfo.getUniform(name);
+        var shader = displayObject.shader;
+        if (shader == null) return;
+
+        for (uniform in shader.getUniforms()) {
+            var uniformInfo = programInfo.getUniformAt(uniform.nameId);
             
             // If the uniform doesn't exist in the shader, log a warning and skip it
             if (uniformInfo == null) {
-                __app.log.warn(LogCategory.RENDERER, "Uniform '" + name + "' doesn't exist in shader");
+                __app.log.warn(
+                    LogCategory.RENDERER,
+                    "Uniform '" + uniform.name + "' doesn't exist in shader"
+                );
 
                 continue;
             }
             
-            uniformInfo.setter(value);
+            uniformInfo.setter(uniform.value);
         }
     }
 

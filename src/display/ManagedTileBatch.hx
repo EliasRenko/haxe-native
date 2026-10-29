@@ -30,7 +30,6 @@ class ManagedTileBatch extends DisplayObject {
 
     private var tiles:Map<Int, Tile> = new Map(); // tileId -> TileInstance
     private var __nextTileId:Int = 1; // Auto-incrementing tile ID
-    private var shader:TexturedShader = new TexturedShader();
     
     /**
      * Create a new ManagedTileBatch
@@ -47,6 +46,7 @@ class ManagedTileBatch extends DisplayObject {
         // auto-resolve programInfo via getShaderName(). Only override with the
         // explicitly passed programInfo when one is provided.
         super(renderer, emptyVertices, indices);
+        shader = new TexturedShader();
         //if (programInfo != null) this.programInfo = programInfo;
         
         //__bufferId = renderer.createBuffers(shader.programInfoIndex);
@@ -363,12 +363,11 @@ class ManagedTileBatch extends DisplayObject {
 
         var finalMatrix = Matrix.copy(__matrix);
         finalMatrix.append(renderer.matrix);
+        shader.setUniform("uMatrix", finalMatrix.data);
         //uniforms.set("uMatrix", finalMatrix.data);
 
-        shader.matrix.value = finalMatrix;
-
         // 1. Get the program info for the current shader program
-		var programInfo = renderer.getProgramInfo(getProgramInfoName());
+		var programInfo = renderer.programInfosGen[shader.programInfoIndex];
 
 		// 2. Use the shader program (binds the program and VAO)
 		renderer.useProgram(programInfo);
@@ -382,10 +381,7 @@ class ManagedTileBatch extends DisplayObject {
 		// 5. Set the uniform values for the shader program
 		//renderer.renderUniforms(programInfo, this);
 
-        var matrixU = programInfo.getUniformAt(shader.matrix.index);
-		if (matrixU != null) {
-			matrixU.setter(shader.matrix.value);
-		}
+        renderer.renderUniforms(programInfo, this);
 
 		// 6. Set the textures for the shader program
 		renderer.bindTexture(texture.id, 0);

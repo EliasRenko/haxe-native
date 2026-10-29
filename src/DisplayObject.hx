@@ -24,7 +24,7 @@ abstract class DisplayObject {
 	public var depthWrite:Bool = true;
 	public var indices(get, null):Indices;
 	public var mode:Int = DrawingMode.TRIANGLES;
-	public var uniforms:Map<String, Dynamic> = new Map<String, Dynamic>();
+	public var shader(get, set):Shader;
 	public var vertices(get, null):Vertices;
 	public var visible:Bool = true;
 
@@ -90,6 +90,22 @@ abstract class DisplayObject {
 
 	private function get_vertices():Vertices {
 		return __vertices;
+	}
+
+	private function get_shader():Shader {
+		return __shader;
+	}
+
+	private function set_shader(value:Shader):Shader {
+		__shader = value;
+		return value;
+	}
+
+	public function setUniform(name:String, value:Dynamic):Void {
+		if (__shader == null) {
+			throw "Cannot set a uniform before assigning a shader.";
+		}
+		__shader.setUniform(name, value);
 	}
 
 	// Macros

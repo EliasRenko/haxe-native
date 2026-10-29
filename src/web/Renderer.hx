@@ -5,6 +5,7 @@ import web.GL;
 import web.ProgramInfo;
 import web.ProgramInfo.AttributeFormat;
 import DisplayObject;
+import data.Shader;
 import Framebuffer;
 import data.TextureData;
 import Texture;
@@ -102,7 +103,7 @@ class Renderer {
         }
 
         // Set uniforms and textures
-        __renderUniforms(displayObject.programInfo, displayObject.uniforms);
+        __renderUniforms(displayObject.programInfo, displayObject.shader);
         __renderTextures(displayObject.programInfo, displayObject);
 
         // Draw
@@ -157,15 +158,21 @@ class Renderer {
     // Uniforms and textures
     // -------------------------------------------------------------------------
 
-    private function __renderUniforms(programInfo:ProgramInfo, uniforms:Map<String, Dynamic>):Void {
-        for (name => value in uniforms) {
-            var uniformInfo = programInfo.getUniform(name);
+    private function __renderUniforms(programInfo:ProgramInfo, shader:Null<Shader>):Void {
+        if (shader == null) return;
+
+        for (uniform in shader.getUniforms()) {
+            var uniformInfo = programInfo.getUniformAt(uniform.nameId);
             if (uniformInfo == null) {
-                trace("Warning: Uniform '" + name + "' not found in shader");
+                trace("Warning: Uniform '" + uniform.name + "' not found in shader");
                 continue;
             }
-            uniformInfo.setter(value);
+            uniformInfo.setter(uniform.value);
         }
+    }
+
+    public function renderUniforms(programInfo:ProgramInfo, displayObject:DisplayObject):Void {
+        __renderUniforms(programInfo, displayObject.shader);
     }
 
     private function __renderTextures(programInfo:ProgramInfo, drawable:DisplayObject):Void {

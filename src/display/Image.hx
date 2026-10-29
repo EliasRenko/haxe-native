@@ -31,8 +31,6 @@ class Image extends DisplayObject {
 	private var __originY:Float = 0;
 	private var transform:Transform = new Transform();
 
-	private var shader:TexturedShader = new TexturedShader();
-
 	public function new(renderer:Renderer, texture:Texture) {
 		__width = texture.width;
 		__height = texture.height;
@@ -55,6 +53,7 @@ class Image extends DisplayObject {
 
 		super(renderer, vertices, indices);
 
+		shader = new TexturedShader();
 		__bufferId = renderer.createBuffers(shader.programInfoIndex);
 
 		// Set OpenGL properties
@@ -95,12 +94,10 @@ class Image extends DisplayObject {
 		if (transform.dirty) {
 			transform.dirty = false;
 			transform.updateTransform();
-			var finalMatrix = Matrix.copy(transform.matrix);
-			finalMatrix.append(renderer.matrix);
-			//uniforms.set("uMatrix", finalMatrix.data);
-
-			shader.matrix.value = finalMatrix;
 		}
+		var finalMatrix = Matrix.copy(transform.matrix);
+		finalMatrix.append(renderer.matrix);
+		shader.setUniform("uMatrix", finalMatrix.data);
 
 		// 1. Get the program info for the current shader program
 		//var programInfo = renderer.getProgramInfo(getProgramInfoName());
@@ -116,12 +113,7 @@ class Image extends DisplayObject {
 		renderer.setBlendFunction(blending.source, blending.destination);
 
 		// 5. Set the uniform values for the shader program
-		//renderer.renderUniforms(programInfo, this);
-
-		var matrixU = programInfo.getUniformAt(shader.matrix.index);
-		if (matrixU != null) {
-			matrixU.setter(shader.matrix.value.data);
-		}
+		renderer.renderUniforms(programInfo, this);
 
 		// 6. Set the textures for the shader program
 		renderer.bindTexture(texture.id, 0);

@@ -359,30 +359,19 @@ class ShaderRegistryMacro {
     ):Array<UniformData> {
         var uniforms:Array<UniformData> = [];
         var seenNames = new Map<String, Bool>();
-        var seenIndices = new Map<Int, Bool>();
 
-        // Inspect fields declared on this shader class.
-        for (field in cls.fields.get()) {
-            var uniformMeta:Null<MetadataEntry> = null;
-
-            for (meta in field.meta.get()) {
-                if (meta.name == ":uniform") {
-                    uniformMeta = meta;
-                    break;
-                }
-            }
-
-            if (uniformMeta == null) {
+        for (meta in cls.meta.get()) {
+            if (meta.name != ":uniform") {
                 continue;
             }
 
-            var params = uniformMeta.params;
+            var params = meta.params;
 
             if (params == null || params.length != 2) {
                 Context.error(
-                    '@:uniform on ${cls.name}.${field.name} must have '
-                    + 'exactly two arguments: ("name", index).',
-                    field.pos
+                    '@:uniform on ${cls.name} must have exactly two '
+                    + 'arguments: ("name", Type).',
+                    meta.pos
                 );
                 continue;
             }
@@ -395,41 +384,20 @@ class ShaderRegistryMacro {
 
                 default:
                     Context.error(
-                        'The first @:uniform argument on '
-                        + '${cls.name}.${field.name} must be a string.',
+                        'The first @:uniform argument on ${cls.name} '
+                        + 'must be a string.',
                         params[0].pos
                     );
                     continue;
             }
 
-            var uniformIndex:Int;
-
-            switch (params[1].expr) {
-                case EConst(CInt(value)):
-                    uniformIndex = Std.parseInt(value);
-
-                default:
-                    Context.error(
-                        'The second @:uniform argument on '
-                        + '${cls.name}.${field.name} must be an integer.',
-                        params[1].pos
-                    );
-                    continue;
-            }
+            var uniformType = getUniformTypeName(params[1]);
+            validateUniformType(uniformType, params[1].pos);
 
             if (uniformName.length == 0) {
                 Context.error(
                     'Uniform names cannot be empty in ${cls.name}.',
-                    field.pos
-                );
-                continue;
-            }
-
-            if (uniformIndex < 0) {
-                Context.error(
-                    'Uniform index for ${cls.name}.${field.name} '
-                    + 'must be non-negative.',
-                    field.pos
+                    meta.pos
                 );
                 continue;
             }
@@ -438,46 +406,47 @@ class ShaderRegistryMacro {
                 Context.error(
                     'Duplicate uniform name "$uniformName" '
                     + 'in shader ${cls.name}.',
-                    field.pos
-                );
-                continue;
-            }
-
-            if (seenIndices.exists(uniformIndex)) {
-                Context.error(
-                    'Duplicate uniform index $uniformIndex '
-                    + 'in shader ${cls.name}.',
-                    field.pos
+                    meta.pos
                 );
                 continue;
             }
 
             seenNames.set(uniformName, true);
-            seenIndices.set(uniformIndex, true);
 
+            // Metadata order defines the stable uniform index.
             uniforms.push({
                 name: uniformName,
-                index: uniformIndex
+                index: uniforms.length
             });
-        }
-
-        // Sort by the declared ProgramInfo array index.
-        uniforms.sort(function(a, b) {
-            return a.index - b.index;
-        });
-
-        // Require indices to be contiguous, starting at zero.
-        for (i in 0...uniforms.length) {
-            if (uniforms[i].index != i) {
-                Context.error(
-                    'Uniform indices in ${cls.name} must be contiguous '
-                    + 'from 0. Expected $i, got ${uniforms[i].index}.',
-                    cls.pos
-                );
-            }
         }
 
         return uniforms;
     }
+
+    static function getUniformTypeName(expr:Expr):String {
+        return switch (expr.expr) {
+            case EConst(CIdent(name)): name;
+            case EField(_, name): name;
+            default:
+                Context.error(
+                    "The second @:uniform argument must be a type name.",
+                    expr.pos
+                );
+                "";
+        }
+    }
+
+    static function validateUniformType(name:String, pos:Position):Void {
+        switch (name) {
+            case "Float" | "Vec2" | "Vec3" | "Vec4" | "Matrix"
+                | "Int" | "Bool" | "Texture":
+            default:
+                Context.error(
+                    'Unsupported shader uniform value type "$name".',
+                    pos
+                );
+        }
+    }
+
 }
 #end

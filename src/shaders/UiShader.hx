@@ -1,8 +1,6 @@
 package shaders;
 
 import data.Shader;
-import math.Matrix;
-import Texture;
 
 @:shaderSourceVert("
     #version 330 core
@@ -58,16 +56,10 @@ import Texture;
     }
 ")
 
+@:uniform("uMatrix", Matrix)
+@:uniform("uTexture", Texture)
+@:uniform("uFont", Texture)
 class UiShader extends Shader {
-
-    @:uniform("uMatrix", 0)
-    public var matrix:Uniform<Matrix> = new Uniform<Matrix>(0);
-
-    @:uniform("uTexture", 1)
-    public var texture:Uniform<Texture> = new Uniform<Texture>(1);
-
-    @:uniform("uFont", 2)
-    public var font:Uniform<Texture> = new Uniform<Texture>(2);
 
     public function new() {
         super();

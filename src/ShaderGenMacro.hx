@@ -24,10 +24,10 @@ import sys.FileSystem;
  * - ShaderRegistryEntry has fields:
  *     definition:ShaderDefinition,
  *     setProgramInfoIndex:Int->Void
- * - Uniform<T> has a constructor Uniform(index:Int).
  */
 private typedef UniformInfo = {
     var name:String;
+    var typeName:String;
     var index:Int;
     var format:UniformFormat;
 }
@@ -41,7 +41,6 @@ private typedef RegisteredShader = {
 }
 
 class ShaderGenMacro {
-
 
 	static var nextShaderId:Int = 0;
 
@@ -66,22 +65,53 @@ class ShaderGenMacro {
 		// Static ID shared by the concrete shader class.
         fields.push({
             name: "shaderId",
-            access: [APublic, AStatic, AInline],
-            kind: FVar(macro:Int, macro $v{id}),
-            pos: pos
-        });
-
-        // Instance-level lookup index.
-        fields.push({
-            name: "programInfoIndex",
-            access: [APublic, AFinal],
+            access: [APublic, AStatic],
             kind: FVar(macro:Int, macro $v{id}),
             pos: pos
         });
 
         var cls = Context.getLocalClass().get();
         var classPath = cls.pack.concat([cls.name]);
-        macro this.shaderType = $p{classPath};
+        var indexInitialization = macro this.programInfoIndex = $v{id};
+        var typeInitialization = macro this.shaderType = $p{classPath};
+        var hasConstructor = false;
+        for (field in fields) {
+            if (field.name != "new") continue;
+            hasConstructor = true;
+            switch (field.kind) {
+                case FFun(fn):
+                    switch (fn.expr) {
+                        case {expr: EBlock(expressions)}:
+                            expressions.push(indexInitialization);
+                            expressions.push(typeInitialization);
+                            fn.expr = {expr: EBlock(expressions), pos: field.pos};
+                        default:
+                            Context.error(
+                                "Shader constructor body must be a block.",
+                                field.pos
+                            );
+                    }
+                default:
+                    Context.error("Shader constructor must be a function.", field.pos);
+            }
+        }
+        if (!hasConstructor) {
+            fields.push({
+                name: "new",
+                access: [APublic],
+                kind: FFun({
+                    args: [],
+                    ret: null,
+                    expr: macro {
+                        super();
+                        this.programInfoIndex = $v{id};
+                        this.shaderType = $p{classPath};
+                    },
+                    params: []
+                }),
+                pos: pos
+            });
+        }
 
         Context.info(
             'Assigned shader ID $id',
@@ -91,10 +121,7 @@ class ShaderGenMacro {
         return fields;
     }
 
-    /**
-     * Applied automatically to Shader subclasses through @:autoBuild.
-     * Initializes @:uniform fields and adds a static index used by the registry.
-     */
+    /** Applied automatically to Shader subclasses through @:autoBuild. */
     public static function build():Array<Field> {
         var fields = Context.getBuildFields();
         var cls = Context.getLocalClass().get();
@@ -109,45 +136,7 @@ class ShaderGenMacro {
         }
 
         var vertexSource = getShaderSource(cls.meta.get(), ":shaderSourceVert");
-        var usedNames = new Map<String, Bool>();
-        var usedIndices = new Map<Int, String>();
-
-        for (field in fields) {
-            var meta = findMetadata(field.meta, ":uniform");
-            if (meta == null) continue;
-
-            if (meta.params == null || meta.params.length != 2) {
-                Context.error('@:uniform requires ("GLSLName", index).', meta.pos);
-            }
-
-            var uniformName = extractString(meta.params[0]);
-            var index = extractInt(meta.params[1]);
-
-            if (index < 0) {
-                Context.error("Uniform indices must be zero or greater.", meta.pos);
-            }
-            if (usedNames.exists(uniformName)) {
-                Context.error('Duplicate uniform name "$uniformName".', meta.pos);
-            }
-            if (usedIndices.exists(index)) {
-                Context.error(
-                    'Uniform index $index is already used by "${usedIndices.get(index)}".',
-                    meta.pos
-                );
-            }
-
-            usedNames.set(uniformName, true);
-            usedIndices.set(index, uniformName);
-
-            // Validate Uniform<T> and replace its initializer with new Uniform(index).
-            validateUniformField(field, meta.pos);
-            switch (field.kind) {
-                case FVar(type, _):
-                    field.kind = FVar(type, macro new Uniform($v{index}));
-                default:
-                    Context.error("@:uniform must be applied to a variable.", field.pos);
-            }
-        }
+        readUniformMetadata(cls.meta.get());
 
         // The registry setter writes this static field. Avoid adding it twice.
         if (!hasField(fields, "programInfoIndex")) {
@@ -296,54 +285,60 @@ class ShaderGenMacro {
     }
 
     private static function readUniforms(cls:ClassType):Array<UniformInfo> {
+        return readUniformMetadata(cls.meta.get());
+    }
+
+    private static function readUniformMetadata(
+        metadata:Array<MetadataEntry>
+    ):Array<UniformInfo> {
         var result:Array<UniformInfo> = [];
         var names = new Map<String, Bool>();
-        var indices = new Map<Int, String>();
 
-        for (field in cls.fields.get()) {
-            var meta = findMetadata(field.meta.get(), ":uniform");
-            if (meta == null) continue;
+        for (meta in metadata) {
+            if (meta.name != ":uniform") continue;
             if (meta.params == null || meta.params.length != 2) {
-                Context.error('@:uniform requires ("GLSLName", index).', meta.pos);
-            }
-
-            var name = extractString(meta.params[0]);
-            var index = extractInt(meta.params[1]);
-            var format = getUniformFormat(field.type, meta.pos);
-
-            if (index < 0) Context.error("Uniform indices must be zero or greater.", meta.pos);
-            if (names.exists(name)) Context.error('Duplicate uniform name "$name".', meta.pos);
-            if (indices.exists(index)) {
                 Context.error(
-                    'Uniform index $index is already used by "${indices.get(index)}".',
+                    '@:uniform requires ("GLSLName", Type).',
                     meta.pos
                 );
             }
 
+            var name = extractString(meta.params[0]);
+            var typeName = extractUniformTypeName(meta.params[1]);
+            var format = formatFromTypeName(typeName, meta.params[1].pos);
+            var index = result.length;
+
+            if (names.exists(name)) Context.error('Duplicate uniform name "$name".', meta.pos);
+
             names.set(name, true);
-            indices.set(index, name);
-            result.push({name: name, index: index, format: format});
+            result.push({
+                name: name,
+                typeName: typeName,
+                index: index,
+                format: format
+            });
         }
 
-        result.sort(function(a, b) return a.index - b.index);
         return result;
     }
 
-    private static function getUniformFormat(type:Type, pos:Position):UniformFormat {
-        return switch (Context.follow(type)) {
-            case TInst(ref, params) if (ref.get().name == "Uniform"):
-                if (params.length != 1) {
-                    Context.error("Uniform<T> must have exactly one type parameter.", pos);
-                }
-                formatFromType(params[0], pos);
+    private static function extractUniformTypeName(expr:Expr):String {
+        return switch (expr.expr) {
+            case EConst(CIdent(name)): name;
+            case EField(_, name): name;
             default:
-                Context.error("@:uniform fields must have type Uniform<T>.", pos);
-                UniformFormat.Float;
+                Context.error(
+                    "The second @:uniform argument must be a type name.",
+                    expr.pos
+                );
+                "";
         }
     }
 
-    private static function formatFromType(type:Type, pos:Position):UniformFormat {
-        var name = typeName(type);
+    private static function formatFromTypeName(
+        name:String,
+        pos:Position
+    ):UniformFormat {
         return switch (name) {
             case "Float": UniformFormat.Float;
             case "Vec2": UniformFormat.Vec2;
@@ -356,39 +351,6 @@ class ShaderGenMacro {
             default:
                 Context.error('Unsupported shader uniform value type "$name".', pos);
                 UniformFormat.Float;
-        }
-    }
-
-    private static function typeName(type:Type):String {
-        return switch (Context.follow(type)) {
-            case TInst(ref, _): ref.get().name;
-            case TEnum(ref, _): ref.get().name;
-            case TAbstract(ref, _): ref.get().name;
-            case TType(ref, _): ref.get().name;
-            case TFun(_, _): "Function";
-            case TAnonymous(_): "Anonymous";
-            case TDynamic(_): "Dynamic";
-            case TMono(_): "Dynamic";
-            case TLazy(resolve): typeName(resolve());
-        }
-    }
-
-    private static function validateUniformField(field:Field, pos:Position):Void {
-        switch (field.kind) {
-            case FVar(type, _):
-                if (type == null) {
-                    Context.error("@:uniform field must explicitly declare Uniform<T>.", pos);
-                }
-                switch (type) {
-                    case TPath(path):
-                        if (path.name != "Uniform" || path.params == null || path.params.length != 1) {
-                            Context.error("@:uniform fields must have type Uniform<T>.", pos);
-                        }
-                    default:
-                        Context.error("@:uniform fields must have type Uniform<T>.", pos);
-                }
-            default:
-                Context.error("@:uniform must be applied to a variable.", pos);
         }
     }
 
@@ -406,34 +368,12 @@ class ShaderGenMacro {
         return null;
     }
 
-    private static function findMetadata(
-        metadata:Array<MetadataEntry>,
-        name:String
-    ):Null<MetadataEntry> {
-        for (meta in metadata) if (meta.name == name) return meta;
-        return null;
-    }
-
     private static function extractString(expr:Expr):String {
         return switch (expr.expr) {
             case EConst(CString(value)): value;
             default:
                 Context.error("Expected a string literal.", expr.pos);
                 "";
-        }
-    }
-
-    private static function extractInt(expr:Expr):Int {
-        return switch (expr.expr) {
-            case EConst(CInt(value)):
-                var parsed = Std.parseInt(value);
-                if (parsed == null) {
-                    Context.error("Expected an integer literal.", expr.pos);
-                    0;
-                } else parsed;
-            default:
-                Context.error("Expected an integer literal.", expr.pos);
-                0;
         }
     }
 
