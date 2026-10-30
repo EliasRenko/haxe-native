@@ -5,13 +5,11 @@ import haxe.ds.StringMap;
 
 @:autoBuild(ShaderGenMacro.buildId())
 class Shader {
-	public var shaderType:Class<Dynamic>;
 	public var programInfoIndex:Int = -1;
 
 	private var uniforms:IntMap<ShaderUniform> = new IntMap<ShaderUniform>();
 
 	public function new() {
-		shaderType = Type.getClass(this);
 	}
 
 	public function setUniform(name:String, value:Dynamic):Void {
@@ -42,10 +40,6 @@ class Shader {
 		return uniforms.iterator();
 	}
 
-	public function getSuperclass():Class<Dynamic> {
-		var classInfo = Type.getClass(shaderType);
-		return classInfo;
-	}
 }
 
 private abstract UniformName(String) from String to String {

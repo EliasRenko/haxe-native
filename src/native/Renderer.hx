@@ -18,9 +18,6 @@ import Framebuffer;
 import Log;
 import display.ScreenPass;
 
-import shaders.TexturedShader;
-import shaders.UiShader;
-
 class Buffers {
 	public var vbo:UInt32;
 	public var ebo:UInt32;
@@ -71,13 +68,6 @@ class Renderer {
         setBlendMode(true);
 
         // ---
-
-        var id = TexturedShader.shaderId;
-        var id2 = UiShader.shaderId;
-
-        for (shaderClass in ShaderRegistry.shaderClasses) {
-            trace(Type.getClassName(shaderClass));
-        }
 
 		for (definition in ShaderRegistry.definitions) {
 			var programInfo = new ProgramInfo(definition);
