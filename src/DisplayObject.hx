@@ -38,8 +38,12 @@ abstract class DisplayObject {
 	public function new(renderer:Renderer, vertices:Vertices, ?indices:Indices) {
 		__vertices = vertices;
 		__indices = indices != null ? indices : new Indices([]);
+		__shader = assignShader();
+		if (__shader == null) {
+			throw "Shader is null! Please assign a shader before rendering.";
+		}
 
-		//__bufferId = renderer.createBuffers(getProgramInfoName());
+		__bufferId = renderer.createBuffers(shader.programInfoIndex);
 
 		blending = {
 			source: BlendFactors.SRC_ALPHA,
@@ -83,6 +87,13 @@ abstract class DisplayObject {
 		__needsBufferUpdate = false;
 	}
 
+	private function assignShader():Shader {
+		if (__shader == null) {
+			throw "Shader is null! Please assign a shader before rendering.";
+		}
+		return null;
+	}
+
 	// Getters and setters
 	private function get_indices():Indices {
 		return __indices;
@@ -101,12 +112,12 @@ abstract class DisplayObject {
 		return value;
 	}
 
-	public function setUniform(name:String, value:Dynamic):Void {
-		if (__shader == null) {
-			throw "Cannot set a uniform before assigning a shader.";
-		}
-		__shader.setUniform(name, value);
-	}
+	// public function setUniform(name:String, value:Dynamic):Void {
+	// 	if (__shader == null) {
+	// 		throw "Cannot set a uniform before assigning a shader.";
+	// 	}
+	// 	__shader.setUniform(name, value);
+	// }
 
 	// Macros
 	private function getProgramInfoName():String { return null; }

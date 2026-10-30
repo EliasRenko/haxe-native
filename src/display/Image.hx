@@ -1,5 +1,6 @@
 package display;
 
+import data.Shader;
 import data.Indices;
 import data.Vertices;
 import data.DrawingMode;
@@ -10,7 +11,6 @@ import math.Matrix;
 import Texture;
 import shaders.TexturedShader;
 
-@:shader("textured")
 class Image extends DisplayObject {
 	
 	// Publics
@@ -52,9 +52,6 @@ class Image extends DisplayObject {
 		var indices:Indices = [0, 1, 2, 0, 2, 3]; // Two triangles to make a quad
 
 		super(renderer, vertices, indices);
-
-		shader = new TexturedShader();
-		__bufferId = renderer.createBuffers(shader.programInfoIndex);
 
 		// Set OpenGL properties
 		mode = DrawingMode.TRIANGLES;
@@ -120,6 +117,10 @@ class Image extends DisplayObject {
 
 		// 7. Draw the object using the specified mode and count
 		renderer.drawElements(mode, indices.length);
+	}
+
+	override private function assignShader():Shader {
+		return new TexturedShader();
 	}
 
 	//** Getters and setters.

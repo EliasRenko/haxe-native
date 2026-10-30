@@ -6,11 +6,11 @@ import Texture;
 import data.BlendFactors;
 import data.Vertices;
 import data.Indices;
+import data.Shader;
 import math.Matrix;
 
 import shaders.PostProccessingShader;
 
-@:shader("postprocess")
 class ScreenPass extends DisplayObject {
 
     public var framebufferId:Null<Int> = null;
@@ -31,8 +31,6 @@ class ScreenPass extends DisplayObject {
         var indices = new Indices([0, 1, 2, 0, 2, 3]);
         super(renderer, vertices, indices);
 
-        shader = new PostProccessingShader();
-        __bufferId = renderer.createBuffers(shader.programInfoIndex);
         framebufferId = renderer.createFramebuffer(width, height);
 
         mode = GL.TRIANGLES;
@@ -44,6 +42,10 @@ class ScreenPass extends DisplayObject {
             destination: BlendFactors.ONE_MINUS_SRC_ALPHA
         };
     }
+
+    override private function assignShader():Shader {
+		return new PostProccessingShader();
+	}
 
     public function bindFramebuffer(renderer:Renderer):Void {
         renderer.bindFramebuffer(framebufferId);
