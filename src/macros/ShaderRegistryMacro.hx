@@ -1,3 +1,4 @@
+package macros;
 
 #if macro
 import haxe.macro.Context;

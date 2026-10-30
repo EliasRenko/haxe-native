@@ -3,10 +3,10 @@ package data;
 import haxe.ds.IntMap;
 import haxe.ds.StringMap;
 
-@:autoBuild(ShaderGenMacro.buildId())
+@:autoBuild(macros.ShaderGenMacro.buildId())
 class Shader {
-	public var programInfoIndex:Int = -1;
 
+	public var programInfoIndex:Int = -1;
 	private var uniforms:IntMap<ShaderUniform> = new IntMap<ShaderUniform>();
 
 	public function new() {

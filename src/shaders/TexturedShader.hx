@@ -33,6 +33,7 @@ import data.Shader;
 
 @:uniform("uMatrix", Matrix)
 @:uniform("uTexture", Texture)
+
 class TexturedShader extends Shader {
 
     public function new() {

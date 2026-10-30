@@ -35,6 +35,7 @@ void main() {
 ")
 
 @:uniform("uScreenTexture", Texture)
+
 class PostProccessingShader extends Shader {
 
     public function new() {

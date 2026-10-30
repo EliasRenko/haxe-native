@@ -59,6 +59,7 @@ import data.Shader;
 @:uniform("uMatrix", Matrix)
 @:uniform("uTexture", Texture)
 @:uniform("uFont", Texture)
+
 class UiShader extends Shader {
 
     public function new() {

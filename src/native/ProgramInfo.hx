@@ -652,35 +652,6 @@ class ProgramInfo {
 			}
 		};
 	}
-
-	// private function floatMat4Setter(location:UniformLocation):Dynamic {
-	// 	return function(value:Array<Float>):Void {
-	// 		if (value == null) return;
-
-	// 		// Check if it's already a Haxe Array
-	// 		var matrixData:Array<Float> = Std.isOfType(value, Array) ? value : null;
-
-	// 		var matrixArray = new Array<Float>();
-	// 		for (i in 0...16) {
-	// 			matrixArray[i] = matrixData[i];
-	// 		}
-
-	// 		untyped __cpp__("
-	// 			float matData[16];
-	// 			// If it's a Haxe array, extract safely using __get()
-	// 			if ({1} != NULL) {
-	// 				for(int i = 0; i < 16; i++) {
-	// 					matData[i] = (float){1}->__get(i);
-	// 				}
-	// 			} else {
-	// 				// Fallback: if value is a different type/pointer, 
-	// 				// handle or zero-out to prevent crashes
-	// 				for(int i = 0; i < 16; i++) { matData[i] = 0.0f; }
-	// 			}
-	// 			glUniformMatrix4fv({0}, 1, GL_FALSE, matData);
-	// 		", location, matrixArray);
-	// 	};
-	// }
 	
 	private function floatMat4Setter(location:UniformLocation):Dynamic {
 		return function(value:Array<Float>):Void {
@@ -693,23 +664,6 @@ class ProgramInfo {
 			", location, value);
 		};
 	}
-
-	// private function floatMat4Setter(location:UniformLocation):Dynamic {
-	// 	return function(value:Dynamic):Void {
-	// 		var matrixData:Array<Float> = cast value;
-	// 		if (matrixData == null)
-	// 			return;
-
-	// 		untyped __cpp__("
-    //         float matData[16];
-    //         for(int i = 0; i < 16; i++) {
-    //             // __get(i) safely retrieves elements from the Haxe Array object
-    //             matData[i] = (float){1}->__get(i);
-    //         }
-    //         glUniformMatrix4fv({0}, 1, GL_FALSE, matData);
-    //     ", location, matrixData);
-	// 	};
-	// }
 	
 	private function sampler2DSetter(location:UniformLocation):Dynamic {
 		return function(value:Dynamic):Void {
