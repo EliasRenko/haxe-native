@@ -119,7 +119,7 @@ class Image extends DisplayObject {
 		renderer.drawElements(mode, indices.length);
 	}
 
-	override private function assignShader():Shader {
+	private function assignShader():Shader {
 		return new TexturedShader();
 	}
 

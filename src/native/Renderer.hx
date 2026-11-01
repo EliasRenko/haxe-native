@@ -154,6 +154,10 @@ class Renderer {
     public function drawElements(mode:Int, count:Int):Void {
         GL.drawElements(mode, count, GL.UNSIGNED_INT, 0);
     }
+
+    public function drawArrays(mode:Int, first:Int, count:Int):Void {
+        GL.drawArrays(mode, first, count);
+    }
     
     /**
      * Create and register a ProgramInfo if it doesn't exist, or return existing one

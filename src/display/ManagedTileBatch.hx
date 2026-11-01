@@ -8,6 +8,7 @@ import data.Indices;
 import math.Matrix;
 import display.Tile;
 import shaders.TexturedShader;
+import haxe.ds.StringMap;
 
 /**
  * ManagedTileBatch - Extends TileBatch with tile management
@@ -21,6 +22,9 @@ class ManagedTileBatch extends DisplayObject {
 
     public var atlasRegions:Map<Int, AtlasRegion> = new Map(); // regionId -> AtlasRegion
     public var texture:Texture; // The atlas texture for all tiles
+    public var debugName:String = "";
+    public var needsBufferUpdate:Bool = true;
+    public var uniforms:StringMap<Dynamic> = new StringMap<Dynamic>();
     
     private var __nextRegionId:Int = 1; // Auto-incrementing region ID
     private var __bufferCapacity:Int = 0; // Current buffer capacity in tiles
@@ -33,7 +37,7 @@ class ManagedTileBatch extends DisplayObject {
     
     /**
      * Create a new ManagedTileBatch
-     * @param programInfo Shader program for rendering (optional when subclass uses @:shader)
+     * @param renderer Renderer used to create the batch buffers
      * @param texture Atlas texture for all tiles
      */
     public function new(renderer:Renderer, texture:Texture) {
@@ -42,14 +46,7 @@ class ManagedTileBatch extends DisplayObject {
         var emptyVertices = new Vertices([]);
         var indices = generateIndices(MAX_TILES);
         
-        // Call super first so @:shader metadata (if present on a subclass) can
-        // auto-resolve programInfo via getShaderName(). Only override with the
-        // explicitly passed programInfo when one is provided.
         super(renderer, emptyVertices, indices);
-        shader = new TexturedShader();
-        //if (programInfo != null) this.programInfo = programInfo;
-        
-        //__bufferId = renderer.createBuffers(shader.programInfoIndex);
 
         // Set OpenGL properties
         mode = GL.TRIANGLES;
@@ -66,6 +63,22 @@ class ManagedTileBatch extends DisplayObject {
         this.texture = texture;
         
         __bufferCapacity = 0; // Will be allocated on first init
+        uniforms.set("silhouette", false);
+        uniforms.set("silhouetteColor", [1.0, 1.0, 1.0, 0.4]);
+        uniforms.set("uAlpha", 1.0);
+    }
+
+    private function assignShader():data.Shader {
+        return new TexturedShader();
+    }
+
+    public function setTexture(value:Texture):Void {
+        texture = value;
+        needsBufferUpdate = true;
+    }
+
+    public function markDirty():Void {
+        needsBufferUpdate = true;
     }
     
     /**
@@ -93,6 +106,7 @@ class ManagedTileBatch extends DisplayObject {
         tile.regionId = regionId;
         
         tiles.set(tileId, tile);
+        needsBufferUpdate = true;
         
         return tileId;
     }
@@ -104,6 +118,7 @@ class ManagedTileBatch extends DisplayObject {
         if (tile == null) return;
         var tileId = __nextTileId++;
         tiles.set(tileId, tile);
+        needsBufferUpdate = true;
     }
     
     /**
@@ -112,7 +127,9 @@ class ManagedTileBatch extends DisplayObject {
      * @return True if tile was found and removed
      */
     public function removeTile(tileId:Int):Bool {
-        return tiles.remove(tileId);
+        var removed = tiles.remove(tileId);
+        if (removed) needsBufferUpdate = true;
+        return removed;
     }
     
     /**
@@ -122,6 +139,7 @@ class ManagedTileBatch extends DisplayObject {
         for (tileId in tiles.keys()) {
             if (tiles.get(tileId) == tile) {
                 tiles.remove(tileId);
+                needsBufferUpdate = true;
                 return true;
             }
         }
@@ -140,6 +158,7 @@ class ManagedTileBatch extends DisplayObject {
             var tile = tiles.get(tileId);
             tile.x = x;
             tile.y = y;
+            needsBufferUpdate = true;
             return true;
         }
         return false;
@@ -150,6 +169,7 @@ class ManagedTileBatch extends DisplayObject {
      */
     public function clear():Void {
         tiles.clear();
+        needsBufferUpdate = true;
     }
     
     /**
@@ -189,6 +209,7 @@ class ManagedTileBatch extends DisplayObject {
         }
         
         __needsBufferUpdate = false;
+        needsBufferUpdate = false;
     }
 
     /**
@@ -240,7 +261,7 @@ class ManagedTileBatch extends DisplayObject {
         region.v2 = (atlasY + atlasHeight) / texture.height;
         
         atlasRegions.set(regionId, region);
-        
+        needsBufferUpdate = true;
         return regionId;
     }
     
@@ -269,6 +290,7 @@ class ManagedTileBatch extends DisplayObject {
         region.u2 = (atlasX + atlasWidth) / texture.width;
         region.v2 = (atlasY + atlasHeight) / texture.height;
 
+        needsBufferUpdate = true;
         return true;
     }
 
@@ -352,6 +374,8 @@ class ManagedTileBatch extends DisplayObject {
     }
     
     public function render(renderer:Renderer):Void {
+        if (!visible) return;
+
         vertices.dispose();
         __verticesToRender = 0;
         __indicesToRender = 0;
@@ -364,6 +388,9 @@ class ManagedTileBatch extends DisplayObject {
         var finalMatrix = Matrix.copy(__matrix);
         finalMatrix.append(renderer.matrix);
         shader.setUniform("uMatrix", finalMatrix.data);
+        for (name in uniforms.keys()) {
+            shader.setUniform(name, uniforms.get(name));
+        }
         //uniforms.set("uMatrix", finalMatrix.data);
 
         // 1. Get the program info for the current shader program
@@ -388,6 +415,7 @@ class ManagedTileBatch extends DisplayObject {
 
 		// 7. Draw the object using the specified mode and count
 		renderer.drawElements(mode, __indicesToRender);
+        needsBufferUpdate = false;
     }
     
     /**
@@ -416,6 +444,7 @@ class ManagedTileBatch extends DisplayObject {
     public function clearRegions():Void {
         atlasRegions.clear();
         __nextRegionId = 1;
+        needsBufferUpdate = true;
     }
 }
 

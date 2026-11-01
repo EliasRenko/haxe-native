@@ -25,14 +25,25 @@ import data.Shader;
     out vec4 FragColor;
 
     uniform sampler2D uTexture;
+    uniform bool silhouette = false;
+    uniform vec4 silhouetteColor = vec4(1.0);
+    uniform float uAlpha = 1.0;
 
     void main() {
-        FragColor = texture(uTexture, TexCoord);
+        if (silhouette) {
+            FragColor = silhouetteColor;
+        } else {
+            vec4 texColor = texture(uTexture, TexCoord);
+            FragColor = vec4(texColor.rgb, texColor.a * uAlpha);
+        }
     }
 ")
 
 @:uniform("uMatrix", Matrix)
 @:uniform("uTexture", Texture)
+@:uniform("silhouette", Bool)
+@:uniform("silhouetteColor", Vec4)
+@:uniform("uAlpha", Float)
 
 class TexturedShader extends Shader {
 

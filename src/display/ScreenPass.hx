@@ -43,7 +43,7 @@ class ScreenPass extends DisplayObject {
         };
     }
 
-    override private function assignShader():Shader {
+    private function assignShader():Shader {
 		return new PostProccessingShader();
 	}
 

@@ -27,7 +27,6 @@ class Tilemap extends DisplayObject {
 	public function new(renderer:Renderer, texture:Texture) {
 		super(renderer, new Vertices([]), generateIndices(MAX_TILES));
 
-		shader = new TexturedShader();
 		this.texture = texture;
 		this.tileBatch = new TileBatch(texture.width, texture.height);
 
@@ -38,6 +37,10 @@ class Tilemap extends DisplayObject {
 			source: GL.ONE,
 			destination: GL.ONE_MINUS_SRC_ALPHA
 		};
+	}
+
+	private function assignShader():data.Shader {
+		return new TexturedShader();
 	}
 
 	// -------------------------------------------------------------------------

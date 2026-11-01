@@ -38,6 +38,7 @@ abstract class DisplayObject {
 	public function new(renderer:Renderer, vertices:Vertices, ?indices:Indices) {
 		__vertices = vertices;
 		__indices = indices != null ? indices : new Indices([]);
+		__needsBufferUpdate = true;
 		__shader = assignShader();
 		if (__shader == null) {
 			throw "Shader is null! Please assign a shader before rendering.";
@@ -54,6 +55,12 @@ abstract class DisplayObject {
 	public function release(renderer:Renderer):Void {
 		renderer.deleteBuffers(__bufferId);
 		__bufferId = -1;
+	}
+
+	@:noCompletion
+	public function replaceVertices(vertices:Vertices):Void {
+		__vertices = vertices;
+		__needsBufferUpdate = true;
 	}
 	
 	public abstract function render(renderer:Renderer):Void;
@@ -87,12 +94,21 @@ abstract class DisplayObject {
 		__needsBufferUpdate = false;
 	}
 
-	private function assignShader():Shader {
-		if (__shader == null) {
-			throw "Shader is null! Please assign a shader before rendering.";
-		}
-		return null;
+	public function renderElements(renderer:Renderer):Void {
+		if (!visible) return;
+
+		updateBuffers(renderer);
+		shader.setUniform("uMatrix", renderer.matrix.data);
+
+		var programInfo = renderer.programInfosGen[shader.programInfoIndex];
+		renderer.useProgram(programInfo);
+		renderer.bindBuffers(__bufferId, programInfo.vertexStride);
+		renderer.setBlendFunction(blending.source, blending.destination);
+		renderer.renderUniforms(programInfo, this);
+		renderer.drawElements(mode, indices.length);
 	}
+
+	private abstract function assignShader():Shader;
 
 	// Getters and setters
 	private function get_indices():Indices {
