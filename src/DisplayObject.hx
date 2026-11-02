@@ -94,20 +94,6 @@ abstract class DisplayObject {
 		__needsBufferUpdate = false;
 	}
 
-	public function renderElements(renderer:Renderer):Void {
-		if (!visible) return;
-
-		updateBuffers(renderer);
-		shader.setUniform("uMatrix", renderer.matrix.data);
-
-		var programInfo = renderer.programInfosGen[shader.programInfoIndex];
-		renderer.useProgram(programInfo);
-		renderer.bindBuffers(__bufferId, programInfo.vertexStride);
-		renderer.setBlendFunction(blending.source, blending.destination);
-		renderer.renderUniforms(programInfo, this);
-		renderer.drawElements(mode, indices.length);
-	}
-
 	private abstract function assignShader():Shader;
 
 	// Getters and setters
@@ -127,13 +113,6 @@ abstract class DisplayObject {
 		__shader = value;
 		return value;
 	}
-
-	// public function setUniform(name:String, value:Dynamic):Void {
-	// 	if (__shader == null) {
-	// 		throw "Cannot set a uniform before assigning a shader.";
-	// 	}
-	// 	__shader.setUniform(name, value);
-	// }
 
 	// Macros
 	private function getProgramInfoName():String { return null; }

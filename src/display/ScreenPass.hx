@@ -96,7 +96,7 @@ class ScreenPass extends DisplayObject {
 
 		// 1. Get the program info for the current shader program
 		//var programInfo = renderer.getProgramInfo(getProgramInfoName());
-        var programInfo = renderer.programInfosGen[shader.programInfoIndex];
+        var programInfo = renderer.getProgramInfo(shader.programInfoIndex);
 
 		// 2. Use the shader program (binds the program and VAO)
 		renderer.useProgram(programInfo);

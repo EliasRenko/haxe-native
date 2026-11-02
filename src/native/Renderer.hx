@@ -46,12 +46,10 @@ class Renderer {
     private var __currentBlendSource:Int = -1;
     private var __currentBlendDestination:Int = -1;
     private var __frameCount:Int = 0;
+    private var __programInfos:Array<ProgramInfo> = new Array<ProgramInfo>();
 
-    private var programInfos:Map<String, ProgramInfo> = new Map<String, ProgramInfo>();
     private var buffers:SlotArray<Buffers> = new SlotArray<Buffers>(32);
     public var framebuffers:SlotArray<Framebuffer> = new SlotArray<Framebuffer>(8);
-
-    public var programInfosGen:Array<ProgramInfo> = new Array<ProgramInfo>();
 
     public var postProcessDisplayObject:ScreenPass = null;
     private var __fullscreenQuadVAO:Int = 0;
@@ -72,7 +70,7 @@ class Renderer {
 
 		for (definition in definitions) {
 			var programInfo = new ProgramInfo(definition);
-			programInfosGen[definition.shaderId] = programInfo;
+			__programInfos.push(programInfo);
 		}
     }
     
@@ -90,9 +88,13 @@ class Renderer {
             GL.useProgram(programInfo.program);
             GL.bindVertexArray(programInfo.vao);
             currentProgram = programInfo.program;
-            currentVbo = 0; // VAO switch invalidates bindVertexBuffer state
-            currentEbo = 0; // VAO stores EBO binding, may be stale
+            currentVbo = 0;
+            currentEbo = 0;
         }
+    }
+
+    public function getProgramInfo(index:Int):ProgramInfo {
+        return __programInfos[index];
     }
 
 	public function bindBuffers(bufferId:Int, stride:Int):Void {
@@ -159,95 +161,16 @@ class Renderer {
         GL.drawArrays(mode, first, count);
     }
     
-    /**
-     * Create and register a ProgramInfo if it doesn't exist, or return existing one
-     * This is the proper way for States to request ProgramInfos from Renderer
-     */
     public function createProgramInfo(shaderDef:ShaderDefinition):ProgramInfo {
-        // if (programInfos.exists(name)) {
-        //     return programInfos.get(name);
-        // }
-
         var programInfo = new ProgramInfo(shaderDef);
 
-        programInfosGen[shaderDef.shaderId] = programInfo;
-        
-        // Create new ProgramInfo and register it
-        //var programInfo = new ProgramInfo(name, vertexShader, fragmentShader);
-        //programInfos.set(name, programInfo);
+        __programInfos.push(programInfo);
 
         __app.log.info(LogCategory.RENDERER, "Created and registered ProgramInfo: " + shaderDef.name);
 
         return programInfo;
     }
     
-    /**
-     * Get a ProgramInfo by name
-     * Used by States to retrieve ProgramInfos for creating DisplayObjects
-     */
-    public function getProgramInfo(name:String):ProgramInfo {
-        if (!programInfos.exists(name)) {
-            trace("Error: ProgramInfo '" + name + "' not found!");
-            return null;
-        }
-        return programInfos.get(name);
-    }
-    
-    /**
-     * Check if a ProgramInfo is already registered
-     */
-    public function hasProgramInfo(name:String):Bool {
-        return programInfos.exists(name);
-    }
-    
-    /**
-     * Create and register a ProgramInfo from preloaded shader files
-     * This method uses the App's resource system to load shader files
-     */
-    // public function createProgramInfoFromFiles(name:String, ?vertexShaderPath:String, fragmentShaderPath:String):ProgramInfo {
-    //     // Check if this ProgramInfo already exists
-    //     if (programInfos.exists(name)) {
-    //         trace("ProgramInfo '" + name + "' already exists, reusing...");
-    //         return programInfos.get(name);
-    //     }
-        
-    //     // Vertex shader is optional; null means ShaderBuilder auto-generates it
-    //     var vertexShader:String = null;
-    //     if (vertexShaderPath != null) {
-    //         vertexShader = __app.resources.getText(vertexShaderPath);
-    //         if (vertexShader == null) {
-    //             trace("Error: Vertex shader '" + vertexShaderPath + "' not found in preloaded resources!");
-    //             return null;
-    //         }
-    //     }
-        
-    //     var fragmentShader = __app.resources.getText(fragmentShaderPath);
-    //     if (fragmentShader == null) {
-    //         trace("Error: Fragment shader '" + fragmentShaderPath + "' not found in preloaded resources!");
-    //         return null;
-    //     }
-        
-    //     // Create new ProgramInfo and register it
-    //     var programInfo = new ProgramInfo(name, vertexShader, fragmentShader);
-    //     programInfos.set(name, programInfo);
-        
-    //     trace("Created ProgramInfo '" + name + "' from preloaded shaders: " + vertexShaderPath + ", " + fragmentShaderPath);
-    //     return programInfo;
-    // }
-    
-    /**
-     * Get all registered ProgramInfo names
-     */
-    public function getProgramInfoNames():Array<String> {
-        var names:Array<String> = [];
-
-        for (name in programInfos.keys()) {
-            names.push(name);
-        }
-
-        return names;
-    }
-
     // ===== RENDERING PIPELINE METHODS =====
 
     public function createBuffers(programInfoIndex:Int):Int {
@@ -257,8 +180,7 @@ class Renderer {
         GL.genBuffers(1, RawPointer.addressOf(vbo));
         GL.genBuffers(1, RawPointer.addressOf(ebo));
 
-        //buffers.set(displayObject, new Buffers(vbo, ebo));
-        return buffers.add(new Buffers(vbo, ebo, programInfosGen[programInfoIndex]));
+        return buffers.add(new Buffers(vbo, ebo, __programInfos[programInfoIndex]));
     }
 
     public function getBuffers(bufferId:Int):Buffers {
@@ -281,25 +203,8 @@ class Renderer {
         GL.bindVertexArray(0);
     }
 
-    // public function uploadData(displayObject:DisplayObject):Void {
-    //     var programInfo = getProgramInfo(displayObject.programInfoName);
-    //     var buffersObjs = buffers.get(displayObject.__bufferId);
-
-    //     GL.bindVertexArray(programInfo.vao);
-    //     GL.bindBuffer(GL.ARRAY_BUFFER, buffersObjs.vbo);
-    //     GL.bufferFloatArray(GL.ARRAY_BUFFER, displayObject.vertices, GL.DYNAMIC_DRAW, displayObject.vertices.length);
-    //     if (buffersObjs.ebo != 0 && displayObject.indices.length > 0) {
-    //         GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffersObjs.ebo);
-    //         GL.bufferUIntArray(GL.ELEMENT_ARRAY_BUFFER, displayObject.indices, GL.DYNAMIC_DRAW, displayObject.indices.length);
-    //     }
-
-    //     GL.bindBuffer(GL.ARRAY_BUFFER, 0);
-    //     GL.bindVertexArray(0);
-    // }
-
     public function orphanAndUploadData(bufferId:Int, vertices:Vertices, indices:Indices, maxBufferSize:Int):Void {
         var bufferInfo = buffers.get(bufferId);
-        //var programInfo = getProgramInfo(programInfoName);
 
         GL.bindVertexArray(bufferInfo.programInfo.vao);
         GL.bindBuffer(GL.ARRAY_BUFFER, bufferInfo.vbo);
@@ -313,71 +218,6 @@ class Renderer {
         GL.bindBuffer(GL.ARRAY_BUFFER, 0);
         GL.bindVertexArray(0);
     }
-    
-    /**
-     * Allocate buffers for TileBatch (called once)
-     * @param displayObject TileBatch object
-     * @param maxTiles Maximum tile capacity
-     */
-    // public function allocateTileBatchBuffers(displayObject:DisplayObject, maxTiles:Int):Void {
-    //     var programInfo = getProgramInfo(displayObject.programInfoName);
-    //     var buffersObjs = buffers.get(displayObject.__bufferId);
-
-    //     GL.bindVertexArray(programInfo.vao);
-        
-    //     // Allocate vertex buffer (4 vertices × 5 floats per tile)
-    //     GL.bindBuffer(GL.ARRAY_BUFFER, buffersObjs.vbo);
-    //     var vertexBufferSize = maxTiles * 4 * 5 * 4; // tiles × vertices × floats × 4 bytes
-    //     // Use GL_STREAM_DRAW for buffers that will be orphaned frequently
-    //     untyped __cpp__("glBufferData({0}, {1}, NULL, {2})", GL.ARRAY_BUFFER, vertexBufferSize, GL.STREAM_DRAW);
-        
-    //     // Upload index buffer once (indices never change)
-    //     if (buffersObjs.ebo != 0 && displayObject.indices.length > 0) {
-    //         GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffersObjs.ebo);
-    //         GL.bufferUIntArray(GL.ELEMENT_ARRAY_BUFFER, displayObject.indices, GL.STATIC_DRAW, displayObject.indices.length);
-    //     }
-        
-    //     GL.bindBuffer(GL.ARRAY_BUFFER, 0);
-    //     GL.bindVertexArray(0);
-    // }
-    
-    /**
-     * Orphan and upload TileBatch vertex data (called every frame)
-     * @param displayObject TileBatch object
-     */
-    // public function orphanAndUploadTileBatch(displayObject:DisplayObject):Void {
-    //     if (displayObject.vertices.length == 0) return;
-        
-    //     var programInfo = getProgramInfo(displayObject.programInfoName);
-    //     var buffersObjs = buffers.get(displayObject.__bufferId);   
-
-    //     GL.bindVertexArray(programInfo.vao);
-    //     GL.bindBuffer(GL.ARRAY_BUFFER, buffersObjs.vbo);
-        
-    //     // Orphan buffer - tell driver we don't need old data
-    //     var vertexBufferSize = 1000 * 4 * 5 * 4; // MAX_TILES × 4 vertices × 5 floats × 4 bytes
-    //     untyped __cpp__("glBufferData({0}, {1}, NULL, {2})", GL.ARRAY_BUFFER, vertexBufferSize, GL.DYNAMIC_DRAW);
-        
-    //     // Upload actual vertex data
-    //     var floatArray:Array<Float> = cast displayObject.vertices.data;
-    //     GL.bufferSubFloatArray(GL.ARRAY_BUFFER, 0, floatArray, floatArray.length);
-        
-    //     GL.bindBuffer(GL.ARRAY_BUFFER, 0);
-    //     GL.bindVertexArray(0);
-    // }
-
-    // TODO: programInfo.setupVertexAttributes(this); This must be called in the beginning of the draw. Now it is called for every DisplayObject.
-    /**
-     * Set up vertex attributes and finalize buffer setup
-     */
-    // public function setupVertexAttributes(programInfo:ProgramInfo):Void {
-    //     //GL.bindVertexArray(programInfo.vao);
-    //     programInfo.setupVertexAttributes(this);
-    //     GL.bindVertexArray(0);
-    //     // Unbind buffers
-    //     //GL.bindBuffer(GL.ARRAY_BUFFER, 0); // TODO: We got bind and unbind separated. Union in 1 function.
-    //     //GL.bindVertexArray(0);
-    // }
 
     public function deleteBuffers(bufferId:Int):Void {
         var buffersObj = buffers.get(bufferId);
@@ -500,26 +340,12 @@ class Renderer {
         setDepthTest(true);
         setDepthWrite(true);
         setBlendMode(false);
-        
-        // Cleanup framebuffer
-        // if (__postProcessPass != null) {
-        //     __postProcessPass.dispose();
-        //     __postProcessPass = null;
-        // }
 
         postProcessDisplayObject.dispose(this);
         postProcessDisplayObject = null;
 
-        // Cleanup all registered ProgramInfos
-        for (name in programInfos.keys()) {
-            var programInfo = programInfos.get(name);
-            if (programInfo != null) {
-                programInfo.dispose();
-                trace("Disposed ProgramInfo: " + name);
-            }
-        }
-
-        programInfos.clear();
+        __programInfos = [];
+        framebuffers.clear();
         buffers.clear();
         
         trace("Renderer cleanup complete");
