@@ -111,7 +111,7 @@ class Image extends DisplayObject {
 		renderer.setBlendFunction(blending.source, blending.destination);
 
 		// 5. Set the uniform values for the shader program
-		renderer.renderUniforms(programInfo, this);
+		renderer.renderUniforms(programInfo, shader);
 
 		// 6. Draw the object using the specified mode and count
 		renderer.drawElements(mode, indices.length);

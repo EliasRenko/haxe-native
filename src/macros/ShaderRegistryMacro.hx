@@ -146,17 +146,15 @@ class ShaderRegistryMacro {
 
         for (shader in shaders) {
             var name = shader.name;
-            var id = shader.id;
             var vertexSource = shader.vertexSource;
             var fragmentSource = shader.fragmentSource;
 
             definitionExpressions.push(
-                macro new ShaderDefinition(
-                    $v{name},
-                    $v{id},
-                    $v{vertexSource},
-                    $v{fragmentSource}
-                )
+                macro {
+                    name: $v{name},
+                    vertexSource: $v{vertexSource},
+                    fragmentSource: $v{fragmentSource}
+                }
             );
         }
 

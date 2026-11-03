@@ -318,7 +318,7 @@ class Tilemap extends DisplayObject {
 		renderer.bindBuffers(__bufferId, programInfo.vertexStride);
 		renderer.setBlendFunction(blending.source, blending.destination);
 
-		renderer.renderUniforms(programInfo, this);
+		renderer.renderUniforms(programInfo, shader);
 
 		renderer.drawElements(mode, __indicesToRender);
 	}

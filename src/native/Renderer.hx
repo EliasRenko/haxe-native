@@ -1,35 +1,27 @@
 package native;
 
-import data.Vertices;
-import data.Indices;
-import ds.SlotArray;
-import cpp.RawConstPointer;
 import cpp.ConstCharStar;
-import cpp.RawPointer;
-import GL;
-import ProgramInfo;
-import DisplayObject;
-import data.TextureData;
-import Texture;
-import math.Matrix;
 import cpp.Float32;
+import cpp.RawConstPointer;
+import cpp.RawPointer;
 import cpp.UInt32;
-import Framebuffer;
-import Log;
+import data.Indices;
+import data.Shader as DataShader;
+import data.TextureData;
+import data.Vertices;
 import display.ScreenPass;
+import ds.SlotArray;
+import Framebuffer;
+import GL;
+import Log;
+import math.Matrix;
+import ProgramInfo;
+import Texture;
 
-private class ShaderDefinition {
-    public final name:String;
-    public final shaderId:Int;
-    public final vertexSource:String;
-    public final fragmentSource:String;
-
-    public function new(name:String, shaderId:Int, vertexSource:String, fragmentSource:String) {
-        this.name = name;
-        this.shaderId = shaderId;
-        this.vertexSource = vertexSource;
-        this.fragmentSource = fragmentSource;
-    }
+private typedef ShaderDefinition = {
+    final name:String;
+    final vertexSource:String;
+    final fragmentSource:String;
 }
 
 class Buffers {
@@ -141,8 +133,7 @@ class Renderer {
 		}
 	}
 
-    public function renderUniforms(programInfo:ProgramInfo, displayObject:DisplayObject):Void {
-        var shader = displayObject.shader;
+    public function renderUniforms(programInfo:ProgramInfo, shader:Null<DataShader>):Void {
         if (shader == null) return;
 
         for (uniform in shader.getUniforms()) {
@@ -438,15 +429,7 @@ class Renderer {
         }
 
         var size = app.window.getWindowSizeInPixels();
-
-        //var vertShader = app.resources.getText("shaders/postprocess.vert");
-        //var fragShader = app.resources.getText("shaders/postprocess.frag");
-        
-        //createProgramInfo("postprocess", vertShader, fragShader);
-
         postProcessDisplayObject = new ScreenPass(this, size.width, size.height);
-
-        trace("Renderer: Post-processing initialized");
 	}
 
     public function createFramebuffer(width:Int, height:Int):Int {

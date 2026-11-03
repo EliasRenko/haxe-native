@@ -104,7 +104,7 @@ class Renderer {
         }
 
         // Set uniforms and textures
-        __renderUniforms(displayObject.programInfo, displayObject.shader);
+        renderUniforms(displayObject.programInfo, displayObject.shader);
 
         // Draw
         if (displayObject.__indicesToRender == 0) {
@@ -158,7 +158,7 @@ class Renderer {
     // Uniforms and textures
     // -------------------------------------------------------------------------
 
-    private function __renderUniforms(programInfo:ProgramInfo, shader:Null<Shader>):Void {
+    public function renderUniforms(programInfo:ProgramInfo, shader:Null<Shader>):Void {
         if (shader == null) return;
 
         for (uniform in shader.getUniforms()) {
@@ -170,10 +170,6 @@ class Renderer {
 
             uniformInfo.setter(uniform.value);
         }
-    }
-
-    public function renderUniforms(programInfo:ProgramInfo, displayObject:DisplayObject):Void {
-        __renderUniforms(programInfo, displayObject.shader);
     }
 
     // -------------------------------------------------------------------------
