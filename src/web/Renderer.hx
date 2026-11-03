@@ -164,7 +164,7 @@ class Renderer {
         for (uniform in shader.getUniforms()) {
             var uniformInfo = programInfo.getUniformAt(uniform.nameId);
             if (uniformInfo == null) {
-                trace("Warning: Uniform '" + uniform.name + "' not found in shader");
+                __app.log.warn(LogCategory.RENDERER, "Uniform '" + uniform.name + "' not found in shader");
                 continue;
             }
 
@@ -185,7 +185,7 @@ class Renderer {
 
     public function getProgramInfo(name:String):ProgramInfo {
         if (!programInfos.exists(name)) {
-            trace("Error: ProgramInfo '" + name + "' not found!");
+            __app.log.error(LogCategory.RENDERER, "ProgramInfo '" + name + "' not found");
             return null;
         }
         return programInfos.get(name);
@@ -197,7 +197,7 @@ class Renderer {
 
     public function createProgramInfoFromFiles(name:String, ?vertexShaderPath:String, fragmentShaderPath:String):ProgramInfo {
         if (programInfos.exists(name)) {
-            trace("ProgramInfo '" + name + "' already exists, reusing...");
+            __app.log.debug(LogCategory.RENDERER, "ProgramInfo '" + name + "' already exists, reusing");
             return programInfos.get(name);
         }
 
@@ -205,20 +205,20 @@ class Renderer {
         if (vertexShaderPath != null) {
             vertexShader = app.resources.getText(vertexShaderPath);
             if (vertexShader == null) {
-                trace("Error: Vertex shader '" + vertexShaderPath + "' not found in preloaded resources!");
+                __app.log.error(LogCategory.RENDERER, "Vertex shader '" + vertexShaderPath + "' not found in preloaded resources");
                 return null;
             }
         }
 
         var fragmentShader = app.resources.getText(fragmentShaderPath);
         if (fragmentShader == null) {
-            trace("Error: Fragment shader '" + fragmentShaderPath + "' not found in preloaded resources!");
+            __app.log.error(LogCategory.RENDERER, "Fragment shader '" + fragmentShaderPath + "' not found in preloaded resources");
             return null;
         }
 
         var programInfo = new ProgramInfo(name, vertexShader, fragmentShader);
         programInfos.set(name, programInfo);
-        trace("Created ProgramInfo '" + name + "' from files: " + vertexShaderPath + ", " + fragmentShaderPath);
+        __app.log.info(LogCategory.RENDERER, "Created ProgramInfo '" + name + "' from files: " + vertexShaderPath + ", " + fragmentShaderPath);
         return programInfo;
     }
 
@@ -339,7 +339,7 @@ class Renderer {
 
     public function uploadTexture(textureData:TextureData):Texture {
         if (textureData == null) {
-            trace("Error: Cannot upload null texture data");
+            __app.log.error(LogCategory.RENDERER, "Cannot upload null texture data");
             return null;
         }
 
@@ -432,7 +432,7 @@ class Renderer {
         ';
 
         postProcessShader = createProgramInfo("PostProcess", vertShader, fragShader);
-        trace("Renderer: Post-processing initialized");
+        __app.log.info(LogCategory.RENDERER, "Post-processing initialized");
     }
 
     private function createFullscreenQuad():Void {
@@ -463,7 +463,7 @@ class Renderer {
         GL.context.enableVertexAttribArray(1);
 
         GL.bindVertexArray(0);
-        trace("Renderer: Created fullscreen quad");
+        __app.log.debug(LogCategory.RENDERER, "Created fullscreen quad");
     }
 
     public function bindFramebuffer():Void {
@@ -484,7 +484,7 @@ class Renderer {
 
     public function renderToScreen():Void {
         if (framebuffer == null || postProcessShader == null) {
-            trace("Warning: Post-processing not initialized");
+            __app.log.warn(LogCategory.RENDERER, "Post-processing not initialized");
             return;
         }
         GL.useProgram(postProcessShader.program);
@@ -520,11 +520,11 @@ class Renderer {
             var pi = programInfos.get(name);
             if (pi != null) {
                 pi.dispose();
-                trace("Disposed ProgramInfo: " + name);
+                __app.log.debug(LogCategory.RENDERER, "Disposed ProgramInfo: " + name);
             }
         }
         programInfos.clear();
-        trace("Renderer cleanup complete");
+        __app.log.info(LogCategory.RENDERER, "Renderer cleanup complete");
     }
 
     // -------------------------------------------------------------------------

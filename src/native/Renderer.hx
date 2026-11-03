@@ -59,8 +59,6 @@ class Renderer {
     private var __framebufferStack:Array<Int> = [];
 
     public var postProcessDisplayObject:ScreenPass = null;
-    private var __fullscreenQuadVAO:Int = 0;
-    private var __fullscreenQuadVBO:Int = 0;
     public var usePostProcessing:Bool = false; // Toggle post-processing on/off
     private var currentProgram:Int = -1;
     private var currentVbo:Int = 0;
@@ -271,7 +269,7 @@ class Renderer {
      */
     public function uploadTexture(textureData:TextureData):Texture {
         if (textureData == null) {
-            trace("Error: Cannot upload null texture data");
+            __app.log.error(LogCategory.RENDERER, "Cannot upload null texture data");
             return null;
         }
 
@@ -378,7 +376,7 @@ class Renderer {
         }
         __programInfos = [];
         
-        trace("Renderer cleanup complete");
+        __app.log.info(LogCategory.RENDERER, "Renderer cleanup complete");
     }
     
     /**
