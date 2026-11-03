@@ -715,6 +715,10 @@ extern class GL {
     static var COLOR_ATTACHMENT0(default, null):Int;
     @:native("GL_DEPTH_ATTACHMENT")
     static var DEPTH_ATTACHMENT(default, null):Int;
+    @:native("GL_DEPTH_STENCIL_ATTACHMENT")
+    static var DEPTH_STENCIL_ATTACHMENT(default, null):Int;
+    @:native("GL_NONE")
+    static var NONE(default, null):Int;
     @:native("GL_FRAMEBUFFER_COMPLETE")
     static var FRAMEBUFFER_COMPLETE(default, null):Int;
     
@@ -739,6 +743,13 @@ extern class GL {
     
     @:native("glFramebufferTexture2D")
     static function framebufferTexture2D(target:Int, attachment:Int, textarget:Int, texture:UInt, level:Int):Void;
+
+    static inline function drawBuffers(count:Int, buffers:Array<Int>):Void {
+        untyped __cpp__("glDrawBuffers({0}, (const GLenum*)cpp::Pointer_obj::ofArray({1}).value)", count, buffers);
+    }
+
+    @:native("glReadBuffer")
+    static function readBuffer(source:Int):Void;
     
     @:native("glCheckFramebufferStatus")
     static function checkFramebufferStatus(target:Int):Int;

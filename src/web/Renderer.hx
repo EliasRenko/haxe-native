@@ -6,13 +6,42 @@ import web.ProgramInfo;
 import web.ProgramInfo.AttributeFormat;
 import DisplayObject;
 import data.Shader;
-import Framebuffer;
+import Log;
 import data.TextureData;
 import Texture;
 import math.Matrix;
 import js.lib.Float32Array;
 import js.lib.Uint32Array;
 import js.lib.Uint8Array;
+
+private typedef FramebufferTextureConfig = {
+    final attachment:Int;
+    final internalFormat:Int;
+    final format:Int;
+    final type:Int;
+}
+
+private typedef FramebufferTextureAttachment = {
+    final attachment:Int;
+    final texture:Texture;
+}
+
+private class Framebuffer {
+    public var fbo:Int = 0;
+    public var textureConfigs:Array<FramebufferTextureConfig>;
+    public var textures:Array<FramebufferTextureAttachment> = [];
+    public var depthRenderbuffer:Int = 0;
+    public var width:Int;
+    public var height:Int;
+    public var hasDepthRenderbuffer:Bool;
+
+	public function new(width:Int, height:Int, textureConfigs:Array<FramebufferTextureConfig>, useDepthRenderbuffer:Bool) {
+		this.width = width;
+		this.height = height;
+		this.textureConfigs = textureConfigs;
+		this.hasDepthRenderbuffer = useDepthRenderbuffer;
+	}
+}
 
 /**
  * WebGL2 renderer — mirrors the public API of the native Renderer class.
@@ -38,8 +67,10 @@ class Renderer {
     private var frameCount:Int = 0;
     private var programInfos:Map<String, ProgramInfo> = new Map();
 
-    // Framebuffer for post-processing
-	public var framebuffer:Framebuffer = null;
+    private var __framebuffers:Map<Int, Framebuffer> = new Map();
+    private var __framebufferStack:Array<Int> = [];
+    private var __nextFramebufferId:Int = 0;
+    private var __postProcessFramebufferId:Int = -1;
 	public var postProcessShader:ProgramInfo = null;
 	public var usePostProcessing:Bool = false;
 
@@ -398,14 +429,238 @@ class Renderer {
         };
     }
 
+	public function createFramebuffer(width:Int, height:Int, textureConfigs:Array<FramebufferTextureConfig>, useDepthRenderbuffer:Bool = false):Int {
+        if (width <= 0 || height <= 0) {
+            throw "Framebuffer dimensions must be positive";
+        }
+
+        if (textureConfigs == null) {
+            throw "Framebuffer texture configurations cannot be null";
+        }
+
+        if (textureConfigs.length == 0 && !useDepthRenderbuffer) {
+            throw "Framebuffer requires at least one attachment";
+        }
+
+        var hasDepthAttachment = false;
+        for (i in 0...textureConfigs.length) {
+            var attachment = textureConfigs[i].attachment;
+
+            if (attachment == GL.DEPTH_ATTACHMENT || attachment == GL.DEPTH_STENCIL_ATTACHMENT) {
+                if (useDepthRenderbuffer || hasDepthAttachment) {
+                    throw "Framebuffer cannot have multiple depth attachments or combine a depth texture with a depth renderbuffer";
+                }
+                hasDepthAttachment = true;
+            }
+
+            for (j in 0...i) {
+                if (attachment == textureConfigs[j].attachment) {
+                    throw "Duplicate framebuffer attachment: " + attachment;
+                }
+            }
+        }
+
+        var framebuffer = new Framebuffer(width, height, textureConfigs.copy(), useDepthRenderbuffer);
+        framebuffer.fbo = GL.createFramebuffer();
+        try {
+            initializeFramebufferAttachments(framebuffer);
+        } catch (error:Dynamic) {
+            restoreFramebufferBinding();
+            disposeFramebufferResources(framebuffer, true);
+            throw error;
+        }
+
+        var id = __nextFramebufferId++;
+        __framebuffers.set(id, framebuffer);
+        return id;
+    }
+
+    public function getFramebufferTexture(framebufferId:Int, attachment:Int):Texture {
+        var framebuffer = getFramebufferOrThrow(framebufferId);
+        for (texture in framebuffer.textures) {
+            if (texture.attachment == attachment) return texture.texture;
+        }
+        throw "Framebuffer " + framebufferId + " has no texture at attachment " + attachment;
+    }
+
+    public function bindFramebuffer(framebufferId:Int):Void {
+        var framebuffer = getFramebufferOrThrow(framebufferId);
+        GL.bindFramebuffer(GL.FRAMEBUFFER, framebuffer.fbo);
+        GL.viewport(0, 0, framebuffer.width, framebuffer.height);
+        __framebufferStack.push(framebufferId);
+    }
+
+    public function unbindFramebuffer(framebufferId:Int):Void {
+        if (__framebufferStack.length == 0
+            || __framebufferStack[__framebufferStack.length - 1] != framebufferId) {
+            throw "Framebuffer " + framebufferId + " is not the active render target";
+        }
+
+        __framebufferStack.pop();
+        restoreFramebufferBinding();
+        if (__framebufferStack.length == 0) {
+            var size = __app.window.getWindowSizeInPixels();
+            GL.viewport(0, 0, size.width, size.height);
+        } else {
+            var active = getFramebufferOrThrow(__framebufferStack[__framebufferStack.length - 1]);
+            GL.viewport(0, 0, active.width, active.height);
+        }
+    }
+
+    public function resizeFramebuffer(framebufferId:Int, width:Int, height:Int):Void {
+        if (width <= 0 || height <= 0) return;
+        var framebuffer = getFramebufferOrThrow(framebufferId);
+        if (__framebufferStack.indexOf(framebufferId) >= 0) {
+            throw "Cannot resize framebuffer " + framebufferId + " while it is bound";
+        }
+        if (framebuffer.width == width && framebuffer.height == height) return;
+
+        disposeFramebufferAttachments(framebuffer);
+        framebuffer.width = width;
+        framebuffer.height = height;
+        try {
+            initializeFramebufferAttachments(framebuffer);
+        } catch (error:Dynamic) {
+            restoreFramebufferBinding();
+            disposeFramebufferResources(framebuffer, true);
+            __framebuffers.remove(framebufferId);
+            if (__postProcessFramebufferId == framebufferId) __postProcessFramebufferId = -1;
+            throw error;
+        }
+    }
+
+    public function disposeFramebuffer(framebufferId:Int):Void {
+        var framebuffer = getFramebufferOrThrow(framebufferId);
+        if (__framebufferStack.indexOf(framebufferId) >= 0) {
+            throw "Cannot dispose framebuffer " + framebufferId + " while it is bound";
+        }
+        disposeFramebufferResources(framebuffer, true);
+        __framebuffers.remove(framebufferId);
+        if (__postProcessFramebufferId == framebufferId) __postProcessFramebufferId = -1;
+    }
+
+    private function getFramebufferOrThrow(framebufferId:Int):Framebuffer {
+        var framebuffer = __framebuffers.get(framebufferId);
+        if (framebuffer == null) {
+            throw "Framebuffer with ID " + framebufferId + " not found";
+        }
+        return framebuffer;
+    }
+
+    private function initializeFramebufferAttachments(framebuffer:Framebuffer):Void {
+        GL.bindFramebuffer(GL.FRAMEBUFFER, framebuffer.fbo);
+        for (config in framebuffer.textureConfigs) {
+
+            var texture = createRenderTargetTexture(
+                framebuffer.width,
+                framebuffer.height,
+                config.internalFormat,
+                config.format,
+                config.type
+            );
+
+            GL.framebufferTexture2D(
+                GL.FRAMEBUFFER,
+                config.attachment,
+                GL.TEXTURE_2D,
+                texture.id,
+                0
+            );
+
+            framebuffer.textures.push({attachment: config.attachment, texture: texture});
+        }
+
+        var drawBuffers:Array<Int> = [];
+        var firstColorAttachment = -1;
+        for (config in framebuffer.textureConfigs) {
+            if (config.attachment >= GL.COLOR_ATTACHMENT0
+                && config.attachment < GL.COLOR_ATTACHMENT0 + 32) {
+                var index = config.attachment - GL.COLOR_ATTACHMENT0;
+                while (drawBuffers.length <= index) drawBuffers.push(GL.NONE);
+                drawBuffers[index] = config.attachment;
+                if (firstColorAttachment < 0) firstColorAttachment = config.attachment;
+            }
+        }
+        GL.drawBuffers(drawBuffers.length > 0 ? drawBuffers : [GL.NONE]);
+        GL.readBuffer(firstColorAttachment >= 0 ? firstColorAttachment : GL.NONE);
+
+        if (framebuffer.hasDepthRenderbuffer) {
+            framebuffer.depthRenderbuffer = GL.createRenderbuffer();
+            GL.bindRenderbuffer(GL.RENDERBUFFER, framebuffer.depthRenderbuffer);
+            GL.renderbufferStorage(
+                GL.RENDERBUFFER, GL.DEPTH_COMPONENT24, framebuffer.width, framebuffer.height
+            );
+            GL.framebufferRenderbuffer(
+                GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.RENDERBUFFER, framebuffer.depthRenderbuffer
+            );
+            GL.bindRenderbuffer(GL.RENDERBUFFER, 0);
+        }
+
+        var status = GL.checkFramebufferStatus(GL.FRAMEBUFFER);
+        restoreFramebufferBinding();
+        if (status != GL.FRAMEBUFFER_COMPLETE) {
+            var message = "Framebuffer incomplete: " + getFramebufferStatusString(status);
+            __app.log.error(LogCategory.RENDERER, message);
+            throw message;
+        }
+        __app.log.debug(
+            LogCategory.RENDERER, "Created framebuffer " + framebuffer.width + "x" + framebuffer.height
+        );
+    }
+
+    private function restoreFramebufferBinding():Void {
+        var framebufferId = __framebufferStack.length > 0
+            ? __framebufferStack[__framebufferStack.length - 1]
+            : -1;
+        var framebuffer = framebufferId >= 0 ? __framebuffers.get(framebufferId) : null;
+        GL.bindFramebuffer(GL.FRAMEBUFFER, framebuffer != null ? framebuffer.fbo : 0);
+    }
+
+    private function getFramebufferStatusString(status:Int):String {
+        return switch (status) {
+            case 0x8CD5: "FRAMEBUFFER_COMPLETE";
+            case 0x8CD6: "FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
+            case 0x8CD7: "FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
+            case 0x8CDB: "FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
+            case 0x8CDC: "FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
+            case 0x8CDD: "FRAMEBUFFER_UNSUPPORTED";
+            case 0x8D56: "FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
+            default: "UNKNOWN_STATUS_" + status;
+        };
+    }
+
+    private function disposeFramebufferAttachments(framebuffer:Framebuffer):Void {
+        for (attachment in framebuffer.textures) {
+            GL.deleteTexture(attachment.texture.id);
+        }
+        framebuffer.textures = [];
+        if (framebuffer.depthRenderbuffer != 0) {
+            GL.deleteRenderbuffers(1, framebuffer.depthRenderbuffer);
+            framebuffer.depthRenderbuffer = 0;
+        }
+    }
+
+    private function disposeFramebufferResources(framebuffer:Framebuffer, deleteFramebuffer:Bool):Void {
+        disposeFramebufferAttachments(framebuffer);
+        if (deleteFramebuffer && framebuffer.fbo != 0) {
+            GL.deleteFramebuffer(framebuffer.fbo);
+            framebuffer.fbo = 0;
+        }
+    }
+
     // -------------------------------------------------------------------------
     // Post-processing framebuffer
     // -------------------------------------------------------------------------
 
     public function initializePostProcessing():Void {
+        if (__postProcessFramebufferId >= 0) return;
         var size = __app.window.getWindowSizeInPixels();
-        framebuffer = new Framebuffer(size.width, size.height, false, true);
-        framebuffer.initialize(this);
+        __postProcessFramebufferId = createFramebuffer(size.width, size.height, [{
+            attachment: GL.COLOR_ATTACHMENT0,
+            internalFormat: GL.RGBA8,
+            format: GL.RGBA,
+            type: GL.UNSIGNED_BYTE
+        }], true);
         createFullscreenQuad();
 
         var vertShader = '
@@ -466,31 +721,25 @@ class Renderer {
         __app.log.debug(LogCategory.RENDERER, "Created fullscreen quad");
     }
 
-    public function bindFramebuffer():Void {
-        if (framebuffer != null) framebuffer.bind();
-    }
-
-    public function unbindFramebuffer():Void {
-        if (framebuffer != null) framebuffer.unbind();
-        var size = __app.window.getWindowSizeInPixels();
-        GL.viewport(0, 0, size.width, size.height);
-    }
-
     public function resize(width:Int, height:Int):Void {
         if (width <= 0 || height <= 0) return; // Ignore degenerate resize (e.g. canvas inside display:none)
         GL.viewport(0, 0, width, height);
-        if (framebuffer != null) framebuffer.resize(this, width, height);
+        if (__postProcessFramebufferId >= 0) {
+            resizeFramebuffer(__postProcessFramebufferId, width, height);
+        }
     }
 
     public function renderToScreen():Void {
-        if (framebuffer == null || postProcessShader == null) {
+        if (__postProcessFramebufferId < 0 || postProcessShader == null) {
             __app.log.warn(LogCategory.RENDERER, "Post-processing not initialized");
             return;
         }
         GL.useProgram(postProcessShader.program);
         postProcessShader.initializeSamplerUnits();
         var uniformInfo = postProcessShader.getUniform("uScreenTexture");
-        if (uniformInfo != null) uniformInfo.setter(framebuffer.colorTexture);
+        if (uniformInfo != null) uniformInfo.setter(
+            getFramebufferTexture(__postProcessFramebufferId, GL.COLOR_ATTACHMENT0)
+        );
         GL.bindVertexArray(__fullscreenQuadVAO);
         GL.drawElements(GL.TRIANGLES, 6, GL.UNSIGNED_INT, 0);
         GL.bindVertexArray(0);
@@ -505,10 +754,14 @@ class Renderer {
         setDepthWrite(true);
         setBlendMode(false);
 
-        if (framebuffer != null) {
-            framebuffer.dispose();
-            framebuffer = null;
+        while (__framebufferStack.length > 0) {
+            unbindFramebuffer(__framebufferStack[__framebufferStack.length - 1]);
         }
+        for (framebuffer in __framebuffers) {
+            disposeFramebufferResources(framebuffer, true);
+        }
+        __framebuffers.clear();
+        __postProcessFramebufferId = -1;
 
         // Destroy cached VAOs
         for (vao in __vaoCache) {

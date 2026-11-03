@@ -2,23 +2,18 @@ package display;
 
 import GL;
 import Renderer;
-import Texture;
 import data.BlendFactors;
 import data.Vertices;
 import data.Indices;
 import data.Shader;
-import math.Matrix;
 
 import shaders.PostProccessingShader;
 
 class ScreenPass extends DisplayObject {
 
-    public var framebufferId:Null<Int> = null;
+    public var framebufferId:Int = -1;
     public var width:Int;
     public var height:Int;
-    public var texture(get, set):Texture;
-
-    private var __texture:Texture;
 
     public function new(renderer:Renderer, width:Int, height:Int) {
         this.width = width;
@@ -33,8 +28,13 @@ class ScreenPass extends DisplayObject {
         var indices = new Indices([0, 1, 2, 0, 2, 3]);
         super(renderer, vertices, indices);
 
-        framebufferId = renderer.createFramebuffer(width, height);
-        texture = renderer.framebuffers.get(framebufferId).colorTexture;
+        framebufferId = renderer.createFramebuffer(width, height, [{
+            attachment: GL.COLOR_ATTACHMENT0,
+            internalFormat: GL.RGBA8,
+            format: GL.RGBA,
+            type: GL.UNSIGNED_BYTE
+        }]);
+        shader.setUniform("uScreenTexture", renderer.getFramebufferTexture(framebufferId, GL.COLOR_ATTACHMENT0));
 
         mode = GL.TRIANGLES;
 
@@ -50,18 +50,6 @@ class ScreenPass extends DisplayObject {
 		return new PostProccessingShader();
 	}
 
-    private function get_texture():Texture {
-        return __texture;
-    }
-
-    private function set_texture(value:Texture):Texture {
-        __texture = value;
-        if (value != null) {
-            shader.setUniform("uScreenTexture", value);
-        }
-        return value;
-    }
-
     public function bindFramebuffer(renderer:Renderer):Void {
         renderer.bindFramebuffer(framebufferId);
     }
@@ -75,21 +63,16 @@ class ScreenPass extends DisplayObject {
             return;
         }
 
+        renderer.resizeFramebuffer(framebufferId, width, height);
         this.width = width;
         this.height = height;
-
-        if (framebufferId != null) {
-            renderer.disposeFramebuffer(framebufferId);
-        }
-
-        framebufferId = renderer.createFramebuffer(width, height);
-        texture = renderer.framebuffers.get(framebufferId).colorTexture;
+        shader.setUniform("uScreenTexture", renderer.getFramebufferTexture(framebufferId, GL.COLOR_ATTACHMENT0));
     }
 
     public function dispose(renderer:Renderer):Void {
-        if (framebufferId != null) {
+        if (framebufferId >= 0) {
             renderer.disposeFramebuffer(framebufferId);
-            framebufferId = null;
+            framebufferId = -1;
         }
     }
 
@@ -101,7 +84,6 @@ class ScreenPass extends DisplayObject {
         updateBuffers(renderer);
 
 		// 1. Get the program info for the current shader program
-		//var programInfo = renderer.getProgramInfo(getProgramInfoName());
         var programInfo = renderer.getProgramInfo(shader.programInfoIndex);
 
 		// 2. Use the shader program (binds the program and VAO)
@@ -118,7 +100,5 @@ class ScreenPass extends DisplayObject {
 
 		// 6. Draw the object using the specified mode and count
 		renderer.drawElements(mode, indices.length);
-
-        //super.render(renderer);
     }
 }

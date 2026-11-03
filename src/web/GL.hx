@@ -125,6 +125,8 @@ class GL {
     public static var FRAMEBUFFER:Int           = 36160; // 0x8D40
     public static var COLOR_ATTACHMENT0:Int     = 36064; // 0x8CE0
     public static var DEPTH_ATTACHMENT:Int      = 36096; // 0x8D00
+    public static var DEPTH_STENCIL_ATTACHMENT:Int = 33306; // 0x821A
+    public static var NONE:Int                  = 0;
     public static var RENDERBUFFER:Int          = 36161; // 0x8D41
     public static var DEPTH_COMPONENT16:Int     = 33189; // 0x81A5
     public static var DEPTH_COMPONENT24:Int     = 33190; // 0x81A6
@@ -464,6 +466,14 @@ class GL {
 
     public static function framebufferTexture2D(target:Int, attachment:Int, textarget:Int, textureId:Int, level:Int):Void {
         context.framebufferTexture2D(target, attachment, textarget, __textures.get(textureId), level);
+    }
+
+    public static function drawBuffers(buffers:Array<Int>):Void {
+        context.drawBuffers(buffers);
+    }
+
+    public static function readBuffer(source:Int):Void {
+        context.readBuffer(source);
     }
 
     public static function createRenderbuffer():Int {
