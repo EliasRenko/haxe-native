@@ -162,7 +162,7 @@ class ShaderRegistryMacro {
 
         fields.push({
             name: "definitions",
-            access: [APublic, AStatic, AFinal],
+            access: [APrivate, AStatic, AFinal],
             kind: FVar(
                 macro:Array<ShaderDefinition>,
                 macro $a{definitionExpressions}

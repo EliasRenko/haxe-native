@@ -18,6 +18,20 @@ import Framebuffer;
 import Log;
 import display.ScreenPass;
 
+private class ShaderDefinition {
+    public final name:String;
+    public final shaderId:Int;
+    public final vertexSource:String;
+    public final fragmentSource:String;
+
+    public function new(name:String, shaderId:Int, vertexSource:String, fragmentSource:String) {
+        this.name = name;
+        this.shaderId = shaderId;
+        this.vertexSource = vertexSource;
+        this.fragmentSource = fragmentSource;
+    }
+}
+
 class Buffers {
 	public var vbo:UInt32;
 	public var ebo:UInt32;
@@ -64,7 +78,7 @@ class Renderer {
         __app = app;
 
 		for (definition in definitions) {
-			var programInfo = new ProgramInfo(definition);
+			var programInfo = new ProgramInfo(definition.name, definition.vertexSource, definition.fragmentSource);
 			__programInfos.push(programInfo);
 		}
 
@@ -86,6 +100,7 @@ class Renderer {
         if (programInfo.program != currentProgram) {
             GL.useProgram(programInfo.program);
             GL.bindVertexArray(programInfo.vao);
+            programInfo.initializeSamplerUnits();
             currentProgram = programInfo.program;
             currentVbo = 0;
             currentEbo = 0;
@@ -155,12 +170,12 @@ class Renderer {
         GL.drawArrays(mode, first, count);
     }
     
-    public function createProgramInfo(shaderDef:ShaderDefinition):ProgramInfo {
-        var programInfo = new ProgramInfo(shaderDef);
+    public function createProgramInfo(name:String, vertexSource:String, fragmentSource:String):ProgramInfo {
+        var programInfo = new ProgramInfo(name, vertexSource, fragmentSource);
 
         __programInfos.push(programInfo);
 
-        __app.log.info(LogCategory.RENDERER, "Created and registered ProgramInfo: " + shaderDef.name);
+        __app.log.info(LogCategory.RENDERER, "Created and registered ProgramInfo: " + name);
 
         return programInfo;
     }

@@ -4,7 +4,6 @@ import GL;
 import cpp.ConstCharStar;
 import cpp.RawPointer;
 import macros.ShaderBuilder;
-import ShaderDefinition;
 import data.Shader as DataShader;
 
 typedef UniformLocation = GL.GlUInt;
@@ -44,7 +43,7 @@ enum UniformFormat {
 	SamplerCube;
 }
 
-typedef Attribute = {
+typedef AttributeInfo = {
 	var name:String;
 	var format:AttributeFormat;  // Use our AttributeFormat enum
 	var size:Int;               // Number of components (1, 2, 3, or 4)
@@ -58,32 +57,20 @@ typedef UniformInfo = {
 	var format:UniformFormat;
 	var setter:Dynamic;
 	var ?location:UniformLocation;
+	var ?textureUnit:Int;
 }
 
 class ProgramInfo {
 	
-	// ** Shader source code
-	public var vertexShaderSource:String;
-	public var fragmentShaderSource:String;
-	
-	// ** Compiled shader objects
-	public var vertexShader:Shader;
-	public var fragmentShader:Shader;
+	// ** Compiled program
 	public var program:Program;
 	
-	// ** Vertex attributes
-	public var attributes:Array<Attribute> = new Array<Attribute>();
-	
-	// ** Texture samplers (separate from uniforms for conceptual clarity)
-	public var textures:Array<UniformInfo> = new Array<UniformInfo>();
-
-	// Uniform slots are indexed by the interned uniform name ID.
-	public var uniforms:Array<UniformInfo> = [];
+	public var attributes:Array<AttributeInfo> = new Array<AttributeInfo>();
+	public var uniforms:Array<UniformInfo> = new Array<UniformInfo>();
 	
 	// ** Rendering properties
 	public var name(get, null):String;
 	public var vertexStride:UInt; // Total bytes per vertex (interleaved layout)
-	public var isCompiled:Bool = false;
 	
 	// ** VAO for shared vertex attribute configuration (modern OpenGL)
 	// ** VAO stores the vertex attribute layout for this ProgramInfo.
@@ -93,68 +80,72 @@ class ProgramInfo {
 
 	// ** Privates
 	private var __name:String;
+	private var __samplerUnitsInitialized:Bool = false;
 	
-	public function new(definition:ShaderDefinition) {
-		__name = definition.name;
+	public function new(name:String, vertexSource:String, fragmentSource:String) {
+		__name = name;
 
-		fragmentShaderSource = definition.fragmentSource;
-		var resolvedVertexSource = definition.vertexSource;
 		// Retain the existing generated-vertex fallback for definitions without a vertex source.
-		vertexShaderSource = resolvedVertexSource != null
-			? resolvedVertexSource
-			: ShaderBuilder.defaultVertexFor(fragmentShaderSource);
+		if (vertexSource == null) {
+			vertexSource = ShaderBuilder.defaultVertexFor(fragmentSource);
+		}
 
 		// Automatically compile and introspect the shader program.
-		if (!compileProgramInfo(this)) {
+		if (!compileProgramInfo(vertexSource, fragmentSource)) {
 			trace("Failed to compile shader program: " + __name);
 			return;
 		}
 
 		// Automatically discover attributes and uniforms from the compiled program.
-		introspectProgram();
+		introspectProgram(fragmentSource);
 
 		// Create VAO and set up vertex attributes using modern binding if available.
 		initializeVAO();
 	}
 
 	// ** Shader compilation and linking
-	public function compileProgramInfo(programInfo:ProgramInfo):Bool {
-		if (programInfo.isCompiled) return true;
-
-        var vertContent = ConstCharStar.fromString(programInfo.vertexShaderSource);
-        var fragContent = ConstCharStar.fromString(programInfo.fragmentShaderSource);
+	private function compileProgramInfo(vertexSource:String, fragmentSource:String):Bool {
+        var vertContent = ConstCharStar.fromString(vertexSource);
+        var fragContent = ConstCharStar.fromString(fragmentSource);
 
 		// Vertex shader
-		programInfo.vertexShader = GL.createShader(GL.VERTEX_SHADER);
-		GL.shaderSource(programInfo.vertexShader, 1, RawPointer.addressOf(vertContent), null);
-		GL.compileShader(programInfo.vertexShader);
-		if (!checkShaderCompilation(programInfo.vertexShader, "Vertex")) {
+		var vertexShader = GL.createShader(GL.VERTEX_SHADER);
+		GL.shaderSource(vertexShader, 1, RawPointer.addressOf(vertContent), null);
+		GL.compileShader(vertexShader);
+		if (!checkShaderCompilation(vertexShader, "Vertex")) {
+			GL.deleteShader(vertexShader);
 			trace("Vertex shader compilation failed!");
 			return false;
 		}
 		
 		// Fragment shader
-		programInfo.fragmentShader = GL.createShader(GL.FRAGMENT_SHADER);
-		GL.shaderSource(programInfo.fragmentShader, 1, RawPointer.addressOf(fragContent), null);
-		GL.compileShader(programInfo.fragmentShader);
-		if (!checkShaderCompilation(programInfo.fragmentShader, "Fragment")) {
+		var fragmentShader = GL.createShader(GL.FRAGMENT_SHADER);
+		GL.shaderSource(fragmentShader, 1, RawPointer.addressOf(fragContent), null);
+		GL.compileShader(fragmentShader);
+		if (!checkShaderCompilation(fragmentShader, "Fragment")) {
+			GL.deleteShader(vertexShader);
+			GL.deleteShader(fragmentShader);
 			trace("Fragment shader compilation failed!");
 			return false;
 		}
 
 		// Create and link program
-		programInfo.program = GL.createProgram();
+		program = GL.createProgram();
 		
-		GL.attachShader(programInfo.program, programInfo.vertexShader);
-		GL.attachShader(programInfo.program, programInfo.fragmentShader);
-		GL.linkProgram(programInfo.program);
+		GL.attachShader(program, vertexShader);
+		GL.attachShader(program, fragmentShader);
+		GL.linkProgram(program);
 		
 		// Check program linking
-		if (!checkProgramLinking(programInfo.program)) {
+		var linked = checkProgramLinking(program);
+		GL.deleteShader(vertexShader);
+		GL.deleteShader(fragmentShader);
+		if (!linked) {
+			GL.deleteProgram(program);
+			program = 0;
 			return false;
 		}
 		
-		programInfo.isCompiled = true;
 		return true;
 	}
 
@@ -361,8 +352,8 @@ class ProgramInfo {
 	}
 	
 	// ** Automatically discover attributes and uniforms from compiled shader program
-	private function introspectProgram():Void {
-		if (!isCompiled) {
+	private function introspectProgram(fragmentSource:String):Void {
+		if (program == 0) {
 			trace("Warning: Cannot introspect program that is not compiled");
 			return;
 		}
@@ -376,7 +367,7 @@ class ProgramInfo {
 		introspectAttributes();
 		
 		// Introspect active uniforms  
-		introspectUniforms();
+		introspectUniforms(fragmentSource);
 
 		trace("Introspection complete!");
 	}
@@ -455,7 +446,7 @@ class ProgramInfo {
 	}
 	
 	// ** Discover all active uniforms
-	private function introspectUniforms():Void {
+	private function introspectUniforms(fragmentSource:String):Void {
 		// Get number of active uniforms.
 		var activeUniforms:Int = 0;
 		untyped __cpp__("glGetProgramiv({0}, GL_ACTIVE_UNIFORMS, &{1})", program, activeUniforms);
@@ -467,7 +458,7 @@ class ProgramInfo {
 
 		// Rebuild runtime collections in case introspection is repeated.
 		uniforms = [];
-		textures = [];
+		var samplers:Array<UniformInfo> = [];
 
 		for (i in 0...activeUniforms) {
 			var nameLength:Int = 0;
@@ -501,36 +492,47 @@ class ProgramInfo {
 			setUniformAt(DataShader.getUniformId(canonicalName), uniformData);
 
 			if (isSampler) {
-				textures.push(uniformData);
+				samplers.push(uniformData);
 			}
 		}
 
 		// Assign texture units in shader declaration order, not driver enumeration order.
-		if (fragmentShaderSource != null && textures.length > 1) {
-			textures.sort(function(a, b) {
-				var posA = fragmentShaderSource.indexOf(a.name);
-				var posB = fragmentShaderSource.indexOf(b.name);
+		if (fragmentSource != null && samplers.length > 1) {
+			samplers.sort(function(a, b) {
+				var posA = fragmentSource.indexOf(a.name);
+				var posB = fragmentSource.indexOf(b.name);
 				if (posA < 0) posA = 0x7fffffff;
 				if (posB < 0) posB = 0x7fffffff;
 				return posA - posB;
 			});
 		}
 
-		for (i in 0...textures.length) {
-			var sampler = textures[i];
-			sampler.setter = createTextureSetter((sampler.location : UniformLocation), i);
+		for (i in 0...samplers.length) {
+			var sampler = samplers[i];
+			sampler.textureUnit = i;
+			sampler.setter = createTextureSetter(i);
 		}
 	}
 
-	private function createTextureSetter(location:UniformLocation, textureUnit:Int):Dynamic {
-		return function(value:Dynamic):Void {
-			var texture:Texture = cast value;
+	public function initializeSamplerUnits():Void {
+		if (__samplerUnitsInitialized) return;
+
+		for (uniform in uniforms) {
+			if (uniform != null && uniform.textureUnit != null) {
+				GL.uniform1i((uniform.location : UniformLocation), uniform.textureUnit);
+			}
+		}
+		__samplerUnitsInitialized = true;
+	}
+
+	private function createTextureSetter(textureUnit:Int):Texture->Void {
+		return function(value:Texture):Void {
+			var texture = value;
 			if (texture == null) {
 				throw "Texture uniform has no texture value";
 			}
 			GL.activeTexture(GL.TEXTURE0 + textureUnit);
 			GL.bindTexture(texture.target, texture.id);
-			GL.uniform1i(location, textureUnit);
 		};
 	}
 
@@ -577,48 +579,46 @@ class ProgramInfo {
 	}
 	
 	// ** Individual setter function factories
-	private function floatSetter(location:UniformLocation):Dynamic {
-		return function(value:Dynamic):Void {
-			var floatValue:Float = cast value;
-			GL.uniform1f(location, floatValue);
+	private function floatSetter(location:UniformLocation):Float->Void {
+		return function(value:Float):Void {
+			GL.uniform1f(location, value);
 		};
 	}
 	
-	private function intSetter(location:UniformLocation):Dynamic {
-		return function(value:Dynamic):Void {
-			var intValue:Int = cast value;
-			GL.uniform1i(location, intValue);
+	private function intSetter(location:UniformLocation):Int->Void {
+		return function(value:Int):Void {
+			GL.uniform1i(location, value);
 		};
 	}
 	
-	private function floatVec2Setter(location:UniformLocation):Dynamic {
-		return function(value:Dynamic):Void {
-			var vec2Data:Array<Float> = cast value;
+	private function floatVec2Setter(location:UniformLocation):Array<Float>->Void {
+		return function(value:Array<Float>):Void {
+			var vec2Data = value;
 			if (vec2Data.length >= 2) {
 				untyped __cpp__("glUniform2f({0}, {1}, {2})", location, vec2Data[0], vec2Data[1]);
 			}
 		};
 	}
 	
-	private function floatVec3Setter(location:UniformLocation):Dynamic {
-		return function(value:Dynamic):Void {
-			var vec3Data:Array<Float> = cast value;
+	private function floatVec3Setter(location:UniformLocation):Array<Float>->Void {
+		return function(value:Array<Float>):Void {
+			var vec3Data = value;
 			if (vec3Data.length >= 3) {
 				untyped __cpp__("glUniform3f({0}, {1}, {2}, {3})", location, vec3Data[0], vec3Data[1], vec3Data[2]);
 			}
 		};
 	}
 	
-	private function floatVec4Setter(location:UniformLocation):Dynamic {
-		return function(value:Dynamic):Void {
-			var vec4Data:Array<Float> = cast value;
+	private function floatVec4Setter(location:UniformLocation):Array<Float>->Void {
+		return function(value:Array<Float>):Void {
+			var vec4Data = value;
 			if (vec4Data.length >= 4) {
 				untyped __cpp__("glUniform4f({0}, {1}, {2}, {3}, {4})", location, vec4Data[0], vec4Data[1], vec4Data[2], vec4Data[3]);
 			}
 		};
 	}
 	
-	private function floatMat4Setter(location:UniformLocation):Dynamic {
+	private function floatMat4Setter(location:UniformLocation):Array<Float>->Void {
 		return function(value:Array<Float>):Void {
 			untyped __cpp__("
 				float matData[16];
@@ -630,16 +630,15 @@ class ProgramInfo {
 		};
 	}
 	
-	private function sampler2DSetter(location:UniformLocation):Dynamic {
-		return function(value:Dynamic):Void {
-			var textureSlot:Int = cast value;
-			GL.uniform1i(location, textureSlot);
+	private function sampler2DSetter(location:UniformLocation):Int->Void {
+		return function(value:Int):Void {
+			GL.uniform1i(location, value);
 		};
 	}
 	
-	private function floatMat2Setter(location:UniformLocation):Dynamic {
-		return function(value:Dynamic):Void {
-			var matrixData:Array<Float> = cast value;
+	private function floatMat2Setter(location:UniformLocation):Array<Float>->Void {
+		return function(value:Array<Float>):Void {
+			var matrixData = value;
 			// Create a copy to ensure proper memory layout
 			var matrixArray = new Array<Float>();
 			for (i in 0...4) {
@@ -656,9 +655,9 @@ class ProgramInfo {
 		};
 	}
 	
-	private function floatMat3Setter(location:UniformLocation):Dynamic {
-		return function(value:Dynamic):Void {
-			var matrixData:Array<Float> = cast value;
+	private function floatMat3Setter(location:UniformLocation):Array<Float>->Void {
+		return function(value:Array<Float>):Void {
+			var matrixData = value;
 			// Create a copy to ensure proper memory layout
 			var matrixArray = new Array<Float>();
 			for (i in 0...9) {
@@ -675,71 +674,69 @@ class ProgramInfo {
 		};
 	}
 	
-	private function intVec2Setter(location:UniformLocation):Dynamic {
-		return function(value:Dynamic):Void {
-			var vec2Data:Array<Int> = cast value;
+	private function intVec2Setter(location:UniformLocation):Array<Int>->Void {
+		return function(value:Array<Int>):Void {
+			var vec2Data = value;
 			if (vec2Data.length >= 2) {
 				untyped __cpp__("glUniform2i({0}, {1}, {2})", location, vec2Data[0], vec2Data[1]);
 			}
 		};
 	}
 	
-	private function intVec3Setter(location:UniformLocation):Dynamic {
-		return function(value:Dynamic):Void {
-			var vec3Data:Array<Int> = cast value;
+	private function intVec3Setter(location:UniformLocation):Array<Int>->Void {
+		return function(value:Array<Int>):Void {
+			var vec3Data = value;
 			if (vec3Data.length >= 3) {
 				untyped __cpp__("glUniform3i({0}, {1}, {2}, {3})", location, vec3Data[0], vec3Data[1], vec3Data[2]);
 			}
 		};
 	}
 	
-	private function intVec4Setter(location:UniformLocation):Dynamic {
-		return function(value:Dynamic):Void {
-			var vec4Data:Array<Int> = cast value;
+	private function intVec4Setter(location:UniformLocation):Array<Int>->Void {
+		return function(value:Array<Int>):Void {
+			var vec4Data = value;
 			if (vec4Data.length >= 4) {
 				untyped __cpp__("glUniform4i({0}, {1}, {2}, {3}, {4})", location, vec4Data[0], vec4Data[1], vec4Data[2], vec4Data[3]);
 			}
 		};
 	}
 	
-	private function boolSetter(location:UniformLocation):Dynamic {
-		return function(value:Dynamic):Void {
-			var boolValue:Bool = cast value;
-			GL.uniform1i(location, boolValue ? 1 : 0);
+	private function boolSetter(location:UniformLocation):Bool->Void {
+		return function(value:Bool):Void {
+			GL.uniform1i(location, value ? 1 : 0);
 		};
 	}
 	
-	private function boolVec2Setter(location:UniformLocation):Dynamic {
-		return function(value:Dynamic):Void {
-			var vec2Data:Array<Bool> = cast value;
+	private function boolVec2Setter(location:UniformLocation):Array<Bool>->Void {
+		return function(value:Array<Bool>):Void {
+			var vec2Data = value;
 			if (vec2Data.length >= 2) {
 				untyped __cpp__("glUniform2i({0}, {1}, {2})", location, vec2Data[0] ? 1 : 0, vec2Data[1] ? 1 : 0);
 			}
 		};
 	}
 	
-	private function boolVec3Setter(location:UniformLocation):Dynamic {
-		return function(value:Dynamic):Void {
-			var vec3Data:Array<Bool> = cast value;
+	private function boolVec3Setter(location:UniformLocation):Array<Bool>->Void {
+		return function(value:Array<Bool>):Void {
+			var vec3Data = value;
 			if (vec3Data.length >= 3) {
 				untyped __cpp__("glUniform3i({0}, {1}, {2}, {3})", location, vec3Data[0] ? 1 : 0, vec3Data[1] ? 1 : 0, vec3Data[2] ? 1 : 0);
 			}
 		};
 	}
 	
-	private function boolVec4Setter(location:UniformLocation):Dynamic {
-		return function(value:Dynamic):Void {
-			var vec4Data:Array<Bool> = cast value;
+	private function boolVec4Setter(location:UniformLocation):Array<Bool>->Void {
+		return function(value:Array<Bool>):Void {
+			var vec4Data = value;
 			if (vec4Data.length >= 4) {
 				untyped __cpp__("glUniform4i({0}, {1}, {2}, {3}, {4})", location, vec4Data[0] ? 1 : 0, vec4Data[1] ? 1 : 0, vec4Data[2] ? 1 : 0, vec4Data[3] ? 1 : 0);
 			}
 		};
 	}
 	
-	private function samplerCubeSetter(location:UniformLocation):Dynamic {
-		return function(value:Dynamic):Void {
-			var textureSlot:Int = cast value;
-			GL.uniform1i(location, textureSlot);
+	private function samplerCubeSetter(location:UniformLocation):Int->Void {
+		return function(value:Int):Void {
+			GL.uniform1i(location, value);
 		};
 	}
 	
@@ -776,18 +773,13 @@ class ProgramInfo {
 			vao = 0;
 		}
 
-		if (isCompiled) {
-			if (vertexShader != 0) GL.deleteShader(vertexShader);
-			if (fragmentShader != 0) GL.deleteShader(fragmentShader);
-		}
-
 		// Delete program
 		if (program != 0) {	
 			GL.deleteProgram(program);
 			program = 0;
 		}
 
-		isCompiled = false;
+		__samplerUnitsInitialized = false;
 	}
 	
 	// ** Getters and setters.
@@ -797,6 +789,10 @@ class ProgramInfo {
 	}
 
 	private function get_textureCount():Int {
-		return textures.length;
+		var count = 0;
+		for (uniform in uniforms) {
+			if (uniform != null && uniform.textureUnit != null) count++;
+		}
+		return count;
 	}
 }

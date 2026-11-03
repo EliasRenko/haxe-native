@@ -10,6 +10,6 @@ typedef Program               = native.ProgramInfo.Program;
 typedef Shader                = native.ProgramInfo.Shader;
 typedef AttributeFormat       = native.ProgramInfo.AttributeFormat;
 typedef UniformFormat         = native.ProgramInfo.UniformFormat;
-typedef Attribute             = native.ProgramInfo.Attribute;
+typedef AttributeInfo         = native.ProgramInfo.AttributeInfo;
 typedef UniformInfo           = native.ProgramInfo.UniformInfo;
 #end

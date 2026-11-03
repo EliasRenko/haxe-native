@@ -87,6 +87,7 @@ class Renderer {
         // Use the program
         if (displayObject.programInfo.program != currentProgram) {
             GL.useProgram(displayObject.programInfo.program);
+            displayObject.programInfo.initializeSamplerUnits();
             currentProgram = displayObject.programInfo.program;
         }
 
@@ -491,9 +492,9 @@ class Renderer {
             return;
         }
         GL.useProgram(postProcessShader.program);
-        framebuffer.bindColorTexture(0);
+        postProcessShader.initializeSamplerUnits();
         var uniformInfo = postProcessShader.getUniform("uScreenTexture");
-        if (uniformInfo != null) uniformInfo.setter(0);
+        if (uniformInfo != null) uniformInfo.setter(framebuffer.colorTexture);
         GL.bindVertexArray(__fullscreenQuadVAO);
         GL.drawElements(GL.TRIANGLES, 6, GL.UNSIGNED_INT, 0);
         GL.bindVertexArray(0);
