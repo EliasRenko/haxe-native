@@ -21,7 +21,7 @@ class Image extends DisplayObject {
 	public var originY(get, set):Float;
 	public var x(get, set):Float;
 	public var y(get, set):Float;
-	public var texture:Texture;
+	public var texture(get, set):Texture;
 
 	// Privates
 	private var __angle:Float = 0;
@@ -30,6 +30,7 @@ class Image extends DisplayObject {
 	private var __originX:Float = 0;
 	private var __originY:Float = 0;
 	private var transform:Transform = new Transform();
+	private var __texture:Texture;
 
 	public function new(renderer:Renderer, texture:Texture) {
 		__width = texture.width;
@@ -112,10 +113,7 @@ class Image extends DisplayObject {
 		// 5. Set the uniform values for the shader program
 		renderer.renderUniforms(programInfo, this);
 
-		// 6. Set the textures for the shader program
-		renderer.bindTexture(texture.id, 0);
-
-		// 7. Draw the object using the specified mode and count
+		// 6. Draw the object using the specified mode and count
 		renderer.drawElements(mode, indices.length);
 	}
 
@@ -124,6 +122,18 @@ class Image extends DisplayObject {
 	}
 
 	//** Getters and setters.
+
+	private function get_texture():Texture {
+		return __texture;
+	}
+
+	private function set_texture(value:Texture):Texture {
+		__texture = value;
+		if (value != null) {
+			shader.setUniform("uTexture", value);
+		}
+		return value;
+	}
 	
 	private function set_angle(value:Float):Float {
 		__angle = (value %= 360) >= 0 ? value : (value + 360);

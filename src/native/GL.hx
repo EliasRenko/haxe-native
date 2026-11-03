@@ -92,6 +92,9 @@ extern class GL {
     @:native("glDepthFunc")
     static function glDepthFunc(func:Int):Void;
 
+    @:native("glDepthMask")
+    static function glDepthMask(enabled:Bool):Void;
+
     @:native("glViewport")
     static function viewport(x:Int, y:Int, width:Int, height:Int):Void;
 
@@ -168,8 +171,9 @@ extern class GL {
     @:native("glEnableVertexAttribArray")
     static function enableVertexAttribArray(index:GlUInt):Void;
 
-    @:native("glVertexAttribPointer")
-    static function vertexAttribPointer(index:GlUInt, size:Int, type:Int, normalized:Bool, stride:GlSizeI, pointer:RawConstPointer<Void>):Void;
+    static inline function vertexAttribPointer(index:GlUInt, size:Int, type:Int, normalized:Bool, stride:GlSizeI, offset:Int):Void {
+        untyped __cpp__("glVertexAttribPointer({0}, {1}, {2}, {3} ? GL_TRUE : GL_FALSE, {4}, (void*)(intptr_t){5})", index, size, type, normalized, stride, offset);
+    }
 
     @:native("glGenBuffers")
     static function genBuffers(n:GlSizeI, buffers:RawPointer<GlUInt>):Void;

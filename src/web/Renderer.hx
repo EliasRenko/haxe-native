@@ -104,7 +104,6 @@ class Renderer {
 
         // Set uniforms and textures
         __renderUniforms(displayObject.programInfo, displayObject.shader);
-        __renderTextures(displayObject.programInfo, displayObject);
 
         // Draw
         if (displayObject.__indicesToRender == 0) {
@@ -167,27 +166,13 @@ class Renderer {
                 trace("Warning: Uniform '" + uniform.name + "' not found in shader");
                 continue;
             }
+
             uniformInfo.setter(uniform.value);
         }
     }
 
     public function renderUniforms(programInfo:ProgramInfo, displayObject:DisplayObject):Void {
         __renderUniforms(programInfo, displayObject.shader);
-    }
-
-    private function __renderTextures(programInfo:ProgramInfo, drawable:DisplayObject):Void {
-        for (i in 0...programInfo.textures.length) {
-            GL.activeTexture(GL.TEXTURE0 + i);
-
-            if (i < drawable.textures.length) {
-                var texture = drawable.textures[i];
-                var textureId = texture != null ? texture.id : 0;
-                GL.bindTexture(GL.TEXTURE_2D, textureId);
-            }
-
-            GL.blendFunc(drawable.blendFactors.source, drawable.blendFactors.destination);
-            programInfo.textures[i].setter(i);
-        }
     }
 
     // -------------------------------------------------------------------------

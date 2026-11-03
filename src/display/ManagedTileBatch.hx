@@ -21,7 +21,7 @@ class ManagedTileBatch extends DisplayObject {
     public static inline var MAX_TILES:Int = 1000; // Maximum tiles supported
 
     public var atlasRegions:Map<Int, AtlasRegion> = new Map(); // regionId -> AtlasRegion
-    public var texture:Texture; // The atlas texture for all tiles
+    public var texture(get, set):Texture; // The atlas texture for all tiles
     public var debugName:String = "";
     public var needsBufferUpdate:Bool = true;
     public var uniforms:StringMap<Dynamic> = new StringMap<Dynamic>();
@@ -31,6 +31,7 @@ class ManagedTileBatch extends DisplayObject {
     private var __matrix:Matrix = new Matrix();
     private var __verticesToRender:Int = 0;
 	private var __indicesToRender:UInt = 0;
+	private var __texture:Texture;
 
     private var tiles:Map<Int, Tile> = new Map(); // tileId -> TileInstance
     private var __nextTileId:Int = 1; // Auto-incrementing tile ID
@@ -70,6 +71,18 @@ class ManagedTileBatch extends DisplayObject {
 
     private function assignShader():data.Shader {
         return new TexturedShader();
+    }
+
+    private function get_texture():Texture {
+        return __texture;
+    }
+
+    private function set_texture(value:Texture):Texture {
+        __texture = value;
+        if (value != null) {
+            shader.setUniform("uTexture", value);
+        }
+        return value;
     }
 
     public function setTexture(value:Texture):Void {
@@ -405,15 +418,10 @@ class ManagedTileBatch extends DisplayObject {
 		// 4. Set the blending factors for transparency
 		renderer.setBlendFunction(blending.source, blending.destination);
 
-		// 5. Set the uniform values for the shader program
-		//renderer.renderUniforms(programInfo, this);
-
+		// 5. Set the uniform values, including textures, for the shader program
         renderer.renderUniforms(programInfo, this);
 
-		// 6. Set the textures for the shader program
-		renderer.bindTexture(texture.id, 0);
-
-		// 7. Draw the object using the specified mode and count
+		// 6. Draw the object using the specified mode and count
 		renderer.drawElements(mode, __indicesToRender);
         needsBufferUpdate = false;
     }

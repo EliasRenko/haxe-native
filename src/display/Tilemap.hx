@@ -18,11 +18,12 @@ class Tilemap extends DisplayObject {
 	public static inline var MAX_TILES:Int = 1000;
 
 	public var tileBatch(default, null):TileBatch;
-	public var texture:Texture;
+	public var texture(get, set):Texture;
 
 	private var __matrix:Matrix = new Matrix();
 	private var __verticesToRender:Int = 0;
 	private var __indicesToRender:UInt = 0;
+	private var __texture:Texture;
 
 	public function new(renderer:Renderer, texture:Texture) {
 		super(renderer, new Vertices([]), generateIndices(MAX_TILES));
@@ -41,6 +42,18 @@ class Tilemap extends DisplayObject {
 
 	private function assignShader():data.Shader {
 		return new TexturedShader();
+	}
+
+	private function get_texture():Texture {
+		return __texture;
+	}
+
+	private function set_texture(value:Texture):Texture {
+		__texture = value;
+		if (value != null) {
+			shader.setUniform("uTexture", value);
+		}
+		return value;
 	}
 
 	// -------------------------------------------------------------------------
@@ -307,7 +320,6 @@ class Tilemap extends DisplayObject {
 
 		renderer.renderUniforms(programInfo, this);
 
-		renderer.bindTexture(texture.id, 0);
 		renderer.drawElements(mode, __indicesToRender);
 	}
 }

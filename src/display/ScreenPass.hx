@@ -16,7 +16,9 @@ class ScreenPass extends DisplayObject {
     public var framebufferId:Null<Int> = null;
     public var width:Int;
     public var height:Int;
-    public var texture:Texture;
+    public var texture(get, set):Texture;
+
+    private var __texture:Texture;
 
     public function new(renderer:Renderer, width:Int, height:Int) {
         this.width = width;
@@ -32,6 +34,7 @@ class ScreenPass extends DisplayObject {
         super(renderer, vertices, indices);
 
         framebufferId = renderer.createFramebuffer(width, height);
+        texture = renderer.framebuffers.get(framebufferId).colorTexture;
 
         mode = GL.TRIANGLES;
 
@@ -46,6 +49,18 @@ class ScreenPass extends DisplayObject {
     private function assignShader():Shader {
 		return new PostProccessingShader();
 	}
+
+    private function get_texture():Texture {
+        return __texture;
+    }
+
+    private function set_texture(value:Texture):Texture {
+        __texture = value;
+        if (value != null) {
+            shader.setUniform("uScreenTexture", value);
+        }
+        return value;
+    }
 
     public function bindFramebuffer(renderer:Renderer):Void {
         renderer.bindFramebuffer(framebufferId);
@@ -68,6 +83,7 @@ class ScreenPass extends DisplayObject {
         }
 
         framebufferId = renderer.createFramebuffer(width, height);
+        texture = renderer.framebuffers.get(framebufferId).colorTexture;
     }
 
     public function dispose(renderer:Renderer):Void {
@@ -82,16 +98,6 @@ class ScreenPass extends DisplayObject {
 	}
 
     public function render(renderer:Renderer):Void {
-        //uniforms.set("uScreenTexture", 0);
-
-        var framebuffer = renderer.framebuffers.get(framebufferId);
-
-        if (framebuffer.colorTexture != null) {
-            texture = framebuffer.colorTexture;
-        } else {
-            texture = null;
-        }
-
         updateBuffers(renderer);
 
 		// 1. Get the program info for the current shader program
@@ -110,11 +116,7 @@ class ScreenPass extends DisplayObject {
 		// 5. Set the uniform values for the shader program
 		renderer.renderUniforms(programInfo, this);
 
-		// 6. Set the textures for the shader program
-        //renderer.assignTexture(programInfoName, 0);
-        renderer.bindTexture(texture.id, 0);
-
-		// 7. Draw the object using the specified mode and count
+		// 6. Draw the object using the specified mode and count
 		renderer.drawElements(mode, indices.length);
 
         //super.render(renderer);

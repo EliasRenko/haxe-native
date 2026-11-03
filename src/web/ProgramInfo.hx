@@ -4,6 +4,7 @@ package web;
 import web.GL;
 import ShaderBuilder;
 import data.Shader as DataShader;
+import Texture;
 
 // -------------------------------------------------------------------------
 // Type aliases — keep the same names as the native ProgramInfo so shared
@@ -266,29 +267,22 @@ class ProgramInfo {
 
             trace('Uniform $i: "$uName" loc=$location type=$glType');
 
-            var setter = createUniformSetter(format, location);
+            var isSampler = format == UniformFormat.Sampler2D || format == UniformFormat.SamplerCube;
             var uniformData:Uniform = {
                 name:     uName,
                 format:   format,
-                setter:   setter,
+                setter:   isSampler ? null : createUniformSetter(format, location),
                 location: location
             };
 
             setUniformAt(DataShader.getUniformId(canonicalUniformName(uName)), uniformData);
 
-            if (format == UniformFormat.Sampler2D) {
-                textures.push({
-                    name:     uName,
-                    format:   format,
-                    setter:   function(slot:Int) GL.uniform1i(location, slot),
-                    location: location
-                });
+            if (isSampler) {
+                textures.push(uniformData);
             }
         }
 
-        // TODO
-        // getActiveUniform order is implementation-defined; sort by declaration
-        // order in the fragment shader so textures[i] always matches drawable.textures[i].
+        // Assign texture units in shader declaration order, not driver enumeration order.
         if (fragmentShaderSource != null && textures.length > 1) {
             textures.sort(function(a, b) {
                 var posA = fragmentShaderSource.indexOf(a.name);
@@ -298,6 +292,23 @@ class ProgramInfo {
                 return posA - posB;
             });
         }
+
+        for (i in 0...textures.length) {
+            var sampler = textures[i];
+            sampler.setter = createTextureSetter(sampler.location, i);
+        }
+    }
+
+    private function createTextureSetter(location:UniformLocation, textureUnit:Int):Dynamic {
+        return function(value:Dynamic):Void {
+            var texture:Texture = cast value;
+            if (texture == null) {
+                throw "Texture uniform has no texture value";
+            }
+            GL.activeTexture(GL.TEXTURE0 + textureUnit);
+            GL.bindTexture(texture.target, texture.id);
+            GL.uniform1i(location, textureUnit);
+        };
     }
 
     // -------------------------------------------------------------------------

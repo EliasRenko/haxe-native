@@ -40,8 +40,8 @@ class Renderer {
 
     // Privates
     private var __app:App;
-    private var __currentDepthTest:Bool = true;
-    private var __currentDepthWrite:Bool = true;
+    private var __currentDepthTest:Bool = false;
+    private var __currentDepthWrite:Bool = false;
     private var __currentBlendMode:Bool = false;
     private var __currentBlendSource:Int = -1;
     private var __currentBlendDestination:Int = -1;
@@ -50,6 +50,7 @@ class Renderer {
 
     private var buffers:SlotArray<Buffers> = new SlotArray<Buffers>(32);
     public var framebuffers:SlotArray<Framebuffer> = new SlotArray<Framebuffer>(8);
+    private var __framebufferStack:Array<Int> = [];
 
     public var postProcessDisplayObject:ScreenPass = null;
     private var __fullscreenQuadVAO:Int = 0;
@@ -62,16 +63,14 @@ class Renderer {
     public function new(app:App) {
         __app = app;
 
-        setDepthTest(true);
-        setDepthWrite(true);
-        setBlendMode(true);
-
-        // ---
-
 		for (definition in definitions) {
 			var programInfo = new ProgramInfo(definition);
 			__programInfos.push(programInfo);
 		}
+
+        setDepthTest(true);
+        setDepthWrite(true);
+        setBlendMode(true);
     }
     
     public function render():Void {
@@ -94,14 +93,16 @@ class Renderer {
     }
 
     public function getProgramInfo(index:Int):ProgramInfo {
+        if (index < 0 || index >= __programInfos.length) {
+            throw "ProgramInfo index out of range: " + index;
+        }
         return __programInfos[index];
     }
 
 	public function bindBuffers(bufferId:Int, stride:Int):Void {
 		var buffersObjs = buffers.get(bufferId);
 		if (buffersObjs == null) {
-			trace("Error: Buffers not found for bufferId: " + bufferId);
-			return;
+			throw "Buffers not found for bufferId: " + bufferId;
 		}
 
 		// Also bind using modern ARB_vertex_attrib_binding
@@ -141,15 +142,8 @@ class Renderer {
 
                 continue;
             }
-            
-            uniformInfo.setter(uniform.value);
-        }
-    }
 
-    public function bindTexture(textureId:Int, index:Int):Void {
-        if (textureId != 0) {
-            GL.activeTexture(GL.TEXTURE0 + index);
-            GL.bindTexture(GL.TEXTURE_2D, textureId);
+            uniformInfo.setter(uniform.value);
         }
     }
 
@@ -174,6 +168,10 @@ class Renderer {
     // ===== RENDERING PIPELINE METHODS =====
 
     public function createBuffers(programInfoIndex:Int):Int {
+        if (programInfoIndex < 0 || programInfoIndex >= __programInfos.length) {
+            throw "ProgramInfo index out of range: " + programInfoIndex;
+        }
+
         var vbo:UInt32 = 0;
         var ebo:UInt32 = 0;
 
@@ -189,7 +187,7 @@ class Renderer {
 
     // Upload vertex data to GPU
     public function uploadData(bufferId:Int, vertices:Vertices, indices:Indices):Void {
-        var bufferInfo = buffers.get(bufferId);
+        var bufferInfo = getBuffersOrThrow(bufferId);
 
         GL.bindVertexArray(bufferInfo.programInfo.vao);
         GL.bindBuffer(GL.ARRAY_BUFFER, bufferInfo.vbo);
@@ -204,7 +202,7 @@ class Renderer {
     }
 
     public function orphanAndUploadData(bufferId:Int, vertices:Vertices, indices:Indices, maxBufferSize:Int):Void {
-        var bufferInfo = buffers.get(bufferId);
+        var bufferInfo = getBuffersOrThrow(bufferId);
 
         GL.bindVertexArray(bufferInfo.programInfo.vao);
         GL.bindBuffer(GL.ARRAY_BUFFER, bufferInfo.vbo);
@@ -227,6 +225,14 @@ class Renderer {
         GL.deleteBuffers(1, RawPointer.addressOf(buffersObj.ebo));
 
         buffers.remove(bufferId);
+    }
+
+    private function getBuffersOrThrow(bufferId:Int):Buffers {
+        var bufferInfo = buffers.get(bufferId);
+        if (bufferInfo == null) {
+            throw "Buffers not found for bufferId: " + bufferId;
+        }
+        return bufferInfo;
     }
 
     /**
@@ -341,12 +347,30 @@ class Renderer {
         setDepthWrite(true);
         setBlendMode(false);
 
-        postProcessDisplayObject.dispose(this);
-        postProcessDisplayObject = null;
+        while (__framebufferStack.length > 0) {
+            unbindFramebuffer(__framebufferStack[__framebufferStack.length - 1]);
+        }
 
-        __programInfos = [];
+        if (postProcessDisplayObject != null) {
+            postProcessDisplayObject.dispose(this);
+            postProcessDisplayObject.release(this);
+            postProcessDisplayObject = null;
+        }
+
+        for (framebuffer in framebuffers) {
+            framebuffer.dispose();
+        }
         framebuffers.clear();
+
+        for (buffer in buffers) {
+            deleteBuffers(buffers.indexOf(buffer));
+        }
         buffers.clear();
+
+        for (programInfo in __programInfos) {
+            programInfo.dispose();
+        }
+        __programInfos = [];
         
         trace("Renderer cleanup complete");
     }
@@ -367,8 +391,7 @@ class Renderer {
     
     public function setDepthWrite(enabled:Bool):Void {
         if (__currentDepthWrite != enabled) {
-            // For now, skip depth mask as it's not in GL.hx yet
-            // GL.depthMask(enabled);
+            GL.glDepthMask(enabled);
             __currentDepthWrite = enabled;
         }
     }
@@ -395,6 +418,10 @@ class Renderer {
     }
 	
 	public function initializePostProcessing():Void {
+        if (postProcessDisplayObject != null) {
+            return;
+        }
+
         var size = app.window.getWindowSizeInPixels();
 
         //var vertShader = app.resources.getText("shaders/postprocess.vert");
@@ -416,25 +443,36 @@ class Renderer {
     }
 
     public function bindFramebuffer(frameBufferId:Int):Void {
-
         var framebuffer = framebuffers.get(frameBufferId);
-        if (framebuffer != null) {
-            framebuffer.bind();
-        } else {
-            trace("Error: Framebuffer with ID " + frameBufferId + " not found.");
+        if (framebuffer == null) {
+            throw "Framebuffer with ID " + frameBufferId + " not found";
         }
+        framebuffer.bind();
+        __framebufferStack.push(frameBufferId);
 	}
 	
 	public function unbindFramebuffer(frameBufferId:Int):Void {
-        var framebuffer = framebuffers.get(frameBufferId);
-        if (framebuffer != null) {
-            framebuffer.unbind();
-        } else {
-            trace("Error: Framebuffer with ID " + frameBufferId + " not found.");
+        if (__framebufferStack.length == 0
+            || __framebufferStack[__framebufferStack.length - 1] != frameBufferId) {
+            throw "Framebuffer " + frameBufferId + " is not the active render target";
         }
 
-        var size = app.window.getWindowSizeInPixels();
-		setViewport(size.width, size.height);
+        var previousFramebuffer:Framebuffer = null;
+        if (__framebufferStack.length > 1) {
+            previousFramebuffer = framebuffers.get(__framebufferStack[__framebufferStack.length - 2]);
+            if (previousFramebuffer == null) {
+                throw "Active framebuffer no longer exists";
+            }
+        }
+
+        __framebufferStack.pop();
+        if (previousFramebuffer != null) {
+            previousFramebuffer.bind();
+        } else {
+            GL.bindFramebuffer(GL.FRAMEBUFFER, 0);
+            var size = app.window.getWindowSizeInPixels();
+            setViewport(size.width, size.height);
+        }
 	}
 	
     private function setViewport(width:Int, height:Int):Void {
@@ -443,18 +481,30 @@ class Renderer {
 
     public function resize(width:Int, height:Int):Void {
         if (width <= 0 || height <= 0) return; // Ignore degenerate resize (e.g. window minimised)
-        setViewport(width, height);
+        if (__framebufferStack.length > 0) {
+            var activeFramebuffer = framebuffers.get(__framebufferStack[__framebufferStack.length - 1]);
+            if (activeFramebuffer == null) {
+                throw "Active framebuffer no longer exists";
+            }
+            setViewport(activeFramebuffer.width, activeFramebuffer.height);
+        } else {
+            setViewport(width, height);
+        }
         
-        postProcessDisplayObject.resize(this, width, height);
+        if (postProcessDisplayObject != null) {
+            postProcessDisplayObject.resize(this, width, height);
+        }
     }
 
     public function disposeFramebuffer(frameBufferId:Int):Void {
         var framebuffer = framebuffers.get(frameBufferId);
-        if (framebuffer != null) {
-            framebuffer.dispose();
-            framebuffers.remove(frameBufferId);
-        } else {
-            trace("Error: Framebuffer with ID " + frameBufferId + " not found.");
+        if (framebuffer == null) {
+            throw "Framebuffer with ID " + frameBufferId + " not found";
         }
+        if (__framebufferStack.indexOf(frameBufferId) >= 0) {
+            throw "Cannot dispose framebuffer " + frameBufferId + " while it is bound";
+        }
+        framebuffer.dispose();
+        framebuffers.remove(frameBufferId);
     }
 }

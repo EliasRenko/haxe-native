@@ -11,7 +11,6 @@ typedef UniformLocation = GL.GlUInt;
 typedef Program = GL.GlUInt;
 typedef Shader = GL.GlUInt;
 
-// Attribute data formats
 enum AttributeFormat {
 	Float;
 	Vec2;
@@ -25,7 +24,6 @@ enum AttributeFormat {
 	UnsignedShort;
 }
 
-// Uniform data formats
 enum UniformFormat {
 	Float;
 	Vec2;
@@ -85,7 +83,6 @@ class ProgramInfo {
 	// ** Rendering properties
 	public var name(get, null):String;
 	public var vertexStride:UInt; // Total bytes per vertex (interleaved layout)
-	public var textureCount(get, null):Int;
 	public var isCompiled:Bool = false;
 	
 	// ** VAO for shared vertex attribute configuration (modern OpenGL)
@@ -272,14 +269,9 @@ class ProgramInfo {
 			// Enable the vertex attribute array
 			GL.enableVertexAttribArray(attr.location);
 			// Set up the vertex attribute pointer  
-			vertexAttribPointer(attr.location, attr.size, getGLFormat(attr.format), false, attr.stride, attr.offset);
+			GL.vertexAttribPointer(attr.location, attr.size, getGLFormat(attr.format), false, attr.stride, attr.offset);
 		}
 	}
-
-	// TODO: Replace
-	public function vertexAttribPointer(index:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:Int):Void {
-        untyped __cpp__("glVertexAttribPointer({0}, {1}, {2}, {3} ? GL_TRUE : GL_FALSE, {4}, (void*)(intptr_t){5})", index, size, type, normalized, stride, offset);
-    }
 	
 	// ** Debug method to print vertex layout
 	public function printVertexLayout():Void {
@@ -301,27 +293,6 @@ class ProgramInfo {
 		}
 		trace("========================");
 	}
-
-	// public static function getValuesPerVertex(format:AttributeFormat):Int {
-    //     return switch (format) {
-    //         case Float: 1;
-    //         case Vec2:  2;
-    //         case Vec3:  3;
-    //         case Vec4:  4;
-    //         case _:     1;
-    //     };
-    // }
-
-    // public static function getBytesPerVertex(format:AttributeFormat):Int {
-    //     return switch (format) {
-    //         case Float | Int | UnsignedInt: 4;
-    //         case Vec2:  8;
-    //         case Vec3: 12;
-    //         case Vec4: 16;
-    //         case Short | UnsignedShort: 2;
-    //         case Byte  | UnsignedByte:  1;
-    //     };
-    // }
 
 	public static function getValuesPerVertex(format:AttributeFormat):Int {
 		return switch (format) {
@@ -407,19 +378,7 @@ class ProgramInfo {
 		// Introspect active uniforms  
 		introspectUniforms();
 
-		initializeTextures();
-		
 		trace("Introspection complete!");
-	}
-
-	private function initializeTextures():Void {
-		GL.useProgram(program);
-
-		for (i in 0...textures.length) {
-			textures[i].setter(i);
-		}
-
-		GL.useProgram(0);
 	}
 	
 	// ** Discover all active vertex attributes
@@ -528,10 +487,11 @@ class ProgramInfo {
 			var format = convertGLTypeToUniformFormat(type);
 			trace("Uniform " + i + ": '" + name + "' location=" + location + " type=" + type + " format=" + format);
 
+			var isSampler = format == UniformFormat.Sampler2D || format == UniformFormat.SamplerCube;
 			var uniformData:UniformInfo = {
 				name: name,
 				format: format,
-				setter: createUniformSetter(format, location),
+				setter: isSampler ? null : createUniformSetter(format, location),
 				location: (location : UniformLocation)
 			};
 
@@ -540,24 +500,12 @@ class ProgramInfo {
 			var canonicalName = canonicalUniformName(name);
 			setUniformAt(DataShader.getUniformId(canonicalName), uniformData);
 
-			// Texture samplers use their own ordered list and texture-unit indices;
-			// they are deliberately separate from the engine uniform index.
-			if (format == UniformFormat.Sampler2D) {
-				var samplerLocation = location;
-				textures.push({
-					name: name,
-					format: format,
-					setter: function(slot:Int) {
-						GL.uniform1i(samplerLocation, slot);
-					},
-					location: (location : UniformLocation)
-				});
+			if (isSampler) {
+				textures.push(uniformData);
 			}
 		}
 
-		// glGetActiveUniform returns samplers in implementation-defined order.
-		// Sort by occurrence in the fragment shader so textures[0] corresponds to
-		// drawable.textures[0], and so on.
+		// Assign texture units in shader declaration order, not driver enumeration order.
 		if (fragmentShaderSource != null && textures.length > 1) {
 			textures.sort(function(a, b) {
 				var posA = fragmentShaderSource.indexOf(a.name);
@@ -567,6 +515,23 @@ class ProgramInfo {
 				return posA - posB;
 			});
 		}
+
+		for (i in 0...textures.length) {
+			var sampler = textures[i];
+			sampler.setter = createTextureSetter((sampler.location : UniformLocation), i);
+		}
+	}
+
+	private function createTextureSetter(location:UniformLocation, textureUnit:Int):Dynamic {
+		return function(value:Dynamic):Void {
+			var texture:Texture = cast value;
+			if (texture == null) {
+				throw "Texture uniform has no texture value";
+			}
+			GL.activeTexture(GL.TEXTURE0 + textureUnit);
+			GL.bindTexture(texture.target, texture.id);
+			GL.uniform1i(location, textureUnit);
+		};
 	}
 
 	// ** Pre-computed uniform setter creation for optimal performance
