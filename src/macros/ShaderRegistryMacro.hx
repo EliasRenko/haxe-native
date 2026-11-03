@@ -16,6 +16,84 @@ typedef ShaderData = {
 
 class ShaderRegistryMacro {
 
+    static final DEFAULT_VERSION = "#version 330 core";
+
+    static function defaultVertexFor(fragmentSource:String):String {
+        if (fragmentSource == null || fragmentSource.length == 0) {
+            return buildMinimalVertex(DEFAULT_VERSION);
+        }
+
+        var version = extractVersion(fragmentSource);
+        var varyings = extractVaryings(fragmentSource);
+        var source = new StringBuf();
+
+        source.add(version);
+        source.add("\n\n");
+        source.add("layout (location = 0) in vec3 aPos;\n");
+        for (i in 0...varyings.length) {
+            var varying = varyings[i];
+            source.add('layout (location = ${i + 1}) in ${varying.type} ${attributeName(varying.name)};\n');
+        }
+
+        if (varyings.length > 0) {
+            source.add("\n");
+            for (varying in varyings) {
+                source.add('out ${varying.type} ${varying.name};\n');
+            }
+        }
+
+        source.add("\nuniform mat4 uMatrix;\n");
+        source.add("\nvoid main() {\n");
+        source.add("    gl_Position = uMatrix * vec4(aPos, 1.0);\n");
+        for (varying in varyings) {
+            source.add('    ${varying.name} = ${attributeName(varying.name)};\n');
+        }
+        source.add("}\n");
+
+        return source.toString();
+    }
+
+    static function attributeName(varyingName:String):String {
+        if (varyingName.length == 0) return "a";
+        return "a" + varyingName.charAt(0).toUpperCase() + varyingName.substr(1);
+    }
+
+    static function extractVersion(src:String):String {
+        for (line in src.split("\n")) {
+            var trimmed = StringTools.trim(line);
+            if (StringTools.startsWith(trimmed, "#version")) return trimmed;
+        }
+        return DEFAULT_VERSION;
+    }
+
+    static function extractVaryings(src:String):Array<{type:String, name:String}> {
+        var result:Array<{type:String, name:String}> = [];
+        var inBody = false;
+        var declaration = ~/^\s*in\s+(\w+)\s+(\w+)\s*;/;
+
+        for (line in src.split("\n")) {
+            var trimmed = StringTools.trim(line);
+            if (trimmed.indexOf("{") >= 0) {
+                inBody = true;
+                continue;
+            }
+            if (trimmed.indexOf("}") >= 0) {
+                inBody = false;
+                continue;
+            }
+            if (inBody) continue;
+
+            if (declaration.match(trimmed)) {
+                result.push({type: declaration.matched(1), name: declaration.matched(2)});
+            }
+        }
+        return result;
+    }
+
+    static function buildMinimalVertex(version:String):String {
+        return '${version}\n\nlayout (location = 0) in vec3 aPos;\n\nuniform mat4 uMatrix;\n\nvoid main() {\n    gl_Position = uMatrix * vec4(aPos, 1.0);\n}\n';
+    }
+
     public static function build(packageName:String):Array<Field> {
         var fields = Context.getBuildFields();
         var pos = Context.currentPos();
@@ -107,17 +185,24 @@ class ShaderRegistryMacro {
 
                         validateUniformDefinitions(cls);
 
+                        var fragmentSource = getMetadataString(
+                            cls,
+                            ":shaderSourceFrag"
+                        );
+                        var vertexSource = getMetadataString(
+                            cls,
+                            ":shaderSourceVert",
+                            false
+                        );
+                        if (vertexSource == null) {
+                            vertexSource = defaultVertexFor(fragmentSource);
+                        }
+
                         shaders.push({
                             id: getShaderId(cls),
                             name: className,
-                            vertexSource: getMetadataString(
-                                cls,
-                                ":shaderSourceVert"
-                            ),
-                            fragmentSource: getMetadataString(
-                                cls,
-                                ":shaderSourceFrag"
-                            )
+                            vertexSource: vertexSource,
+                            fragmentSource: fragmentSource
                         });
 
                     default:
@@ -198,7 +283,8 @@ class ShaderRegistryMacro {
 
     static function getMetadataString(
         cls:haxe.macro.Type.ClassType,
-        metadataName:String
+        metadataName:String,
+        required:Bool = true
     ):String {
         for (meta in cls.meta.get()) {
             if (meta.name != metadataName) {
@@ -226,12 +312,14 @@ class ShaderRegistryMacro {
             }
         }
 
-        Context.error(
-            '${cls.name} is missing $metadataName metadata.',
-            cls.pos
-        );
+        if (required) {
+            Context.error(
+                '${cls.name} is missing $metadataName metadata.',
+                cls.pos
+            );
+        }
 
-        return "";
+        return null;
     }
 
     static function getShaderId(

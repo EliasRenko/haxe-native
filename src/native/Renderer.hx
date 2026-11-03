@@ -9,6 +9,9 @@ import data.Indices;
 import data.Shader as DataShader;
 import data.TextureData;
 import data.Vertices;
+import display.DepthVisualizationScreenPass;
+import display.GrayscaleScreenPass;
+import display.ScanlineScreenPass;
 import display.ScreenPass;
 import ds.SlotArray;
 import GL;
@@ -88,10 +91,14 @@ class Renderer {
 
     public var postProcessDisplayObject:ScreenPass = null;
     public var usePostProcessing:Bool = false; // Toggle post-processing on/off
+    private var __screenPasses:Array<ScreenPass> = [];
+    private var __activeScreenPassIndex:Int = 0;
     private var currentProgram:Int = -1;
     private var currentVbo:Int = 0;
     private var currentEbo:Int = 0;
     
+    // ===== LIFECYCLE =====
+
     public function new(app:App) {
         __app = app;
 
@@ -114,6 +121,45 @@ class Renderer {
         __frameCount++;
     }
 
+    public function release():Void {
+        // Reset render state
+        setDepthTest(true);
+        setDepthWrite(true);
+        setBlendMode(false);
+
+        while (__framebufferStack.length > 0) {
+            unbindFramebuffer(__framebufferStack[__framebufferStack.length - 1]);
+        }
+
+        if (postProcessDisplayObject != null) {
+            for (screenPass in __screenPasses) {
+                screenPass.dispose(this);
+                screenPass.release(this);
+            }
+            __screenPasses = [];
+            postProcessDisplayObject = null;
+        }
+
+        for (framebuffer in framebuffers) {
+            disposeFramebufferResources(framebuffer, true);
+        }
+        framebuffers.clear();
+
+        for (buffer in buffers) {
+            deleteBuffers(buffers.indexOf(buffer));
+        }
+        buffers.clear();
+
+        for (programInfo in __programInfos) {
+            programInfo.dispose();
+        }
+        __programInfos = [];
+
+        __app.log.info(LogCategory.RENDERER, "Renderer cleanup complete");
+    }
+
+    // ===== PROGRAMS AND DRAWING =====
+
     public function useProgram(programInfo:ProgramInfo):Void {
         if (programInfo.program != currentProgram) {
             GL.useProgram(programInfo.program);
@@ -131,33 +177,6 @@ class Renderer {
         }
         return __programInfos[index];
     }
-
-	public function bindBuffers(bufferId:Int, stride:Int):Void {
-		var buffersObjs = buffers.get(bufferId);
-		if (buffersObjs == null) {
-			throw "Buffers not found for bufferId: " + bufferId;
-		}
-
-		// Also bind using modern ARB_vertex_attrib_binding
-		if (buffersObjs.vbo != currentVbo) {
-			GL.bindVertexBuffer(0, buffersObjs.vbo, 0, stride);
-			currentVbo = buffersObjs.vbo;
-		}
-
-		// Bind element buffer if available
-		if (buffersObjs.ebo != 0 && buffersObjs.ebo != currentEbo) {
-			GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffersObjs.ebo);
-			currentEbo = buffersObjs.ebo;
-		}
-	}
-
-	public function setBlendFunction(source:Int, destination:Int):Void {
-		if (__currentBlendSource != source || __currentBlendDestination != destination) {
-			GL.blendFunc(source, destination);
-			__currentBlendSource = source;
-			__currentBlendDestination = destination;
-		}
-	}
 
     public function renderUniforms(programInfo:ProgramInfo, shader:Null<DataShader>):Void {
         if (shader == null) return;
@@ -197,7 +216,26 @@ class Renderer {
         return programInfo;
     }
     
-    // ===== RENDERING PIPELINE METHODS =====
+    // ===== BUFFERS =====
+
+	public function bindBuffers(bufferId:Int, stride:Int):Void {
+		var buffersObjs = buffers.get(bufferId);
+		if (buffersObjs == null) {
+			throw "Buffers not found for bufferId: " + bufferId;
+		}
+
+		// Also bind using modern ARB_vertex_attrib_binding
+		if (buffersObjs.vbo != currentVbo) {
+			GL.bindVertexBuffer(0, buffersObjs.vbo, 0, stride);
+			currentVbo = buffersObjs.vbo;
+		}
+
+		// Bind element buffer if available
+		if (buffersObjs.ebo != 0 && buffersObjs.ebo != currentEbo) {
+			GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffersObjs.ebo);
+			currentEbo = buffersObjs.ebo;
+		}
+	}
 
     public function createBuffers(programInfoIndex:Int):Int {
         if (programInfoIndex < 0 || programInfoIndex >= __programInfos.length) {
@@ -267,30 +305,7 @@ class Renderer {
         return bufferInfo;
     }
 
-    /**
-     * Clear the screen and prepare for rendering
-     */
-    public function clearScreen():Void {
-        GL.glClearColor(0.1, 0.1, 0.15, 1.0); // Very dark background for 3D focus
-        GL.glClear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
-    }
-
-    /**
-     * Initialize rendering state
-     */
-    public function initializeRenderState():Void {
-        // Enable depth testing for 3D
-        // GL.glEnable(GL.DEPTH_TEST);
-        // GL.glDepthFunc(GL.LESS);
-        
-        // Disable face culling to see all faces from all angles
-        GL.glDisable(GL.CULL_FACE);
-    }
-
-    // TODO: Move to GL
-    public function vertexAttribPointer(index:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:Int):Void {
-        untyped __cpp__("glVertexAttribPointer({0}, {1}, {2}, {3} ? GL_TRUE : GL_FALSE, {4}, (void*)(intptr_t){5})", index, size, type, normalized, stride, offset);
-    }
+    // ===== TEXTURES =====
 
     /**
      * Upload TextureData to OpenGL and return Texture object
@@ -373,43 +388,41 @@ class Renderer {
         };
     }
 
-    public function release():Void {
-        // Reset render state
-        setDepthTest(true);
-        setDepthWrite(true);
-        setBlendMode(false);
+    // ===== RENDER STATE =====
 
-        while (__framebufferStack.length > 0) {
-            unbindFramebuffer(__framebufferStack[__framebufferStack.length - 1]);
-        }
-
-        if (postProcessDisplayObject != null) {
-            postProcessDisplayObject.dispose(this);
-            postProcessDisplayObject.release(this);
-            postProcessDisplayObject = null;
-        }
-
-        for (framebuffer in framebuffers) {
-            disposeFramebufferResources(framebuffer, true);
-        }
-        framebuffers.clear();
-
-        for (buffer in buffers) {
-            deleteBuffers(buffers.indexOf(buffer));
-        }
-        buffers.clear();
-
-        for (programInfo in __programInfos) {
-            programInfo.dispose();
-        }
-        __programInfos = [];
-        
-        __app.log.info(LogCategory.RENDERER, "Renderer cleanup complete");
-    }
-    
     /**
-     * Render state management methods
+     * Clear the screen and prepare for rendering
      */
+    public function clearScreen():Void {
+        GL.glClearColor(0.1, 0.1, 0.15, 1.0); // Very dark background for 3D focus
+        GL.glClear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
+    }
+
+    /**
+     * Initialize rendering state
+     */
+    public function initializeRenderState():Void {
+        // Enable depth testing for 3D
+        // GL.glEnable(GL.DEPTH_TEST);
+        // GL.glDepthFunc(GL.LESS);
+
+        // Disable face culling to see all faces from all angles
+        GL.glDisable(GL.CULL_FACE);
+    }
+
+    // TODO: Move to GL
+    public function vertexAttribPointer(index:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:Int):Void {
+        untyped __cpp__("glVertexAttribPointer({0}, {1}, {2}, {3} ? GL_TRUE : GL_FALSE, {4}, (void*)(intptr_t){5})", index, size, type, normalized, stride, offset);
+    }
+
+	public function setBlendFunction(source:Int, destination:Int):Void {
+		if (__currentBlendSource != source || __currentBlendDestination != destination) {
+			GL.blendFunc(source, destination);
+			__currentBlendSource = source;
+			__currentBlendDestination = destination;
+		}
+	}
+
     public function setDepthTest(enabled:Bool):Void {
         if (__currentDepthTest != enabled) {
             if (enabled) {
@@ -440,7 +453,8 @@ class Renderer {
         }
     }
 
-    // Getters and setters
+    // ===== ACCESSORS =====
+
     private function get_app():App {
         return __app;
     }
@@ -448,15 +462,50 @@ class Renderer {
     private function get_frameCount():Int {
         return __frameCount;
     }
-	
+
+    // ===== POST-PROCESSING =====
+
 	public function initializePostProcessing():Void {
         if (postProcessDisplayObject != null) {
             return;
         }
 
         var size = app.window.getWindowSizeInPixels();
-        postProcessDisplayObject = new ScreenPass(this, size.width, size.height);
+        __screenPasses = [];
+        try {
+            __screenPasses.push(new ScanlineScreenPass(this, size.width, size.height));
+            __screenPasses.push(new GrayscaleScreenPass(this, size.width, size.height));
+            __screenPasses.push(new DepthVisualizationScreenPass(this, size.width, size.height));
+        } catch (error:Dynamic) {
+            for (screenPass in __screenPasses) {
+                screenPass.dispose(this);
+                screenPass.release(this);
+            }
+            __screenPasses = [];
+            throw error;
+        }
+        __activeScreenPassIndex = 0;
+        postProcessDisplayObject = __screenPasses[__activeScreenPassIndex];
 	}
+
+    public function cyclePostProcess(delta:Int):Void {
+        if (__screenPasses.length == 0) {
+            throw "Post-processing screen passes are not initialized";
+        }
+
+        __activeScreenPassIndex = (__activeScreenPassIndex + delta) % __screenPasses.length;
+        if (__activeScreenPassIndex < 0) {
+            __activeScreenPassIndex += __screenPasses.length;
+        }
+        postProcessDisplayObject = __screenPasses[__activeScreenPassIndex];
+        __app.log.info(
+            LogCategory.RENDERER,
+            "Selected screen pass " + (__activeScreenPassIndex + 1) + "/" + __screenPasses.length
+                + ": " + postProcessDisplayObject.label
+        );
+    }
+
+    // ===== FRAMEBUFFERS =====
 
 	public function createFramebuffer(width:Int, height:Int, textureConfigs:Array<FramebufferTextureConfig>, useDepthRenderbuffer:Bool = false):Int {
         if (width <= 0 || height <= 0) {
@@ -676,6 +725,20 @@ class Renderer {
         }
 	}
 	
+    public function disposeFramebuffer(frameBufferId:Int):Void {
+        var framebuffer = framebuffers.get(frameBufferId);
+        if (framebuffer == null) {
+            throw "Framebuffer with ID " + frameBufferId + " not found";
+        }
+        if (__framebufferStack.indexOf(frameBufferId) >= 0) {
+            throw "Cannot dispose framebuffer " + frameBufferId + " while it is bound";
+        }
+        disposeFramebufferResources(framebuffer, true);
+        framebuffers.remove(frameBufferId);
+    }
+
+    // ===== VIEWPORT =====
+
     private function setViewport(width:Int, height:Int):Void {
         GL.viewport(0, 0, width, height);
     }
@@ -692,20 +755,8 @@ class Renderer {
             setViewport(width, height);
         }
         
-        if (postProcessDisplayObject != null) {
-            postProcessDisplayObject.resize(this, width, height);
+        for (screenPass in __screenPasses) {
+            screenPass.resize(this, width, height);
         }
-    }
-
-    public function disposeFramebuffer(frameBufferId:Int):Void {
-        var framebuffer = framebuffers.get(frameBufferId);
-        if (framebuffer == null) {
-            throw "Framebuffer with ID " + frameBufferId + " not found";
-        }
-        if (__framebufferStack.indexOf(frameBufferId) >= 0) {
-            throw "Cannot dispose framebuffer " + frameBufferId + " while it is bound";
-        }
-        disposeFramebufferResources(framebuffer, true);
-        framebuffers.remove(frameBufferId);
     }
 }

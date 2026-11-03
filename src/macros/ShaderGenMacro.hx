@@ -3,8 +3,55 @@ package macros;
 #if macro
 import haxe.macro.Context;
 import haxe.macro.Expr;
+#end
 
 class ShaderGenMacro {
+
+    public static function patchForTarget(src:String):String {
+        if (src == null) return src;
+        src = StringTools.trim(src);
+        #if js
+        var reVersion = ~/#version\s+\d+\s+core/g;
+        src = reVersion.replace(src, "#version 300 es\nprecision mediump float;");
+
+        var reDefault = ~/^(\s*uniform\s+\S+\s+\S+)\s*=\s*[^;]+;/gm;
+        src = reDefault.replace(src, "$1;");
+        #end
+        return src;
+    }
+
+    public static function extractUniformDefaults(src:String):Map<String, Dynamic> {
+        var result:Map<String, Dynamic> = new Map();
+        if (src == null) return result;
+
+        var re = ~/^\s*uniform\s+(\S+)\s+(\w+)\s*=\s*([^;]+);/gm;
+        var rest = src;
+        while (re.match(rest)) {
+            var type = re.matched(1);
+            var name = re.matched(2);
+            var expr = StringTools.trim(re.matched(3));
+            var value = parseUniformExpr(type, expr);
+            if (value != null) result.set(name, value);
+            rest = re.matchedRight();
+        }
+        return result;
+    }
+
+    private static function parseUniformExpr(type:String, expr:String):Dynamic {
+        var vecRe = ~/^vec(\d)\(([^)]+)\)/;
+        if (vecRe.match(expr)) {
+            var n = Std.parseInt(vecRe.matched(1));
+            var args = vecRe.matched(2).split(",").map(function(s) return Std.parseFloat(StringTools.trim(s)));
+            if (args.length == 1) return [for (_ in 0...n) args[0]];
+            return args;
+        }
+
+        var value = Std.parseFloat(expr);
+        if (!Math.isNaN(value)) return value;
+        return null;
+    }
+
+    #if macro
     private static var nextShaderId:Int = 0;
 
     public static function buildId():Array<Field> {
@@ -74,5 +121,5 @@ class ShaderGenMacro {
 
         return fields;
     }
+    #end
 }
-#end

@@ -35,16 +35,16 @@ abstract class DisplayObject {
 	private var __vertices:Vertices = new Vertices([]);
 	private var __shader:Shader;
 	
-	public function new(renderer:Renderer, vertices:Vertices, ?indices:Indices) {
+	public function new(renderer:Renderer, vertices:Vertices, ?indices:Indices, ?shader:Shader) {
 		__vertices = vertices;
 		__indices = indices != null ? indices : new Indices([]);
 		__needsBufferUpdate = true;
-		__shader = assignShader();
+		__shader = shader != null ? shader : assignShader();
 		if (__shader == null) {
 			throw "Shader is null! Please assign a shader before rendering.";
 		}
 
-		__bufferId = renderer.createBuffers(shader.programInfoIndex);
+		__bufferId = renderer.createBuffers(__shader.programInfoIndex);
 
 		blending = {
 			source: BlendFactors.SRC_ALPHA,
@@ -63,14 +63,14 @@ abstract class DisplayObject {
 		__needsBufferUpdate = true;
 	}
 	
-	public abstract function render(renderer:Renderer):Void;
-
 	private function updateBuffers(renderer:Renderer):Void {
 		if (!__needsBufferUpdate) return;
 
 		renderer.uploadData(__bufferId, vertices, indices);
 		__needsBufferUpdate = false;
 	}
+
+	public abstract function render(renderer:Renderer):Void;
 
 	private abstract function assignShader():Shader;
 

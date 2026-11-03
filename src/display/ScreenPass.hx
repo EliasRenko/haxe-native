@@ -7,17 +7,25 @@ import data.Vertices;
 import data.Indices;
 import data.Shader;
 
-import shaders.PostProccessingShader;
+typedef ScreenPassTextureConfig = {
+    final attachment:Int;
+    final internalFormat:Int;
+    final format:Int;
+    final type:Int;
+}
 
-class ScreenPass extends DisplayObject {
+abstract class ScreenPass extends DisplayObject {
 
     public var framebufferId:Int = -1;
     public var width:Int;
     public var height:Int;
+    public var label:String;
 
-    public function new(renderer:Renderer, width:Int, height:Int) {
+	public function new(renderer:Renderer, width:Int, height:Int, screenShader:Shader, textureConfigs:Array<ScreenPassTextureConfig>,
+			useDepthRenderbuffer:Bool = false, label:String = "Screen Pass") {
         this.width = width;
         this.height = height;
+        this.label = label;
         var vertices = new Vertices([
             -1.0,  1.0,  0.0, 1.0,
             -1.0, -1.0,  0.0, 0.0,
@@ -26,14 +34,14 @@ class ScreenPass extends DisplayObject {
         ]);
 
         var indices = new Indices([0, 1, 2, 0, 2, 3]);
-        super(renderer, vertices, indices);
+        super(renderer, vertices, indices, screenShader);
 
-        framebufferId = renderer.createFramebuffer(width, height, [{
-            attachment: GL.COLOR_ATTACHMENT0,
-            internalFormat: GL.RGBA8,
-            format: GL.RGBA,
-            type: GL.UNSIGNED_BYTE
-        }]);
+        try {
+            framebufferId = renderer.createFramebuffer(width, height, textureConfigs, useDepthRenderbuffer);
+        } catch (error:Dynamic) {
+            release(renderer);
+            throw error;
+        }
         shader.setUniform("uScreenTexture", renderer.getFramebufferTexture(framebufferId, GL.COLOR_ATTACHMENT0));
 
         mode = GL.TRIANGLES;
@@ -47,7 +55,7 @@ class ScreenPass extends DisplayObject {
     }
 
     private function assignShader():Shader {
-		return new PostProccessingShader();
+        throw "ScreenPass requires a concrete screen shader";
 	}
 
     public function bindFramebuffer(renderer:Renderer):Void {
@@ -67,6 +75,11 @@ class ScreenPass extends DisplayObject {
         this.width = width;
         this.height = height;
         shader.setUniform("uScreenTexture", renderer.getFramebufferTexture(framebufferId, GL.COLOR_ATTACHMENT0));
+        onFramebufferResized(renderer);
+    }
+
+    @:noCompletion
+    public function onFramebufferResized(renderer:Renderer):Void {
     }
 
     public function dispose(renderer:Renderer):Void {

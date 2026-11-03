@@ -3,7 +3,6 @@ package native;
 import GL;
 import cpp.ConstCharStar;
 import cpp.RawPointer;
-import macros.ShaderBuilder;
 import data.Shader as DataShader;
 
 typedef UniformLocation = GL.GlUInt;
@@ -85,9 +84,8 @@ class ProgramInfo {
 	public function new(name:String, vertexSource:String, fragmentSource:String) {
 		__name = name;
 
-		// Retain the existing generated-vertex fallback for definitions without a vertex source.
 		if (vertexSource == null) {
-			vertexSource = ShaderBuilder.defaultVertexFor(fragmentSource);
+			throw "Vertex shader source is required";
 		}
 
 		// Automatically compile and introspect the shader program.

@@ -2,7 +2,7 @@ package web;
 
 #if js
 import web.GL;
-import ShaderBuilder;
+import macros.ShaderGenMacro;
 import data.Shader as DataShader;
 import Texture;
 
@@ -101,14 +101,15 @@ class ProgramInfo {
         // Capture defaults BEFORE patchForTarget() strips them (GLSL ES has no default uniforms)
         var defaults:Map<String, Dynamic> = new Map();
         if (fragmentSource != null)
-            for (k => v in ShaderBuilder.extractUniformDefaults(fragmentSource)) defaults.set(k, v);
+            for (k => v in ShaderGenMacro.extractUniformDefaults(fragmentSource)) defaults.set(k, v);
         if (vertexSource != null)
-            for (k => v in ShaderBuilder.extractUniformDefaults(vertexSource)) defaults.set(k, v);
+            for (k => v in ShaderGenMacro.extractUniformDefaults(vertexSource)) defaults.set(k, v);
 
-        var patchedFragmentSource = ShaderBuilder.patchForTarget(fragmentSource);
-        var patchedVertexSource = (vertexSource != null)
-                                ? ShaderBuilder.patchForTarget(vertexSource)
-                                : ShaderBuilder.defaultVertexFor(patchedFragmentSource);
+        var patchedFragmentSource = ShaderGenMacro.patchForTarget(fragmentSource);
+        if (vertexSource == null) {
+            throw "Vertex shader source is required";
+        }
+        var patchedVertexSource = ShaderGenMacro.patchForTarget(vertexSource);
         programId = -1;
 
         if (!compileProgramInfo(patchedVertexSource, patchedFragmentSource)) {
