@@ -14,7 +14,7 @@ abstract class DisplayObject {
 	public var blending:Blending = { source: BlendFactors.SRC_ALPHA, destination: BlendFactors.ONE_MINUS_SRC_ALPHA };
 	public var indices(get, null):Indices;
 	public var mode:Int = DrawingMode.TRIANGLES;
-	public var shader(get, set):Shader;
+	public var shader(get, null):Shader;
 	public var vertices(get, null):Vertices;
 	public var visible:Bool = true;
 
@@ -64,10 +64,5 @@ abstract class DisplayObject {
 
 	private function get_shader():Shader {
 		return __shader;
-	}
-
-	private function set_shader(value:Shader):Shader {
-		__shader = value;
-		return value;
 	}
 }

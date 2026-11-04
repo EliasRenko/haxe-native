@@ -33,11 +33,6 @@ class ProgramInfo {
 		__vertexStride = vertexStride;
 	}
 
-	// public function getUniformAt(index:Int):Null<data.UniformInfo> {
-	// 	if (index < 0 || index >= uniformInfos.length) return null;
-	// 	return uniformInfos[index];
-	// }
-
 	// Getters and setters
 	private function get_attributeInfos():Array<AttributeInfo> {
 		return __attributeInfos;

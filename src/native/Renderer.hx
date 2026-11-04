@@ -461,6 +461,7 @@ class Renderer {
             var format = UniformFormat.fromGLType(type);
             var isSampler = format == UniformFormat.Sampler2D
                 || format == UniformFormat.SamplerCube;
+                
             var uniform:UniformInfo = {
                 name: name,
                 format: format,
@@ -588,15 +589,33 @@ class Renderer {
     }
 
     private function floatMat2Setter(location:Int):Array<Float>->Void {
-        return function(value:Array<Float>):Void setMatrixUniform(location, value, 2);
+        return function(value:Array<Float>):Void {
+            untyped __cpp__("
+                float matData[4];
+                for(int i = 0; i < 4; i++) matData[i] = {1}[i];
+                glUniformMatrix2fv({0}, 1, GL_FALSE, matData);
+            ", location, value);
+        };
     }
 
     private function floatMat3Setter(location:Int):Array<Float>->Void {
-        return function(value:Array<Float>):Void setMatrixUniform(location, value, 3);
+        return function(value:Array<Float>):Void {
+            untyped __cpp__("
+                float matData[9];
+                for(int i = 0; i < 9; i++) matData[i] = {1}[i];
+                glUniformMatrix3fv({0}, 1, GL_FALSE, matData);
+            ", location, value);
+        };
     }
 
     private function floatMat4Setter(location:Int):Array<Float>->Void {
-        return function(value:Array<Float>):Void setMatrixUniform(location, value, 4);
+        return function(value:Array<Float>):Void {
+            untyped __cpp__("
+                float matData[16];
+                for(int i = 0; i < 16; i++) matData[i] = {1}[i];
+                glUniformMatrix4fv({0}, 1, GL_FALSE, matData);
+            ", location, value);
+        };
     }
 
     private function intSetter(location:Int):Int->Void {
@@ -663,33 +682,6 @@ class Renderer {
         GL.bindTexture(texture.target, texture.id);
     }
 
-	private function setMatrixUniform(location:Int, value:Array<Float>, dimension:Int):Void {
-		var count = dimension * dimension;
-		var matrixData = new Array<Float>();
-		for (i in 0...count)
-			matrixData[i] = value[i];
-		switch (dimension) {
-			case 2:
-				untyped __cpp__("
-                    float matData[4];
-                    for(int i = 0; i < 4; i++) matData[i] = {1}[i];
-                    glUniformMatrix2fv({0}, 1, GL_FALSE, matData);
-                ", location, matrixData);
-			case 3:
-				untyped __cpp__("
-                    float matData[9];
-                    for(int i = 0; i < 9; i++) matData[i] = {1}[i];
-                    glUniformMatrix3fv({0}, 1, GL_FALSE, matData);
-                ", location, matrixData);
-			case 4:
-				untyped __cpp__("
-                    float matData[16];
-                    for(int i = 0; i < 16; i++) matData[i] = {1}[i];
-                    glUniformMatrix4fv({0}, 1, GL_FALSE, matData);
-                ", location, matrixData);
-		}
-	}
-
     private function disposeProgramInfo(programInfo:ProgramInfo):Void {
         __initializedSamplerPrograms.remove(Std.string(programInfo.program));
         if (programInfo.vao != 0) {
@@ -744,7 +736,7 @@ class Renderer {
 
     // Upload vertex data to GPU
     public function uploadData(bufferId:Int, vertices:Vertices, indices:Indices):Void {
-        var bufferInfo = getBuffersOrThrow(bufferId);
+        var bufferInfo = getBuffers(bufferId);
 
         GL.bindVertexArray(bufferInfo.programInfo.vao);
         GL.bindBuffer(GL.ARRAY_BUFFER, bufferInfo.vbo);
@@ -759,7 +751,7 @@ class Renderer {
     }
 
     public function orphanAndUploadData(bufferId:Int, vertices:Vertices, indices:Indices, maxBufferSize:Int):Void {
-        var bufferInfo = getBuffersOrThrow(bufferId);
+        var bufferInfo = getBuffers(bufferId);
 
         GL.bindVertexArray(bufferInfo.programInfo.vao);
         GL.bindBuffer(GL.ARRAY_BUFFER, bufferInfo.vbo);
@@ -782,14 +774,6 @@ class Renderer {
         GL.deleteBuffers(1, RawPointer.addressOf(buffersObj.ebo));
 
         buffers.remove(bufferId);
-    }
-
-    private function getBuffersOrThrow(bufferId:Int):Buffers {
-        var bufferInfo = buffers.get(bufferId);
-        if (bufferInfo == null) {
-            throw "Buffers not found for bufferId: " + bufferId;
-        }
-        return bufferInfo;
     }
 
     // ===== TEXTURES =====
@@ -860,8 +844,7 @@ class Renderer {
         GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR);
         GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
 
-        // Allocate texture storage without uploading data
-        untyped __cpp__("glTexImage2D({0}, 0, {1}, {2}, {3}, 0, {4}, {5}, NULL);", GL.TEXTURE_2D, internalFormat, width, height, format, type);
+        GL.texImage2D(GL.TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, null);
 
         GL.bindTexture(GL.TEXTURE_2D, 0);
 
@@ -881,26 +864,21 @@ class Renderer {
      * Clear the screen and prepare for rendering
      */
     public function clearScreen():Void {
-        GL.glClearColor(0.1, 0.1, 0.15, 1.0); // Very dark background for 3D focus
+        GL.glClearColor(0.1, 0.1, 0.15, 1.0);
         GL.glClear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
     }
 
     /**
      * Initialize rendering state
      */
-    public function initializeRenderState():Void {
-        // Enable depth testing for 3D
-        // GL.glEnable(GL.DEPTH_TEST);
-        // GL.glDepthFunc(GL.LESS);
+    // public function initializeRenderState():Void {
+    //     // Enable depth testing for 3D
+    //     // GL.glEnable(GL.DEPTH_TEST);
+    //     // GL.glDepthFunc(GL.LESS);
 
-        // Disable face culling to see all faces from all angles
-        GL.glDisable(GL.CULL_FACE);
-    }
-
-    // TODO: Move to GL
-    public function vertexAttribPointer(index:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:Int):Void {
-        untyped __cpp__("glVertexAttribPointer({0}, {1}, {2}, {3} ? GL_TRUE : GL_FALSE, {4}, (void*)(intptr_t){5})", index, size, type, normalized, stride, offset);
-    }
+    //     // Disable face culling to see all faces from all angles
+    //     GL.glDisable(GL.CULL_FACE);
+    // }
 
 	public function setBlendFunction(source:Int, destination:Int):Void {
 		if (__currentBlendSource != source || __currentBlendDestination != destination) {
