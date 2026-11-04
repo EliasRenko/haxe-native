@@ -17,7 +17,8 @@ class Shader {
 		var targetId = getUniformId(canonicalName);
 		var uniform = uniforms.get(targetId);
 		if (uniform == null) {
-			uniforms.set(targetId, new ShaderUniform(targetId, canonicalName, value));
+			uniform = new ShaderUniform(targetId, canonicalName, value);
+			uniforms.set(targetId, uniform);
 		} else {
 			uniform.value = value;
 		}
@@ -39,7 +40,6 @@ class Shader {
 	}> {
 		return uniforms.iterator();
 	}
-
 }
 
 private abstract UniformName(String) from String to String {

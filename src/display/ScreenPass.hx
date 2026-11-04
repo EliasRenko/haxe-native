@@ -2,7 +2,7 @@ package display;
 
 import GL;
 import Renderer;
-import data.BlendFactors;
+import types.BlendFactors;
 import data.Vertices;
 import data.Indices;
 import data.Shader;

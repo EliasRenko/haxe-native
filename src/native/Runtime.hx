@@ -3,7 +3,6 @@ package native;
 import haxe.io.BytesData;
 import haxe.io.Bytes;
 import SDL;
-import GL;
 import Renderer;
 import Log;
 import cpp.RawPointer;

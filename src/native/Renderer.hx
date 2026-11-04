@@ -9,6 +9,10 @@ import data.Indices;
 import data.Shader as DataShader;
 import data.TextureData;
 import data.Vertices;
+import data.AttributeInfo;
+import data.UniformInfo;
+import types.AttributeFormat.AttributeFormat;
+import types.UniformFormat.UniformFormat;
 import display.DepthVisualizationScreenPass;
 import display.GrayscaleScreenPass;
 import display.ScanlineScreenPass;
@@ -55,6 +59,12 @@ private typedef ShaderDefinition = {
     final fragmentSource:String;
 }
 
+private typedef ProgramIntrospection = {
+    final attributes:Array<AttributeInfo>;
+    final uniforms:Array<UniformInfo>;
+    final vertexStride:UInt;
+}
+
 class Buffers {
 	public var vbo:UInt32;
 	public var ebo:UInt32;
@@ -84,6 +94,7 @@ class Renderer {
     private var __currentBlendDestination:Int = -1;
     private var __frameCount:Int = 0;
     private var __programInfos:Array<ProgramInfo> = new Array<ProgramInfo>();
+    private var __initializedSamplerPrograms:Map<String, Bool> = new Map<String, Bool>();
 
     private var buffers:SlotArray<Buffers> = new SlotArray<Buffers>(32);
     private var framebuffers:SlotArray<Framebuffer> = new SlotArray<Framebuffer>(8);
@@ -103,8 +114,12 @@ class Renderer {
         __app = app;
 
 		for (definition in definitions) {
-			var programInfo = new ProgramInfo(definition.name, definition.vertexSource, definition.fragmentSource);
-			__programInfos.push(programInfo);
+            var programInfo = createProgramInfoObject(
+                definition.name,
+                definition.vertexSource,
+                definition.fragmentSource
+            );
+            __programInfos.push(programInfo);
 		}
 
         setDepthTest(true);
@@ -151,9 +166,10 @@ class Renderer {
         buffers.clear();
 
         for (programInfo in __programInfos) {
-            programInfo.dispose();
+            disposeProgramInfo(programInfo);
         }
         __programInfos = [];
+        __initializedSamplerPrograms = new Map<String, Bool>();
 
         __app.log.info(LogCategory.RENDERER, "Renderer cleanup complete");
     }
@@ -164,7 +180,7 @@ class Renderer {
         if (programInfo.program != currentProgram) {
             GL.useProgram(programInfo.program);
             GL.bindVertexArray(programInfo.vao);
-            programInfo.initializeSamplerUnits();
+            initializeSamplerUnits(programInfo);
             currentProgram = programInfo.program;
             currentVbo = 0;
             currentEbo = 0;
@@ -194,6 +210,9 @@ class Renderer {
                 continue;
             }
 
+            if (uniformInfo.setter == null) {
+                throw "Uniform setter is missing for program uniform '" + uniformInfo.name + "'";
+            }
             uniformInfo.setter(uniform.value);
         }
     }
@@ -207,13 +226,488 @@ class Renderer {
     }
     
     public function createProgramInfo(name:String, vertexSource:String, fragmentSource:String):ProgramInfo {
-        var programInfo = new ProgramInfo(name, vertexSource, fragmentSource);
+        var programInfo = createProgramInfoObject(name, vertexSource, fragmentSource);
 
         __programInfos.push(programInfo);
 
         __app.log.info(LogCategory.RENDERER, "Created and registered ProgramInfo: " + name);
 
         return programInfo;
+    }
+
+    private function createProgramInfoObject(name:String, vertexSource:String, fragmentSource:String):ProgramInfo {
+        var program = compileProgram(name, vertexSource, fragmentSource);
+        if (program == 0) {
+            trace("Failed to compile shader program: " + name);
+            return new ProgramInfo(name, program, 0, [], [], 0);
+        }
+
+        var introspection:ProgramIntrospection;
+        try {
+            introspection = introspectProgram(program, fragmentSource, name);
+        } catch (error:Dynamic) {
+            GL.deleteProgram(program);
+            throw error;
+        }
+
+        var vao:UInt;
+        try {
+            vao = createProgramVertexArray(introspection.attributes);
+        } catch (error:Dynamic) {
+            GL.deleteProgram(program);
+            throw error;
+        }
+
+        return new ProgramInfo(
+            name,
+            program,
+            vao,
+            introspection.attributes,
+            introspection.uniforms,
+            introspection.vertexStride
+        );
+    }
+
+    private function compileProgram(name:String, vertexSource:String, fragmentSource:String):UInt {
+        var vertexContent = ConstCharStar.fromString(vertexSource);
+        var fragmentContent = ConstCharStar.fromString(fragmentSource);
+
+        var vertexShader = GL.createShader(GL.VERTEX_SHADER);
+        GL.shaderSource(vertexShader, 1, RawPointer.addressOf(vertexContent), null);
+        GL.compileShader(vertexShader);
+        if (!checkShaderCompilation(vertexShader, "Vertex")) {
+            GL.deleteShader(vertexShader);
+            trace("Vertex shader compilation failed for " + name);
+            return 0;
+        }
+
+        var fragmentShader = GL.createShader(GL.FRAGMENT_SHADER);
+        GL.shaderSource(fragmentShader, 1, RawPointer.addressOf(fragmentContent), null);
+        GL.compileShader(fragmentShader);
+        if (!checkShaderCompilation(fragmentShader, "Fragment")) {
+            GL.deleteShader(vertexShader);
+            GL.deleteShader(fragmentShader);
+            trace("Fragment shader compilation failed for " + name);
+            return 0;
+        }
+
+        var program = GL.createProgram();
+        GL.attachShader(program, vertexShader);
+        GL.attachShader(program, fragmentShader);
+        GL.linkProgram(program);
+        var linked = checkProgramLinking(program);
+
+        GL.deleteShader(vertexShader);
+        GL.deleteShader(fragmentShader);
+        if (!linked) {
+            GL.deleteProgram(program);
+            return 0;
+        }
+
+        return program;
+    }
+
+    private function checkShaderCompilation(shader:UInt, type:String):Bool {
+        var success = GL.getShaderParameterValue(shader, GL.COMPILE_STATUS);
+        if (success == 0) {
+            var errorLog = GL.getShaderInfoLogString(shader);
+            if (errorLog.length > 0) {
+                trace(type + " shader compilation failed:");
+                trace(errorLog);
+            } else {
+                trace(type + " shader compilation failed with no error log");
+            }
+            return false;
+        }
+
+        trace(type + " shader compiled successfully");
+        return true;
+    }
+
+    private function checkProgramLinking(program:UInt):Bool {
+        var success = GL.getProgramParameterValue(program, GL.LINK_STATUS);
+        if (success == 0) {
+            var errorLog = GL.getProgramInfoLogString(program);
+            if (errorLog.length > 0) {
+                trace("Program linking failed:");
+                trace(errorLog);
+            } else {
+                trace("Program linking failed with no error log");
+            }
+            return false;
+        }
+
+        trace("Program linked successfully");
+        return true;
+    }
+
+    private function createProgramVertexArray(attributes:Array<AttributeInfo>):UInt {
+        if (GL.GLAD_GL_ARB_vertex_attrib_binding == 0) {
+            throw "ARB_vertex_attrib_binding not available";
+        }
+
+        var vao = GL.createVertexArray();
+        try {
+            GL.bindVertexArray(vao);
+            for (attribute in attributes) {
+                GL.vertexAttribFormat(
+                    attribute.location,
+                    attribute.size,
+                    getGLFormat(attribute.format),
+                    false,
+                    attribute.offset
+                );
+                GL.vertexAttribBinding(attribute.location, 0);
+                GL.enableVertexAttribArray(attribute.location);
+            }
+            GL.bindVertexArray(0);
+        } catch (error:Dynamic) {
+            GL.bindVertexArray(0);
+            var vaos = [vao];
+            GL.deleteVertexArrays(1, untyped __cpp__("(const unsigned int*)&{0}[0]", vaos));
+            throw error;
+        }
+        return vao;
+    }
+
+    private function getGLFormat(format:types.AttributeFormat.AttributeFormat):Int {
+        return switch (format) {
+            case Float | Vec2 | Vec3 | Vec4: 5126;
+            case Int: 5124;
+            case UnsignedInt: 5125;
+            case Byte: 5120;
+            case UnsignedByte: 5121;
+            case Short: 5122;
+            case UnsignedShort: 5123;
+        };
+    }
+
+	private function introspectProgram(program:UInt, fragmentSource:String, name:String):ProgramIntrospection {
+        trace("Starting shader program introspection for: " + name);
+        var attributes = introspectAttributes(program);
+        var uniforms = introspectUniforms(program, fragmentSource);
+        var vertexStride:UInt = 0;
+        if (attributes.length > 0) {
+            for (attribute in attributes) vertexStride += getBytesPerVertex(attribute.format);
+            var offset:UInt = 0;
+            for (attribute in attributes) {
+                attribute.offset = offset;
+                attribute.stride = vertexStride;
+                offset += getBytesPerVertex(attribute.format);
+            }
+        }
+        trace("Introspection complete!");
+        return {
+            attributes: attributes,
+            uniforms: uniforms,
+            vertexStride: vertexStride
+        };
+    }
+
+    private function introspectAttributes(program:UInt):Array<AttributeInfo> {
+        var activeAttributes:Int = 0;
+        untyped __cpp__("glGetProgramiv({0}, GL_ACTIVE_ATTRIBUTES, &{1})", program, activeAttributes);
+        trace("Found " + activeAttributes + " active attributes");
+
+        var maxNameLength:Int = 0;
+        untyped __cpp__("glGetProgramiv({0}, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &{1})", program, maxNameLength);
+
+        var attributes:Array<AttributeInfo> = [];
+        for (i in 0...activeAttributes) {
+            var nameLength:Int = 0;
+            var size:Int = 0;
+            var type:Int = 0;
+            var name:String = "";
+            untyped __cpp__("
+                char* nameBuffer = new char[{0}];
+                glGetActiveAttrib({1}, {2}, {0}, &{3}, &{4}, (GLenum*)&{5}, nameBuffer);
+                {6} = String(nameBuffer);
+                delete[] nameBuffer;
+            ", maxNameLength, program, i, nameLength, size, type, name);
+
+            var location = GL.getAttribLocation(program, name);
+            var format = AttributeFormat.fromGLType(type);
+            attributes.push({
+                name: name,
+                format: format,
+                size: getValuesPerVertex(format),
+                stride: 0,
+                offset: 0,
+                location: location
+            });
+            trace("Attribute " + i + ": '" + name + "' location=" + location + " type=" + type + " format=" + format);
+        }
+
+        attributes.sort(function(a, b) return a.location - b.location);
+        return attributes;
+    }
+
+	private function introspectUniforms(program:UInt, fragmentSource:String):Array<UniformInfo> {
+        var activeUniforms:Int = 0;
+        untyped __cpp__("glGetProgramiv({0}, GL_ACTIVE_UNIFORMS, &{1})", program, activeUniforms);
+        trace("Found " + activeUniforms + " active uniforms");
+
+        var maxNameLength:Int = 0;
+        untyped __cpp__("glGetProgramiv({0}, GL_ACTIVE_UNIFORM_MAX_LENGTH, &{1})", program, maxNameLength);
+        var uniforms:Array<UniformInfo> = [];
+        var samplers:Array<UniformInfo> = [];
+
+        for (i in 0...activeUniforms) {
+            var nameLength:Int = 0;
+            var size:Int = 0;
+            var type:Int = 0;
+            var name:String = "";
+            untyped __cpp__("
+                char* nameBuffer = new char[{0}];
+                glGetActiveUniform({1}, {2}, {0}, &{3}, &{4}, (GLenum*)&{5}, nameBuffer);
+                {6} = String(nameBuffer);
+                delete[] nameBuffer;
+            ", maxNameLength, program, i, nameLength, size, type, name);
+
+            var location = GL.getUniformLocation(program, name);
+            var format = UniformFormat.fromGLType(type);
+            var isSampler = format == UniformFormat.Sampler2D
+                || format == UniformFormat.SamplerCube;
+            var uniform:UniformInfo = {
+                name: name,
+                format: format,
+                setter: isSampler ? null : createUniformSetter(format, location),
+                location: location
+            };
+            setUniformAt(uniforms, DataShader.getUniformId(canonicalUniformName(name)), uniform);
+            if (isSampler) samplers.push(uniform);
+            trace("Uniform " + i + ": '" + name + "' location=" + location + " type=" + type + " format=" + format);
+        }
+
+        if (fragmentSource != null && samplers.length > 1) {
+            samplers.sort(function(a, b) {
+                var posA = fragmentSource.indexOf(a.name);
+                var posB = fragmentSource.indexOf(b.name);
+                if (posA < 0) posA = 0x7fffffff;
+                if (posB < 0) posB = 0x7fffffff;
+                return posA - posB;
+            });
+        }
+
+        for (i in 0...samplers.length) {
+            var sampler = samplers[i];
+            sampler.textureUnit = i;
+            if (sampler.location == null) {
+                throw "Sampler uniform '" + sampler.name + "' has no GL location";
+            }
+            sampler.setter = createUniformSetter(sampler.format, sampler.location, i);
+        }
+        return uniforms;
+    }
+
+    private function initializeSamplerUnits(programInfo:ProgramInfo):Void {
+        var key = Std.string(programInfo.program);
+        if (__initializedSamplerPrograms.exists(key)) return;
+
+        for (uniform in programInfo.uniforms) {
+            if (uniform != null && uniform.textureUnit != null && uniform.location != null) {
+                GL.uniform1i(uniform.location, uniform.textureUnit);
+            }
+        }
+        __initializedSamplerPrograms.set(key, true);
+    }
+
+	private function setUniformAt(uniforms:Array<UniformInfo>, index:Int, uniform:UniformInfo):Void {
+		while (uniforms.length <= index)
+			uniforms.push(cast null);
+		uniforms[index] = uniform;
+	}
+
+    private function canonicalUniformName(name:String):String {
+        return StringTools.endsWith(name, "[0]") ? name.substr(0, name.length - 3) : name;
+    }
+
+    private function getValuesPerVertex(format:AttributeFormat):Int {
+        return switch (format) {
+            case Float: 1;
+            case Vec2: 2;
+            case Vec3: 3;
+            case Vec4: 4;
+            case Int | UnsignedInt | Byte | UnsignedByte | Short | UnsignedShort: 1;
+        };
+    }
+
+    private function getBytesPerVertex(format:AttributeFormat):UInt {
+        return switch (format) {
+            case Float | Int | UnsignedInt: 4;
+            case Vec2: 8;
+            case Vec3: 12;
+            case Vec4: 16;
+            case Short | UnsignedShort: 2;
+            case Byte | UnsignedByte: 1;
+        };
+    }
+
+    private function createUniformSetter(format:UniformFormat, uniformLocation:Int, ?textureUnit:Int):Dynamic {
+        return switch (format) {
+            case Float: floatSetter(uniformLocation);
+            case Vec2: floatVec2Setter(uniformLocation);
+            case Vec3: floatVec3Setter(uniformLocation);
+            case Vec4: floatVec4Setter(uniformLocation);
+            case Mat2: floatMat2Setter(uniformLocation);
+            case Mat3: floatMat3Setter(uniformLocation);
+            case Mat4: floatMat4Setter(uniformLocation);
+            case Int: intSetter(uniformLocation);
+            case IntVec2: intVec2Setter(uniformLocation);
+            case IntVec3: intVec3Setter(uniformLocation);
+            case IntVec4: intVec4Setter(uniformLocation);
+            case Bool: boolSetter(uniformLocation);
+            case BoolVec2: boolVec2Setter(uniformLocation);
+            case BoolVec3: boolVec3Setter(uniformLocation);
+            case BoolVec4: boolVec4Setter(uniformLocation);
+            case Sampler2D:
+                if (textureUnit == null) throw "Sampler2D setter requires a texture unit";
+                sampler2DSetter(textureUnit);
+            case SamplerCube:
+                if (textureUnit == null) throw "SamplerCube setter requires a texture unit";
+                samplerCubeSetter(textureUnit);
+        };
+    }
+
+    private function floatSetter(location:Int):Float->Void {
+        return function(value:Float):Void GL.uniform1f(location, value);
+    }
+
+    private function floatVec2Setter(location:Int):Array<Float>->Void {
+        return function(value:Array<Float>):Void {
+            if (value.length >= 2)
+                untyped __cpp__("glUniform2f({0}, {1}, {2})", location, value[0], value[1]);
+        };
+    }
+
+    private function floatVec3Setter(location:Int):Array<Float>->Void {
+        return function(value:Array<Float>):Void {
+            if (value.length >= 3)
+                untyped __cpp__("glUniform3f({0}, {1}, {2}, {3})", location, value[0], value[1], value[2]);
+        };
+    }
+
+    private function floatVec4Setter(location:Int):Array<Float>->Void {
+        return function(value:Array<Float>):Void {
+            if (value.length >= 4)
+                untyped __cpp__("glUniform4f({0}, {1}, {2}, {3}, {4})", location, value[0], value[1], value[2], value[3]);
+        };
+    }
+
+    private function floatMat2Setter(location:Int):Array<Float>->Void {
+        return function(value:Array<Float>):Void setMatrixUniform(location, value, 2);
+    }
+
+    private function floatMat3Setter(location:Int):Array<Float>->Void {
+        return function(value:Array<Float>):Void setMatrixUniform(location, value, 3);
+    }
+
+    private function floatMat4Setter(location:Int):Array<Float>->Void {
+        return function(value:Array<Float>):Void setMatrixUniform(location, value, 4);
+    }
+
+    private function intSetter(location:Int):Int->Void {
+        return function(value:Int):Void GL.uniform1i(location, value);
+    }
+
+    private function intVec2Setter(location:Int):Array<Int>->Void {
+        return function(value:Array<Int>):Void {
+            if (value.length >= 2)
+                untyped __cpp__("glUniform2i({0}, {1}, {2})", location, value[0], value[1]);
+        };
+    }
+
+    private function intVec3Setter(location:Int):Array<Int>->Void {
+        return function(value:Array<Int>):Void {
+            if (value.length >= 3)
+                untyped __cpp__("glUniform3i({0}, {1}, {2}, {3})", location, value[0], value[1], value[2]);
+        };
+    }
+
+    private function intVec4Setter(location:Int):Array<Int>->Void {
+        return function(value:Array<Int>):Void {
+            if (value.length >= 4)
+                untyped __cpp__("glUniform4i({0}, {1}, {2}, {3}, {4})", location, value[0], value[1], value[2], value[3]);
+        };
+    }
+
+    private function boolSetter(location:Int):Bool->Void {
+        return function(value:Bool):Void GL.uniform1i(location, value ? 1 : 0);
+    }
+
+    private function boolVec2Setter(location:Int):Array<Bool>->Void {
+        return function(value:Array<Bool>):Void {
+            if (value.length >= 2)
+                untyped __cpp__("glUniform2i({0}, {1}, {2})", location, value[0] ? 1 : 0, value[1] ? 1 : 0);
+        };
+    }
+
+    private function boolVec3Setter(location:Int):Array<Bool>->Void {
+        return function(value:Array<Bool>):Void {
+            if (value.length >= 3)
+                untyped __cpp__("glUniform3i({0}, {1}, {2}, {3})", location, value[0] ? 1 : 0, value[1] ? 1 : 0, value[2] ? 1 : 0);
+        };
+    }
+
+    private function boolVec4Setter(location:Int):Array<Bool>->Void {
+        return function(value:Array<Bool>):Void {
+            if (value.length >= 4)
+                untyped __cpp__("glUniform4i({0}, {1}, {2}, {3}, {4})", location, value[0] ? 1 : 0, value[1] ? 1 : 0, value[2] ? 1 : 0, value[3] ? 1 : 0);
+        };
+    }
+
+    private function sampler2DSetter(textureUnit:Int):Texture->Void {
+        return function(texture:Texture):Void bindTextureUniform(textureUnit, texture);
+    }
+
+    private function samplerCubeSetter(textureUnit:Int):Texture->Void {
+        return function(texture:Texture):Void bindTextureUniform(textureUnit, texture);
+    }
+
+    private function bindTextureUniform(textureUnit:Int, texture:Texture):Void {
+        if (texture == null) throw "Texture uniform has no texture value";
+        GL.activeTexture(GL.TEXTURE0 + textureUnit);
+        GL.bindTexture(texture.target, texture.id);
+    }
+
+	private function setMatrixUniform(location:Int, value:Array<Float>, dimension:Int):Void {
+		var count = dimension * dimension;
+		var matrixData = new Array<Float>();
+		for (i in 0...count)
+			matrixData[i] = value[i];
+		switch (dimension) {
+			case 2:
+				untyped __cpp__("
+                    float matData[4];
+                    for(int i = 0; i < 4; i++) matData[i] = {1}[i];
+                    glUniformMatrix2fv({0}, 1, GL_FALSE, matData);
+                ", location, matrixData);
+			case 3:
+				untyped __cpp__("
+                    float matData[9];
+                    for(int i = 0; i < 9; i++) matData[i] = {1}[i];
+                    glUniformMatrix3fv({0}, 1, GL_FALSE, matData);
+                ", location, matrixData);
+			case 4:
+				untyped __cpp__("
+                    float matData[16];
+                    for(int i = 0; i < 16; i++) matData[i] = {1}[i];
+                    glUniformMatrix4fv({0}, 1, GL_FALSE, matData);
+                ", location, matrixData);
+		}
+	}
+
+    private function disposeProgramInfo(programInfo:ProgramInfo):Void {
+        __initializedSamplerPrograms.remove(Std.string(programInfo.program));
+        if (programInfo.vao != 0) {
+            var vaos = [programInfo.vao];
+            GL.deleteVertexArrays(1, untyped __cpp__("(const unsigned int*)&{0}[0]", vaos));
+        }
+        if (programInfo.program != 0) {
+            GL.deleteProgram(programInfo.program);
+        }
+        programInfo.vao = 0;
+        programInfo.program = 0;
     }
     
     // ===== BUFFERS =====
@@ -451,16 +945,6 @@ class Renderer {
             }
             __currentBlendMode = enabled;
         }
-    }
-
-    // ===== ACCESSORS =====
-
-    private function get_app():App {
-        return __app;
-    }
-
-    private function get_frameCount():Int {
-        return __frameCount;
     }
 
     // ===== POST-PROCESSING =====
@@ -758,5 +1242,15 @@ class Renderer {
         for (screenPass in __screenPasses) {
             screenPass.resize(this, width, height);
         }
+    }
+
+    // ===== ACCESSORS =====
+
+    private function get_app():App {
+        return __app;
+    }
+
+    private function get_frameCount():Int {
+        return __frameCount;
     }
 }

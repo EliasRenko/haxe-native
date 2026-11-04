@@ -1,9 +1,8 @@
 package;
 
-import GL;
 import Renderer;
 import Texture;
-import data.BlendFactors;
+import types.BlendFactors;
 import data.DrawingMode;
 import data.Vertices;
 import data.Indices;
