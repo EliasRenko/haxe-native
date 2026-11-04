@@ -59,12 +59,6 @@ private typedef ShaderDefinition = {
     final fragmentSource:String;
 }
 
-private typedef ProgramIntrospection = {
-    final attributes:Array<AttributeInfo>;
-    final uniforms:Array<UniformInfo>;
-    final vertexStride:UInt;
-}
-
 class Buffers {
 	public var vbo:UInt32;
 	public var ebo:UInt32;
@@ -198,8 +192,8 @@ class Renderer {
         if (shader == null) return;
 
         for (uniform in shader.getUniforms()) {
-            var uniformInfo = programInfo.getUniformAt(uniform.nameId);
-            
+            var uniformInfo = programInfo.uniformInfos[uniform.nameId];
+
             // If the uniform doesn't exist in the shader, log a warning and skip it
             if (uniformInfo == null) {
                 __app.log.warn(
@@ -242,9 +236,8 @@ class Renderer {
             return new ProgramInfo(name, program, 0, [], [], 0);
         }
 
-        var introspection:ProgramIntrospection;
-        try {
-            introspection = introspectProgram(program, fragmentSource, name);
+        var introspection = try {
+            introspectProgram(program, fragmentSource, name);
         } catch (error:Dynamic) {
             GL.deleteProgram(program);
             throw error;
@@ -382,7 +375,7 @@ class Renderer {
         };
     }
 
-	private function introspectProgram(program:UInt, fragmentSource:String, name:String):ProgramIntrospection {
+	private function introspectProgram(program:UInt, fragmentSource:String, name:String) {
         trace("Starting shader program introspection for: " + name);
         var attributes = introspectAttributes(program);
         var uniforms = introspectUniforms(program, fragmentSource);
@@ -504,7 +497,7 @@ class Renderer {
         var key = Std.string(programInfo.program);
         if (__initializedSamplerPrograms.exists(key)) return;
 
-        for (uniform in programInfo.uniforms) {
+        for (uniform in programInfo.uniformInfos) {
             if (uniform != null && uniform.textureUnit != null && uniform.location != null) {
                 GL.uniform1i(uniform.location, uniform.textureUnit);
             }
@@ -706,8 +699,8 @@ class Renderer {
         if (programInfo.program != 0) {
             GL.deleteProgram(programInfo.program);
         }
-        programInfo.vao = 0;
-        programInfo.program = 0;
+        programInfo.__vao = 0;
+        programInfo.__program = 0;
     }
     
     // ===== BUFFERS =====

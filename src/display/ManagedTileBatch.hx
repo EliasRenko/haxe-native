@@ -29,6 +29,7 @@ class ManagedTileBatch extends DisplayObject {
     private var __nextRegionId:Int = 1; // Auto-incrementing region ID
     private var __bufferCapacity:Int = 0; // Current buffer capacity in tiles
     private var __matrix:Matrix = new Matrix();
+    private var __finalMatrix:Matrix = new Matrix();
     private var __verticesToRender:Int = 0;
 	private var __indicesToRender:UInt = 0;
 	private var __texture:Texture;
@@ -398,9 +399,8 @@ class ManagedTileBatch extends DisplayObject {
 
         if (__verticesToRender == 0 || __indicesToRender == 0) return;
 
-        var finalMatrix = Matrix.copy(__matrix);
-        finalMatrix.append(renderer.matrix);
-        shader.setUniform("uMatrix", finalMatrix.data);
+        Matrix.multiplyInto(__finalMatrix, __matrix, renderer.matrix);
+        shader.setUniform("uMatrix", __finalMatrix.data);
         for (name in uniforms.keys()) {
             shader.setUniform(name, uniforms.get(name));
         }

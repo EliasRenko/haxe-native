@@ -21,8 +21,7 @@ abstract class ScreenPass extends DisplayObject {
     public var height:Int;
     public var label:String;
 
-	public function new(renderer:Renderer, width:Int, height:Int, screenShader:Shader, textureConfigs:Array<ScreenPassTextureConfig>,
-			useDepthRenderbuffer:Bool = false, label:String = "Screen Pass") {
+	public function new(renderer:Renderer, width:Int, height:Int, textureConfigs:Array<ScreenPassTextureConfig>, useDepthRenderbuffer:Bool = false, label:String = "Screen Pass") {
         this.width = width;
         this.height = height;
         this.label = label;
@@ -34,7 +33,7 @@ abstract class ScreenPass extends DisplayObject {
         ]);
 
         var indices = new Indices([0, 1, 2, 0, 2, 3]);
-        super(renderer, vertices, indices, screenShader);
+        super(renderer, vertices, indices);
 
         try {
             framebufferId = renderer.createFramebuffer(width, height, textureConfigs, useDepthRenderbuffer);

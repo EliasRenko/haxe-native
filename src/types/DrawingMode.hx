@@ -1,4 +1,4 @@
-package data;
+package types;
 
 enum abstract DrawingMode(Int) from Int to Int {
     var POINTS:Int = 0x0000;

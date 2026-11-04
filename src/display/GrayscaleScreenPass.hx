@@ -2,6 +2,7 @@ package display;
 
 import GL;
 import Renderer;
+import data.Shader;
 import shaders.GrayscaleScreenPassShader;
 
 class GrayscaleScreenPass extends ScreenPass {
@@ -10,7 +11,6 @@ class GrayscaleScreenPass extends ScreenPass {
             renderer,
             width,
             height,
-            new GrayscaleScreenPassShader(),
             [{
                 attachment: GL.COLOR_ATTACHMENT0,
                 internalFormat: GL.RGBA8,
@@ -22,4 +22,7 @@ class GrayscaleScreenPass extends ScreenPass {
         );
     }
 
+    override private function assignShader():Shader {
+        return new GrayscaleScreenPassShader();
+    }
 }

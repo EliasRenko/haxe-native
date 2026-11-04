@@ -2,6 +2,7 @@ package display;
 
 import GL;
 import Renderer;
+import data.Shader;
 import shaders.DepthVisualizationShader;
 
 class DepthVisualizationScreenPass extends ScreenPass {
@@ -10,7 +11,6 @@ class DepthVisualizationScreenPass extends ScreenPass {
             renderer,
             width,
             height,
-            new DepthVisualizationShader(),
             [
                 {
                     attachment: GL.COLOR_ATTACHMENT0,
@@ -29,6 +29,10 @@ class DepthVisualizationScreenPass extends ScreenPass {
             "Depth texture"
         );
         refreshDepthTexture(renderer);
+    }
+
+    override private function assignShader():Shader {
+        return new DepthVisualizationShader();
     }
 
     override public function onFramebufferResized(renderer:Renderer):Void {

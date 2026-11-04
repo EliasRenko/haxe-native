@@ -2,6 +2,7 @@ package display;
 
 import GL;
 import Renderer;
+import data.Shader;
 import shaders.PostProccessingShader;
 
 class ScanlineScreenPass extends ScreenPass {
@@ -10,7 +11,6 @@ class ScanlineScreenPass extends ScreenPass {
             renderer,
             width,
             height,
-            new PostProccessingShader(),
             [{
                 attachment: GL.COLOR_ATTACHMENT0,
                 internalFormat: GL.RGBA8,
@@ -22,4 +22,7 @@ class ScanlineScreenPass extends ScreenPass {
         );
     }
 
+    override private function assignShader():Shader {
+        return new PostProccessingShader();
+    }
 }

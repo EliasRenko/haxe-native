@@ -21,6 +21,7 @@ class Tilemap extends DisplayObject {
 	public var texture(get, set):Texture;
 
 	private var __matrix:Matrix = new Matrix();
+	private var __finalMatrix:Matrix = new Matrix();
 	private var __verticesToRender:Int = 0;
 	private var __indicesToRender:UInt = 0;
 	private var __texture:Texture;
@@ -308,9 +309,8 @@ class Tilemap extends DisplayObject {
 			return;
 		}
 
-		var finalMatrix = Matrix.copy(__matrix);
-		finalMatrix.append(renderer.matrix);
-		shader.setUniform("uMatrix", finalMatrix.data);
+		Matrix.multiplyInto(__finalMatrix, __matrix, renderer.matrix);
+		shader.setUniform("uMatrix", __finalMatrix.data);
 
 		var programInfo = renderer.programInfosGen[shader.programInfoIndex];
 
