@@ -160,7 +160,7 @@ class Renderer {
         buffers.clear();
 
         for (programInfo in __programInfos) {
-            disposeProgramInfo(programInfo);
+            programInfo.release(this);
         }
         __programInfos = [];
         __initializedSamplerPrograms = new Map<String, Bool>();
@@ -682,7 +682,7 @@ class Renderer {
         GL.bindTexture(texture.target, texture.id);
     }
 
-    private function disposeProgramInfo(programInfo:ProgramInfo):Void {
+    public function disposeProgramInfo(programInfo:ProgramInfo):Void {
         __initializedSamplerPrograms.remove(Std.string(programInfo.program));
         if (programInfo.vao != 0) {
             var vaos = [programInfo.vao];
@@ -691,8 +691,6 @@ class Renderer {
         if (programInfo.program != 0) {
             GL.deleteProgram(programInfo.program);
         }
-        programInfo.__vao = 0;
-        programInfo.__program = 0;
     }
     
     // ===== BUFFERS =====

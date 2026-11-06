@@ -1,6 +1,6 @@
 package native;
 
-import data.Shader as DataShader;
+//import data.Shader as DataShader;
 import data.AttributeInfo;
 import data.UniformInfo;
 
@@ -17,8 +17,8 @@ class ProgramInfo {
 	public var vertexStride(get, null):UInt;
 
 	// Privates
-	@:allow(native.Renderer) private var __vao:Int;
-	@:allow(native.Renderer) private var __program:Program;
+	private var __vao:Int;
+	private var __program:Program;
 	private var __name:String;
 	private var __attributeInfos:Array<data.AttributeInfo>;
 	private var __uniformInfos:Array<data.UniformInfo>;
@@ -31,6 +31,15 @@ class ProgramInfo {
 		__attributeInfos = attributeInfos;
 		__uniformInfos = uniformInfos;
 		__vertexStride = vertexStride;
+	}
+
+	public function release(renderer:Renderer):Void {
+		renderer.disposeProgramInfo(this);
+		__attributeInfos = null;
+		__uniformInfos = null;
+		__program = -1;
+		__vao = -1;
+		__vertexStride = 0;
 	}
 
 	// Getters and setters
