@@ -13,10 +13,6 @@ import data.AttributeInfo;
 import data.UniformInfo;
 import types.AttributeFormat.AttributeFormat;
 import types.UniformFormat.UniformFormat;
-import display.DepthVisualizationScreenPass;
-import display.GrayscaleScreenPass;
-import display.ScanlineScreenPass;
-import display.ScreenPass;
 import ds.SlotArray;
 import GL;
 import Log;
@@ -86,18 +82,13 @@ class Renderer {
     private var __currentBlendMode:Bool = false;
     private var __currentBlendSource:Int = -1;
     private var __currentBlendDestination:Int = -1;
+    private var __activeFramebufferId:Int = -1;
     private var __frameCount:Int = 0;
     private var __programInfos:Array<ProgramInfo> = new Array<ProgramInfo>();
-    private var __initializedSamplerPrograms:Map<String, Bool> = new Map<String, Bool>();
 
     private var buffers:SlotArray<Buffers> = new SlotArray<Buffers>(32);
     private var framebuffers:SlotArray<Framebuffer> = new SlotArray<Framebuffer>(8);
-    private var __framebufferStack:Array<Int> = [];
 
-    public var postProcessDisplayObject:ScreenPass = null;
-    public var usePostProcessing:Bool = false; // Toggle post-processing on/off
-    private var __screenPasses:Array<ScreenPass> = [];
-    private var __activeScreenPassIndex:Int = 0;
     private var currentProgram:Int = -1;
     private var currentVbo:Int = 0;
     private var currentEbo:Int = 0;
@@ -108,13 +99,10 @@ class Renderer {
         __app = app;
 
 		for (definition in definitions) {
-            var programInfo = createProgramInfoObject(
-                definition.name,
-                definition.vertexSource,
-                definition.fragmentSource
-            );
-            __programInfos.push(programInfo);
+			var programInfo = createProgramInfo(definition.name, definition.vertexSource, definition.fragmentSource);
 		}
+
+        __app.log.info(LogCategory.RENDERER, "Renderer initialized with " + __programInfos.length + " shader programs");
 
         setDepthTest(true);
         setDepthWrite(true);
@@ -136,17 +124,8 @@ class Renderer {
         setDepthWrite(true);
         setBlendMode(false);
 
-        while (__framebufferStack.length > 0) {
-            unbindFramebuffer(__framebufferStack[__framebufferStack.length - 1]);
-        }
-
-        if (postProcessDisplayObject != null) {
-            for (screenPass in __screenPasses) {
-                screenPass.dispose(this);
-                screenPass.release(this);
-            }
-            __screenPasses = [];
-            postProcessDisplayObject = null;
+        if (__activeFramebufferId >= 0) {
+            unbindFramebuffer(__activeFramebufferId);
         }
 
         for (framebuffer in framebuffers) {
@@ -163,7 +142,6 @@ class Renderer {
             programInfo.release(this);
         }
         __programInfos = [];
-        __initializedSamplerPrograms = new Map<String, Bool>();
 
         __app.log.info(LogCategory.RENDERER, "Renderer cleanup complete");
     }
@@ -174,7 +152,7 @@ class Renderer {
         if (programInfo.program != currentProgram) {
             GL.useProgram(programInfo.program);
             GL.bindVertexArray(programInfo.vao);
-            initializeSamplerUnits(programInfo);
+            programInfo.initializeSamplerUnits();
             currentProgram = programInfo.program;
             currentVbo = 0;
             currentEbo = 0;
@@ -218,19 +196,10 @@ class Renderer {
     public function drawArrays(mode:Int, first:Int, count:Int):Void {
         GL.drawArrays(mode, first, count);
     }
-    
+
     public function createProgramInfo(name:String, vertexSource:String, fragmentSource:String):ProgramInfo {
-        var programInfo = createProgramInfoObject(name, vertexSource, fragmentSource);
-
-        __programInfos.push(programInfo);
-
-        __app.log.info(LogCategory.RENDERER, "Created and registered ProgramInfo: " + name);
-
-        return programInfo;
-    }
-
-    private function createProgramInfoObject(name:String, vertexSource:String, fragmentSource:String):ProgramInfo {
         var program = compileProgram(name, vertexSource, fragmentSource);
+
         if (program == 0) {
             trace("Failed to compile shader program: " + name);
             return new ProgramInfo(name, program, 0, [], [], 0);
@@ -251,7 +220,7 @@ class Renderer {
             throw error;
         }
 
-        return new ProgramInfo(
+        var programInfo = new ProgramInfo(
             name,
             program,
             vao,
@@ -259,6 +228,12 @@ class Renderer {
             introspection.uniforms,
             introspection.vertexStride
         );
+
+        __app.log.info(LogCategory.RENDERER, "Created and registered ProgramInfo: " + name);
+
+        __programInfos.push(programInfo);
+
+        return programInfo;
     }
 
     private function compileProgram(name:String, vertexSource:String, fragmentSource:String):UInt {
@@ -494,18 +469,6 @@ class Renderer {
         return uniforms;
     }
 
-    private function initializeSamplerUnits(programInfo:ProgramInfo):Void {
-        var key = Std.string(programInfo.program);
-        if (__initializedSamplerPrograms.exists(key)) return;
-
-        for (uniform in programInfo.uniformInfos) {
-            if (uniform != null && uniform.textureUnit != null && uniform.location != null) {
-                GL.uniform1i(uniform.location, uniform.textureUnit);
-            }
-        }
-        __initializedSamplerPrograms.set(key, true);
-    }
-
 	private function setUniformAt(uniforms:Array<UniformInfo>, index:Int, uniform:UniformInfo):Void {
 		while (uniforms.length <= index)
 			uniforms.push(cast null);
@@ -683,7 +646,6 @@ class Renderer {
     }
 
     public function disposeProgramInfo(programInfo:ProgramInfo):Void {
-        __initializedSamplerPrograms.remove(Std.string(programInfo.program));
         if (programInfo.vao != 0) {
             var vaos = [programInfo.vao];
             GL.deleteVertexArrays(1, untyped __cpp__("(const unsigned int*)&{0}[0]", vaos));
@@ -916,48 +878,6 @@ class Renderer {
         }
     }
 
-    // ===== POST-PROCESSING =====
-
-	public function initializePostProcessing():Void {
-        if (postProcessDisplayObject != null) {
-            return;
-        }
-
-        var size = app.window.getWindowSizeInPixels();
-        __screenPasses = [];
-        try {
-            __screenPasses.push(new ScanlineScreenPass(this, size.width, size.height));
-            __screenPasses.push(new GrayscaleScreenPass(this, size.width, size.height));
-            __screenPasses.push(new DepthVisualizationScreenPass(this, size.width, size.height));
-        } catch (error:Dynamic) {
-            for (screenPass in __screenPasses) {
-                screenPass.dispose(this);
-                screenPass.release(this);
-            }
-            __screenPasses = [];
-            throw error;
-        }
-        __activeScreenPassIndex = 0;
-        postProcessDisplayObject = __screenPasses[__activeScreenPassIndex];
-	}
-
-    public function cyclePostProcess(delta:Int):Void {
-        if (__screenPasses.length == 0) {
-            throw "Post-processing screen passes are not initialized";
-        }
-
-        __activeScreenPassIndex = (__activeScreenPassIndex + delta) % __screenPasses.length;
-        if (__activeScreenPassIndex < 0) {
-            __activeScreenPassIndex += __screenPasses.length;
-        }
-        postProcessDisplayObject = __screenPasses[__activeScreenPassIndex];
-        __app.log.info(
-            LogCategory.RENDERER,
-            "Selected screen pass " + (__activeScreenPassIndex + 1) + "/" + __screenPasses.length
-                + ": " + postProcessDisplayObject.label
-        );
-    }
-
     // ===== FRAMEBUFFERS =====
 
 	public function createFramebuffer(width:Int, height:Int, textureConfigs:Array<FramebufferTextureConfig>, useDepthRenderbuffer:Bool = false):Int {
@@ -1013,7 +933,7 @@ class Renderer {
     public function resizeFramebuffer(frameBufferId:Int, width:Int, height:Int):Void {
         if (width <= 0 || height <= 0) return;
         var framebuffer = getFramebufferOrThrow(frameBufferId);
-        if (__framebufferStack.indexOf(frameBufferId) >= 0) {
+        if (__activeFramebufferId == frameBufferId) {
             throw "Cannot resize framebuffer " + frameBufferId + " while it is bound";
         }
         if (framebuffer.width == width && framebuffer.height == height) return;
@@ -1104,10 +1024,9 @@ class Renderer {
     }
 
     private function restoreFramebufferBinding():Void {
-        var framebufferId = __framebufferStack.length > 0
-            ? __framebufferStack[__framebufferStack.length - 1]
-            : -1;
-        var framebuffer = framebufferId >= 0 ? framebuffers.get(framebufferId) : null;
+        var framebuffer = __activeFramebufferId >= 0
+            ? framebuffers.get(__activeFramebufferId)
+            : null;
         GL.bindFramebuffer(GL.FRAMEBUFFER, framebuffer != null ? framebuffer.fbo : 0);
     }
 
@@ -1147,35 +1066,26 @@ class Renderer {
     }
 
     public function bindFramebuffer(frameBufferId:Int):Void {
+        if (__activeFramebufferId >= 0) {
+            throw "Cannot bind framebuffer " + frameBufferId
+                + " while framebuffer " + __activeFramebufferId + " is active";
+        }
+
         var framebuffer = getFramebufferOrThrow(frameBufferId);
         GL.bindFramebuffer(GL.FRAMEBUFFER, framebuffer.fbo);
         setViewport(framebuffer.width, framebuffer.height);
-        __framebufferStack.push(frameBufferId);
+        __activeFramebufferId = frameBufferId;
 	}
 	
 	public function unbindFramebuffer(frameBufferId:Int):Void {
-        if (__framebufferStack.length == 0
-            || __framebufferStack[__framebufferStack.length - 1] != frameBufferId) {
+        if (__activeFramebufferId != frameBufferId) {
             throw "Framebuffer " + frameBufferId + " is not the active render target";
         }
 
-        var previousFramebuffer:Framebuffer = null;
-        if (__framebufferStack.length > 1) {
-            previousFramebuffer = framebuffers.get(__framebufferStack[__framebufferStack.length - 2]);
-            if (previousFramebuffer == null) {
-                throw "Active framebuffer no longer exists";
-            }
-        }
-
-        __framebufferStack.pop();
-        if (previousFramebuffer != null) {
-            GL.bindFramebuffer(GL.FRAMEBUFFER, previousFramebuffer.fbo);
-            setViewport(previousFramebuffer.width, previousFramebuffer.height);
-        } else {
-            GL.bindFramebuffer(GL.FRAMEBUFFER, 0);
-            var size = app.window.getWindowSizeInPixels();
-            setViewport(size.width, size.height);
-        }
+        __activeFramebufferId = -1;
+        GL.bindFramebuffer(GL.FRAMEBUFFER, 0);
+        var size = app.window.getWindowSizeInPixels();
+        setViewport(size.width, size.height);
 	}
 	
     public function disposeFramebuffer(frameBufferId:Int):Void {
@@ -1183,7 +1093,7 @@ class Renderer {
         if (framebuffer == null) {
             throw "Framebuffer with ID " + frameBufferId + " not found";
         }
-        if (__framebufferStack.indexOf(frameBufferId) >= 0) {
+        if (__activeFramebufferId == frameBufferId) {
             throw "Cannot dispose framebuffer " + frameBufferId + " while it is bound";
         }
         disposeFramebufferResources(framebuffer, true);
@@ -1198,8 +1108,8 @@ class Renderer {
 
     public function resize(width:Int, height:Int):Void {
         if (width <= 0 || height <= 0) return; // Ignore degenerate resize (e.g. window minimised)
-        if (__framebufferStack.length > 0) {
-            var activeFramebuffer = framebuffers.get(__framebufferStack[__framebufferStack.length - 1]);
+        if (__activeFramebufferId >= 0) {
+            var activeFramebuffer = framebuffers.get(__activeFramebufferId);
             if (activeFramebuffer == null) {
                 throw "Active framebuffer no longer exists";
             }
@@ -1207,14 +1117,9 @@ class Renderer {
         } else {
             setViewport(width, height);
         }
-        
-        for (screenPass in __screenPasses) {
-            screenPass.resize(this, width, height);
-        }
     }
 
-    // ===== ACCESSORS =====
-
+    // Setters and getters
     private function get_app():App {
         return __app;
     }

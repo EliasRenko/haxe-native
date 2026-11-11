@@ -22,6 +22,7 @@ class ProgramInfo {
 	private var __attributeInfos:Array<data.AttributeInfo>;
 	private var __uniformInfos:Array<data.UniformInfo>;
 	private var __vertexStride:UInt;
+	private var __samplerUnitsInitialized:Bool = false;
 
 	public function new(name:String, program:Program, vao:Int, attributeInfos:Array<data.AttributeInfo>, uniformInfos:Array<data.UniformInfo>, vertexStride:UInt) {
 		__name = name;
@@ -36,9 +37,21 @@ class ProgramInfo {
 		renderer.disposeProgramInfo(this);
 		__attributeInfos = null;
 		__uniformInfos = null;
+		__samplerUnitsInitialized = false;
 		__program = -1;
 		__vao = -1;
 		__vertexStride = 0;
+	}
+
+	public function initializeSamplerUnits():Void {
+		if (__samplerUnitsInitialized) return;
+
+		for (uniform in __uniformInfos) {
+			if (uniform != null && uniform.textureUnit != null && uniform.location != null) {
+				GL.uniform1i(uniform.location, uniform.textureUnit);
+			}
+		}
+		__samplerUnitsInitialized = true;
 	}
 
 	// Getters and setters
