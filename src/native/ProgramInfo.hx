@@ -1,6 +1,5 @@
 package native;
 
-//import data.Shader as DataShader;
 import data.AttributeInfo;
 import data.UniformInfo;
 
