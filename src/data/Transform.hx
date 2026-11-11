@@ -76,6 +76,15 @@ class Transform {
 		return __scaleY;
 	}
 
+	private function get_scaleZ():Float {
+		return __scaleZ;
+	}
+
+	private function set_dirty(v:Bool):Bool {
+		__dirty = v;
+		return v;
+	}
+
 	private function set_x(v:Float):Float {
 		__x = v;
 		__dirty = true;
