@@ -102,8 +102,9 @@ class Runtime {
         
         logInfo(19, "[OpenGL] " + "OpenGL version: " + GL.version.major + "." + GL.version.minor + " has been loaded.");
         
-        // Set viewport to match window size
-        GL.viewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+        // The GL viewport is measured in drawable pixels, not logical window units.
+        var pixelSize = __window.getWindowSizeInPixels();
+        GL.viewport(0, 0, pixelSize.width, pixelSize.height);
     }
 
     public function release():Void {
@@ -113,8 +114,8 @@ class Runtime {
     }
 
     public function run():Void {
-        __active = true;
         var frameCount = 0;
+        __active = true;
 
         while (__active) {
             frameCount++;
@@ -202,6 +203,14 @@ class Runtime {
     //     return false;
 	// }
 
+    public function startTextInput(window:WindowPtr) {
+        SDL.startTextInput(window);
+    }
+    
+    public function stopTextInput(window:WindowPtr) {
+        SDL.stopTextInput(window);
+    }
+
     // Event handling
     private function handleEvents():Void {
         var event = SDL.getEvent();
@@ -229,14 +238,6 @@ class Runtime {
             __handleFingerEvents(event);
             __handleClipboardEvents(event);
         }
-    }
-
-    public function startTextInput(window:WindowPtr) {
-        SDL.startTextInput(window);
-    }
-    
-    public function stopTextInput(window:WindowPtr) {
-        SDL.stopTextInput(window);
     }
 
     // System events
@@ -300,8 +301,10 @@ class Runtime {
             case SDL_WindowEventType.WINDOW_MOVED:
                 onWindowMoved(event.value.window.windowID, event.value.window.data1, event.value.window.data2); // data1,data2 = x,y
             case SDL_WindowEventType.WINDOW_RESIZED:
+                @:privateAccess __window.onWindowResized(event.value.window.data1, event.value.window.data2);
                 onWindowResized(event.value.window.windowID, event.value.window.data1, event.value.window.data2); // data1,data2 = width,height
             case SDL_WindowEventType.WINDOW_PIXEL_SIZE_CHANGED:
+                @:privateAccess __window.onWindowPixelSizeChanged(event.value.window.data1, event.value.window.data2);
                 onWindowPixelSizeChanged(event.value.window.windowID, event.value.window.data1, event.value.window.data2); // data1,data2 = pixelWidth,pixelHeight
             case SDL_WindowEventType.WINDOW_MINIMIZED:
                 onWindowMinimized(event.value.window.windowID);
@@ -359,7 +362,7 @@ class Runtime {
             case SDL_KeyboardEventType.TEXT_INPUT:
                 onTextInput(event.value.text.text, event.value.text.timestamp, event.value.text.windowID);
             case SDL_KeyboardEventType.TEXT_EDITING:
-                // TODO: Implement text editing event handling
+                onTextEditing(event.value.edit.text, event.value.edit.start, event.value.edit.length, event.value.edit.windowID);
             case SDL_KeyboardEventType.KEYMAP_CHANGED:
                 // TODO: Implement keymap changed event handling
             case SDL_KeyboardEventType.KEYBOARD_ADDED:
@@ -520,6 +523,7 @@ class Runtime {
     private function onKeyDown(keycode:Int, scancode:Int, repeat:Bool, mod:SDL_Keymod, windowId:Int):Void {}
     private function onKeyUp(keycode:Int, scancode:Int, repeat:Bool, mod:SDL_Keymod, windowId:Int):Void {}
     private function onTextInput(text:String, timestamp:Float, window_id:Int) {}
+    private function onTextEditing(text:String, start:Int, length:Int, window_id:Int) {}
 
     // Mouse event handlers
     private function onMouseButtonDown(x:Float, y:Float, button:Int, windowId:Int):Void {}
@@ -618,3 +622,17 @@ class Runtime {
 		return value;
     }
 }
+
+// private class __Window extends Window {
+//     public function new(ptr:WindowPtr) {
+//         super(ptr);
+//     }
+
+//     public function onWindowResized(width:Int, height:Int):Void {
+//         __onWindowResized(width, height);
+//     }
+
+//     public function onWindowPixelSizeChanged(width:Int, height:Int):Void {
+//         __onWindowPixelSizeChanged(width, height);
+//     }
+// }
