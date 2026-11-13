@@ -16,6 +16,7 @@ import haxe.io.BytesData;
 
 typedef SDL_PropertiesID = UInt64;
 typedef SDL_JoystickID = UInt32;
+typedef SDL_LogOutputCallback = (userdata:RawPointer<Void>, category:Int, priority:Int, message:ConstCharStar) -> Void;
 
 // Path info structure
 @:unreflective
@@ -244,8 +245,17 @@ extern class SDL {
     @:native("SDL_LogMessage")
     static function logMessage(category:Int, priority:SDL_LogPriority, text:String):Void;
 
-    @:native("SDL_SetLogOutputFunction")
-    static function setLogOutputFunction(callback:cpp.RawPointer<Void>, userdata:cpp.RawPointer<Void>):Void;
+    static inline function setLogOutputFunction(callback:cpp.Callable<SDL_LogOutputCallback>):Void {
+        untyped __cpp__("SDL_SetLogOutputFunction((SDL_LogOutputFunction)({0}.call), nullptr)", callback);
+    }
+
+    static inline function writeLogToDefaultOutput(category:Int, priority:Int, message:ConstCharStar):Void {
+        untyped __cpp__("SDL_GetDefaultLogOutputFunction()(nullptr, {0}, static_cast<SDL_LogPriority>({1}), {2})", category, priority, message);
+    }
+
+    static inline function restoreDefaultLogOutputFunction():Void {
+        untyped __cpp__("SDL_SetLogOutputFunction(SDL_GetDefaultLogOutputFunction(), nullptr)");
+    }
 
     //@:native("SDL_LogMessageV")
     //static function logMessageV(category:Int, priority:SDL_LogPriority, text:String, ?):Void;
@@ -1299,15 +1309,15 @@ abstract SDL_UserEventType(UInt) from UInt to UInt {
 
 @:enum
 abstract SDL_LogPriority(UInt32) from UInt32 to UInt32 {
-    var SDL_LOG_PRIORITY_INVALID = -1;
-    var SDL_LOG_PRIORITY_TRACE = 0;
-    var SDL_LOG_PRIORITY_VERBOSE = 1;
-    var SDL_LOG_PRIORITY_DEBUG = 2;
-    var SDL_LOG_PRIORITY_INFO = 3;
-    var SDL_LOG_PRIORITY_WARN = 4;
-    var SDL_LOG_PRIORITY_ERROR = 5;
-    var SDL_LOG_PRIORITY_CRITICAL = 6;
-    var SDL_LOG_PRIORITY_COUNT = 7;
+    var SDL_LOG_PRIORITY_INVALID = 0;
+    var SDL_LOG_PRIORITY_TRACE = 1;
+    var SDL_LOG_PRIORITY_VERBOSE = 2;
+    var SDL_LOG_PRIORITY_DEBUG = 3;
+    var SDL_LOG_PRIORITY_INFO = 4;
+    var SDL_LOG_PRIORITY_WARN = 5;
+    var SDL_LOG_PRIORITY_ERROR = 6;
+    var SDL_LOG_PRIORITY_CRITICAL = 7;
+    var SDL_LOG_PRIORITY_COUNT = 8;
 }
 
 typedef PtrEvent = Pointer<Event>;

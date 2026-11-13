@@ -5,15 +5,18 @@ import haxe.io.Bytes;
 import SDL;
 import Renderer;
 import Log;
+import cpp.ConstCharStar;
 import cpp.RawPointer;
 import cpp.NativeArray;
 import cpp.UInt64;
 import cpp.Pointer;
+import cpp.Function;
+import cpp.RawPointer;
 
 typedef PathInfo = SDL_PathInfo;
 
 class Runtime {
-
+    // Constants
     public var WINDOW_TITLE:String = "Runtime";
     public var WINDOW_WIDTH:Int = 640;
     public var WINDOW_HEIGHT:Int = 480;
@@ -31,6 +34,9 @@ class Runtime {
     public function new() {}
     
     public function init():Void {
+        // Set a custom log output function to handle SDL log messages
+        setLogOutputFunction(Function.fromStaticFunction(handleLogOutput));
+
         // Initialize SDL video
         if (!SDL.init(SDL.INIT_VIDEO)) {
             logError(19, "Failed to initialize SDL video: " + SDL.getError());
@@ -362,7 +368,7 @@ class Runtime {
             case SDL_KeyboardEventType.TEXT_INPUT:
                 onTextInput(event.value.text.text, event.value.text.timestamp, event.value.text.windowID);
             case SDL_KeyboardEventType.TEXT_EDITING:
-                onTextEditing(event.value.edit.text, event.value.edit.start, event.value.edit.length, event.value.edit.windowID);
+                //onTextEditing(event.value.edit.text, event.value.edit.start, event.value.edit.length, event.value.edit.windowID);
             case SDL_KeyboardEventType.KEYMAP_CHANGED:
                 // TODO: Implement keymap changed event handling
             case SDL_KeyboardEventType.KEYBOARD_ADDED:
@@ -568,7 +574,7 @@ class Runtime {
     private function onClipboardUpdate(clipboardText:String):Void {}
 
     // Log functions
-    // Priority hierarchy (low to high): TRACE (0) < VERBOSE (1) < DEBUG (2) < INFO (3) < WARN (4) < ERROR (5) < CRITICAL (6)
+    // Priority hierarchy (low to high): TRACE (1) < VERBOSE (2) < DEBUG (3) < INFO (4) < WARN (5) < ERROR (6) < CRITICAL (7)
     public function logTrace(category:Int, message:String):Void { SDL.logTrace(category, message); }
     public function logVerbose(category:Int, message:String):Void { SDL.logVerbose(category, message); }
     public function logDebug(category:Int, message:String):Void { SDL.logDebug(category, message); }
@@ -576,6 +582,18 @@ class Runtime {
     public function logWarn(category:Int, message:String):Void { SDL.logWarn(category, message); }
     public function logError(category:Int, message:String):Void { SDL.logError(category, message); }
     public function logCritical(category:Int, message:String):Void { SDL.logCritical(category, message); }
+
+    public function setLogOutputFunction(callback:cpp.Callable<SDL_LogOutputCallback>):Void { 
+        SDL.setLogOutputFunction(callback);
+    }
+
+    public function writeLogToDefaultOutput(category:Int, priority:Int, message:cpp.ConstCharStar):Void {
+        SDL.writeLogToDefaultOutput(category, priority, message);
+    }
+
+    public function restoreDefaultLogOutputFunction():Void {
+        SDL.restoreDefaultLogOutputFunction();
+    }
 
     public function getLogPriority(category:Int):Int {
         return SDL.getLogPriority(category);
@@ -602,6 +620,15 @@ class Runtime {
         return untyped __cpp__("SDL_GetPointerProperty({0}, SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL)", props);
     }
 
+    // Statics
+    private static function handleLogOutput(userdata:RawPointer<Void>, category:Int, priority:Int, message:ConstCharStar):Void {
+        //__app.writeLogToDefaultOutput(category, priority, message);
+
+        // if (LOG_HANDLER != null) {
+        //     LOG_HANDLER(category, priority, message.toString());
+        // }
+    }
+
     // Getters and setters
     public function get_window():Window {
         return __window;
@@ -622,17 +649,3 @@ class Runtime {
 		return value;
     }
 }
-
-// private class __Window extends Window {
-//     public function new(ptr:WindowPtr) {
-//         super(ptr);
-//     }
-
-//     public function onWindowResized(width:Int, height:Int):Void {
-//         __onWindowResized(width, height);
-//     }
-
-//     public function onWindowPixelSizeChanged(width:Int, height:Int):Void {
-//         __onWindowPixelSizeChanged(width, height);
-//     }
-// }
