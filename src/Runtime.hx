@@ -142,6 +142,10 @@ class Runtime {
         release();
     }
 
+    public function quit():Void {
+        __active = false;
+    }
+
     public function swapBuffers():Void {
         SDL.swapWindow(__window.ptr);
     }

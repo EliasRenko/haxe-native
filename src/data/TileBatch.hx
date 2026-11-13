@@ -11,7 +11,7 @@ import display.Tile;
  */
 class TileBatch {
 
-    public static inline var MAX_TILES:Int = 1000;
+    public static inline var MAX_TILES:Int = 2000;
 
     /** Atlas dimensions in pixels, used to calculate normalized UVs. */
     public var atlasWidth(default, null):Int;
