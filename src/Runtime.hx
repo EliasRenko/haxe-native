@@ -23,15 +23,17 @@ class Runtime {
 
     // Publics
     public var active(get, null):Bool;
+    public var frameCount(get, null):Int;
     public var vsync(get, set):Int;
     public var window(get, null):Window;
 
     // Privates
     private var __active:Bool = false;
+    private var __frameCount:Int = 0;
     private var __window:Window;
     private var __context:GLContext;
 
-    @:noCompletion private var __videoEnabled:Bool = false; // TODO: Change this!
+    @:noCompletion private var __videoEnabled:Bool = false;
     @:noCompletion private var __audioEnabled:Bool = false;
     @:noCompletion private var __joysticksEnabled:Bool = false;
     @:noCompletion private var __gamepadsEnabled:Bool = false;
@@ -46,7 +48,7 @@ class Runtime {
         // Initialize SDL video
         if (!SDL.init(SDL.INIT_VIDEO)) {
             logError(19, "Failed to initialize SDL video: " + SDL.getError());
-            release();
+            quit();
             return;
         }
         else {
@@ -57,14 +59,14 @@ class Runtime {
         #if !no_audio
         if (!SDL.init(SDL.INIT_AUDIO)) {
             logError(19, "Failed to initialize SDL audio: " + SDL.getError());
-            release();
+            quit();
             return;
         }
 
         if (!SDLMixer.init()) {
             var error = SDL.getError();
             logError(19, "Failed to initialize SDL_mixer: " + error);
-            release();
+            quit();
             return;
         }
         else {
@@ -76,7 +78,7 @@ class Runtime {
         #if !no_joystick
         if (!SDL.init(SDL.INIT_JOYSTICK)) {
             logError(19, "Failed to initialize SDL joystick: " + SDL.getError());
-            release();
+            quit();
             return;
         }
         else {
@@ -88,7 +90,7 @@ class Runtime {
         #if !no_gamepad
         if (!SDL.init(SDL.INIT_GAMEPAD)) {
             logError(19, "Failed to initialize SDL gamepad: " + SDL.getError());
-            release();
+            quit();
             return;
         }
         else {
@@ -100,7 +102,7 @@ class Runtime {
         // Initialize SDL haptic
         if (!SDL.init(SDL.INIT_HAPTIC)) {
             logError(19, "Failed to initialize SDL haptic: " + SDL.getError());
-            release();
+            quit();
             return;
         }
         else {
@@ -117,7 +119,7 @@ class Runtime {
         __window = new Window(SDL.createWindow(WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT, SDL.WINDOW_OPENGL | SDL.WINDOW_RESIZABLE | SDL.WINDOW_INPUT_FOCUS )); // SDL.WINDOW_BORDERLESS
         if (__window.ptr == null) {
             logError(19, "Failed to create window: " + SDL.getError());
-            release();
+            quit();
             return;
         }
         
@@ -125,7 +127,7 @@ class Runtime {
         __context = SDL.createContext(__window.ptr);
         if (__context == null) {
             logError(19, "Failed to create OpenGL context: " + SDL.getError());
-            release();
+            quit();
             return;
         }
         
@@ -135,7 +137,7 @@ class Runtime {
         var gladResult = GL.gladLoadGLLoader(SDL.getProcAddress);
         if (gladResult == 0) {
             logError(19, "Failed to load OpenGL functions");
-            release();
+            quit();
             return;
         }
         
@@ -147,24 +149,14 @@ class Runtime {
     }
 
     public function release():Void {
-        logInfo(19, "Finalizing runtime.");
-
-        #if !no_audio
-        if (__audioEnabled) {
-            SDLMixer.quit();
-            __audioEnabled = false;
-        }
-        #end
-
-        SDL.quit();
+        __active = false;
     }
 
     public function run():Void {
-        var frameCount = 0;
         __active = true;
 
         while (__active) {
-            frameCount++;
+            __frameCount++;
             
             // Handle events
             handleEvents();
@@ -179,15 +171,7 @@ class Runtime {
             SDL.swapWindow(__window.ptr);
         }
         
-        release();
-    }
-
-    public function quit():Void {
-        __active = false;
-    }
-
-    public function swapBuffers():Void {
-        SDL.swapWindow(__window.ptr);
+        quit();
     }
 
     public function update():Void {}
@@ -217,7 +201,6 @@ class Runtime {
     }
 
     public function saveBytes(path:String, data:String):Bool {
-
         var bytes = Bytes.ofString(data);
         var dataPtr = NativeArray.address(bytes.getData(), 0); 
         var dataSize = bytes.length;
@@ -259,6 +242,22 @@ class Runtime {
     
     public function stopTextInput(window:WindowPtr) {
         SDL.stopTextInput(window);
+    }
+
+    private function quit():Void {
+        #if !no_audio
+        if (__audioEnabled) {
+            SDLMixer.quit();
+        }
+        #end
+
+        __videoEnabled:Bool = false;
+        __audioEnabled:Bool = false;
+        __joysticksEnabled:Bool = false;
+        __gamepadsEnabled:Bool = false;
+        __hapticEnabled:Bool = false;
+
+        SDL.quit();
     }
 
     // Event handling
@@ -674,12 +673,12 @@ class Runtime {
     }
 
     // Getters and setters
-    public function get_window():Window {
-        return __window;
-    }
-    
     private function get_active():Bool {
         return __active;
+    }
+
+    private function get_frameCount():Int {
+        return __frameCount;
     }
 
 	private function get_vsync():Int {
@@ -691,5 +690,9 @@ class Runtime {
     private function set_vsync(value:Int):Int {
         SDL.setSwapInterval(value);
 		return value;
+    }
+
+    public function get_window():Window {
+        return __window;
     }
 }
