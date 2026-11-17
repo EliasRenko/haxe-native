@@ -30,6 +30,12 @@ class Runtime {
     private var __active:Bool = false;
     private var __window:Window;
     private var __context:GLContext;
+
+    @:noCompletion private var __videoEnabled:Bool = false; // TODO: Change this!
+    @:noCompletion private var __audioEnabled:Bool = false;
+    @:noCompletion private var __joysticksEnabled:Bool = false;
+    @:noCompletion private var __gamepadsEnabled:Bool = false;
+    @:noCompletion private var __hapticEnabled:Bool = false;
     
     public function new() {}
     
@@ -40,14 +46,29 @@ class Runtime {
         // Initialize SDL video
         if (!SDL.init(SDL.INIT_VIDEO)) {
             logError(19, "Failed to initialize SDL video: " + SDL.getError());
+            release();
             return;
         }
+        else {
+            __videoEnabled = true;
+        }
 
-        // Initialize SDL audio
+        // Initialize SDL audio and mixer
         #if !no_audio
         if (!SDL.init(SDL.INIT_AUDIO)) {
             logError(19, "Failed to initialize SDL audio: " + SDL.getError());
+            release();
             return;
+        }
+
+        if (!SDLMixer.init()) {
+            var error = SDL.getError();
+            logError(19, "Failed to initialize SDL_mixer: " + error);
+            release();
+            return;
+        }
+        else {
+            __audioEnabled = true;
         }
         #end
 
@@ -55,7 +76,11 @@ class Runtime {
         #if !no_joystick
         if (!SDL.init(SDL.INIT_JOYSTICK)) {
             logError(19, "Failed to initialize SDL joystick: " + SDL.getError());
+            release();
             return;
+        }
+        else {
+            __joysticksEnabled = true;
         }
         #end
 
@@ -63,7 +88,11 @@ class Runtime {
         #if !no_gamepad
         if (!SDL.init(SDL.INIT_GAMEPAD)) {
             logError(19, "Failed to initialize SDL gamepad: " + SDL.getError());
+            release();
             return;
+        }
+        else {
+            __gamepadsEnabled = true;
         }
         #end
 
@@ -71,7 +100,11 @@ class Runtime {
         // Initialize SDL haptic
         if (!SDL.init(SDL.INIT_HAPTIC)) {
             logError(19, "Failed to initialize SDL haptic: " + SDL.getError());
+            release();
             return;
+        }
+        else {
+            __hapticEnabled = true;
         }
         #end
         
@@ -115,6 +148,13 @@ class Runtime {
 
     public function release():Void {
         logInfo(19, "Finalizing runtime.");
+
+        #if !no_audio
+        if (__audioEnabled) {
+            SDLMixer.quit();
+            __audioEnabled = false;
+        }
+        #end
 
         SDL.quit();
     }
