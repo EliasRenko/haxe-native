@@ -251,11 +251,11 @@ class Runtime {
         }
         #end
 
-        __videoEnabled:Bool = false;
-        __audioEnabled:Bool = false;
-        __joysticksEnabled:Bool = false;
-        __gamepadsEnabled:Bool = false;
-        __hapticEnabled:Bool = false;
+        __videoEnabled = false;
+        __audioEnabled = false;
+        __joysticksEnabled = false;
+        __gamepadsEnabled = false;
+        __hapticEnabled = false;
 
         SDL.quit();
     }
