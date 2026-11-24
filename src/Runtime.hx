@@ -21,6 +21,11 @@ class Runtime {
     public var WINDOW_WIDTH:Int = 640;
     public var WINDOW_HEIGHT:Int = 480;
 
+    // Static privates
+    private static var __openFileCallback:(Array<String>, Int) -> Void;
+    private static var __saveFileCallback:(Array<String>, Int) -> Void;
+    private static var __openFolderCallback:(Array<String>, Int) -> Void;
+
     // Publics
     public var active(get, null):Bool;
     public var frameCount(get, null):Int;
@@ -212,13 +217,34 @@ class Runtime {
         return result;
     }
 
-    public function copyFile(srcPath:String, destPath:String):Bool {
-        var result = SDL.copyFile(srcPath, destPath);
-        if (!result) {
-            logError(19, "Failed to copy file from " + srcPath + " to " + destPath + " - ERROR: " + SDL.getError());
-        }
-        return result;
-    }
+	public function copyFile(srcPath:String, destPath:String):Bool {
+		var result = SDL.copyFile(srcPath, destPath);
+		if (!result) {
+			logError(19, "Failed to copy file from " + srcPath + " to " + destPath + " - ERROR: " + SDL.getError());
+		}
+		return result;
+	}
+
+	public function showOpenFileDialog(callback:(Array<String>, Int) -> Void, defaultLocation:String = null, allowMany:Bool = false):Void {
+        if (__openFileCallback != null) return;
+        __openFileCallback = callback;
+        var nativeCallback:cpp.Callable<SDL_DialogFileCallback> = cpp.Callable.fromStaticFunction(handleOpenFileDialogCallback);
+		SDL.showOpenFileDialog(nativeCallback, null, __window.ptr, null, 0, defaultLocation, allowMany);
+	}
+
+	public function showSaveFileDialog(callback:(Array<String>, Int) -> Void, defaultLocation:String = null):Void {
+        if (__saveFileCallback != null) return;
+        __saveFileCallback = callback;
+        var nativeCallback:cpp.Callable<SDL_DialogFileCallback> = cpp.Callable.fromStaticFunction(handleSaveFileDialogCallback);
+		SDL.showSaveFileDialog(nativeCallback, null, __window.ptr, null, 0, defaultLocation);
+	}
+
+	public function showOpenFolderDialog(callback:(Array<String>, Int) -> Void, defaultLocation:String = null, allowMany:Bool = false):Void {
+        if (__openFolderCallback != null) return;
+        __openFolderCallback = callback;
+        var nativeCallback:cpp.Callable<SDL_DialogFileCallback> = cpp.Callable.fromStaticFunction(handleOpenFolderDialogCallback);
+		SDL.showOpenFolderDialog(nativeCallback, null, __window.ptr, defaultLocation, allowMany);
+	}
 
     // public function getPathInfo(path:String):PathInfo {
     //     var pathInfo:SDL_PathInfo = untyped __cpp__("SDL_PathInfo()");
@@ -664,6 +690,42 @@ class Runtime {
     }
 
     // Statics
+    private static function collectDialogFiles(filelist:Pointer<ConstCharStar>):Array<String> {
+        var files:Array<String> = [];
+        if (filelist == null) return files;
+
+        var index:Int = 0;
+        while (filelist[index] != null) {
+            files.push(filelist[index].toString());
+            index++;
+        }
+        return files;
+    }
+
+    private static function handleOpenFileDialogCallback(userdata:RawPointer<Void>, filelist:Pointer<ConstCharStar>, filter:Int):Void {
+        if (__openFileCallback != null) {
+            var callback = __openFileCallback;
+            __openFileCallback = null;
+            callback(collectDialogFiles(filelist), filter);
+        }
+    }
+
+    private static function handleSaveFileDialogCallback(userdata:RawPointer<Void>, filelist:Pointer<ConstCharStar>, filter:Int):Void {
+        if (__saveFileCallback != null) {
+            var callback = __saveFileCallback;
+            __saveFileCallback = null;
+            callback(collectDialogFiles(filelist), filter);
+        }
+    }
+
+    private static function handleOpenFolderDialogCallback(userdata:RawPointer<Void>, filelist:Pointer<ConstCharStar>, filter:Int):Void {
+        if (__openFolderCallback != null) {
+            var callback = __openFolderCallback;
+            __openFolderCallback = null;
+            callback(collectDialogFiles(filelist), filter);
+        }
+    }
+
     private static function handleLogOutput(userdata:RawPointer<Void>, category:Int, priority:Int, message:ConstCharStar):Void {
         //__app.writeLogToDefaultOutput(category, priority, message);
 

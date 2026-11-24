@@ -17,6 +17,14 @@ import haxe.io.BytesData;
 typedef SDL_PropertiesID = UInt64;
 typedef SDL_JoystickID = UInt32;
 typedef SDL_LogOutputCallback = (userdata:RawPointer<Void>, category:Int, priority:Int, message:ConstCharStar) -> Void;
+typedef SDL_DialogFileCallback = (userdata:RawPointer<Void>, filelist:Pointer<ConstCharStar>, filter:Int) -> Void;
+
+@:structAccess
+@:native("::cpp::Struct<SDL_DialogFileFilter>")
+extern class SDL_DialogFileFilter {
+    var name:ConstCharStar;
+    var pattern:ConstCharStar;
+}
 
 // Path info structure
 @:unreflective
@@ -420,6 +428,52 @@ extern class SDL {
 
     @:native("SDL_StopTextInput")
     public static function stopTextInput(window:WindowPtr):Bool;
+
+    // ** File dialogs
+    @:native("SDL_ShowOpenFileDialog")
+    static inline function showOpenFileDialog(
+        callback:cpp.Callable<SDL_DialogFileCallback>,
+        userdata:RawPointer<Void>,
+        window:WindowPtr,
+        filters:RawPointer<Void>,
+        nfilters:Int,
+        defaultLocation:ConstCharStar,
+        allowMany:Bool
+    ):Void {
+        untyped __cpp__(
+            "SDL_ShowOpenFileDialog((SDL_DialogFileCallback)({0}.call), {1}, {2}, (const SDL_DialogFileFilter*){3}, {4}, {5}, {6})",
+            callback, userdata, window, filters, nfilters, defaultLocation, allowMany
+        );
+    }
+
+    @:native("SDL_ShowSaveFileDialog")
+    static inline function showSaveFileDialog(
+        callback:cpp.Callable<SDL_DialogFileCallback>,
+        userdata:RawPointer<Void>,
+        window:WindowPtr,
+        filters:RawPointer<Void>,
+        nfilters:Int,
+        defaultLocation:ConstCharStar
+    ):Void {
+        untyped __cpp__(
+            "SDL_ShowSaveFileDialog((SDL_DialogFileCallback)({0}.call), {1}, {2}, (const SDL_DialogFileFilter*){3}, {4}, {5})",
+            callback, userdata, window, filters, nfilters, defaultLocation
+        );
+    }
+
+    @:native("SDL_ShowOpenFolderDialog")
+    static inline function showOpenFolderDialog(
+        callback:cpp.Callable<SDL_DialogFileCallback>,
+        userdata:RawPointer<Void>,
+        window:WindowPtr,
+        defaultLocation:ConstCharStar,
+        allowMany:Bool
+    ):Void {
+        untyped __cpp__(
+            "SDL_ShowOpenFolderDialog((SDL_DialogFileCallback)({0}.call), {1}, {2}, {3}, {4})",
+            callback, userdata, window, defaultLocation, allowMany
+        );
+    }
 
     //@:native("SDL_GetClipboardText")
     //public static function getClipboardText():ConstCharStar;
