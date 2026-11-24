@@ -4,7 +4,7 @@ OpenGL Binding Implementation TODO
 Scope
 -----
 - Primary implementation file: src/GL.hx.
-- Native loader: include/glad/glad.h and src/glad.c.
+- Native loader: include/GLAD/glad.h and native/glad.c.
 - Current GLAD loader was generated for OpenGL 3.3 compatibility profile,
   with GL_ARB_vertex_attrib_binding as the only generated extension.
 - The target baseline is OpenGL 3.3; this is not an OpenGL 4.5 baseline.
@@ -45,7 +45,7 @@ Phase 2: Loader and Build Improvements
 - [ ] Include only intentionally needed extensions and document the list.
 - [ ] Preserve compatibility-profile behavior unless migrating to core explicitly.
 - [ ] Verify that all GLAD function pointers used by GL.hx are loaded.
-- [ ] Add generated loader build validation for src/glad.c.
+- [ ] Add generated loader build validation for native/glad.c.
 - [ ] Make GLAD loader initialization happen exactly once.
 - [ ] Prevent rendering calls before gladLoadGLLoader() succeeds.
 - [ ] Add debug checks for missing function pointers.
