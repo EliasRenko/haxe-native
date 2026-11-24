@@ -47,6 +47,7 @@ extern class MixerAudioSpec {
   <compilerflag value="-I${haxelib:haxe-native}/include"/>
 </files>
 <target id="haxe" if="windows">
+  <lib name="${haxelib:haxe-native}/lib/x64/SDL3.lib"/>
   <lib name="${haxelib:haxe-native}/lib/x64/SDL3_mixer.lib"/>
 </target>
 ')

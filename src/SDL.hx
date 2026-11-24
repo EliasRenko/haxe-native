@@ -54,7 +54,7 @@ extern class SDL_Gamepad {}
 @:keep
 @:buildXml(
 '<target id="haxe" if="windows">
-   <lib name="lib/x64/SDL3.lib"/>
+   <lib name="${haxelib:haxe-native}/lib/x64/SDL3.lib"/>
    <lib name="user32.lib"/>
    <lib name="gdi32.lib"/>
    <lib name="winmm.lib"/>
@@ -67,7 +67,7 @@ extern class SDL_Gamepad {}
    <lib name="uuid.lib"/>
 </target>
 <files id="haxe">
-    <compilerflag value="-Iinclude"/>
+    <compilerflag value="-I${haxelib:haxe-native}/include"/>
     <compilerflag value="-DHXCPP_NO_PCH"/>
     <compilerflag value="-DHXCPP_NO_PRECOMPILED_HEADERS"/>
 </files>')

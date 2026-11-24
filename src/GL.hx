@@ -43,8 +43,8 @@ typedef GladLoadProc = (name:ConstCharStar) -> cpp.RawPointer<Void>;
 @:include("glad/glad.h")
 @:buildXml('
 <files id="haxe">
-  <compilerflag value="-Iinclude" />
-  <file name="src/glad.c" />
+  <compilerflag value="-I${haxelib:haxe-native}/include" />
+  <file name="${haxelib:haxe-native}/src/glad.c" />
 </files>
 ')
 extern class GL {
