@@ -17,9 +17,9 @@ typedef PathInfo = SDL_PathInfo;
 
 class Runtime {
     // Constants
-    public var WINDOW_TITLE:String = "Runtime";
-    public var WINDOW_WIDTH:Int = 640;
-    public var WINDOW_HEIGHT:Int = 480;
+    public static inline var WINDOW_TITLE:String = "Runtime";
+    public static inline var WINDOW_WIDTH:Int = 640;
+    public static inline var WINDOW_HEIGHT:Int = 480;
 
     // Static privates
     private static var __openFileCallback:(Array<String>, Int) -> Void;
@@ -187,7 +187,6 @@ class Runtime {
     }
 
     public function loadBytes(path:String):Bytes {
-        
         var size:UInt64 = 0;
         var ptrSize:Pointer<UInt64> = Pointer.addressOf(size);
         var ptrData = SDL.loadFile(path, ptrSize.ptr);
@@ -225,9 +224,73 @@ class Runtime {
 		return result;
 	}
 
+	public function showSimpleMessageBox(title:String, message:String, flags:SDL_MessageBoxFlags = null):Bool {
+        if (flags == null) flags = SDL.MESSAGEBOX_INFORMATION;
+        return SDL.showSimpleMessageBox(flags, ConstCharStar.fromString(title), ConstCharStar.fromString(message), __window.ptr);
+	}
+
+	public function showMessageBox(
+		title:String,
+		message:String,
+		confirmText:String = "OK",
+		cancelText:String = null,
+		flags:SDL_MessageBoxFlags = null
+	):Int {
+		if (flags == null) flags = 0;
+
+		var buttonID:Int = -1;
+		var titlePtr = ConstCharStar.fromString(title);
+		var messagePtr = ConstCharStar.fromString(message);
+		var confirmPtr = ConstCharStar.fromString(confirmText);
+
+		if (cancelText == null) {
+			untyped __cpp__(
+				"
+				SDL_MessageBoxButtonData nativeButtons[1] = {};
+				nativeButtons[0].flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT;
+				nativeButtons[0].buttonID = 1;
+				nativeButtons[0].text = {2};
+				SDL_MessageBoxData data = {};
+				data.flags = (SDL_MessageBoxFlags){3};
+				data.window = {4};
+				data.title = {1};
+				data.message = {5};
+				data.numbuttons = 1;
+				data.buttons = nativeButtons;
+				SDL_ShowMessageBox(&data, &{0});
+				",
+				buttonID, titlePtr, confirmPtr, flags, __window.ptr, messagePtr
+			);
+		} else {
+			var cancelPtr = ConstCharStar.fromString(cancelText);
+			untyped __cpp__(
+				"
+				SDL_MessageBoxButtonData nativeButtons[2] = {};
+				nativeButtons[0].flags = SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT;
+				nativeButtons[0].buttonID = 0;
+				nativeButtons[0].text = {2};
+				nativeButtons[1].flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT;
+				nativeButtons[1].buttonID = 1;
+				nativeButtons[1].text = {3};
+				SDL_MessageBoxData data = {};
+				data.flags = (SDL_MessageBoxFlags){4};
+				data.window = {5};
+				data.title = {1};
+				data.message = {6};
+				data.numbuttons = 2;
+				data.buttons = nativeButtons;
+				SDL_ShowMessageBox(&data, &{0});
+				",
+				buttonID, titlePtr, cancelPtr, confirmPtr, flags, __window.ptr, messagePtr
+			);
+		}
+		return buttonID;
+	}
+
 	public function showOpenFileDialog(callback:(Array<String>, Int) -> Void, defaultLocation:String = null, allowMany:Bool = false):Void {
         if (__openFileCallback != null) return;
         __openFileCallback = callback;
+
         var nativeCallback:cpp.Callable<SDL_DialogFileCallback> = cpp.Callable.fromStaticFunction(handleOpenFileDialogCallback);
 		SDL.showOpenFileDialog(nativeCallback, null, __window.ptr, null, 0, defaultLocation, allowMany);
 	}
@@ -235,6 +298,7 @@ class Runtime {
 	public function showSaveFileDialog(callback:(Array<String>, Int) -> Void, defaultLocation:String = null):Void {
         if (__saveFileCallback != null) return;
         __saveFileCallback = callback;
+
         var nativeCallback:cpp.Callable<SDL_DialogFileCallback> = cpp.Callable.fromStaticFunction(handleSaveFileDialogCallback);
 		SDL.showSaveFileDialog(nativeCallback, null, __window.ptr, null, 0, defaultLocation);
 	}
@@ -242,6 +306,7 @@ class Runtime {
 	public function showOpenFolderDialog(callback:(Array<String>, Int) -> Void, defaultLocation:String = null, allowMany:Bool = false):Void {
         if (__openFolderCallback != null) return;
         __openFolderCallback = callback;
+
         var nativeCallback:cpp.Callable<SDL_DialogFileCallback> = cpp.Callable.fromStaticFunction(handleOpenFolderDialogCallback);
 		SDL.showOpenFolderDialog(nativeCallback, null, __window.ptr, defaultLocation, allowMany);
 	}

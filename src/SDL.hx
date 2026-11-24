@@ -16,6 +16,8 @@ import haxe.io.BytesData;
 
 typedef SDL_PropertiesID = UInt64;
 typedef SDL_JoystickID = UInt32;
+typedef SDL_MessageBoxFlags = UInt32;
+typedef SDL_MessageBoxButtonFlags = UInt32;
 typedef SDL_LogOutputCallback = (userdata:RawPointer<Void>, category:Int, priority:Int, message:ConstCharStar) -> Void;
 typedef SDL_DialogFileCallback = (userdata:RawPointer<Void>, filelist:Pointer<ConstCharStar>, filter:Int) -> Void;
 
@@ -24,6 +26,34 @@ typedef SDL_DialogFileCallback = (userdata:RawPointer<Void>, filelist:Pointer<Co
 extern class SDL_DialogFileFilter {
     var name:ConstCharStar;
     var pattern:ConstCharStar;
+}
+
+@:structAccess
+@:native("::cpp::Struct<SDL_MessageBoxButtonData>")
+extern class SDL_MessageBoxButtonData {
+    var flags:SDL_MessageBoxButtonFlags;
+    var buttonID:Int;
+    var text:ConstCharStar;
+}
+
+@:structAccess
+@:native("::cpp::Struct<SDL_MessageBoxColor>")
+extern class SDL_MessageBoxColor {
+    var r:UInt8;
+    var g:UInt8;
+    var b:UInt8;
+}
+
+@:structAccess
+@:native("::cpp::Struct<SDL_MessageBoxData>")
+extern class SDL_MessageBoxData {
+    var flags:SDL_MessageBoxFlags;
+    var window:WindowPtr;
+    var title:ConstCharStar;
+    var message:ConstCharStar;
+    var numbuttons:Int;
+    var buttons:RawPointer<SDL_MessageBoxButtonData>;
+    var colorScheme:RawPointer<Void>;
 }
 
 // Path info structure
@@ -423,11 +453,47 @@ extern class SDL {
     @:native("SDL_WINDOW_NOT_FOCUSABLE")
     static var WINDOW_NOT_FOCUSABLE(default, null):CreateWindowFlag;
 
+    // ** Message box flags
+    @:native("SDL_MESSAGEBOX_ERROR")
+    static var MESSAGEBOX_ERROR(default, null):SDL_MessageBoxFlags;
+    @:native("SDL_MESSAGEBOX_WARNING")
+    static var MESSAGEBOX_WARNING(default, null):SDL_MessageBoxFlags;
+    @:native("SDL_MESSAGEBOX_INFORMATION")
+    static var MESSAGEBOX_INFORMATION(default, null):SDL_MessageBoxFlags;
+    @:native("SDL_MESSAGEBOX_BUTTONS_LEFT_TO_RIGHT")
+    static var MESSAGEBOX_BUTTONS_LEFT_TO_RIGHT(default, null):SDL_MessageBoxFlags;
+    @:native("SDL_MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT")
+    static var MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT(default, null):SDL_MessageBoxFlags;
+    @:native("SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT")
+    static var MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT(default, null):SDL_MessageBoxButtonFlags;
+    @:native("SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT")
+    static var MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT(default, null):SDL_MessageBoxButtonFlags;
+
     @:native("SDL_StartTextInput")
     public static function startTextInput(window:WindowPtr):Bool;
 
     @:native("SDL_StopTextInput")
     public static function stopTextInput(window:WindowPtr):Bool;
+
+    // ** Message boxes
+    @:native("SDL_ShowSimpleMessageBox")
+    static function showSimpleMessageBox(
+        flags:SDL_MessageBoxFlags,
+        title:ConstCharStar,
+        message:ConstCharStar,
+        window:WindowPtr
+    ):Bool;
+
+    @:native("SDL_ShowMessageBox")
+    static inline function showMessageBox(
+        data:RawPointer<Void>,
+        buttonID:Pointer<Int>
+    ):Bool {
+        untyped return __cpp__(
+            "SDL_ShowMessageBox((const SDL_MessageBoxData*){0}, (int*)&{1})",
+            data, buttonID
+        );
+    }
 
     // ** File dialogs
     @:native("SDL_ShowOpenFileDialog")

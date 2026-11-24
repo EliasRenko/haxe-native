@@ -763,14 +763,14 @@ Phase 15: Process, Dynamic Library, and Platform APIs
 Phase 16: Dialogs and Message Boxes
 ------------------------------------
 - [ ] Dialog helpers:
-  - SDL_ShowOpenFileDialog
-  - SDL_ShowSaveFileDialog
-  - SDL_ShowOpenFolderDialog
+  - [x] SDL_ShowOpenFileDialog
+  - [x] SDL_ShowSaveFileDialog
+  - [x] SDL_ShowOpenFolderDialog
   - SDL_ShowFileDialogWithProperties
   - Dialog callback and I/O stream support
 - [ ] Message boxes:
-  - SDL_ShowSimpleMessageBox
-  - SDL_ShowMessageBox
+  - [x] SDL_ShowSimpleMessageBox
+  - [x] SDL_ShowMessageBox
   - Message box button, color, and property structures
 
 
