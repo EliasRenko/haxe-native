@@ -2,6 +2,7 @@
 package data;
 
 import display.Tile;
+import ds.SlotArray;
 
 /**
  * TileBatch manages tile instances and atlas regions.
@@ -18,13 +19,16 @@ class TileBatch {
     public var atlasHeight(default, null):Int;
 
     /** Atlas regions indexed by region ID. */
-    public var atlasRegions:Map<Int, AtlasRegion> = new Map();
+    public var atlasRegions:SlotArray<AtlasRegion> = new SlotArray<AtlasRegion>();
+    public var onChanged:Null<Void->Void>;
 
     /** Tile instances indexed by tile ID. */
-    private var tiles:Map<Int, Tile> = new Map();
+    private var tiles:SlotArray<Tile> = new SlotArray<Tile>(MAX_TILES);
 
-    private var __nextRegionId:Int = 1;
-    private var __nextTileId:Int = 1;
+
+    private inline function notifyChanged():Void {
+        if (onChanged != null) onChanged();
+    }
 
     /**
      * Create a TileBatch.
@@ -50,31 +54,25 @@ class TileBatch {
      *
      * @return The tile ID, or -1 if the region does not exist.
      */
-    public function addTile(
-        x:Float,
-        y:Float,
-        width:Float,
-        height:Float,
-        regionId:Int
-    ):Int {
-        if (!atlasRegions.exists(regionId)) {
-            trace("TileBatch: Error - Region ID " + regionId + " does not exist!");
-            return -1;
-        }
+	public function addTile(x:Float, y:Float, width:Float, height:Float, regionId:Int):Int {
+		if (!atlasRegions.isValid(regionId)) {
+			trace("TileBatch: Error - Region ID " + regionId + " does not exist!");
+			return -1;
+		}
 
-        var tileId = __nextTileId++;
+		var tile = new Tile(this);
+		tile.onChanged = notifyChanged;
+		tile.x = x;
+		tile.y = y;
+		tile.width = width;
+		tile.height = height;
+		tile.regionId = regionId;
 
-        var tile = new Tile(this);
-        tile.x = x;
-        tile.y = y;
-        tile.width = width;
-        tile.height = height;
-        tile.regionId = regionId;
+		var tileId = tiles.add(tile);
+		notifyChanged();
 
-        tiles.set(tileId, tile);
-
-        return tileId;
-    }
+		return tileId;
+	}
 
     /**
      * Add an existing Tile instance.
@@ -84,8 +82,9 @@ class TileBatch {
             return;
         }
 
-        var tileId = __nextTileId++;
-        tiles.set(tileId, tile);
+        tile.onChanged = notifyChanged;
+        tiles.add(tile);
+        notifyChanged();
     }
 
     /**
@@ -94,7 +93,13 @@ class TileBatch {
      * @return True if the tile was found and removed.
      */
     public function removeTile(tileId:Int):Bool {
-        return tiles.remove(tileId);
+        var tile = tiles.get(tileId);
+        if (tile == null) return false;
+
+        tiles.remove(tileId);
+        tile.onChanged = null;
+        notifyChanged();
+        return true;
     }
 
     /**
@@ -103,14 +108,13 @@ class TileBatch {
      * @return True if the tile was found and removed.
      */
     public function removeTileInstance(tile:Tile):Bool {
-        for (tileId in tiles.keys()) {
-            if (tiles.get(tileId) == tile) {
-                tiles.remove(tileId);
-                return true;
-            }
-        }
+        var tileId = tiles.indexOf(tile);
+        if (tileId < 0) return false;
 
-        return false;
+        tiles.remove(tileId);
+        tile.onChanged = null;
+        notifyChanged();
+        return true;
     }
 
     /**
@@ -129,6 +133,7 @@ class TileBatch {
 
         tile.x = x;
         tile.y = y;
+        notifyChanged();
 
         return true;
     }
@@ -138,26 +143,21 @@ class TileBatch {
      */
     public function clear():Void {
         tiles.clear();
+        notifyChanged();
     }
 
     /**
      * Get the number of tiles in the batch.
      */
     public function getTileCount():Int {
-        var count = 0;
-
-        for (_ in tiles.keys()) {
-            count++;
-        }
-
-        return count;
+        return tiles.count;
     }
 
     /**
      * Check whether a tile exists.
      */
     public function hasTile(tileId:Int):Bool {
-        return tiles.exists(tileId);
+        return tiles.isValid(tileId);
     }
 
     /**
@@ -185,54 +185,44 @@ class TileBatch {
      *
      * @return The new region ID.
      */
-    public function defineRegion(
-        atlasX:Int,
-        atlasY:Int,
-        regionWidth:Int,
-        regionHeight:Int
-    ):Int {
-        var regionId = __nextRegionId++;
+	public function defineRegion(atlasX:Int, atlasY:Int, regionWidth:Int, regionHeight:Int):Int {
+		var region = new AtlasRegion();
+		region.x = atlasX;
+		region.y = atlasY;
+		region.width = regionWidth;
+		region.height = regionHeight;
 
-        var region = new AtlasRegion();
-        region.x = atlasX;
-        region.y = atlasY;
-        region.width = regionWidth;
-        region.height = regionHeight;
+		updateRegionUVs(region);
+		notifyChanged();
 
-        updateRegionUVs(region);
+		var regionId = atlasRegions.add(region);
+		notifyChanged();
 
-        atlasRegions.set(regionId, region);
-
-        return regionId;
-    }
+		return regionId;
+	}
 
     /**
      * Update an existing atlas region without changing its ID.
      *
      * @return True if the region was found and updated.
      */
-    public function updateRegion(
-        regionId:Int,
-        atlasX:Int,
-        atlasY:Int,
-        regionWidth:Int,
-        regionHeight:Int
-    ):Bool {
-        var region = atlasRegions.get(regionId);
+	public function updateRegion(regionId:Int, atlasX:Int, atlasY:Int, regionWidth:Int, regionHeight:Int):Bool {
+		var region = atlasRegions.get(regionId);
 
-        if (region == null) {
-            return false;
-        }
+		if (region == null) {
+			return false;
+		}
 
-        region.x = atlasX;
-        region.y = atlasY;
-        region.width = regionWidth;
-        region.height = regionHeight;
+		region.x = atlasX;
+		region.y = atlasY;
+		region.width = regionWidth;
+		region.height = regionHeight;
 
-        updateRegionUVs(region);
+		updateRegionUVs(region);
+		notifyChanged();
 
-        return true;
-    }
+		return true;
+	}
 
     /**
      * Recalculate normalized UV coordinates from pixel coordinates.
@@ -258,20 +248,14 @@ class TileBatch {
      * Check whether an atlas region exists.
      */
     public function hasRegion(regionId:Int):Bool {
-        return atlasRegions.exists(regionId);
+        return atlasRegions.isValid(regionId);
     }
 
     /**
      * Get the number of defined atlas regions.
      */
     public function getRegionCount():Int {
-        var count = 0;
-
-        for (_ in atlasRegions.keys()) {
-            count++;
-        }
-
-        return count;
+        return atlasRegions.count;
     }
 
     /**
@@ -281,7 +265,7 @@ class TileBatch {
      */
     public function clearRegions():Void {
         atlasRegions.clear();
-        __nextRegionId = 1;
+        notifyChanged();
     }
 }
 

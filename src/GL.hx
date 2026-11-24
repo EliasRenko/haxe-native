@@ -98,6 +98,9 @@ extern class GL {
     @:native("glViewport")
     static function viewport(x:Int, y:Int, width:Int, height:Int):Void;
 
+    @:native("glScissor")
+    static function scissor(x:Int, y:Int, width:Int, height:Int):Void;
+
     @:native("glCreateProgram")
     static function createProgram():UInt;
 
@@ -279,6 +282,9 @@ extern class GL {
 
     @:native("GL_CULL_FACE")
     static var CULL_FACE(default, null):Int;
+
+    @:native("GL_SCISSOR_TEST")
+    static var SCISSOR_TEST(default, null):Int;
     
     // Depth function constants
     @:native("GL_LESS")

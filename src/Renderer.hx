@@ -67,12 +67,108 @@ class Buffers {
     }
 }
 
+class ScissorRect {
+    public var x:Int;
+    public var y:Int;
+    public var width:Int;
+    public var height:Int;
+
+    public function new(x:Int = 0, y:Int = 0, width:Int = 0, height:Int = 0) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
+}
+
+class RendererDiagnostics {
+    public var enabled(default, set):Bool = false;
+    public var frameCount:Int = 0;
+    public var drawCalls:Int = 0;
+    public var drawElementsCalls:Int = 0;
+    public var drawArraysCalls:Int = 0;
+    public var indicesSubmitted:Int = 0;
+    public var trianglesSubmitted:Int = 0;
+    public var verticesSubmitted:Int = 0;
+    public var bufferUploads:Int = 0;
+    public var orphanUploads:Int = 0;
+    public var uploadedVertexBytes:Int = 0;
+    public var uploadedIndexBytes:Int = 0;
+    public var programChanges:Int = 0;
+    public var bufferBindings:Int = 0;
+    public var textureBindings:Int = 0;
+    public var framebufferBindings:Int = 0;
+    public var renderStateChanges:Int = 0;
+    public var scissorChanges:Int = 0;
+    public var liveBuffers:Int = 0;
+    public var livePrograms:Int = 0;
+    public var liveFramebuffers:Int = 0;
+    public var liveTextures:Int = 0;
+    public var cumulativeDrawCalls:Int = 0;
+    public var cumulativeBufferUploads:Int = 0;
+    public var cumulativeOrphanUploads:Int = 0;
+
+    public function new() {}
+
+    public function beginFrame():Void {
+        if (!enabled) return;
+        frameCount++;
+        drawCalls = 0;
+        drawElementsCalls = 0;
+        drawArraysCalls = 0;
+        indicesSubmitted = 0;
+        trianglesSubmitted = 0;
+        verticesSubmitted = 0;
+        bufferUploads = 0;
+        orphanUploads = 0;
+        uploadedVertexBytes = 0;
+        uploadedIndexBytes = 0;
+        programChanges = 0;
+        bufferBindings = 0;
+        textureBindings = 0;
+        framebufferBindings = 0;
+        renderStateChanges = 0;
+        scissorChanges = 0;
+    }
+
+    public function resetCumulative():Void {
+        cumulativeDrawCalls = 0;
+        cumulativeBufferUploads = 0;
+        cumulativeOrphanUploads = 0;
+    }
+
+    public function toString():String {
+        return "drawCalls=" + drawCalls
+            + " elements=" + drawElementsCalls
+            + " arrays=" + drawArraysCalls
+            + " triangles=" + trianglesSubmitted
+            + " uploads=" + bufferUploads
+            + " orphanUploads=" + orphanUploads
+            + " scissorChanges=" + scissorChanges
+            + " programs=" + livePrograms
+            + " buffers=" + liveBuffers
+            + " textures=" + liveTextures
+            + " framebuffers=" + liveFramebuffers;
+    }
+
+    private function set_enabled(value:Bool):Bool {
+        enabled = value;
+        if (!enabled) {
+            beginFrame();
+        }
+        return enabled;
+    }
+}
+
 @:build(macros.ShaderRegistryMacro.build("shaders"))
 class Renderer {
     
     // Publics
     public var app(get, null):App;
     public var frameCount(get, null):Int;
+    public var diagnostics(get, null):RendererDiagnostics;
+    public var scissorEnabled(get, null):Bool;
+    public var scissorStackDepth(get, null):Int;
     public var matrix:Matrix = new Matrix();
 
     // Privates
@@ -84,10 +180,17 @@ class Renderer {
     private var __currentBlendDestination:Int = -1;
     private var __activeFramebufferId:Int = -1;
     private var __frameCount:Int = 0;
+    private var __diagnostics:RendererDiagnostics = new RendererDiagnostics();
+    private var __scissorEnabled:Bool = false;
+    private var __scissorRect:ScissorRect = new ScissorRect();
+    private var __scissorStack:Array<ScissorRect> = [];
+    private var __viewportWidth:Int = 0;
+    private var __viewportHeight:Int = 0;
     private var __programInfos:Array<ProgramInfo> = new Array<ProgramInfo>();
 
     private var buffers:SlotArray<Buffers> = new SlotArray<Buffers>(32);
     private var framebuffers:SlotArray<Framebuffer> = new SlotArray<Framebuffer>(8);
+    private var textures:Array<Texture> = [];
 
     private var currentProgram:Int = -1;
     private var currentVbo:Int = 0;
@@ -97,6 +200,9 @@ class Renderer {
 
     public function new(app:App) {
         __app = app;
+        var pixelSize = __app.window.getWindowSizeInPixels();
+        __viewportWidth = pixelSize.width;
+        __viewportHeight = pixelSize.height;
 
 		for (definition in definitions) {
 			var programInfo = createProgramInfo(definition.name, definition.vertexSource, definition.fragmentSource);
@@ -110,16 +216,19 @@ class Renderer {
     }
     
     public function render():Void {
+        clearScissorStack();
         currentProgram = -1;
         currentVbo = 0;
         currentEbo = 0;
         __currentBlendSource = -1;
         __currentBlendDestination = -1;
         __frameCount++;
+        __diagnostics.beginFrame();
     }
 
     public function release():Void {
         // Reset render state
+        clearScissorStack();
         setDepthTest(true);
         setDepthWrite(true);
         setBlendMode(false);
@@ -137,6 +246,10 @@ class Renderer {
             deleteBuffers(buffers.indexOf(buffer));
         }
         buffers.clear();
+
+        for (texture in textures.copy()) {
+            disposeTexture(texture);
+        }
 
         for (programInfo in __programInfos) {
             programInfo.release(this);
@@ -156,6 +269,7 @@ class Renderer {
             currentProgram = programInfo.program;
             currentVbo = 0;
             currentEbo = 0;
+            if (__diagnostics.enabled) __diagnostics.programChanges++;
         }
     }
 
@@ -191,10 +305,24 @@ class Renderer {
 
     public function drawElements(mode:Int, count:Int):Void {
         GL.drawElements(mode, count, GL.UNSIGNED_INT, 0);
+        if (__diagnostics.enabled) {
+            __diagnostics.drawCalls++;
+            __diagnostics.drawElementsCalls++;
+            __diagnostics.indicesSubmitted += count;
+            __diagnostics.trianglesSubmitted += Std.int(count / 3);
+            __diagnostics.cumulativeDrawCalls++;
+        }
     }
 
     public function drawArrays(mode:Int, first:Int, count:Int):Void {
         GL.drawArrays(mode, first, count);
+        if (__diagnostics.enabled) {
+            __diagnostics.drawCalls++;
+            __diagnostics.drawArraysCalls++;
+            __diagnostics.verticesSubmitted += count;
+            __diagnostics.trianglesSubmitted += Std.int(count / 3);
+            __diagnostics.cumulativeDrawCalls++;
+        }
     }
 
     public function createProgramInfo(name:String, vertexSource:String, fragmentSource:String):ProgramInfo {
@@ -232,6 +360,7 @@ class Renderer {
         __app.log.info(LogCategory.RENDERER, "Created and registered ProgramInfo: " + name);
 
         __programInfos.push(programInfo);
+        __diagnostics.livePrograms++;
 
         return programInfo;
     }
@@ -643,6 +772,7 @@ class Renderer {
         if (texture == null) throw "Texture uniform has no texture value";
         GL.activeTexture(GL.TEXTURE0 + textureUnit);
         GL.bindTexture(texture.target, texture.id);
+        if (__diagnostics.enabled) __diagnostics.textureBindings++;
     }
 
     public function disposeProgramInfo(programInfo:ProgramInfo):Void {
@@ -652,6 +782,7 @@ class Renderer {
         }
         if (programInfo.program != 0) {
             GL.deleteProgram(programInfo.program);
+            if (__diagnostics.livePrograms > 0) __diagnostics.livePrograms--;
         }
     }
     
@@ -674,6 +805,7 @@ class Renderer {
 			GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffersObjs.ebo);
 			currentEbo = buffersObjs.ebo;
 		}
+        if (__diagnostics.enabled) __diagnostics.bufferBindings++;
 	}
 
     public function createBuffers(programInfoIndex:Int):Int {
@@ -687,7 +819,9 @@ class Renderer {
         GL.genBuffers(1, RawPointer.addressOf(vbo));
         GL.genBuffers(1, RawPointer.addressOf(ebo));
 
-        return buffers.add(new Buffers(vbo, ebo, __programInfos[programInfoIndex]));
+        var bufferId = buffers.add(new Buffers(vbo, ebo, __programInfos[programInfoIndex]));
+        __diagnostics.liveBuffers++;
+        return bufferId;
     }
 
     public function getBuffers(bufferId:Int):Buffers {
@@ -708,6 +842,12 @@ class Renderer {
 
         GL.bindBuffer(GL.ARRAY_BUFFER, 0);
         GL.bindVertexArray(0);
+        if (__diagnostics.enabled) {
+            __diagnostics.bufferUploads++;
+            __diagnostics.uploadedVertexBytes += vertices.length * 4;
+            __diagnostics.uploadedIndexBytes += indices.length * 4;
+            __diagnostics.cumulativeBufferUploads++;
+        }
     }
 
     public function orphanAndUploadData(bufferId:Int, vertices:Vertices, indices:Indices, maxBufferSize:Int):Void {
@@ -724,6 +864,14 @@ class Renderer {
 
         GL.bindBuffer(GL.ARRAY_BUFFER, 0);
         GL.bindVertexArray(0);
+        if (__diagnostics.enabled) {
+            __diagnostics.bufferUploads++;
+            __diagnostics.orphanUploads++;
+            __diagnostics.uploadedVertexBytes += vertices.length * 4;
+            __diagnostics.uploadedIndexBytes += indices.length * 4;
+            __diagnostics.cumulativeBufferUploads++;
+            __diagnostics.cumulativeOrphanUploads++;
+        }
     }
 
     public function deleteBuffers(bufferId:Int):Void {
@@ -734,6 +882,7 @@ class Renderer {
         GL.deleteBuffers(1, RawPointer.addressOf(buffersObj.ebo));
 
         buffers.remove(bufferId);
+        if (__diagnostics.liveBuffers > 0) __diagnostics.liveBuffers--;
     }
 
     // ===== TEXTURES =====
@@ -790,6 +939,8 @@ class Renderer {
             target: GL.TEXTURE_2D,
             src: textureData.src
         };
+        textures.push(texture);
+        __diagnostics.liveTextures = textures.length;
         
         return texture;
     }
@@ -808,7 +959,7 @@ class Renderer {
 
         GL.bindTexture(GL.TEXTURE_2D, 0);
 
-        return {
+        var texture:Texture = {
             id: textureId,
             width: width,
             height: height,
@@ -816,6 +967,29 @@ class Renderer {
             target: GL.TEXTURE_2D,
             src: ""
         };
+        textures.push(texture);
+        __diagnostics.liveTextures = textures.length;
+        return texture;
+    }
+
+    public function disposeTexture(texture:Texture):Void {
+        if (texture == null) return;
+
+        var textureId = texture.id;
+        var found = false;
+        for (i in 0...textures.length) {
+            if (textures[i].id == textureId) {
+                textures.splice(i, 1);
+                found = true;
+                break;
+            }
+        }
+
+        if (found) {
+            var textureIds = [textureId];
+            GL.deleteTextures(1, untyped __cpp__("(unsigned int*)&{0}[0]", textureIds));
+        }
+        __diagnostics.liveTextures = textures.length;
     }
 
     // ===== RENDER STATE =====
@@ -845,6 +1019,7 @@ class Renderer {
 			GL.blendFunc(source, destination);
 			__currentBlendSource = source;
 			__currentBlendDestination = destination;
+            if (__diagnostics.enabled) __diagnostics.renderStateChanges++;
 		}
 	}
 
@@ -856,6 +1031,7 @@ class Renderer {
                 GL.glDisable(GL.DEPTH_TEST);
             }
             __currentDepthTest = enabled;
+            if (__diagnostics.enabled) __diagnostics.renderStateChanges++;
         }
     }
     
@@ -863,6 +1039,7 @@ class Renderer {
         if (__currentDepthWrite != enabled) {
             GL.glDepthMask(enabled);
             __currentDepthWrite = enabled;
+            if (__diagnostics.enabled) __diagnostics.renderStateChanges++;
         }
     }
     
@@ -875,7 +1052,113 @@ class Renderer {
                 GL.glDisable(GL.BLEND);
             }
             __currentBlendMode = enabled;
+            if (__diagnostics.enabled) __diagnostics.renderStateChanges++;
         }
+    }
+
+    // ===== SCISSOR CLIPPING =====
+
+    /**
+     * Sets a top-left-origin rectangular clip in current render-target pixels.
+     * Push the current clip before nested/intersected clipping and pop it afterward.
+     */
+    public function setScissor(x:Int, y:Int, width:Int, height:Int):Void {
+        if (width <= 0 || height <= 0) {
+            disableScissor();
+            return;
+        }
+
+        var clamped = clampScissor(new ScissorRect(x, y, width, height));
+        if (clamped.width <= 0 || clamped.height <= 0) {
+            disableScissor();
+            return;
+        }
+
+        __scissorRect = clamped;
+        __scissorEnabled = true;
+        GL.glEnable(GL.SCISSOR_TEST);
+        applyScissor(clamped);
+
+        if (__diagnostics.enabled) {
+            __diagnostics.scissorChanges++;
+            __diagnostics.renderStateChanges++;
+        }
+    }
+
+    public function pushScissor(x:Int, y:Int, width:Int, height:Int):Void {
+        __scissorStack.push(copyScissor(__scissorEnabled ? __scissorRect : null));
+
+        if (!__scissorEnabled) {
+            setScissor(x, y, width, height);
+            return;
+        }
+
+        var current = __scissorRect;
+        var x1 = current.x > x ? current.x : x;
+        var y1 = current.y > y ? current.y : y;
+        var x2 = (current.x + current.width) < (x + width)
+            ? current.x + current.width : x + width;
+        var y2 = (current.y + current.height) < (y + height)
+            ? current.y + current.height : y + height;
+
+        if (x2 <= x1 || y2 <= y1) {
+            setScissor(x1, y1, 0, 0);
+        } else {
+            setScissor(x1, y1, x2 - x1, y2 - y1);
+        }
+    }
+
+    public function popScissor():Bool {
+        if (__scissorStack.length == 0) return false;
+
+        var previous = __scissorStack.pop();
+        if (previous == null) {
+            disableScissor();
+        } else {
+            setScissor(previous.x, previous.y, previous.width, previous.height);
+        }
+        return true;
+    }
+
+    public function disableScissor():Void {
+        if (__scissorEnabled) {
+            __scissorEnabled = false;
+            GL.glDisable(GL.SCISSOR_TEST);
+            if (__diagnostics.enabled) {
+                __diagnostics.scissorChanges++;
+                __diagnostics.renderStateChanges++;
+            }
+        }
+    }
+
+    public function clearScissorStack():Void {
+        __scissorStack = [];
+        disableScissor();
+    }
+
+    private function applyScissor(rect:ScissorRect):Void {
+        var glY = __viewportHeight - (rect.y + rect.height);
+        GL.scissor(rect.x, glY, rect.width, rect.height);
+    }
+
+    private function clampScissor(rect:ScissorRect):ScissorRect {
+        var x1 = rect.x < 0 ? 0 : rect.x;
+        var y1 = rect.y < 0 ? 0 : rect.y;
+        var x2 = rect.x + rect.width;
+        var y2 = rect.y + rect.height;
+
+        if (x2 > __viewportWidth) x2 = __viewportWidth;
+        if (y2 > __viewportHeight) y2 = __viewportHeight;
+
+        if (x2 <= x1 || y2 <= y1) {
+            return new ScissorRect();
+        }
+        return new ScissorRect(x1, y1, x2 - x1, y2 - y1);
+    }
+
+    private function copyScissor(rect:Null<ScissorRect>):Null<ScissorRect> {
+        if (rect == null) return null;
+        return new ScissorRect(rect.x, rect.y, rect.width, rect.height);
     }
 
     // ===== FRAMEBUFFERS =====
@@ -919,7 +1202,9 @@ class Renderer {
             disposeFramebufferResources(framebuffer, true);
             throw error;
         }
-        return framebuffers.add(framebuffer);
+        var framebufferId = framebuffers.add(framebuffer);
+        __diagnostics.liveFramebuffers++;
+        return framebufferId;
     }
 
     public function getFramebufferTexture(frameBufferId:Int, attachment:Int):Texture {
@@ -1045,8 +1330,7 @@ class Renderer {
 
     private function disposeFramebufferAttachments(framebuffer:Framebuffer):Void {
         for (attachment in framebuffer.textures) {
-            var textures = [attachment.texture.id];
-            GL.deleteTextures(1, untyped __cpp__("(unsigned int*)&{0}[0]", textures));
+            disposeTexture(attachment.texture);
         }
         framebuffer.textures = [];
         if (framebuffer.depthRenderbuffer != 0) {
@@ -1062,6 +1346,7 @@ class Renderer {
             var framebuffers = [framebuffer.fbo];
             GL.deleteFramebuffers(1, untyped __cpp__("(unsigned int*)&{0}[0]", framebuffers));
             framebuffer.fbo = 0;
+            if (__diagnostics.liveFramebuffers > 0) __diagnostics.liveFramebuffers--;
         }
     }
 
@@ -1075,6 +1360,7 @@ class Renderer {
         GL.bindFramebuffer(GL.FRAMEBUFFER, framebuffer.fbo);
         setViewport(framebuffer.width, framebuffer.height);
         __activeFramebufferId = frameBufferId;
+        if (__diagnostics.enabled) __diagnostics.framebufferBindings++;
 	}
 	
 	public function unbindFramebuffer(frameBufferId:Int):Void {
@@ -1086,6 +1372,7 @@ class Renderer {
         GL.bindFramebuffer(GL.FRAMEBUFFER, 0);
         var size = app.window.getWindowSizeInPixels();
         setViewport(size.width, size.height);
+        if (__diagnostics.enabled) __diagnostics.framebufferBindings++;
 	}
 	
     public function disposeFramebuffer(frameBufferId:Int):Void {
@@ -1103,6 +1390,8 @@ class Renderer {
     // ===== VIEWPORT =====
 
     private function setViewport(width:Int, height:Int):Void {
+        __viewportWidth = width;
+        __viewportHeight = height;
         GL.viewport(0, 0, width, height);
     }
 
@@ -1126,5 +1415,17 @@ class Renderer {
 
     private function get_frameCount():Int {
         return __frameCount;
+    }
+
+    private function get_scissorEnabled():Bool {
+        return __scissorEnabled;
+    }
+
+    private function get_scissorStackDepth():Int {
+        return __scissorStack.length;
+    }
+
+    private function get_diagnostics():RendererDiagnostics {
+        return __diagnostics;
     }
 }
