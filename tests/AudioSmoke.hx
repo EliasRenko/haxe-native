@@ -19,6 +19,13 @@ class AudioSmoke {
         check(SDLMixer.init(), "Failed to initialize SDL_mixer");
 
         var audio = new Audio();
+        var soundData = new data.SoundData(sys.io.File.getBytes(args[0]), args[0]);
+        var fromSoundData = audio.loadSound(soundData);
+        fromSoundData.play();
+        check(fromSoundData.playing, "SoundData sound should play");
+        fromSoundData.stop();
+        fromSoundData.release();
+
         var fromBytes = audio.loadBytes(sys.io.File.getBytes(args[0]), true, "AudioSmoke bytes");
         fromBytes.play();
         check(fromBytes.playing, "Bytes sound should play");
