@@ -1,0 +1,858 @@
+SDL3 Binding Implementation TODO
+================================
+
+Scope
+-----
+- Target SDL 3.2.10 headers included with haxe-native.
+- Primary implementation file: src/SDL.hx.
+- OpenGL bindings needed for context/window integration remain in scope.
+- Rendering, GPU, surface, texture, and renderer APIs are explicitly out of scope
+  because rendering is implemented with OpenGL.
+- SDL_mixer bindings remain separate in src/SDLMixer.hx.
+
+
+Phase 1: Correct Existing Declarations
+--------------------------------------
+- [ ] SDL_SetWindowFullscreen: change the return type from Int to Bool.
+- [ ] SDL_GL_MakeCurrent: change the return type from Void to Bool.
+- [ ] SDL_GL_SwapWindow: change the return type from Void to Bool.
+- [ ] SDL_SetWindowPosition: change the return type from Void to Bool.
+- [ ] SDL_GetTicks: use UInt64 instead of UInt.
+- [ ] SDL_GetWindowSafeArea: accept SDL_Window* instead of an SDL_WindowID.
+- [ ] Review display IDs and use SDL_DisplayID/UInt32 consistently.
+- [ ] Review SDL_AudioDeviceID and other SDL IDs for platform-appropriate widths.
+- [ ] Add and verify the reserved/padding fields in joystick and gamepad event structs.
+- [ ] Verify native C struct layout, especially boolean and enum fields.
+- [ ] Add ABI and smoke tests that compare representative struct sizes and offsets.
+
+
+Phase 2: Core Foundations
+-------------------------
+- [ ] Complete error API:
+  - SDL_SetError
+  - SDL_SetErrorV
+  - SDL_ClearError
+  - SDL_GetError
+  - SDL_GetErrorMsg
+  - SDL_OutOfMemory
+  - SDL_InvalidParamError
+  - SDL_Unsupported
+- [ ] Complete initialization API:
+  - SDL_AppInit
+  - SDL_AppIterate
+  - SDL_AppEvent
+  - SDL_AppQuit
+  - SDL_AppResult support
+  - SDL_Init
+  - SDL_InitSubSystem
+  - SDL_QuitSubSystem
+  - SDL_WasInit
+  - SDL_Quit
+  - SDL_IsMainThread
+  - SDL_RunOnMainThread
+- [ ] Complete properties API:
+  - SDL_CreateProperties
+  - SDL_DestroyProperties
+  - SDL_CopyProperties
+  - SDL_LockProperties
+  - SDL_UnlockProperties
+  - SDL_GetGlobalProperties
+  - SDL_GetPropertyType
+  - SDL_HasProperty
+  - SDL_ClearProperty
+  - SDL_EnumerateProperties
+  - Typed getters/setters for pointer, string, number, float, and boolean values
+  - Property cleanup callback support
+- [ ] Complete log API:
+  - SDL_GetLogOutputFunction
+  - SDL_SetLogOutputFunction
+  - SDL_GetDefaultLogOutputFunction
+  - Log callback userdata support
+  - All remaining formatting and callback declarations
+- [ ] Complete timer API:
+  - SDL_GetTicksNS
+  - SDL_GetPerformanceCounter
+  - SDL_GetPerformanceFrequency
+  - SDL_Delay
+  - SDL_DelayNS
+  - SDL_DelayPrecise
+  - SDL_AddTimer
+  - SDL_AddTimerNS
+  - SDL_RemoveTimer
+  - Timer callback support
+- [ ] Complete time API:
+  - SDL_GetCurrentTime
+  - SDL_TimeToDateTime
+  - SDL_DateTimeToTime
+  - SDL_TimeToWindows
+  - SDL_TimeFromWindows
+  - SDL_GetDayOfWeek
+  - SDL_GetDayOfYear
+  - SDL_GetDaysInMonth
+  - SDL_GetDateTimeLocalePreferences
+
+
+Phase 3: Event System
+---------------------
+- [ ] Complete SDL_Event union coverage:
+  - Display events
+  - Window events
+  - Keyboard events
+  - Text editing events
+  - Text editing candidates
+  - Text input events
+  - Mouse device, motion, button, and wheel events
+  - Joystick events
+  - Gamepad events
+  - Touch finger events
+  - Clipboard events
+  - Drop file/text/position/begin/complete events
+  - Audio device events
+  - Sensor events
+  - Pen/proximity/button/axis events
+  - Camera device events
+  - Quit event
+  - User event
+  - System WM event, if supported on target platforms
+- [ ] Add event control APIs:
+  - SDL_PumpEvents
+  - SDL_PeepEvents
+  - SDL_HasEvent
+  - SDL_HasEvents
+  - SDL_FlushEvent
+  - SDL_FlushEvents
+  - SDL_PollEvent
+  - SDL_WaitEvent
+  - SDL_WaitEventTimeout
+  - SDL_PushEvent
+  - SDL_RegisterEvents
+- [ ] Add event filtering and watching:
+  - SDL_GetEventFilter
+  - SDL_SetEventFilter
+  - SDL_AddEventWatch
+  - SDL_RemoveEventWatch
+  - SDL_FilterEvents
+- [ ] Add event enable/disable support:
+  - SDL_EventEnabled
+  - SDL_SetEventEnabled
+- [ ] Add event timestamp and window helpers:
+  - SDL_GetTicksNS
+  - SDL_GetWindowFromEvent
+  - SDL_AppEvent
+
+
+Phase 4: Window and Display System
+----------------------------------
+- [ ] Complete window creation:
+  - SDL_CreateWindow
+  - SDL_CreatePopupWindow
+  - SDL_CreateWindowWithProperties
+  - SDL_DestroyWindow
+- [ ] Complete window state:
+  - SDL_ShowWindow
+  - SDL_HideWindow
+  - SDL_RaiseWindow
+  - SDL_RestoreWindow
+  - SDL_MaximizeWindow
+  - SDL_MinimizeWindow
+  - SDL_SyncWindow
+  - SDL_WindowHasSurface
+- [ ] Complete window geometry and appearance:
+  - SDL_GetWindowPosition
+  - SDL_SetWindowPosition
+  - SDL_GetWindowSize
+  - SDL_SetWindowSize
+  - SDL_GetWindowSizeInPixels
+  - SDL_GetWindowBordersSize
+  - SDL_GetWindowMinimumSize
+  - SDL_SetWindowMinimumSize
+  - SDL_GetWindowMaximumSize
+  - SDL_SetWindowMaximumSize
+  - SDL_GetWindowAspectRatio
+  - SDL_SetWindowAspectRatio
+  - SDL_GetWindowPixelDensity
+  - SDL_GetWindowOpacity
+  - SDL_SetWindowOpacity
+  - SDL_GetWindowTitle
+  - SDL_SetWindowTitle
+  - SDL_SetWindowIcon
+  - SDL_SetWindowShape
+  - SDL_FlashWindow
+- [ ] Complete window flags and modes:
+  - SDL_GetWindowFlags
+  - SDL_SetWindowBordered
+  - SDL_SetWindowResizable
+  - SDL_SetWindowFocusable
+  - SDL_SetWindowAlwaysOnTop
+  - SDL_SetWindowModal
+  - SDL_SetWindowParent
+  - SDL_GetWindowParent
+- [ ] Complete fullscreen support:
+  - SDL_GetWindowFullscreenMode
+  - SDL_SetWindowFullscreenMode
+  - SDL_SetWindowFullscreen
+  - SDL_GetClosestFullscreenDisplayMode
+  - SDL_GetFullscreenDisplayModes
+- [ ] Complete hit testing and window menus:
+  - SDL_SetWindowHitTest
+  - SDL_HitTestResult callback
+  - SDL_ShowWindowSystemMenu
+- [ ] Complete display support:
+  - SDL_GetDisplays
+  - SDL_GetPrimaryDisplay
+  - SDL_GetDisplayForPoint
+  - SDL_GetDisplayForRect
+  - SDL_GetDisplayForWindow
+  - SDL_GetDisplayName
+  - SDL_GetDisplayProperties
+  - SDL_GetDisplayBounds
+  - SDL_GetDisplayUsableBounds
+  - SDL_GetNaturalDisplayOrientation
+  - SDL_GetCurrentDisplayOrientation
+  - SDL_GetDesktopDisplayMode
+  - SDL_GetCurrentDisplayMode
+  - SDL_GetDisplayContentScale
+  - SDL_GetSystemTheme
+- [ ] Complete screen saver support:
+  - SDL_EnableScreenSaver
+  - SDL_DisableScreenSaver
+  - SDL_ScreenSaverEnabled
+- [ ] Complete window safe-area and scale support:
+  - SDL_GetWindowSafeArea
+  - SDL_GetWindowDisplayScale
+
+
+Phase 5: OpenGL Integration
+---------------------------
+- [ ] Correct existing GL declarations:
+  - SDL_GL_CreateContext
+  - SDL_GL_DestroyContext
+  - SDL_GL_MakeCurrent
+  - SDL_GL_GetCurrentContext
+  - SDL_GL_GetCurrentWindow
+  - SDL_GL_SwapWindow
+- [ ] Complete GL library management:
+  - SDL_GL_LoadLibrary
+  - SDL_GL_UnloadLibrary
+  - SDL_GL_GetProcAddress
+  - SDL_GL_ExtensionSupported
+- [ ] Complete GL attributes:
+  - SDL_GL_SetAttribute
+  - SDL_GL_GetAttribute
+  - SDL_GL_ResetAttributes
+- [ ] Complete swap interval support:
+  - SDL_GL_SetSwapInterval
+  - SDL_GL_GetSwapInterval
+- [ ] Complete EGL support:
+  - SDL_EGL_GetProcAddress
+  - SDL_EGL_GetWindowSurface
+  - SDL_EGL_GetCurrentDisplay
+  - SDL_EGL_GetCurrentConfig
+  - SDL_EGL_SetAttributeCallbacks
+
+
+Phase 6: Keyboard and Mouse
+---------------------------
+- [ ] Keyboard enumeration and state:
+  - SDL_HasKeyboard
+  - SDL_GetKeyboards
+  - SDL_GetKeyboardNameForID
+  - SDL_GetKeyboardFocus
+  - SDL_GetKeyboardState
+  - SDL_ResetKeyboard
+- [ ] Key/scancode conversion:
+  - SDL_GetKeyFromName
+  - SDL_GetKeyName
+  - SDL_GetKeyFromScancode
+  - SDL_GetScancodeFromKey
+  - SDL_GetScancodeFromName
+  - SDL_GetScancodeName
+  - SDL_SetScancodeName
+- [ ] Modifier state:
+  - SDL_GetModState
+  - SDL_SetModState
+- [ ] Text input:
+  - SDL_StartTextInput
+  - SDL_StartTextInputWithProperties
+  - SDL_StopTextInput
+  - SDL_TextInputActive
+  - SDL_ClearComposition
+  - SDL_SetTextInputArea
+  - SDL_GetTextInputArea
+  - SDL_HasScreenKeyboardSupport
+  - SDL_ScreenKeyboardShown
+- [ ] Mouse device support:
+  - SDL_HasMouse
+  - SDL_GetMice
+  - SDL_GetMouseNameForID
+  - SDL_GetMouseFocus
+- [ ] Mouse state:
+  - SDL_GetMouseState
+  - SDL_GetGlobalMouseState
+  - SDL_GetRelativeMouseState
+  - SDL_BUTTON_MASK and mouse button flag constants
+- [ ] Cursors:
+  - SDL_CreateCursor
+  - SDL_CreateColorCursor
+  - SDL_CreateSystemCursor
+  - SDL_DestroyCursor
+  - SDL_GetCursor
+  - SDL_GetDefaultCursor
+  - SDL_SetCursor
+- [ ] Cursor visibility and mouse capture:
+  - SDL_HideCursor
+  - SDL_ShowCursor
+  - SDL_CursorVisible
+  - SDL_CaptureMouse
+- [ ] Mouse window behavior:
+  - SDL_WarpMouseInWindow
+  - SDL_WarpMouseGlobal
+  - SDL_SetWindowMouseGrab
+  - SDL_SetWindowMouseRect
+  - SDL_SetWindowRelativeMouseMode
+  - SDL_GetWindowRelativeMouseMode
+
+
+Phase 7: Touch and Pen
+----------------------
+- [ ] Touch support:
+  - SDL_GetTouchDevices
+  - SDL_GetTouchDeviceName
+  - SDL_GetTouchDeviceType
+  - SDL_GetTouchFingers
+  - Touch and mouse ID constants
+- [ ] Pen support:
+  - SDL_PenID support
+  - Pen input type and button constants
+  - Pen proximity/down/up/motion/axis events
+  - Pen, mouse, and touch ID constants
+  - Pen device enumeration and metadata if exposed by SDL 3.2.10
+
+
+Phase 8: Clipboard and Drag-and-Drop
+------------------------------------
+- [ ] Clipboard:
+  - SDL_GetClipboardText
+  - SDL_SetClipboardText
+  - SDL_HasClipboardText
+  - SDL_GetPrimarySelectionText
+  - SDL_SetPrimarySelectionText
+  - SDL_HasPrimarySelectionText
+- [ ] Custom clipboard MIME data:
+  - SDL_GetClipboardMimeTypes
+  - SDL_SetClipboardData
+  - SDL_GetClipboardData
+  - SDL_HasClipboardData
+  - SDL_ClearClipboardData
+  - Clipboard data callback support
+- [ ] Drag and drop:
+  - DROP_FILE
+  - DROP_TEXT
+  - DROP_BEGIN
+  - DROP_POSITION
+  - DROP_COMPLETE
+  - Event union fields and filename/text lifetime handling
+
+
+Phase 9: Joystick and Gamepad
+-----------------------------
+- [ ] Joystick enumeration and lifecycle:
+  - SDL_GetJoysticks
+  - SDL_HasJoystick
+  - SDL_OpenJoystick
+  - SDL_CloseJoystick
+  - SDL_JoystickConnected
+  - SDL_GetJoystickFromID
+  - SDL_GetJoystickID
+- [ ] Joystick metadata:
+  - Name, path, serial, GUID, vendor, product
+  - Product/firmware versions
+  - Player index
+  - Connection and power state
+  - Properties
+  - Joystick type
+- [ ] Joystick state:
+  - Axes and initial axis state
+  - Buttons
+  - Hats
+  - Balls
+  - Battery
+- [ ] Joystick configuration:
+  - SDL_LockJoysticks
+  - SDL_UnlockJoysticks
+  - SDL_SetJoystickEventsEnabled
+  - SDL_JoystickEventsEnabled
+  - SDL_UpdateJoysticks
+- [ ] Joystick effects:
+  - SDL_RumbleJoystick
+  - SDL_RumbleJoystickTriggers
+  - SDL_SetJoystickLED
+  - SDL_SendJoystickEffect
+- [ ] Virtual joystick support:
+  - Attach/detach virtual joystick
+  - Virtual axis, ball, button, and hat setters
+  - Virtual touchpad support
+  - Virtual sensor data
+  - Virtual joystick detection
+- [ ] Gamepad enumeration and lifecycle:
+  - SDL_GetGamepads
+  - SDL_HasGamepad
+  - SDL_OpenGamepad
+  - SDL_CloseGamepad
+  - SDL_GamepadConnected
+  - SDL_IsGamepad
+  - SDL_GetGamepadFromID
+- [ ] Gamepad metadata:
+  - Name, path, serial
+  - Vendor/product IDs and versions
+  - GUID and Steam handle
+  - Apple SF Symbols names
+  - Player index
+  - Connection and power state
+  - Properties
+  - Standard and real gamepad type
+- [ ] Gamepad mapping:
+  - SDL_AddGamepadMapping
+  - SDL_AddGamepadMappingsFromFile
+  - SDL_AddGamepadMappingsFromIO
+  - SDL_GetGamepadMapping
+  - SDL_GetGamepadMappingForGUID
+  - SDL_GetGamepadMappingForID
+  - SDL_GetGamepadMappings
+  - SDL_SetGamepadMapping
+  - SDL_ReloadGamepadMappings
+  - SDL_SaveAllMappings
+- [ ] Gamepad state:
+  - SDL_GetGamepadAxis
+  - SDL_GetGamepadButton
+  - SDL_GetGamepadBindings
+  - SDL_GetGamepadType
+  - SDL_GamepadHasAxis
+  - SDL_GamepadHasButton
+  - String/enum conversion for axes and buttons
+  - SDL_GetGamepadButtonLabel
+- [ ] Gamepad effects:
+  - SDL_RumbleGamepad
+  - SDL_RumbleGamepadTriggers
+  - SDL_SetGamepadLED
+  - SDL_SendGamepadEffect
+- [ ] Gamepad sensors and touchpads:
+  - SDL_GamepadHasSensor
+  - SDL_SetGamepadSensorEnabled
+  - SDL_GamepadSensorEnabled
+  - SDL_GetGamepadSensorData
+  - SDL_GetGamepadSensorDataRate
+  - SDL_GetNumGamepadTouchpads
+  - SDL_GetNumGamepadTouchpadFingers
+  - SDL_GetGamepadTouchpadFinger
+- [ ] Gamepad events:
+  - Enable/disable
+  - Update
+  - Device, axis, button, touchpad, sensor, remap, and Steam handle events
+
+
+Phase 10: Haptic
+----------------
+- [ ] Device enumeration and lifecycle:
+  - SDL_GetHaptics
+  - SDL_GetHapticFromID
+  - SDL_GetHapticID
+  - SDL_GetHapticName
+  - SDL_GetHapticNameForID
+  - SDL_OpenHaptic
+  - SDL_OpenHapticFromJoystick
+  - SDL_OpenHapticFromMouse
+  - SDL_CloseHaptic
+- [ ] Haptic capabilities:
+  - SDL_HapticEffectSupported
+  - SDL_HapticRumbleSupported
+  - SDL_GetMaxHapticEffects
+  - SDL_GetMaxHapticEffectsPlaying
+  - SDL_GetNumHapticAxes
+  - SDL_GetHapticFeatures
+  - SDL_IsJoystickHaptic
+  - SDL_IsMouseHaptic
+- [ ] Haptic effects:
+  - SDL_CreateHapticEffect
+  - SDL_DestroyHapticEffect
+  - SDL_UpdateHapticEffect
+  - SDL_RunHapticEffect
+  - SDL_StopHapticEffect
+  - SDL_StopHapticEffects
+  - SDL_GetHapticEffectStatus
+- [ ] Haptic configuration:
+  - SDL_PauseHaptic
+  - SDL_ResumeHaptic
+  - SDL_SetHapticGain
+  - SDL_SetHapticAutocenter
+- [ ] Rumble:
+  - SDL_InitHapticRumble
+  - SDL_PlayHapticRumble
+  - SDL_StopHapticRumble
+
+
+Phase 11: Audio
+---------------
+- [ ] Complete native audio format and specification types.
+- [ ] Complete audio device enumeration:
+  - SDL_GetNumAudioDrivers
+  - SDL_GetAudioDriver
+  - SDL_GetCurrentAudioDriver
+  - SDL_GetAudioPlaybackDevices
+  - SDL_GetAudioRecordingDevices
+  - SDL_GetAudioDeviceName
+  - SDL_GetAudioDeviceFormat
+  - SDL_GetAudioDeviceChannelMap
+- [ ] Complete audio device lifecycle:
+  - SDL_OpenAudioDevice
+  - SDL_OpenAudioDeviceStream
+  - SDL_CloseAudioDevice
+  - SDL_PauseAudioDevice
+  - SDL_ResumeAudioDevice
+  - SDL_AudioDevicePaused
+  - SDL_AudioDevicePaused
+  - SDL_GetAudioDeviceGain
+  - SDL_SetAudioDeviceGain
+- [ ] Complete audio streams:
+  - SDL_CreateAudioStream
+  - SDL_DestroyAudioStream
+  - SDL_GetAudioStreamProperties
+  - SDL_GetAudioStreamFormat
+  - SDL_SetAudioStreamFormat
+  - SDL_GetAudioStreamFrequencyRatio
+  - SDL_SetAudioStreamFrequencyRatio
+  - SDL_GetAudioStreamGain
+  - SDL_SetAudioStreamGain
+  - SDL_PutAudioStreamData
+  - SDL_GetAudioStreamData
+  - SDL_GetAudioStreamAvailable
+  - SDL_GetAudioStreamQueued
+  - SDL_ClearAudioStream
+  - SDL_FlushAudioStream
+  - SDL_LockAudioStream
+  - SDL_UnlockAudioStream
+- [ ] Complete audio callbacks and binding:
+  - SDL_BindAudioStream
+  - SDL_BindAudioStreams
+  - SDL_UnbindAudioStream
+  - SDL_UnbindAudioStreams
+  - SDL_SetAudioStreamGetCallback
+  - SDL_SetAudioStreamPutCallback
+  - SDL_SetAudioPostmixCallback
+- [ ] Complete audio conversion and utilities:
+  - SDL_ConvertAudioSamples
+  - SDL_MixAudio
+  - SDL_LoadWAV
+  - SDL_LoadWAV_IO
+  - SDL_GetAudioFormatName
+  - SDL_GetSilenceValueForFormat
+  - Audio format constants and helper macros
+- [ ] Keep SDL_mixer wrappers separate unless native audio and SDL_mixer need shared types.
+
+
+Phase 12: Sensors and Camera
+----------------------------
+- [ ] Sensors:
+  - SDL_GetSensors
+  - SDL_OpenSensor
+  - SDL_CloseSensor
+  - SDL_UpdateSensors
+  - SDL_GetSensorFromID
+  - SDL_GetSensorID
+  - SDL_GetSensorName
+  - SDL_GetSensorNameForID
+  - SDL_GetSensorType
+  - SDL_GetSensorTypeForID
+  - SDL_GetSensorNonPortableType
+  - SDL_GetSensorNonPortableTypeForID
+  - SDL_GetSensorProperties
+  - SDL_GetSensorData
+- [ ] Camera:
+  - SDL_GetNumCameraDrivers
+  - SDL_GetCameraDriver
+  - SDL_GetCurrentCameraDriver
+  - SDL_GetCameras
+  - SDL_GetCameraName
+  - SDL_GetCameraID
+  - SDL_GetCameraFormat
+  - SDL_GetCameraSupportedFormats
+  - SDL_GetCameraProperties
+  - SDL_GetCameraPermissionState
+  - SDL_GetCameraPosition
+  - SDL_OpenCamera
+  - SDL_CloseCamera
+  - SDL_AcquireCameraFrame
+  - SDL_ReleaseCameraFrame
+
+
+Phase 13: Filesystem and I/O
+----------------------------
+- [ ] Complete filesystem API:
+  - SDL_GetBasePath
+  - SDL_GetPrefPath
+  - SDL_GetUserFolder
+  - SDL_CreateDirectory
+  - SDL_EnumerateDirectory
+  - SDL_RemovePath
+  - SDL_RenamePath
+  - SDL_CopyFile
+  - SDL_GetPathInfo
+  - SDL_GlobDirectory
+  - SDL_GetCurrentDirectory
+  - Enumeration callback and result type
+  - Glob flags
+- [ ] Complete I/O stream API:
+  - SDL_IOFromFile
+  - SDL_IOFromMem
+  - SDL_IOFromConstMem
+  - SDL_IOFromDynamicMem
+  - SDL_OpenIO
+  - SDL_CloseIO
+  - SDL_FlushIO
+  - SDL_ReadIO
+  - SDL_WriteIO
+  - SDL_SeekIO
+  - SDL_TellIO
+  - SDL_GetIOSize
+  - SDL_GetIOStatus
+  - SDL_GetIOProperties
+- [ ] Complete typed I/O helpers:
+  - SDL_ReadU8/S8/U16BE/U16LE/S16BE/S16LE
+  - SDL_ReadU32BE/U32LE/S32BE/S32LE
+  - SDL_ReadU64BE/U64LE/S64BE/S64LE
+  - Matching Write functions
+- [ ] Complete file helpers:
+  - SDL_LoadFile
+  - SDL_LoadFile_IO
+  - SDL_SaveFile
+  - SDL_SaveFile_IO
+  - SDL_IOprintf
+  - SDL_IOvprintf
+- [ ] Complete async I/O:
+  - SDL_AsyncIOFromFile
+  - SDL_CloseAsyncIO
+  - SDL_ReadAsyncIO
+  - SDL_WriteAsyncIO
+  - SDL_GetAsyncIOSize
+  - SDL_LoadFileAsync
+  - SDL_CreateAsyncIOQueue
+  - SDL_DestroyAsyncIOQueue
+  - SDL_GetAsyncIOResult
+  - SDL_WaitAsyncIOResult
+  - SDL_SignalAsyncIOQueue
+- [ ] Complete storage API:
+  - SDL_OpenStorage
+  - SDL_OpenFileStorage
+  - SDL_OpenTitleStorage
+  - SDL_OpenUserStorage
+  - SDL_CloseStorage
+  - SDL_StorageReady
+  - SDL_GetStorageFileSize
+  - SDL_ReadStorageFile
+  - SDL_WriteStorageFile
+  - SDL_CreateStorageDirectory
+  - SDL_RemoveStoragePath
+  - SDL_RenameStoragePath
+  - SDL_CopyStorageFile
+  - SDL_GetStoragePathInfo
+  - SDL_GetStorageSpaceRemaining
+  - SDL_EnumerateStorageDirectory
+  - SDL_GlobStorageDirectory
+
+
+Phase 14: Threads, Synchronization, and Atomic Operations
+---------------------------------------------------------
+- [ ] Threads:
+  - SDL_CreateThread
+  - SDL_CreateThreadRuntime
+  - SDL_CreateThreadWithProperties
+  - SDL_CreateThreadWithPropertiesRuntime
+  - SDL_DetachThread
+  - SDL_GetCurrentThreadID
+  - SDL_GetThreadID
+  - SDL_GetThreadName
+  - SDL_GetThreadState
+  - SDL_WaitThread
+  - SDL_SetCurrentThreadPriority
+  - SDL_GetTLS
+  - SDL_SetTLS
+  - SDL_CleanupTLS
+- [ ] Mutexes:
+  - SDL_CreateMutex
+  - SDL_DestroyMutex
+  - SDL_LockMutex
+  - SDL_TryLockMutex
+  - SDL_UnlockMutex
+- [ ] Semaphores:
+  - SDL_CreateSemaphore
+  - SDL_DestroySemaphore
+  - SDL_WaitSemaphore
+  - SDL_TryWaitSemaphore
+  - SDL_WaitSemaphoreTimeout
+  - SDL_SignalSemaphore
+  - SDL_GetSemaphoreValue
+- [ ] Conditions:
+  - SDL_CreateCondition
+  - SDL_DestroyCondition
+  - SDL_SignalCondition
+  - SDL_BroadcastCondition
+  - SDL_WaitCondition
+  - SDL_WaitConditionTimeout
+- [ ] RW locks:
+  - SDL_CreateRWLock
+  - SDL_DestroyRWLock
+  - SDL_LockRWLockForReading
+  - SDL_LockRWLockForWriting
+  - SDL_TryLockRWLockForReading
+  - SDL_TryLockRWLockForWriting
+  - SDL_UnlockRWLock
+- [ ] Atomic operations:
+  - SDL_SetAtomicInt
+  - SDL_GetAtomicInt
+  - SDL_AddAtomicInt
+  - SDL_CompareAndSwapAtomicInt
+  - SDL_SetAtomicU32
+  - SDL_GetAtomicU32
+  - SDL_CompareAndSwapAtomicU32
+  - SDL_SetAtomicPointer
+  - SDL_GetAtomicPointer
+  - SDL_CompareAndSwapAtomicPointer
+  - Compiler and memory barriers
+  - Spin locks
+- [ ] Callback lifetime and userdata rules for Haxe-to-C++ callbacks.
+
+
+Phase 15: Process, Dynamic Library, and Platform APIs
+-----------------------------------------------------
+- [ ] Processes:
+  - SDL_CreateProcess
+  - SDL_CreateProcessWithProperties
+  - SDL_DestroyProcess
+  - SDL_GetProcessProperties
+  - SDL_ReadProcess
+  - SDL_GetProcessInput
+  - SDL_GetProcessOutput
+  - SDL_KillProcess
+  - SDL_WaitProcess
+- [ ] Dynamic loading:
+  - SDL_LoadObject
+  - SDL_LoadFunction
+  - SDL_UnloadObject
+- [ ] Miscellaneous:
+  - SDL_OpenURL
+- [ ] Locale:
+  - SDL_GetPreferredLocales
+- [ ] Power:
+  - SDL_GetPowerInfo
+- [ ] Platform and sandbox detection:
+  - SDL_GetPlatform
+  - SDL_GetSandbox
+  - SDL_IsChromebook
+  - SDL_IsDeXMode
+  - SDL_IsTablet
+  - SDL_IsTV
+- [ ] System-specific APIs:
+  - Android activity, storage, JNI environment, SDK, permissions, toast, and message APIs
+  - iOS animation callback and event pump
+  - Linux thread priority APIs
+  - Windows Direct3D adapter, DXGI, GDK, and message hook APIs
+  - X11 event hook
+  - Application lifecycle callbacks
+
+
+Phase 16: Dialogs and Message Boxes
+------------------------------------
+- [ ] Dialog helpers:
+  - [x] SDL_ShowOpenFileDialog
+  - [x] SDL_ShowSaveFileDialog
+  - [x] SDL_ShowOpenFolderDialog
+  - SDL_ShowFileDialogWithProperties
+  - Dialog callback and I/O stream support
+- [ ] Message boxes:
+  - [x] SDL_ShowSimpleMessageBox
+  - [x] SDL_ShowMessageBox
+  - Message box button, color, and property structures
+
+
+Phase 17: HID and System Tray
+-----------------------------
+- [ ] HID API:
+  - SDL_hid_init
+  - SDL_hid_exit
+  - SDL_hid_device_change_count
+  - SDL_hid_enumerate
+  - SDL_hid_free_enumeration
+  - SDL_hid_open
+  - SDL_hid_open_path
+  - SDL_hid_close
+  - SDL_hid_get_device_info
+  - SDL_hid_read
+  - SDL_hid_read_timeout
+  - SDL_hid_write
+  - SDL_hid_send_feature_report
+  - SDL_hid_get_feature_report
+  - SDL_hid_get_input_report
+  - SDL_hid_get_manufacturer_string
+  - SDL_hid_get_product_string
+  - SDL_hid_get_serial_number_string
+  - SDL_hid_get_indexed_string
+  - SDL_hid_get_report_descriptor
+  - SDL_hid_set_nonblocking
+  - SDL_hid_ble_scan
+- [ ] System tray:
+  - SDL_CreateTray
+  - SDL_DestroyTray
+  - SDL_CreateTrayMenu
+  - SDL_CreateTraySubmenu
+  - SDL_GetTrayMenu
+  - SDL_GetTrayEntries
+  - SDL_InsertTrayEntryAt
+  - SDL_RemoveTrayEntry
+  - SDL_ClickTrayEntry
+  - SDL_SetTrayIcon
+  - SDL_SetTrayTooltip
+  - SDL_SetTrayEntryCallback
+  - SDL_SetTrayEntryLabel
+  - SDL_SetTrayEntryChecked
+  - SDL_SetTrayEntryEnabled
+  - SDL_GetTrayEntryLabel
+  - SDL_GetTrayEntryChecked
+  - SDL_GetTrayEntryEnabled
+  - SDL_GetTrayEntryParent
+  - SDL_GetTrayMenuParentEntry
+  - SDL_GetTrayMenuParentTray
+  - SDL_GetTraySubmenu
+  - SDL_UpdateTrays
+
+
+Suggested Implementation Order
+------------------------------
+1. Properties, errors, timers, and time.
+2. Complete event union and event control APIs.
+3. Complete window and display APIs.
+4. Keyboard, mouse, cursor, text input, and clipboard.
+5. Joystick and gamepad.
+6. I/O streams, filesystem, storage, and async I/O.
+7. Threads, synchronization, atomic operations, timers, and processes.
+8. Haptic, audio, sensors, camera, and pen.
+9. HID, dialogs, message boxes, tray, locale, power, URL, and platform APIs.
+
+
+Practical First Milestone
+-------------------------
+Ship complete editor/application support for:
+- Window and display management
+- Keyboard and mouse input
+- Text input
+- Clipboard and primary selection
+- Drag and drop
+- Controller and gamepad input
+- Event filtering and waiting
+- Filesystem and I/O streams
+- Properties
+- Timers
+- Errors and logging
+- OpenGL context integration
+- Dialogs and message boxes
+
+Do not include SDL rendering, GPU, surface, texture, or renderer APIs in this binding file.

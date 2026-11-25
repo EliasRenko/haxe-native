@@ -1,7 +1,825 @@
 package;
 
-#if js
-typedef Runtime  = web.Runtime;
-#else
-typedef Runtime  = native.Runtime;
-#end
+import haxe.io.BytesData;
+import haxe.io.Bytes;
+import SDL;
+import Renderer;
+import Log;
+import cpp.ConstCharStar;
+import cpp.RawPointer;
+import cpp.NativeArray;
+import cpp.UInt64;
+import cpp.Pointer;
+import cpp.Function;
+import cpp.RawPointer;
+
+typedef PathInfo = SDL_PathInfo;
+
+class Runtime {
+    // Constants
+    public static inline var WINDOW_TITLE:String = "Runtime";
+    public static inline var WINDOW_WIDTH:Int = 640;
+    public static inline var WINDOW_HEIGHT:Int = 480;
+
+    // Static privates
+    private static var __openFileCallback:(Array<String>, Int) -> Void;
+    private static var __saveFileCallback:(Array<String>, Int) -> Void;
+    private static var __openFolderCallback:(Array<String>, Int) -> Void;
+
+    // Publics
+    public var active(get, null):Bool;
+    public var frameCount(get, null):Int;
+    public var vsync(get, set):Int;
+    public var window(get, null):Window;
+
+    // Privates
+    private var __active:Bool = false;
+    private var __frameCount:Int = 0;
+    private var __window:Window;
+    private var __context:GLContext;
+
+    @:noCompletion private var __videoEnabled:Bool = false;
+    @:noCompletion private var __audioEnabled:Bool = false;
+    @:noCompletion private var __joysticksEnabled:Bool = false;
+    @:noCompletion private var __gamepadsEnabled:Bool = false;
+    @:noCompletion private var __hapticEnabled:Bool = false;
+    
+    public function new() {}
+    
+    public function init():Void {
+        // Set a custom log output function to handle SDL log messages
+        setLogOutputFunction(Function.fromStaticFunction(handleLogOutput));
+
+        // Initialize SDL video
+        if (!SDL.init(SDL.INIT_VIDEO)) {
+            logError(19, "Failed to initialize SDL video: " + SDL.getError());
+            quit();
+            return;
+        }
+        else {
+            __videoEnabled = true;
+        }
+
+        // Initialize SDL audio and mixer
+        #if !no_audio
+        if (!SDL.init(SDL.INIT_AUDIO)) {
+            logError(19, "Failed to initialize SDL audio: " + SDL.getError());
+            quit();
+            return;
+        }
+
+        if (!SDLMixer.init()) {
+            var error = SDL.getError();
+            logError(19, "Failed to initialize SDL_mixer: " + error);
+            quit();
+            return;
+        }
+        else {
+            __audioEnabled = true;
+        }
+        #end
+
+        // Initialize SDL joystick
+        #if !no_joystick
+        if (!SDL.init(SDL.INIT_JOYSTICK)) {
+            logError(19, "Failed to initialize SDL joystick: " + SDL.getError());
+            quit();
+            return;
+        }
+        else {
+            __joysticksEnabled = true;
+        }
+        #end
+
+        // Initialize gamepad
+        #if !no_gamepad
+        if (!SDL.init(SDL.INIT_GAMEPAD)) {
+            logError(19, "Failed to initialize SDL gamepad: " + SDL.getError());
+            quit();
+            return;
+        }
+        else {
+            __gamepadsEnabled = true;
+        }
+        #end
+
+        #if !no_haptic
+        // Initialize SDL haptic
+        if (!SDL.init(SDL.INIT_HAPTIC)) {
+            logError(19, "Failed to initialize SDL haptic: " + SDL.getError());
+            quit();
+            return;
+        }
+        else {
+            __hapticEnabled = true;
+        }
+        #end
+        
+        // Set OpenGL attributes (3.3 Core)
+        SDL.setAttribute(SDL.GL_CONTEXT_MAJOR_VERSION, 3);
+        SDL.setAttribute(SDL.GL_CONTEXT_MINOR_VERSION, 3);
+        SDL.setAttribute(SDL.GL_CONTEXT_PROFILE_MASK, SDL.GL_CONTEXT_PROFILE_CORE);
+        
+        // Create window
+        __window = new Window(SDL.createWindow(WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT, SDL.WINDOW_OPENGL | SDL.WINDOW_RESIZABLE | SDL.WINDOW_INPUT_FOCUS )); // SDL.WINDOW_BORDERLESS
+        if (__window.ptr == null) {
+            logError(19, "Failed to create window: " + SDL.getError());
+            quit();
+            return;
+        }
+        
+        // Create OpenGL context
+        __context = SDL.createContext(__window.ptr);
+        if (__context == null) {
+            logError(19, "Failed to create OpenGL context: " + SDL.getError());
+            quit();
+            return;
+        }
+        
+        SDL.makeCurrent(__window.ptr, __context);
+        
+        // Load OpenGL functions
+        var gladResult = GL.gladLoadGLLoader(SDL.getProcAddress);
+        if (gladResult == 0) {
+            logError(19, "Failed to load OpenGL functions");
+            quit();
+            return;
+        }
+        
+        logInfo(19, "[OpenGL] " + "OpenGL version: " + GL.version.major + "." + GL.version.minor + " has been loaded.");
+        
+        // The GL viewport is measured in drawable pixels, not logical window units.
+        var pixelSize = __window.getWindowSizeInPixels();
+        GL.viewport(0, 0, pixelSize.width, pixelSize.height);
+    }
+
+    public function release():Void {
+        __active = false;
+    }
+
+    public function run():Void {
+        __active = true;
+
+        while (__active) {
+            __frameCount++;
+            
+            // Handle events
+            handleEvents();
+            
+            // Update application logic
+            update();
+            
+            // Render frame
+            render();
+            
+            // Swap buffers
+            SDL.swapWindow(__window.ptr);
+        }
+        
+        quit();
+    }
+
+    public function update():Void {}
+    public function render():Void {}
+
+    public function getTicks():Float {
+        return SDL.getTicks();
+    }
+
+    public function loadBytes(path:String):Bytes {
+        var size:UInt64 = 0;
+        var ptrSize:Pointer<UInt64> = Pointer.addressOf(size);
+        var ptrData = SDL.loadFile(path, ptrSize.ptr);
+
+        if (ptrData == null) {
+            throw "Failed to open file: " + path;
+        }
+
+        var bytes = Bytes.alloc(size.toInt());
+        for (i in 0...size.toInt()) {
+            bytes.set(i, ptrData[i]);
+        }
+        
+        SDL.free(ptrData);
+        return bytes;
+    }
+
+    public function saveBytes(path:String, data:String):Bool {
+        var bytes = Bytes.ofString(data);
+        var dataPtr = NativeArray.address(bytes.getData(), 0); 
+        var dataSize = bytes.length;
+
+        var result = SDL.saveFile(path, dataPtr, dataSize);
+        if (!result) {
+            logError(19, "Failed to save file: " + path + " - ERROR: " + SDL.getError());
+        }
+        return result;
+    }
+
+	public function copyFile(srcPath:String, destPath:String):Bool {
+		var result = SDL.copyFile(srcPath, destPath);
+		if (!result) {
+			logError(19, "Failed to copy file from " + srcPath + " to " + destPath + " - ERROR: " + SDL.getError());
+		}
+		return result;
+	}
+
+	public function showSimpleMessageBox(title:String, message:String, flags:SDL_MessageBoxFlags = null):Bool {
+        if (flags == null) flags = SDL.MESSAGEBOX_INFORMATION;
+        return SDL.showSimpleMessageBox(flags, ConstCharStar.fromString(title), ConstCharStar.fromString(message), __window.ptr);
+	}
+
+	public function showMessageBox(
+		title:String,
+		message:String,
+		confirmText:String = "OK",
+		cancelText:String = null,
+		flags:SDL_MessageBoxFlags = null
+	):Int {
+		if (flags == null) flags = 0;
+
+		var buttonID:Int = -1;
+		var titlePtr = ConstCharStar.fromString(title);
+		var messagePtr = ConstCharStar.fromString(message);
+		var confirmPtr = ConstCharStar.fromString(confirmText);
+
+		if (cancelText == null) {
+			untyped __cpp__(
+				"
+				SDL_MessageBoxButtonData nativeButtons[1] = {};
+				nativeButtons[0].flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT;
+				nativeButtons[0].buttonID = 1;
+				nativeButtons[0].text = {2};
+				SDL_MessageBoxData data = {};
+				data.flags = (SDL_MessageBoxFlags){3};
+				data.window = {4};
+				data.title = {1};
+				data.message = {5};
+				data.numbuttons = 1;
+				data.buttons = nativeButtons;
+				SDL_ShowMessageBox(&data, &{0});
+				",
+				buttonID, titlePtr, confirmPtr, flags, __window.ptr, messagePtr
+			);
+		} else {
+			var cancelPtr = ConstCharStar.fromString(cancelText);
+			untyped __cpp__(
+				"
+				SDL_MessageBoxButtonData nativeButtons[2] = {};
+				nativeButtons[0].flags = SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT;
+				nativeButtons[0].buttonID = 0;
+				nativeButtons[0].text = {2};
+				nativeButtons[1].flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT;
+				nativeButtons[1].buttonID = 1;
+				nativeButtons[1].text = {3};
+				SDL_MessageBoxData data = {};
+				data.flags = (SDL_MessageBoxFlags){4};
+				data.window = {5};
+				data.title = {1};
+				data.message = {6};
+				data.numbuttons = 2;
+				data.buttons = nativeButtons;
+				SDL_ShowMessageBox(&data, &{0});
+				",
+				buttonID, titlePtr, cancelPtr, confirmPtr, flags, __window.ptr, messagePtr
+			);
+		}
+		return buttonID;
+	}
+
+	public function showOpenFileDialog(callback:(Array<String>, Int) -> Void, defaultLocation:String = null, allowMany:Bool = false):Void {
+        if (__openFileCallback != null) return;
+        __openFileCallback = callback;
+
+        var nativeCallback:cpp.Callable<SDL_DialogFileCallback> = cpp.Callable.fromStaticFunction(handleOpenFileDialogCallback);
+		SDL.showOpenFileDialog(nativeCallback, null, __window.ptr, null, 0, defaultLocation, allowMany);
+	}
+
+	public function showSaveFileDialog(callback:(Array<String>, Int) -> Void, defaultLocation:String = null):Void {
+        if (__saveFileCallback != null) return;
+        __saveFileCallback = callback;
+
+        var nativeCallback:cpp.Callable<SDL_DialogFileCallback> = cpp.Callable.fromStaticFunction(handleSaveFileDialogCallback);
+		SDL.showSaveFileDialog(nativeCallback, null, __window.ptr, null, 0, defaultLocation);
+	}
+
+	public function showOpenFolderDialog(callback:(Array<String>, Int) -> Void, defaultLocation:String = null, allowMany:Bool = false):Void {
+        if (__openFolderCallback != null) return;
+        __openFolderCallback = callback;
+
+        var nativeCallback:cpp.Callable<SDL_DialogFileCallback> = cpp.Callable.fromStaticFunction(handleOpenFolderDialogCallback);
+		SDL.showOpenFolderDialog(nativeCallback, null, __window.ptr, defaultLocation, allowMany);
+	}
+
+    // public function getPathInfo(path:String):PathInfo {
+    //     var pathInfo:SDL_PathInfo = untyped __cpp__("SDL_PathInfo()");
+    //     var infoPtr:Pointer<SDL_PathInfo> = untyped __cpp__("&{0}", pathInfo);
+    //     if (SDL.getPathInfo(path, infoPtr.ptr)) {
+    //         return pathInfo;
+    //     }
+    //     return null;
+    // }
+
+    // public function pathExists(path:String):Bool {
+	// 	if (getPathInfo(path) != null) {
+    //         return true;
+    //     }
+    //     return false;
+	// }
+
+    public function startTextInput(window:WindowPtr) {
+        SDL.startTextInput(window);
+    }
+    
+    public function stopTextInput(window:WindowPtr) {
+        SDL.stopTextInput(window);
+    }
+
+    private function quit():Void {
+        #if !no_audio
+        if (__audioEnabled) {
+            SDLMixer.quit();
+        }
+        #end
+
+        __videoEnabled = false;
+        __audioEnabled = false;
+        __joysticksEnabled = false;
+        __gamepadsEnabled = false;
+        __hapticEnabled = false;
+
+        SDL.quit();
+    }
+
+    // Event handling
+    private function handleEvents():Void {
+        var event = SDL.getEvent();
+        while (SDL.pollEvent(event)) {
+            // TODO: Handle various system events
+            if (event.value.type == SDL.EVENT_QUIT) {
+                __active = false;
+            } 
+
+            if (event.value.type == SDL.EVENT_WINDOW_MAXIMIZED) {
+                
+            }
+
+            if (event.value.type == SDL.EVENT_WINDOW_CLOSE_REQUESTED) {
+                __active = false;
+            }
+            
+            __handleSystemEvents(event);
+            __handleDisplayEvents(event);
+            __handleWindowEvents(event);
+            __handleKeyboardInputEvents(event);
+            __handleMouseInputEvents(event);
+            __handleJoystickInputEvents(event);
+            __handleGamepadInputEvents(event);
+            __handleFingerEvents(event);
+            __handleClipboardEvents(event);
+        }
+    }
+
+    // System events
+    // LOCALE_CHANGED & SYSTEM_THEME_CHANGED are not handled
+    private function __handleSystemEvents(event:Pointer<Event>):Void {
+        switch (event.value.type) {
+            case SDL_SystemEventType.QUIT:
+                __active = false;
+            case SDL_SystemEventType.TERMINATING:
+                onTermination();
+            case SDL_SystemEventType.LOW_MEMORY:
+                onLowMemory();
+            case SDL_SystemEventType.WILL_ENTER_BACKGROUND:
+                willEnterBackground();
+            case SDL_SystemEventType.DID_ENTER_BACKGROUND:
+                didEnterBackground();
+            case SDL_SystemEventType.WILL_ENTER_FOREGROUND:
+                willEnterForeground();
+            case SDL_SystemEventType.DID_ENTER_FOREGROUND:
+                didEnterForeground();
+            default:
+                // Other events can be ignored here
+        }
+    }
+
+    // Display events
+    private function __handleDisplayEvents(event:Pointer<Event>):Void {
+        switch (event.value.type) {
+            case SDL_DisplayEventType.DISPLAY_ORIENTATION:
+                onDisplayOrientationChanged(event.value.display.displayID, event.value.display.data1); // data1 = orientation
+            case SDL_DisplayEventType.DISPLAY_ADDED:
+                onDisplayAdded(event.value.display.displayID);
+            case SDL_DisplayEventType.DISPLAY_REMOVED:
+                onDisplayRemoved(event.value.display.displayID);
+            case SDL_DisplayEventType.DISPLAY_MOVED:
+                onDisplayMoved(event.value.display.displayID, event.value.display.data1, event.value.display.data2); // data1,data2 = x,y
+            case SDL_DisplayEventType.DISPLAY_DESKTOP_MODE_CHANGED:
+                var mode:Pointer<SDL_DisplayMode> = SDL.getDesktopDisplayMode(event.value.display.displayID);
+                onDisplayDesktopModeChanged(event.value.display.displayID, mode.value);
+            case SDL_DisplayEventType.DISPLAY_CURRENT_MODE_CHANGED:
+                var mode:Pointer<SDL_DisplayMode> = SDL.getCurrentDisplayMode(event.value.display.displayID);
+                onDisplayCurrentModeChanged(event.value.display.displayID, mode.value);
+            case SDL_DisplayEventType.DISPLAY_CONTENT_SCALE_CHANGED:
+                var scale:Float = SDL.getDisplayContentScale(event.value.display.displayID);
+                onDisplayContentScaleChanged(event.value.display.displayID, scale);
+            default:
+                // Other events can be ignored here
+        }
+    }
+
+    // Window events
+    // SDL_EVENT_WINDOW_METAL_VIEW_RESIZED is not handled
+    private function __handleWindowEvents(event:Pointer<Event>):Void {
+        switch (event.value.type) {
+            case SDL_WindowEventType.WINDOW_SHOWN:
+                onWindowShown(event.value.window.windowID);
+            case SDL_WindowEventType.WINDOW_HIDDEN:
+                onWindowHidden(event.value.window.windowID);
+            case SDL_WindowEventType.WINDOW_EXPOSED:
+                onWindowExposed(event.value.window.windowID);
+            case SDL_WindowEventType.WINDOW_MOVED:
+                onWindowMoved(event.value.window.windowID, event.value.window.data1, event.value.window.data2); // data1,data2 = x,y
+            case SDL_WindowEventType.WINDOW_RESIZED:
+                @:privateAccess __window.onWindowResized(event.value.window.data1, event.value.window.data2);
+                onWindowResized(event.value.window.windowID, event.value.window.data1, event.value.window.data2); // data1,data2 = width,height
+            case SDL_WindowEventType.WINDOW_PIXEL_SIZE_CHANGED:
+                @:privateAccess __window.onWindowPixelSizeChanged(event.value.window.data1, event.value.window.data2);
+                onWindowPixelSizeChanged(event.value.window.windowID, event.value.window.data1, event.value.window.data2); // data1,data2 = pixelWidth,pixelHeight
+            case SDL_WindowEventType.WINDOW_MINIMIZED:
+                onWindowMinimized(event.value.window.windowID);
+            case SDL_WindowEventType.WINDOW_MAXIMIZED:
+                onWindowMaximized(event.value.window.windowID);
+            case SDL_WindowEventType.WINDOW_RESTORED:
+                onWindowRestored(event.value.window.windowID);
+            case SDL_WindowEventType.WINDOW_MOUSE_ENTER:
+                onWindowMouseEnter(event.value.window.windowID);
+            case SDL_WindowEventType.WINDOW_MOUSE_LEAVE:
+                onWindowMouseLeave(event.value.window.windowID);
+            case SDL_WindowEventType.WINDOW_FOCUS_GAINED:
+                onWindowFocusGained(event.value.window.windowID);
+            case SDL_WindowEventType.WINDOW_FOCUS_LOST:
+                onWindowFocusLost(event.value.window.windowID);
+            case SDL_WindowEventType.WINDOW_CLOSE_REQUESTED:
+                onWindowCloseRequested(event.value.window.windowID);
+            case SDL_WindowEventType.WINDOW_HIT_TEST:
+                onWindowHitTest(event.value.window.windowID, event.value.window.data1, event.value.window.data2); // data1,data2 = x,y
+            case SDL_WindowEventType.WINDOW_ICCPROF_CHANGED:
+                onWindowICCProfileChanged(event.value.window.windowID);
+            case SDL_WindowEventType.WINDOW_DISPLAY_CHANGED:
+                onWindowDisplayChanged(event.value.window.windowID, event.value.window.data1); // data1 = displayIndex
+            case SDL_WindowEventType.WINDOW_DISPLAY_SCALE_CHANGED:
+                var windowPtr = SDL.getWindowFromID(event.value.window.windowID);
+                var scale = SDL.getWindowDisplayScale(windowPtr);
+                onWindowDisplayScaleChanged(event.value.window.windowID, scale);
+            case SDL_WindowEventType.WINDOW_SAFE_AREA_CHANGED:
+                //var safeArea:SDL_Rect = {x:0, y:0, w:0, h:0};
+                //SDL.getWindowSafeArea(event.value.window.windowID, Pointer.addressOf(safeArea));
+                //onWindowSafeAreaChanged(event.value.window.windowID, safeArea);
+            case SDL_WindowEventType.WINDOW_OCCLUDED:
+                onWindowOccluded(event.value.window.windowID);
+            case SDL_WindowEventType.WINDOW_ENTER_FULLSCREEN:
+                onWindowEnterFullscreen(event.value.window.windowID);
+            case SDL_WindowEventType.WINDOW_LEAVE_FULLSCREEN:
+                onWindowLeaveFullscreen(event.value.window.windowID);
+            case SDL_WindowEventType.WINDOW_DESTROYED:
+                onWindowDestroyed(event.value.window.windowID);
+           case SDL_WindowEventType.WINDOW_HDR_STATE_CHANGED:
+                var hdrEnabled:Bool = event.value.window.data1 != 0;
+                onWindowHDRStateChanged(event.value.window.windowID, hdrEnabled);
+            default:
+                // Other events can be ignored here
+        }
+    }
+
+    // Keyboard events
+    private function __handleKeyboardInputEvents(event:Pointer<Event>):Void {
+        switch (event.value.type) {
+            case SDL_KeyboardEventType.KEY_DOWN:
+                onKeyDown(event.value.key.key, event.value.key.scancode, event.value.key.repeat, event.value.key.mod, event.value.key.windowID);
+            case SDL_KeyboardEventType.KEY_UP:
+                onKeyUp(event.value.key.key, event.value.key.scancode, event.value.key.repeat, event.value.key.mod, event.value.key.windowID);
+            case SDL_KeyboardEventType.TEXT_INPUT:
+                onTextInput(event.value.text.text, event.value.text.timestamp, event.value.text.windowID);
+            case SDL_KeyboardEventType.TEXT_EDITING:
+                //onTextEditing(event.value.edit.text, event.value.edit.start, event.value.edit.length, event.value.edit.windowID);
+            case SDL_KeyboardEventType.KEYMAP_CHANGED:
+                // TODO: Implement keymap changed event handling
+            case SDL_KeyboardEventType.KEYBOARD_ADDED:
+                // TODO: Implement keyboard added event handling
+            case SDL_KeyboardEventType.KEYBOARD_REMOVED:
+                // TODO: Implement keyboard removed event handling
+            default:
+                // Other events can be ignored here
+        }
+    }
+
+    // Mouse events
+    private function __handleMouseInputEvents(event:Pointer<Event>):Void {
+        switch (event.value.type) {
+            case SDL_MouseEventType.MOUSE_BUTTON_DOWN:
+                onMouseButtonDown(event.value.button.x, event.value.button.y, event.value.button.button, event.value.button.windowID);
+            case SDL_MouseEventType.MOUSE_BUTTON_UP:
+                onMouseButtonUp(event.value.button.x, event.value.button.y, event.value.button.button, event.value.button.windowID);
+            case SDL_MouseEventType.MOUSE_MOTION:
+                onMouseMotion(event.value.motion.x, event.value.motion.y, event.value.motion.xrel, event.value.motion.yrel, event.value.motion.windowID);
+            case SDL_MouseEventType.MOUSE_WHEEL:
+                onMouseWheel(event.value.wheel.x, event.value.wheel.y, event.value.wheel.windowID);
+            case SDL_MouseEventType.MOUSE_ADDED:
+                onMouseAdded(event.value.mdevice.which);
+            case SDL_MouseEventType.MOUSE_REMOVED:
+                onMouseRemoved(event.value.mdevice.which);
+            default:
+                // Other events can be ignored here
+        }
+    }
+
+    // Joystick events
+    private function __handleJoystickInputEvents(event:Pointer<Event>):Void {
+        switch (event.value.type) {
+            case SDL_JoystickEventType.JOYSTICK_AXIS_MOTION:
+                onJoyAxisMotion(event.value.jaxis.which, event.value.jaxis.axis, event.value.jaxis.value);
+            case SDL_JoystickEventType.JOYSTICK_BALL_MOTION:
+                onJoyBallMotion(event.value.jball.which, event.value.jball.ball, event.value.jball.xrel, event.value.jball.yrel);
+            case SDL_JoystickEventType.JOYSTICK_HAT_MOTION:
+                onJoyHatMotion(event.value.jhat.which, event.value.jhat.hat, event.value.jhat.value);
+            case SDL_JoystickEventType.JOYSTICK_BUTTON_DOWN:
+                onJoyButtonDown(event.value.jbutton.which, event.value.jbutton.button);
+            case SDL_JoystickEventType.JOYSTICK_BUTTON_UP:
+                onJoyButtonUp(event.value.jbutton.which, event.value.jbutton.button);
+            case SDL_JoystickEventType.JOYSTICK_ADDED:
+                onJoyDeviceAdded(event.value.jdevice.which);
+            case SDL_JoystickEventType.JOYSTICK_REMOVED:
+                onJoyDeviceRemoved(event.value.jdevice.which);
+            case SDL_JoystickEventType.JOYSTICK_BATTERY_UPDATED:
+                onJoyBatteryUpdated(event.value.jbattery.which, event.value.jbattery.percent);
+            case SDL_JoystickEventType.JOYSTICK_UPDATE_COMPLETE:
+                onJoyUpdateComplete(event.value.jdevice.which);
+            default:
+                // Other events can be ignored here
+        }
+    }
+
+    // Gamepad events
+    private function __handleGamepadInputEvents(event:Pointer<Event>):Void {
+        switch (event.value.type) {
+            case SDL_GamepadEventType.GAMEPAD_BUTTON_DOWN:
+                onGamepadButtonDown(event.value.gbutton.which, event.value.gbutton.button);
+            case SDL_GamepadEventType.GAMEPAD_BUTTON_UP:
+                onGamepadButtonUp(event.value.gbutton.which, event.value.gbutton.button);
+            case SDL_GamepadEventType.GAMEPAD_AXIS_MOTION:
+                onGamepadAxisMotion(event.value.gaxis.which, event.value.gaxis.axis, event.value.gaxis.value);
+            case SDL_GamepadEventType.GAMEPAD_ADDED:
+                onGamepadDeviceAdded(event.value.gdevice.which);
+            case SDL_GamepadEventType.GAMEPAD_REMOVED:
+                onGamepadDeviceRemoved(event.value.gdevice.which);
+            case SDL_GamepadEventType.GAMEPAD_REMAPPED:
+                onGamepadRemapped(event.value.gdevice.which);
+            case SDL_GamepadEventType.GAMEPAD_TOUCHPAD_DOWN:
+                onGamepadTouchpadDown(event.value.gtouchpad.which, event.value.gtouchpad.touchpad, event.value.gtouchpad.finger, event.value.gtouchpad.x, event.value.gtouchpad.y, event.value.gtouchpad.pressure);
+            case SDL_GamepadEventType.GAMEPAD_TOUCHPAD_UP:
+                onGamepadTouchpadUp(event.value.gtouchpad.which, event.value.gtouchpad.touchpad, event.value.gtouchpad.finger, event.value.gtouchpad.x, event.value.gtouchpad.y, event.value.gtouchpad.pressure);
+            case SDL_GamepadEventType.GAMEPAD_TOUCHPAD_MOTION:
+                onGamepadTouchpadMotion(event.value.gtouchpad.which, event.value.gtouchpad.touchpad, event.value.gtouchpad.finger, event.value.gtouchpad.x, event.value.gtouchpad.y, event.value.gtouchpad.pressure);
+            case SDL_GamepadEventType.GAMEPAD_SENSOR_UPDATE:
+                onGamepadSensorUpdate(event.value.gsensor.which, event.value.gsensor.sensor, event.value.gsensor.data[0], event.value.gsensor.data[1], event.value.gsensor.data[2]);
+            case SDL_GamepadEventType.GAMEPAD_UPDATE_COMPLETE:
+                onGamepadUpdateComplete(event.value.gdevice.which);
+            case SDL_GamepadEventType.GAMEPAD_STEAM_HANDLE_UPDATED:
+                onGamepadSteamHandleUpdated(event.value.gdevice.which);
+            default:
+                // Other events can be ignored here
+        }
+    }
+
+    // Touch Finger events
+    private function __handleFingerEvents(event:Pointer<Event>):Void {
+        switch (event.value.type) {
+            case SDL_FingerEventType.FINGER_DOWN:
+                onFingerDown(event.value.tfinger.touchID, event.value.tfinger.fingerID, event.value.tfinger.x, event.value.tfinger.y, event.value.tfinger.dx, event.value.tfinger.dy, event.value.tfinger.pressure);
+            case SDL_FingerEventType.FINGER_UP:
+                onFingerUp(event.value.tfinger.touchID, event.value.tfinger.fingerID, event.value.tfinger.x, event.value.tfinger.y, event.value.tfinger.dx, event.value.tfinger.dy, event.value.tfinger.pressure);
+            case SDL_FingerEventType.FINGER_MOTION:
+                onFingerMotion(event.value.tfinger.touchID, event.value.tfinger.fingerID, event.value.tfinger.x, event.value.tfinger.y, event.value.tfinger.dx, event.value.tfinger.dy, event.value.tfinger.pressure);
+            case SDL_FingerEventType.FINGER_CANCELED:
+                onFingerCanceled(event.value.tfinger.touchID, event.value.tfinger.fingerID, event.value.tfinger.x, event.value.tfinger.y, event.value.tfinger.dx, event.value.tfinger.dy, event.value.tfinger.pressure);
+            default:
+                // Other events can be ignored here
+        }
+    }
+
+    // Clipboard events
+    private function __handleClipboardEvents(event:Pointer<Event>):Void {
+        if (event.value.type == SDL_ClipboardEventType.CLIPBOARD_UPDATE) {
+            var clipboardText = SDL.getClipboardText();
+            onClipboardUpdate(clipboardText);
+        }
+    }
+
+    // System event handlers
+    private function onTermination():Void {}
+    private function onLowMemory():Void {}
+    private function willEnterBackground():Void {}
+    private function didEnterBackground():Void {}
+    private function willEnterForeground():Void {}
+    private function didEnterForeground():Void {}
+
+    // Window event handlers
+    private function onWindowShown(windowId:Int):Void {}
+    private function onWindowHidden(windowId:Int):Void {}
+    private function onWindowExposed(windowId:Int):Void {}
+    private function onWindowMoved(windowId:Int, x:Int, y:Int):Void {}
+    private function onWindowResized(windowId:Int, width:Int, height:Int):Void {}
+    private function onWindowPixelSizeChanged(windowId:Int, pixelWidth:Int, pixelHeight:Int):Void {}
+    private function onWindowMinimized(windowId:Int):Void {}
+    private function onWindowMaximized(windowId:Int):Void {}
+    private function onWindowRestored(windowId:Int):Void {}
+    private function onWindowMouseEnter(windowId:Int):Void {}
+    private function onWindowMouseLeave(windowId:Int):Void {}
+    private function onWindowFocusGained(windowId:Int):Void {}
+    private function onWindowFocusLost(windowId:Int):Void {}
+    private function onWindowCloseRequested(windowId:Int):Void {}
+    private function onWindowHitTest(windowId:Int, x:Int, y:Int):Void {}
+    private function onWindowICCProfileChanged(windowId:Int):Void {}
+    private function onWindowDisplayChanged(windowId:Int, displayIndex:Int):Void {}
+    private function onWindowDisplayScaleChanged(windowId:Int, scale:Float):Void {}
+    private function onWindowSafeAreaChanged(windowId:Int, safeArea:SDL_Rect):Void {}
+    private function onWindowOccluded(windowId:Int):Void {}
+    private function onWindowEnterFullscreen(windowId:Int):Void {}
+    private function onWindowLeaveFullscreen(windowId:Int):Void {}
+    private function onWindowDestroyed(windowId:Int):Void {}
+    private function onWindowHDRStateChanged(windowId:Int, hdrEnabled:Bool):Void {}
+
+    // Display event handlers
+    private function onDisplayOrientationChanged(displayId:Int, orientation:SDL_DisplayOrientation):Void {}
+    private function onDisplayAdded(displayId:Int):Void {}
+    private function onDisplayRemoved(displayId:Int):Void {}
+    private function onDisplayMoved(displayId:Int, x:Int, y:Int):Void {}
+    private function onDisplayDesktopModeChanged(displayId:Int, mode:SDL_DisplayMode):Void {}
+    private function onDisplayCurrentModeChanged(displayId:Int, mode:SDL_DisplayMode):Void {}
+    private function onDisplayContentScaleChanged(displayId:Int, scale:Float):Void {}
+
+    // Keyboard event handlers
+    private function onKeyDown(keycode:Int, scancode:Int, repeat:Bool, mod:SDL_Keymod, windowId:Int):Void {}
+    private function onKeyUp(keycode:Int, scancode:Int, repeat:Bool, mod:SDL_Keymod, windowId:Int):Void {}
+    private function onTextInput(text:String, timestamp:Float, window_id:Int) {}
+    private function onTextEditing(text:String, start:Int, length:Int, window_id:Int) {}
+
+    // Mouse event handlers
+    private function onMouseButtonDown(x:Float, y:Float, button:Int, windowId:Int):Void {}
+    private function onMouseButtonUp(x:Float, y:Float, button:Int, windowId:Int):Void {}
+    private function onMouseMotion(x:Float, y:Float, xrel:Float, yrel:Float, windowId:Int):Void {}
+    private function onMouseWheel(x:Float, y:Float, windowId:Int):Void {}
+    private function onMouseAdded(deviceId:Int):Void {}
+    private function onMouseRemoved(deviceId:Int):Void {}
+
+    // Joystick event handlers
+    private function onJoyAxisMotion(joystickId:Int, axis:Int, value:Int):Void {}
+    private function onJoyBallMotion(joystickId:Int, ball:Int, xrel:Int, yrel:Int):Void {}
+    private function onJoyHatMotion(joystickId:Int, hat:Int, value:Int):Void {}
+    private function onJoyButtonDown(joystickId:Int, button:Int):Void {}
+    private function onJoyButtonUp(joystickId:Int, button:Int):Void {}
+    private function onJoyDeviceAdded(deviceId:Int):Void {}
+    private function onJoyDeviceRemoved(deviceId:Int):Void {}
+    private function onJoyBatteryUpdated(joystickId:Int, batteryLevel:Int):Void {}
+    private function onJoyUpdateComplete(joystickId:Int):Void {}
+
+    // Gamepad event handlers
+    private function onGamepadAxisMotion(gamepadId:Int, axis:Int, value:Int):Void {}
+    private function onGamepadButtonDown(gamepadId:Int, button:Int):Void {}
+    private function onGamepadButtonUp(gamepadId:Int, button:Int):Void {}
+    private function onGamepadDeviceAdded(deviceId:Int):Void {}
+    private function onGamepadDeviceRemoved(deviceId:Int):Void {}
+    private function onGamepadRemapped(deviceId:Int):Void {}
+    private function onGamepadTouchpadDown(deviceId:Int, touchpadId:Int, fingerId:Int, x:Float, y:Float, pressure:Float):Void {}
+    private function onGamepadTouchpadUp(deviceId:Int, touchpadId:Int, fingerId:Int, x:Float, y:Float, pressure:Float):Void {}
+    private function onGamepadTouchpadMotion(deviceId:Int, touchpadId:Int, fingerId:Int, x:Float, y:Float, pressure:Float):Void {}
+    private function onGamepadSensorUpdate(deviceId:Int, sensorId:Int, data1:Float, data2:Float, data3:Float):Void {}
+    private function onGamepadUpdateComplete(deviceId:Int):Void {}
+    private function onGamepadSteamHandleUpdated(deviceId:Int):Void {}
+
+    // Touch event handlers
+    private function onFingerDown(touchId:Int, fingerId:Int, x:Float, y:Float, dx:Float, dy:Float, pressure:Float):Void {}
+    private function onFingerUp(touchId:Int, fingerId:Int, x:Float, y:Float, dx:Float, dy:Float, pressure:Float):Void {}
+    private function onFingerMotion(touchId:Int, fingerId:Int, x:Float, y:Float, dx:Float, dy:Float, pressure:Float):Void {}
+    private function onFingerCanceled(touchId:Int, fingerId:Int, x:Float, y:Float, dx:Float, dy:Float, pressure:Float):Void {}
+
+    // Clipboard event handler
+    private function onClipboardUpdate(clipboardText:String):Void {}
+
+    // Log functions
+    // Priority hierarchy (low to high): TRACE (1) < VERBOSE (2) < DEBUG (3) < INFO (4) < WARN (5) < ERROR (6) < CRITICAL (7)
+    public function logTrace(category:Int, message:String):Void { SDL.logTrace(category, message); }
+    public function logVerbose(category:Int, message:String):Void { SDL.logVerbose(category, message); }
+    public function logDebug(category:Int, message:String):Void { SDL.logDebug(category, message); }
+    public function logInfo(category:Int, message:String):Void { SDL.logInfo(category, message); }
+    public function logWarn(category:Int, message:String):Void { SDL.logWarn(category, message); }
+    public function logError(category:Int, message:String):Void { SDL.logError(category, message); }
+    public function logCritical(category:Int, message:String):Void { SDL.logCritical(category, message); }
+
+    public function setLogOutputFunction(callback:cpp.Callable<SDL_LogOutputCallback>):Void { 
+        SDL.setLogOutputFunction(callback);
+    }
+
+    public function writeLogToDefaultOutput(category:Int, priority:Int, message:cpp.ConstCharStar):Void {
+        SDL.writeLogToDefaultOutput(category, priority, message);
+    }
+
+    public function restoreDefaultLogOutputFunction():Void {
+        SDL.restoreDefaultLogOutputFunction();
+    }
+
+    public function getLogPriority(category:Int):Int {
+        return SDL.getLogPriority(category);
+    }
+
+    public function setLogPriority(category:Int, priority:Int):Void {
+        SDL.setLogPriority(category, priority);
+    }
+
+    public function resetLogPriorities():Void {
+        SDL.resetLogPriorities();
+    }
+
+    public function getLastSDLError():String {
+        return SDL.getError();
+    }
+
+    // Get native window handle (HWND on Windows)
+    public function getWindowHandle():cpp.RawPointer<cpp.Void> {
+        if (__window == null || __window.ptr == null) {
+            return null;
+        }
+        var props = SDL.getWindowProperties(__window.ptr);
+        return untyped __cpp__("SDL_GetPointerProperty({0}, SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL)", props);
+    }
+
+    // Statics
+    private static function collectDialogFiles(filelist:Pointer<ConstCharStar>):Array<String> {
+        var files:Array<String> = [];
+        if (filelist == null) return files;
+
+        var index:Int = 0;
+        while (filelist[index] != null) {
+            files.push(filelist[index].toString());
+            index++;
+        }
+        return files;
+    }
+
+    private static function handleOpenFileDialogCallback(userdata:RawPointer<Void>, filelist:Pointer<ConstCharStar>, filter:Int):Void {
+        if (__openFileCallback != null) {
+            var callback = __openFileCallback;
+            __openFileCallback = null;
+            callback(collectDialogFiles(filelist), filter);
+        }
+    }
+
+    private static function handleSaveFileDialogCallback(userdata:RawPointer<Void>, filelist:Pointer<ConstCharStar>, filter:Int):Void {
+        if (__saveFileCallback != null) {
+            var callback = __saveFileCallback;
+            __saveFileCallback = null;
+            callback(collectDialogFiles(filelist), filter);
+        }
+    }
+
+    private static function handleOpenFolderDialogCallback(userdata:RawPointer<Void>, filelist:Pointer<ConstCharStar>, filter:Int):Void {
+        if (__openFolderCallback != null) {
+            var callback = __openFolderCallback;
+            __openFolderCallback = null;
+            callback(collectDialogFiles(filelist), filter);
+        }
+    }
+
+    private static function handleLogOutput(userdata:RawPointer<Void>, category:Int, priority:Int, message:ConstCharStar):Void {
+        //__app.writeLogToDefaultOutput(category, priority, message);
+
+        // if (LOG_HANDLER != null) {
+        //     LOG_HANDLER(category, priority, message.toString());
+        // }
+    }
+
+    // Getters and setters
+    private function get_active():Bool {
+        return __active;
+    }
+
+    private function get_frameCount():Int {
+        return __frameCount;
+    }
+
+	private function get_vsync():Int {
+        var interval:Int = 0;
+        SDL.getSwapInterval(cpp.Pointer.addressOf(interval));
+		return interval;
+	}
+
+    private function set_vsync(value:Int):Int {
+        SDL.setSwapInterval(value);
+		return value;
+    }
+
+    public function get_window():Window {
+        return __window;
+    }
+}

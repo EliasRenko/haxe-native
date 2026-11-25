@@ -1,0 +1,825 @@
+OpenGL Binding Implementation TODO
+==================================
+
+Scope
+-----
+- Primary implementation file: src/GL.hx.
+- Native loader: include/GLAD/glad.h and native/glad.c.
+- Current GLAD loader was generated for OpenGL 3.3 compatibility profile,
+  with GL_ARB_vertex_attrib_binding as the only generated extension.
+- The target baseline is OpenGL 3.3; this is not an OpenGL 4.5 baseline.
+- Optional newer APIs and extensions must be detected and used only when loaded.
+- GL_ARB_vertex_attrib_binding is optional and is used for separated vertex
+  attribute state when available.
+- The renderer currently has some Direct State Access usage, which must remain
+  guarded by version/extension checks until an OpenGL 4.5 or ARB fallback is
+  explicitly adopted.
+- This TODO covers native GL bindings and renderer integration. GPU APIs from
+  SDL and SDL rendering APIs are excluded.
+
+
+Phase 1: Audit Existing GL.hx
+-----------------------------
+- [ ] Confirm that GL.hx uses OpenGL 3.3 as the supported baseline.
+- [ ] Preserve compatibility-profile support unless a deliberate core-profile
+      migration is documented.
+- [ ] Document any newer APIs or extensions requested from GLAD explicitly.
+- [ ] Do not require OpenGL 4.5 by default.
+- [ ] Document which APIs are required by the renderer and which are optional.
+- [ ] Add a GL loader initialization status check with a clear error if loading
+      fails.
+- [ ] Verify the actual loaded GL major/minor version before using APIs newer
+      than the 3.3 baseline.
+- [ ] Fall back to legacy-compatible VAO setup or report an unsupported configuration when
+      GL_ARB_vertex_attrib_binding and OpenGL 4.3+ APIs are unavailable.
+- [ ] Remove or clearly separate GL 1.x/2.x compatibility APIs from modern
+      engine bindings.
+- [ ] Add a version-and-extension report to Runtime startup logging.
+
+
+Phase 2: Loader and Build Improvements
+--------------------------------------
+- [ ] Keep GLAD generated for OpenGL 3.3 unless a specific newer baseline or
+      extension is intentionally adopted.
+- [ ] Keep GL_ARB_vertex_attrib_binding explicitly generated and optional.
+- [ ] Include only intentionally needed extensions and document the list.
+- [ ] Preserve compatibility-profile behavior unless migrating to core explicitly.
+- [ ] Verify that all GLAD function pointers used by GL.hx are loaded.
+- [ ] Add generated loader build validation for native/glad.c.
+- [ ] Make GLAD loader initialization happen exactly once.
+- [ ] Prevent rendering calls before gladLoadGLLoader() succeeds.
+- [ ] Add debug checks for missing function pointers.
+- [ ] Add native smoke tests that initialize a real OpenGL context and load GL.
+
+
+Phase 3: Core Type and ABI Improvements
+---------------------------------------
+- [ ] Replace ambiguous Int and Float wrapper types with explicit GL typedefs.
+- [ ] Define GlBool, GlByte, GlShort, GlUShort, GlInt64, GlUInt64, GlSizeIPtr,
+      and GlIntPtr consistently.
+- [ ] Use GlEnum for enum parameters instead of Int where possible.
+- [ ] Use GlBitfield for clear-mask, map, and bitfield parameters.
+- [ ] Use GlBoolean for C GLboolean API parameters and return values.
+- [ ] Define GlSync, GlContext, and GLDEBUGPROC types if debug or sync APIs are
+      added.
+- [ ] Add typedefs for GLsizei, GLsizeiptr, GLintptr, GLchar, and GLhandle.
+- [ ] Remove unused imports and duplicate declarations.
+- [ ] Remove duplicate glViewport declarations.
+- [ ] Replace deprecated cpp.Pointer/Star usage with a consistent pointer API.
+- [ ] Add bounds-aware Haxe array overloads for buffer and uniform uploads.
+- [ ] Add a native-pointer-safe bytes overload for all texImage and buffer APIs.
+- [ ] Avoid passing null as an arbitrary RawPointer in shaderSource.
+- [ ] Verify Bool C ABI conversion in extern declarations and __cpp__ calls.
+
+
+Phase 4: Existing API Signature Corrections
+-------------------------------------------
+- [ ] Review glUniform1ui parameter types; v0 should be GlUInt.
+- [ ] Review uniform matrix count arguments. Matrix2/3/2xN/3xN/4xN APIs normally
+      require a count parameter.
+- [ ] Review shaderSource signature and use const GLchar* const* with explicit
+      lengths.
+- [ ] Review glBufferData size and offset types. They should use GLsizeiptr.
+- [ ] Review glBufferSubData offset and size types. They should use GLintptr and
+      GLsizeiptr.
+- [ ] Review vertexAttribPointer offset. It must use GLintptr.
+- [ ] Review texImage1D and texImage2D null-pixel behavior.
+- [ ] Remove const casting from glDeleteTextures and other array-delete helpers.
+- [ ] Add the missing create/destroy/bind helpers for program pipeline objects
+      and other modern object types as needed.
+- [ ] Replace manual __cpp__ framebuffer arrays with typed pointer helpers.
+- [ ] Use GlSizeI consistently instead of Int for GLsizei arguments.
+- [ ] Verify array length calculations use bytes, elements, or components
+      explicitly rather than mixing meanings.
+- [ ] Add count validation for C-array wrappers.
+- [ ] Add zero/allocation guards to single-object helper functions.
+
+
+Phase 5: General State Queries
+------------------------------
+- [ ] glGetString
+- [ ] glGetStringi
+- [ ] glGetIntegerv
+- [ ] glGetBooleanv
+- [ ] glGetFloatv
+- [ ] glGetDoublev
+- [ ] glGetInteger64v
+- [ ] glGetInteger64i_v
+- [ ] glGetPointerv
+- [ ] glGetError
+- [ ] glGetGraphicsResetStatus
+- [ ] glIsEnabled
+- [ ] glIsEnabledi
+- [ ] glIsTexture
+- [ ] glIsBuffer
+- [ ] glIsFramebuffer
+- [ ] glIsRenderbuffer
+- [ ] glIsProgram
+- [ ] glIsShader
+- [ ] glIsVertexArray
+- [ ] glGetInternalformativ
+- [ ] glGetInternalformati64v
+- [ ] glGetMultisample
+- [ ] glGetMultisamplefv
+
+
+Phase 6: Context, Viewport, Rasterization, and State
+----------------------------------------------------
+- [ ] glViewport
+- [ ] glViewportIndexedf
+- [ ] glViewportIndexedfv
+- [ ] glViewportArrayv
+- [ ] glScissor
+- [ ] glScissorIndexed
+- [ ] glScissorIndexedv
+- [ ] glScissorArrayv
+- [ ] glDepthRange
+- [ ] glDepthRangef
+- [ ] glDepthRangeIndexed
+- [ ] glDepthRangeArrayv
+- [ ] glClear
+- [ ] glClearColor
+- [ ] glClearDepth
+- [ ] glClearDepthf
+- [ ] glClearStencil
+- [ ] glClearBufferiv
+- [ ] glClearBufferuiv
+- [ ] glClearBufferfv
+- [ ] glClearBufferfi
+- [ ] glColorMask
+- [ ] glColorMaski
+- [ ] glDepthMask
+- [ ] glStencilMask
+- [ ] glStencilMaskSeparate
+- [ ] glEnable
+- [ ] glDisable
+- [ ] glEnablei
+- [ ] glDisablei
+- [ ] glIsEnabled
+- [ ] glIsEnabledi
+- [ ] glFinish
+- [ ] glFlush
+- [ ] glPixelStorei
+- [ ] glPixelStoref
+- [ ] glHint
+- [ ] glLineWidth
+- [ ] glPointSize
+- [ ] glCullFace
+- [ ] glFrontFace
+- [ ] glPolygonMode
+- [ ] glPolygonOffset
+- [ ] glSampleCoverage
+- [ ] glSampleMaski
+- [ ] glMinSampleShading
+- [ ] glProvokingVertex
+
+
+Phase 7: Draw Commands
+----------------------
+- [ ] glDrawArrays
+- [ ] glDrawArraysInstanced
+- [ ] glDrawArraysInstancedBaseInstance
+- [ ] glDrawArraysIndirect
+- [ ] glMultiDrawArrays
+- [ ] glMultiDrawArraysIndirect
+- [ ] glDrawElements
+- [ ] glDrawElementsBaseVertex
+- [ ] glDrawElementsInstanced
+- [ ] glDrawElementsInstancedBaseVertex
+- [ ] glDrawElementsInstancedBaseVertexBaseInstance
+- [ ] glDrawElementsIndirect
+- [ ] glDrawRangeElements
+- [ ] glDrawRangeElementsBaseVertex
+- [ ] glMultiDrawElements
+- [ ] glMultiDrawElementsBaseVertex
+- [ ] glMultiDrawElementsIndirect
+- [ ] glDrawTransformFeedback
+- [ ] glDrawTransformFeedbackInstanced
+- [ ] glDrawTransformFeedbackStream
+- [ ] glDrawTransformFeedbackStreamInstanced
+- [ ] glPrimitiveRestartIndex
+- [ ] glPatchParameteri
+- [ ] glPatchParameterfv
+- [ ] glMultiDrawArraysIndirect
+- [ ] glMultiDrawElementsIndirect
+
+
+Phase 8: Buffers and Indirect Drawing
+-------------------------------------
+- [ ] glGenBuffers
+- [ ] glDeleteBuffers
+- [ ] glIsBuffer
+- [ ] glBindBuffer
+- [ ] glBindBufferRange
+- [ ] glBindBufferBase
+- [ ] glBindBuffersRange
+- [ ] glBindBuffersBase
+- [ ] glBufferData
+- [ ] glBufferSubData
+- [ ] glCopyBufferSubData
+- [ ] glClearBufferSubData
+- [ ] glMapBuffer
+- [ ] glMapBufferRange
+- [ ] glUnmapBuffer
+- [ ] glFlushMappedBufferRange
+- [ ] glInvalidateBufferData
+- [ ] glInvalidateBufferSubData
+- [ ] glGetBufferParameteriv
+- [ ] glGetBufferParameteri64v
+- [ ] glGetBufferPointerv
+- [ ] glGetBufferSubData
+- [ ] glNamedBufferData
+- [ ] glNamedBufferSubData
+- [ ] glCopyNamedBufferSubData
+- [ ] glClearNamedBufferSubData
+- [ ] glMapNamedBuffer
+- [ ] glMapNamedBufferRange
+- [ ] glUnmapNamedBuffer
+- [ ] glFlushMappedNamedBufferRange
+- [ ] glInvalidateNamedBufferData
+- [ ] glInvalidateNamedBufferSubData
+- [ ] glGetNamedBufferParameteriv
+- [ ] glGetNamedBufferParameteri64v
+- [ ] glGetNamedBufferPointerv
+- [ ] glGetNamedBufferSubData
+- [ ] glCreateBuffers
+- [ ] glBindBufferRange
+- [ ] glBindBufferBase
+
+
+Phase 9: Vertex Arrays and Vertex Attributes
+--------------------------------------------
+- [ ] glGenVertexArrays
+- [ ] glCreateVertexArrays
+- [ ] glDeleteVertexArrays
+- [ ] glIsVertexArray
+- [ ] glBindVertexArray
+- [ ] glEnableVertexAttribArray
+- [ ] glDisableVertexAttribArray
+- [ ] glVertexAttribPointer
+- [ ] glVertexAttribIPointer
+- [ ] glVertexAttribLPointer
+- [ ] glVertexAttribFormat
+- [ ] glVertexAttribIFormat
+- [ ] glVertexAttribLFormat
+- [ ] glVertexAttribBinding
+- [ ] glVertexBindingDivisor
+- [ ] glBindVertexBuffer
+- [ ] glBindVertexBuffers
+- [ ] glVertexArrayVertexBuffer
+- [ ] glVertexArrayVertexBuffers
+- [ ] glVertexArrayAttribFormat
+- [ ] glVertexArrayAttribIFormat
+- [ ] glVertexArrayAttribLFormat
+- [ ] glVertexArrayAttribBinding
+- [ ] glVertexArrayBindingDivisor
+- [ ] glVertexArrayElementBuffer
+- [ ] glEnableVertexArrayAttrib
+- [ ] glDisableVertexArrayAttrib
+- [ ] glGetVertexAttribdv
+- [ ] glGetVertexAttribfv
+- [ ] glGetVertexAttribiv
+- [ ] glGetVertexAttribIiv
+- [ ] glGetVertexAttribIuiv
+- [ ] glGetVertexAttribLdv
+- [ ] glGetVertexAttribPointerv
+- [ ] glVertexAttribDivisor
+- [ ] glPrimitiveRestartIndex
+
+
+Phase 10: Shaders and Programs
+------------------------------
+- [ ] glCreateShader
+- [ ] glDeleteShader
+- [ ] glIsShader
+- [ ] glShaderSource
+- [ ] glCompileShader
+- [ ] glGetShaderiv
+- [ ] glGetShaderInfoLog
+- [ ] glGetShaderSource
+- [ ] glGetShaderPrecisionFormat
+- [ ] glCreateProgram
+- [ ] glDeleteProgram
+- [ ] glIsProgram
+- [ ] glAttachShader
+- [ ] glDetachShader
+- [ ] glLinkProgram
+- [ ] glValidateProgram
+- [ ] glUseProgram
+- [ ] glGetProgramiv
+- [ ] glGetProgramInfoLog
+- [ ] glGetAttachedShaders
+- [ ] glGetProgramInterfaceiv
+- [ ] glGetProgramResourceiv
+- [ ] glGetProgramResourceIndex
+- [ ] glGetProgramResourceLocation
+- [ ] glGetProgramResourceLocationIndex
+- [ ] glGetProgramResourceName
+- [ ] glGetActiveAttrib
+- [ ] glGetActiveUniform
+- [ ] glGetActiveUniformBlockName
+- [ ] glGetActiveUniformBlockiv
+- [ ] glGetActiveUniformName
+- [ ] glGetActiveUniformsiv
+- [ ] glGetAttribLocation
+- [ ] glGetUniformLocation
+- [ ] glGetFragDataLocation
+- [ ] glGetFragDataIndex
+- [ ] glGetUniformIndices
+- [ ] glGetUniformBlockIndex
+- [ ] glUniformBlockBinding
+- [ ] glShaderStorageBlockBinding
+- [ ] glReleaseShaderCompiler
+- [ ] glProgramParameteri
+- [ ] glProgramUniform helpers
+- [ ] glCreateShaderProgramv
+- [ ] glTransformFeedbackVaryings
+- [ ] glGetTransformFeedbackVarying
+- [ ] glTransformFeedbackBufferBase
+- [ ] glTransformFeedbackBufferRange
+- [ ] glBindTransformFeedback
+- [ ] glBeginTransformFeedback
+- [ ] glEndTransformFeedback
+- [ ] glPauseTransformFeedback
+- [ ] glResumeTransformFeedback
+
+
+Phase 11: Uniforms
+------------------
+- [ ] Scalar uniforms:
+  - glUniform1f/i/ui
+  - glUniform2f/i/ui
+  - glUniform3f/i/ui
+  - glUniform4f/i/ui
+- [ ] Vector arrays:
+  - glUniform1/2/3/4fv
+  - glUniform1/2/3/4iv
+  - glUniform1/2/3/4uiv
+- [ ] Matrix APIs:
+  - glUniformMatrix2fv
+  - glUniformMatrix3fv
+  - glUniformMatrix4fv
+  - glUniformMatrix2x3fv
+  - glUniformMatrix2x4fv
+  - glUniformMatrix3x2fv
+  - glUniformMatrix3x4fv
+  - glUniformMatrix4x2fv
+  - glUniformMatrix4x3fv
+- [ ] glGetUniformfv
+- [ ] glGetUniformiv
+- [ ] glGetUniformuiv
+- [ ] glGetnUniformfv
+- [ ] glGetnUniformiv
+- [ ] glGetnUniformuiv
+- [ ] glProgramUniform all scalar/vector/matrix variants
+- [ ] glUniformSubroutinesuiv
+- [ ] glGetUniformSubroutineuiv
+- [ ] glGetActiveSubroutineUniformiv
+- [ ] glGetActiveSubroutineUniformName
+- [ ] glGetActiveSubroutineName
+- [ ] glGetSubroutineIndex
+- [ ] glGetSubroutineUniformLocation
+- [ ] glGetUniformdv
+- [ ] glUniform1d and double vector/matrix variants
+- [ ] glUniformHandle variants if bindless extensions are used
+
+
+Phase 12: Textures and Samplers
+-------------------------------
+- [ ] Texture object lifecycle:
+  - glGenTextures
+  - glCreateTextures
+  - glDeleteTextures
+  - glIsTexture
+  - glBindTexture
+  - glBindTextures
+  - glActiveTexture
+- [ ] Texture storage:
+  - glTexStorage1D
+  - glTexStorage2D
+  - glTexStorage3D
+  - glTextureStorage1D
+  - glTextureStorage2D
+  - glTextureStorage3D
+  - glTextureStorage2DMultisample
+  - glTextureStorage3DMultisample
+- [ ] Texture upload/download:
+  - glTexImage1D
+  - glTexImage2D
+  - glTexImage3D
+  - glTexSubImage1D
+  - glTexSubImage2D
+  - glTexSubImage3D
+  - glCompressedTexImage1D
+  - glCompressedTexImage2D
+  - glCompressedTexImage3D
+  - glCompressedTexSubImage1D
+  - glCompressedTexSubImage2D
+  - glCompressedTexSubImage3D
+  - glTextureSubImage1D
+  - glTextureSubImage2D
+  - glTextureSubImage3D
+  - glGetTexImage
+  - glGetCompressedTexImage
+  - glGetnTexImage
+- [ ] Texture parameters:
+  - glTexParameterf/i/iv/fv
+  - glTextureParameterf/i/iv/fv
+  - glGenerateMipmap
+  - glGenerateTextureMipmap
+- [ ] Multi-dimensional textures:
+  - 1D
+  - 1D array
+  - 2D
+  - 2D array
+  - 3D
+  - rectangle
+  - cube map
+  - cube map array
+  - texture buffer
+  - multisample
+- [ ] Sampler objects:
+  - glGenSamplers
+  - glCreateSamplers
+  - glDeleteSamplers
+  - glIsSampler
+  - glBindSampler
+  - glBindSamplers
+  - glSamplerParameterf/i/iv/fv
+  - glGetSamplerParameterfv/iv/Iiv/Iuiv
+- [ ] Texture views:
+  - glTextureView
+- [ ] Pixel unpack and pack:
+  - glPixelStorei
+  - glPixelStoref
+- [ ] Pixel readback:
+  - glReadPixels
+  - glReadnPixels
+  - glCopyTexImage
+  - glCopyTexSubImage
+  - glCopyImageSubData
+- [ ] Texture format, internal format, and image format constants.
+- [ ] Compressed texture format constants.
+- [ ] Cube-map face constants.
+- [ ] Mipmap, aniso, comparison, border, swizzle, and wrap constants.
+
+
+Phase 13: Framebuffers and Renderbuffers
+----------------------------------------
+- [ ] Framebuffer objects:
+  - glGenFramebuffers
+  - glCreateFramebuffers
+  - glDeleteFramebuffers
+  - glIsFramebuffer
+  - glBindFramebuffer
+  - glBindFramebuffers
+  - glCheckFramebufferStatus
+- [ ] Named framebuffer APIs:
+  - glNamedFramebufferRenderbuffer
+  - glNamedFramebufferTexture
+  - glNamedFramebufferTextureLayer
+  - glNamedFramebufferDrawBuffer
+  - glNamedFramebufferDrawBuffers
+  - glNamedFramebufferReadBuffer
+  - glNamedFramebufferParameteri
+  - glGetNamedFramebufferParameteriv
+  - glGetNamedFramebufferAttachmentParameteriv
+- [ ] Legacy framebuffer APIs:
+  - glFramebufferTexture
+  - glFramebufferTexture1D
+  - glFramebufferTexture2D
+  - glFramebufferTexture3D
+  - glFramebufferTextureLayer
+  - glFramebufferRenderbuffer
+- [ ] Renderbuffers:
+  - glGenRenderbuffers
+  - glCreateRenderbuffers
+  - glDeleteRenderbuffers
+  - glIsRenderbuffer
+  - glBindRenderbuffer
+  - glRenderbufferStorage
+  - glRenderbufferStorageMultisample
+  - glNamedRenderbufferStorage
+  - glNamedRenderbufferStorageMultisample
+  - glGetRenderbufferParameteriv
+  - glGetNamedRenderbufferParameteriv
+- [ ] Draw/read buffers:
+  - glDrawBuffer
+  - glDrawBuffers
+  - glReadBuffer
+- [ ] Framebuffer invalidation and blits:
+  - glInvalidateFramebuffer
+  - glInvalidateSubFramebuffer
+  - glBlitFramebuffer
+- [ ] Add all color attachment constants beyond attachment 0.
+- [ ] Add depth/stencil attachment and combined-depth-stencil constants.
+- [ ] Add framebuffer status constants.
+- [ ] Add multisample and float framebuffer constants.
+- [ ] Add framebuffer completeness diagnostics.
+
+
+Phase 14: Pixel Operations
+--------------------------
+- [ ] glReadPixels
+- [ ] glReadnPixels
+- [ ] glReadBuffer
+- [ ] glDrawPixels
+- [ ] glCopyPixels
+- [ ] glBlitFramebuffer
+- [ ] glCopyImageSubData
+- [ ] glPixelStore
+- [ ] glTexSubImage
+- [ ] glCompressedTexSubImage
+- [ ] glClearBuffer
+- [ ] glInvalidate
+- [ ] glMemoryBarrier
+- [ ] glFenceSync
+- [ ] glDeleteSync
+- [ ] glIsSync
+- [ ] glClientWaitSync
+- [ ] glWaitSync
+- [ ] glGetSynciv
+
+
+Phase 15: Blend, Depth, Stencil, and Culling
+--------------------------------------------
+- [ ] Blend:
+  - glBlendFunc
+  - glBlendFunci
+  - glBlendFuncSeparate
+  - glBlendFuncSeparatei
+  - glBlendEquation
+  - glBlendEquationi
+  - glBlendEquationSeparate
+  - glBlendEquationSeparatei
+  - glBlendColor
+- [ ] Depth:
+  - glDepthFunc
+  - glDepthMask
+  - glDepthRange
+- [ ] Stencil:
+  - glStencilFunc
+  - glStencilFuncSeparate
+  - glStencilOp
+  - glStencilOpSeparate
+  - glStencilMask
+  - glStencilMaskSeparate
+- [ ] Culling:
+  - glCullFace
+  - glFrontFace
+- [ ] Add constants for every standard blend function and equation.
+- [ ] Add stencil and depth constants.
+- [ ] Add renderer state caching for depth func, cull state, stencil, and masks.
+
+
+Phase 16: Multisampling, Rasterization, and Tessellation
+--------------------------------------------------------
+- [ ] glEnable/Disable GL_MULTISAMPLE
+- [ ] glEnable/Disable GL_MULTISAMPLE
+- [ ] glSampleCoverage
+- [ ] glSampleMaski
+- [ ] glMinSampleShading
+- [ ] glGetMultisamplefv
+- [ ] glSampleMaski
+- [ ] glPolygonMode
+- [ ] glPolygonOffset
+- [ ] glProvokingVertex
+- [ ] glPatchParameteri
+- [ ] glPatchParameterfv
+- [ ] glPrimitiveRestartIndex
+- [ ] glDrawArraysInstanced
+- [ ] glDrawElementsInstanced
+- [ ] glDraw*Indirect
+- [ ] glDispatchCompute
+- [ ] glDispatchComputeIndirect
+- [ ] glDispatchComputeGroupSizeARB
+
+
+Phase 17: Compute Shaders
+-------------------------
+- [ ] glDispatchCompute
+- [ ] glDispatchComputeIndirect
+- [ ] glMemoryBarrier
+- [ ] glMemoryBarrierByRegion
+- [ ] glShaderStorageBlockBinding
+- [ ] glBindImageTexture
+- [ ] glBindImageTextures
+- [ ] glGetProgramStageiv
+- [ ] glGetActiveAtomicCounterBufferiv
+- [ ] glGetActiveUniformBlockiv
+- [ ] glGetActiveUniformBlockName
+- [ ] glGetActiveUniformName
+- [ ] glGetActiveUniformsiv
+- [ ] glUniformBlockBinding
+- [ ] glGetUniformBlockIndex
+- [ ] glGetUniformIndices
+- [ ] glGetActiveUniform
+
+
+Phase 18: Transform Feedback
+----------------------------
+- [ ] glTransformFeedbackVaryings
+- [ ] glGetTransformFeedbackVarying
+- [ ] glTransformFeedbackBufferBase
+- [ ] glTransformFeedbackBufferRange
+- [ ] glGetTransformFeedbackiv
+- [ ] glGetTransformFeedbacki_v
+- [ ] glGetTransformFeedbacki64_v
+- [ ] glBindTransformFeedback
+- [ ] glCreateTransformFeedbacks
+- [ ] glDeleteTransformFeedbacks
+- [ ] glIsTransformFeedback
+- [ ] glBeginTransformFeedback
+- [ ] glPauseTransformFeedback
+- [ ] glResumeTransformFeedback
+- [ ] glEndTransformFeedback
+- [ ] glDrawTransformFeedback
+- [ ] glDrawTransformFeedbackInstanced
+- [ ] glDrawTransformFeedbackStream
+- [ ] glDrawTransformFeedbackStreamInstanced
+
+
+Phase 19: Query Objects and Performance
+---------------------------------------
+- [ ] glGenQueries
+- [ ] glCreateQueries
+- [ ] glDeleteQueries
+- [ ] glIsQuery
+- [ ] glBeginQuery
+- [ ] glBeginQueryIndexed
+- [ ] glEndQuery
+- [ ] glEndQueryIndexed
+- [ ] glGetQueryiv
+- [ ] glGetQueryIndexediv
+- [ ] glGetQueryObjectiv
+- [ ] glGetQueryObjectuiv
+- [ ] glGetQueryObjecti64v
+- [ ] glGetQueryObjectui64v
+- [ ] glQueryCounter
+- [ ] glBeginConditionalRender
+- [ ] glEndConditionalRender
+- [ ] glGetnPixels
+- [ ] glObjectLabel
+- [ ] glObjectPtrLabel
+- [ ] glGetObjectLabel
+- [ ] glGetObjectPtrLabel
+- [ ] glDebugMessageControl
+- [ ] glDebugMessageInsert
+- [ ] glDebugMessageCallback
+- [ ] glPushDebugGroup
+- [ ] glPopDebugGroup
+- [ ] glGetDebugMessageLog
+- [ ] glGetPointerv
+- [ ] glIsRenderbuffer
+
+
+Phase 20: Debug and Diagnostics
+-------------------------------
+- [ ] Enable GL_KHR_debug when available.
+- [ ] Add GLDEBUGPROC typedef and userdata callback support.
+- [ ] Add glDebugMessageCallback binding.
+- [ ] Add glDebugMessageControl binding.
+- [ ] Add glDebugMessageInsert binding.
+- [ ] Add glPushDebugGroup/glPopDebugGroup bindings.
+- [ ] Add object labels for buffers, textures, framebuffers, shaders, programs,
+      and vertex arrays.
+- [ ] Replace ad hoc getError checks with centralized diagnostic helpers.
+- [ ] Add debug-only getError validation after state-changing operations.
+- [ ] Add shader and program compile/link validation helpers.
+- [ ] Track missing function pointers and unsupported extension usage.
+- [ ] Add GL context lost/reset handling if exposed by the platform.
+- [ ] Add framebuffer, shader, uniform, texture, and state diagnostics.
+- [ ] Add optional GPU timing and draw-call timing queries.
+
+
+Phase 21: Haxe API Improvements
+-------------------------------
+- [ ] Add convenience overloads for one object:
+  - genBuffer
+  - deleteBuffer
+  - genTexture
+  - deleteTexture
+  - genFramebuffer
+  - deleteFramebuffer
+  - genRenderbuffer
+  - deleteRenderbuffer
+  - genVertexArray
+  - deleteVertexArray
+- [ ] Replace Array<Any> drawElements index parameters with a typed overload.
+- [ ] Remove return types that accidentally return a value from void wrappers.
+- [ ] Add uniform overloads for matrix arrays and vectors.
+- [ ] Add uniform overloads for Haxe typed arrays and Bytes.
+- [ ] Add texture overloads for haxe.io.Bytes and BytesData.
+- [ ] Add buffer overloads for haxe.io.Bytes and Float32Array.
+- [ ] Add safe shader-source overload accepting a String.
+- [ ] Add safe info-log overloads with bounded buffer allocation.
+- [ ] Add getActiveAttrib/getActiveUniform convenience methods.
+- [ ] Add render-state setters for separate depth function and write mask.
+- [ ] Add blend-mode and blend-function enums instead of raw integers.
+- [ ] Add texture target/enumeration flags instead of raw integers.
+- [ ] Add framebuffer attachment helpers.
+- [ ] Add pixel format helpers for RED/RG/RGB/RGBA depth and depth-stencil.
+- [ ] Add draw-mode and primitive-mode typed enums.
+- [ ] Add buffer target, buffer usage, and vertex type typed enums.
+- [ ] Add GL capability check helpers.
+- [ ] Add GL error-name and enum-name helpers.
+
+
+Phase 22: Renderer Integration Improvements
+-------------------------------------------
+- [ ] Centralize GL state caching in Renderer.
+- [ ] Cache viewport, scissor, blend, depth, cull, and framebuffer state.
+- [ ] Cache active texture unit and bound texture per unit.
+- [ ] Cache vertex-array and element-array bindings.
+- [ ] Cache shader/program and uniform locations.
+- [ ] Reduce redundant glBindFramebuffer calls.
+- [ ] Reduce redundant glBindVertexArray and glBindBuffer calls.
+- [ ] Replace raw texture targets and formats in Renderer with typed GL constants.
+- [ ] Validate framebuffer attachment configurations before binding.
+- [ ] Validate draw buffer count and color attachment ranges.
+- [ ] Use named/DSA APIs consistently only when OpenGL 4.5 or
+      GL_ARB_direct_state_access is available.
+- [ ] Prefer immutable texture storage with glTexStorage2D.
+- [ ] Prefer immutable buffer and texture allocation patterns where appropriate.
+- [ ] Separate resource creation from state mutation.
+- [ ] Separate resource deletion and lifetime management.
+- [ ] Add renderer resource leak detection.
+- [ ] Add glFinish/glFenceSync options for diagnostics or asset completion.
+- [ ] Add OpenGL context reset/recreation tests.
+- [ ] Add automated framebuffer completeness tests.
+- [ ] Add automated shader compile/link tests.
+- [ ] Add automated texture format and pixel upload tests.
+- [ ] Add automated buffer and VAO binding tests.
+- [ ] Add automated uniform update tests.
+- [ ] Add automated multisample and depth-renderbuffer tests.
+
+
+Phase 23: DSA and Modern Object API
+------------------------------------
+- [ ] glCreateBuffers and all glNamedBuffer* APIs.
+- [ ] glCreateTextures and all glTexture* APIs.
+- [ ] glCreateFramebuffers and all glNamedFramebuffer* APIs.
+- [ ] glCreateRenderbuffers and all glNamedRenderbuffer* APIs.
+- [ ] glCreateVertexArrays and all glVertexArray* APIs.
+- [ ] glCreateSamplers and all sampler APIs.
+- [ ] glCreateQueries and named query APIs.
+- [ ] glCreateTransformFeedbacks.
+- [ ] glCreateProgramPipelines and glBindProgramPipeline.
+- [ ] glUseProgramStages.
+- [ ] glActiveShaderProgram.
+- [ ] glValidateProgramPipeline.
+- [ ] glGetProgramPipelineiv.
+- [ ] glGetProgramPipelineInfoLog.
+- [ ] glGetVertexArrayIndexediv.
+- [ ] glGetVertexArrayIndexed64iv.
+- [ ] glMultiTexCoord and legacy APIs can remain excluded.
+
+
+Phase 24: Extension Management
+------------------------------
+- [ ] Export loaded GLAD feature flags for major/minor versions.
+- [ ] Export GL_ARB_vertex_attrib_binding state.
+- [ ] Detect DSA support by GL 4.5 or GL_ARB_direct_state_access when those
+      entry points are generated and loaded.
+- [ ] Detect debug context support.
+- [ ] Detect KHR_debug support.
+- [ ] Detect multisample support.
+- [ ] Detect draw-instanced support.
+- [ ] Detect transform feedback support.
+- [ ] Detect texture storage support.
+- [ ] Detect sampler support.
+- [ ] Detect framebuffer completeness and multisample support.
+- [ ] Detect compute shader support.
+- [ ] Detect bindless textures only if intended.
+- [ ] Record unsupported feature requests in a centralized result.
+- [ ] Fail startup or disable optional features rather than silently using 0.
+
+
+Suggested Implementation Order
+------------------------------
+1. Set and verify the OpenGL 3.3 GLAD baseline and optional extensions.
+2. Fix GL.hx native types and high-risk signatures.
+3. Add context/query/debug state APIs.
+4. Complete shader, program, uniform, VAO, buffer, and draw APIs.
+5. Complete texture, framebuffer, and renderbuffer APIs.
+6. Improve Renderer resource lifetime and state caching.
+7. Add pixel, sync, query, transform-feedback, and compute support.
+8. Add optional extensions and comprehensive diagnostics.
+
+
+Practical First Milestone
+-------------------------
+Ship complete bindings for the APIs already used by this renderer:
+- OpenGL 3.3 compatibility/core loading and initialization
+- Optional GL_ARB_vertex_attrib_binding support
+- GL version and extension checks
+- VAOs, VBOs, EBOs, and vertex formats
+- Instancing and modern draw commands
+- Shaders and programs
+- Scalar/vector/matrix uniforms
+- 2D textures and texture parameters
+- Framebuffers and renderbuffers
+- Depth, stencil, blending, culling, and multisampling
+- Pixel readback and buffer invalidation
+- Centralized errors, debug output, and object labels
+
