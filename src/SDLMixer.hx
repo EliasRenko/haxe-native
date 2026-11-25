@@ -20,6 +20,10 @@ extern class MIX_Audio {}
 extern class MIX_Track {}
 
 @:include("SDL3/SDL.h")
+@:native("SDL_IOStream")
+extern class SDL_IOStream {}
+
+@:include("SDL3/SDL.h")
 @:native("SDL_AudioFormat")
 extern enum abstract MixerAudioFormat(Int) {
     @:native("SDL_AUDIO_U8") var U8;
@@ -77,6 +81,10 @@ extern class SDLMixer {
 
     @:native("MIX_LoadAudio")
     public static function loadAudio(mixer:RawPointer<MIX_Mixer>, path:ConstCharStar, predecode:Bool):RawPointer<MIX_Audio>;
+    @:native("SDL_IOFromConstMem")
+    public static function ioFromConstMem(mem:RawPointer<cpp.Void>, size:Int):RawPointer<SDL_IOStream>;
+    @:native("MIX_LoadAudio_IO")
+    public static function loadAudioIO(mixer:RawPointer<MIX_Mixer>, io:RawPointer<SDL_IOStream>, predecode:Bool, closeIO:Bool):RawPointer<MIX_Audio>;
     @:native("MIX_CreateSineWaveAudio")
     public static function createSineWaveAudio(mixer:RawPointer<MIX_Mixer>, hz:Int, amplitude:Float32, ms:Int64):RawPointer<MIX_Audio>;
     @:native("MIX_DestroyAudio")

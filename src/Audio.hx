@@ -2,6 +2,7 @@ package;
 
 #if (cpp && !no_audio)
 import cpp.RawPointer;
+import haxe.io.Bytes;
 import SDLMixer.MIX_Audio;
 import SDLMixer.MIX_Mixer;
 import SDLMixer.MIX_Track;
@@ -25,6 +26,26 @@ class Audio {
         var data = SDLMixer.loadAudio(__mixer, path, predecode);
         if (data == null) throw 'Failed to load audio "$path": ' + SDL.getError();
 
+        return createSound(data);
+    }
+
+    /** Load a sound from bytes such as data returned by Resources or Runtime.loadBytes. */
+    public function loadBytes(bytes:Bytes, predecode:Bool = true, name:String = "byte data"):Sound {
+        if (__mixer == null) throw "Audio has been released";
+        if (bytes == null) throw "Audio bytes must not be null";
+        if (bytes.length == 0) throw "Audio bytes must not be empty";
+
+        var pointer = cpp.NativeArray.address(bytes.getData(), 0).rawCast();
+        var io = SDLMixer.ioFromConstMem(pointer, bytes.length);
+        if (io == null) throw 'Failed to create audio stream for "$name": ' + SDL.getError();
+
+        var data = SDLMixer.loadAudioIO(__mixer, io, predecode, true);
+        if (data == null) throw 'Failed to load audio "$name": ' + SDL.getError();
+
+        return createSound(data);
+    }
+
+    private function createSound(data:RawPointer<MIX_Audio>):Sound {
         var track = SDLMixer.createTrack(__mixer);
         if (track == null) {
             var error = SDL.getError();
@@ -92,6 +113,14 @@ class Sound {
     public function stop():Void {
         __checkActive();
         if (!SDLMixer.stopTrack(__track, 0)) throw "Failed to stop sound: " + SDL.getError();
+    }
+
+    /** Set the number of additional loops. Use -1 to loop indefinitely. */
+    public function setLoops(loops:Int):Void {
+        __checkActive();
+        if (loops < -1) throw "Sound loop count must be -1 or greater";
+        if (!SDLMixer.setTrackLoops(__track, loops))
+            throw "Failed to set sound loops: " + SDL.getError();
     }
 
     public function release():Void {

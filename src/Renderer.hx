@@ -81,85 +81,6 @@ class ScissorRect {
     }
 }
 
-class RendererDiagnostics {
-    public var enabled(default, set):Bool = false;
-    public var frameCount:Int = 0;
-    public var drawCalls:Int = 0;
-    public var drawElementsCalls:Int = 0;
-    public var drawArraysCalls:Int = 0;
-    public var indicesSubmitted:Int = 0;
-    public var trianglesSubmitted:Int = 0;
-    public var verticesSubmitted:Int = 0;
-    public var bufferUploads:Int = 0;
-    public var orphanUploads:Int = 0;
-    public var uploadedVertexBytes:Int = 0;
-    public var uploadedIndexBytes:Int = 0;
-    public var programChanges:Int = 0;
-    public var bufferBindings:Int = 0;
-    public var textureBindings:Int = 0;
-    public var framebufferBindings:Int = 0;
-    public var renderStateChanges:Int = 0;
-    public var scissorChanges:Int = 0;
-    public var liveBuffers:Int = 0;
-    public var livePrograms:Int = 0;
-    public var liveFramebuffers:Int = 0;
-    public var liveTextures:Int = 0;
-    public var cumulativeDrawCalls:Int = 0;
-    public var cumulativeBufferUploads:Int = 0;
-    public var cumulativeOrphanUploads:Int = 0;
-
-    public function new() {}
-
-    public function beginFrame():Void {
-        if (!enabled) return;
-        frameCount++;
-        drawCalls = 0;
-        drawElementsCalls = 0;
-        drawArraysCalls = 0;
-        indicesSubmitted = 0;
-        trianglesSubmitted = 0;
-        verticesSubmitted = 0;
-        bufferUploads = 0;
-        orphanUploads = 0;
-        uploadedVertexBytes = 0;
-        uploadedIndexBytes = 0;
-        programChanges = 0;
-        bufferBindings = 0;
-        textureBindings = 0;
-        framebufferBindings = 0;
-        renderStateChanges = 0;
-        scissorChanges = 0;
-    }
-
-    public function resetCumulative():Void {
-        cumulativeDrawCalls = 0;
-        cumulativeBufferUploads = 0;
-        cumulativeOrphanUploads = 0;
-    }
-
-    public function toString():String {
-        return "drawCalls=" + drawCalls
-            + " elements=" + drawElementsCalls
-            + " arrays=" + drawArraysCalls
-            + " triangles=" + trianglesSubmitted
-            + " uploads=" + bufferUploads
-            + " orphanUploads=" + orphanUploads
-            + " scissorChanges=" + scissorChanges
-            + " programs=" + livePrograms
-            + " buffers=" + liveBuffers
-            + " textures=" + liveTextures
-            + " framebuffers=" + liveFramebuffers;
-    }
-
-    private function set_enabled(value:Bool):Bool {
-        enabled = value;
-        if (!enabled) {
-            beginFrame();
-        }
-        return enabled;
-    }
-}
-
 @:build(macros.ShaderRegistryMacro.build("shaders"))
 class Renderer {
     
@@ -265,7 +186,6 @@ class Renderer {
         if (programInfo.program != currentProgram) {
             GL.useProgram(programInfo.program);
             GL.bindVertexArray(programInfo.vao);
-            programInfo.initializeSamplerUnits();
             currentProgram = programInfo.program;
             currentVbo = 0;
             currentEbo = 0;
@@ -288,11 +208,7 @@ class Renderer {
 
             // If the uniform doesn't exist in the shader, log a warning and skip it
             if (uniformInfo == null) {
-                __app.log.warn(
-                    LogCategory.RENDERER,
-                    "Uniform '" + uniform.name + "' doesn't exist in shader"
-                );
-
+				__app.log.warn(LogCategory.RENDERER, "Uniform '" + uniform.name + "' doesn't exist in shader");
                 continue;
             }
 
@@ -356,6 +272,7 @@ class Renderer {
             introspection.uniforms,
             introspection.vertexStride
         );
+        initializeSamplerUnits(programInfo);
 
         __app.log.info(LogCategory.RENDERER, "Created and registered ProgramInfo: " + name);
 
@@ -363,6 +280,19 @@ class Renderer {
         __diagnostics.livePrograms++;
 
         return programInfo;
+    }
+
+    private function initializeSamplerUnits(programInfo:ProgramInfo):Void {
+        GL.useProgram(programInfo.program);
+        for (uniform in programInfo.uniformInfos) {
+            if (uniform != null && uniform.textureUnit != null && uniform.location != null) {
+                GL.uniform1i(uniform.location, uniform.textureUnit);
+            }
+        }
+        GL.useProgram(0);
+        currentProgram = -1;
+        currentVbo = 0;
+        currentEbo = 0;
     }
 
     private function compileProgram(name:String, vertexSource:String, fragmentSource:String):UInt {
@@ -1427,5 +1357,84 @@ class Renderer {
 
     private function get_diagnostics():RendererDiagnostics {
         return __diagnostics;
+    }
+}
+
+class RendererDiagnostics {
+    public var enabled(default, set):Bool = false;
+    public var frameCount:Int = 0;
+    public var drawCalls:Int = 0;
+    public var drawElementsCalls:Int = 0;
+    public var drawArraysCalls:Int = 0;
+    public var indicesSubmitted:Int = 0;
+    public var trianglesSubmitted:Int = 0;
+    public var verticesSubmitted:Int = 0;
+    public var bufferUploads:Int = 0;
+    public var orphanUploads:Int = 0;
+    public var uploadedVertexBytes:Int = 0;
+    public var uploadedIndexBytes:Int = 0;
+    public var programChanges:Int = 0;
+    public var bufferBindings:Int = 0;
+    public var textureBindings:Int = 0;
+    public var framebufferBindings:Int = 0;
+    public var renderStateChanges:Int = 0;
+    public var scissorChanges:Int = 0;
+    public var liveBuffers:Int = 0;
+    public var livePrograms:Int = 0;
+    public var liveFramebuffers:Int = 0;
+    public var liveTextures:Int = 0;
+    public var cumulativeDrawCalls:Int = 0;
+    public var cumulativeBufferUploads:Int = 0;
+    public var cumulativeOrphanUploads:Int = 0;
+
+    public function new() {}
+
+    public function beginFrame():Void {
+        if (!enabled) return;
+        frameCount++;
+        drawCalls = 0;
+        drawElementsCalls = 0;
+        drawArraysCalls = 0;
+        indicesSubmitted = 0;
+        trianglesSubmitted = 0;
+        verticesSubmitted = 0;
+        bufferUploads = 0;
+        orphanUploads = 0;
+        uploadedVertexBytes = 0;
+        uploadedIndexBytes = 0;
+        programChanges = 0;
+        bufferBindings = 0;
+        textureBindings = 0;
+        framebufferBindings = 0;
+        renderStateChanges = 0;
+        scissorChanges = 0;
+    }
+
+    public function resetCumulative():Void {
+        cumulativeDrawCalls = 0;
+        cumulativeBufferUploads = 0;
+        cumulativeOrphanUploads = 0;
+    }
+
+    public function toString():String {
+        return "drawCalls=" + drawCalls
+            + " elements=" + drawElementsCalls
+            + " arrays=" + drawArraysCalls
+            + " triangles=" + trianglesSubmitted
+            + " uploads=" + bufferUploads
+            + " orphanUploads=" + orphanUploads
+            + " scissorChanges=" + scissorChanges
+            + " programs=" + livePrograms
+            + " buffers=" + liveBuffers
+            + " textures=" + liveTextures
+            + " framebuffers=" + liveFramebuffers;
+    }
+
+    private function set_enabled(value:Bool):Bool {
+        enabled = value;
+        if (!enabled) {
+            beginFrame();
+        }
+        return enabled;
     }
 }

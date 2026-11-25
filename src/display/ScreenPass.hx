@@ -20,11 +20,14 @@ abstract class ScreenPass extends DisplayObject {
     public var width:Int;
     public var height:Int;
     public var label:String;
+    private var __released:Bool = false;
+    private var __sourceAttachment:Int;
 
-	public function new(renderer:Renderer, width:Int, height:Int, textureConfigs:Array<ScreenPassTextureConfig>, useDepthRenderbuffer:Bool = false, label:String = "Screen Pass") {
+	public function new(renderer:Renderer, width:Int, height:Int, textureConfigs:Array<ScreenPassTextureConfig>, useDepthRenderbuffer:Bool = false, label:String = "Screen Pass", ?sourceAttachment:Int) {
         this.width = width;
         this.height = height;
         this.label = label;
+        __sourceAttachment = sourceAttachment != null ? sourceAttachment : GL.COLOR_ATTACHMENT0;
         var vertices = new Vertices([
             -1.0,  1.0,  0.0, 1.0,
             -1.0, -1.0,  0.0, 0.0,
@@ -41,7 +44,7 @@ abstract class ScreenPass extends DisplayObject {
             release(renderer);
             throw error;
         }
-        shader.setUniform("uScreenTexture", renderer.getFramebufferTexture(framebufferId, GL.COLOR_ATTACHMENT0));
+        refreshSourceTexture(renderer);
 
         mode = GL.TRIANGLES;
 
@@ -73,8 +76,16 @@ abstract class ScreenPass extends DisplayObject {
         renderer.resizeFramebuffer(framebufferId, width, height);
         this.width = width;
         this.height = height;
-        shader.setUniform("uScreenTexture", renderer.getFramebufferTexture(framebufferId, GL.COLOR_ATTACHMENT0));
+        refreshSourceTexture(renderer);
         onFramebufferResized(renderer);
+    }
+
+    public function refreshSourceTexture(renderer:Renderer):Void {
+        if (__released) throw "Cannot refresh a released screen pass";
+        shader.setUniform(
+            "uScreenTexture",
+            renderer.getFramebufferTexture(framebufferId, __sourceAttachment)
+        );
     }
 
     @:noCompletion
@@ -82,10 +93,18 @@ abstract class ScreenPass extends DisplayObject {
     }
 
     public function dispose(renderer:Renderer):Void {
+        if (__released) return;
         if (framebufferId >= 0) {
             renderer.disposeFramebuffer(framebufferId);
             framebufferId = -1;
         }
+    }
+
+    override public function release(renderer:Renderer):Void {
+        if (__released) return;
+        dispose(renderer);
+        __released = true;
+        super.release(renderer);
     }
 
     override public function updateBuffers(renderer:Renderer):Void {

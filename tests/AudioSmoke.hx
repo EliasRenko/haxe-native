@@ -19,6 +19,12 @@ class AudioSmoke {
         check(SDLMixer.init(), "Failed to initialize SDL_mixer");
 
         var audio = new Audio();
+        var fromBytes = audio.loadBytes(sys.io.File.getBytes(args[0]), true, "AudioSmoke bytes");
+        fromBytes.play();
+        check(fromBytes.playing, "Bytes sound should play");
+        fromBytes.stop();
+        fromBytes.release();
+
         expectError(function() audio.load(""), "Empty path should fail");
         expectError(function() audio.load(args[0] + ".missing"), "Missing file should fail");
         var first = audio.load(args[0]);
