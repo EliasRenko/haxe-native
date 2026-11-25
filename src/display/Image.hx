@@ -1,15 +1,14 @@
 package display;
 
+import Renderer;
+import data.Shader;
 import data.Indices;
 import data.Vertices;
-import data.DrawingMode;
 import data.Transform;
-import GL;
-import Renderer;
 import math.Matrix;
 import Texture;
+import shaders.TexturedShader;
 
-@:shader("textured")
 class Image extends DisplayObject {
 	
 	// Publics
@@ -20,7 +19,7 @@ class Image extends DisplayObject {
 	public var originY(get, set):Float;
 	public var x(get, set):Float;
 	public var y(get, set):Float;
-	public var texture:Texture;
+	public var texture(get, set):Texture;
 
 	// Privates
 	private var __angle:Float = 0;
@@ -28,11 +27,13 @@ class Image extends DisplayObject {
 	private var __width:Float = 0;
 	private var __originX:Float = 0;
 	private var __originY:Float = 0;
-	private var transform:Transform = new Transform();
+	private var __transform:Transform = new Transform();
+	private var __finalMatrix:Matrix = new Matrix();
+	private var __texture:Texture;
 
 	public function new(renderer:Renderer, texture:Texture) {
-		var __width = texture.width;
-		var __height = texture.height;
+		__width = texture.width;
+		__height = texture.height;
 		
 		// Create quad vertices (position + UV coordinates)
 		// Format: x, y, z, u, v (5 floats per vertex)
@@ -51,9 +52,6 @@ class Image extends DisplayObject {
 		var indices:Indices = [0, 1, 2, 0, 2, 3]; // Two triangles to make a quad
 
 		super(renderer, vertices, indices);
-
-		// Set OpenGL properties
-		mode = DrawingMode.TRIANGLES;
 		
 		// Set the texture using the full Texture object
 		this.texture = texture;
@@ -87,16 +85,16 @@ class Image extends DisplayObject {
 
 	public function render(renderer:Renderer):Void {
 
-		if (transform.dirty) {
-			transform.dirty = false;
-			transform.updateTransform();
-			var finalMatrix = Matrix.copy(transform.matrix);
-			finalMatrix.append(renderer.matrix);
-			uniforms.set("uMatrix", finalMatrix.data);
+		if (__transform.dirty) {
+			__transform.dirty = false;
+			__transform.updateTransform();
 		}
 
+		Matrix.multiplyInto(__finalMatrix, __transform.matrix, renderer.matrix);
+		shader.setUniform("uMatrix", __finalMatrix.data);
+
 		// 1. Get the program info for the current shader program
-		var programInfo = renderer.getProgramInfo(getProgramInfoName());
+		var programInfo = renderer.getProgramInfo(shader.programInfoIndex);
 
 		// 2. Use the shader program (binds the program and VAO)
 		renderer.useProgram(programInfo);
@@ -108,20 +106,33 @@ class Image extends DisplayObject {
 		renderer.setBlendFunction(blending.source, blending.destination);
 
 		// 5. Set the uniform values for the shader program
-		renderer.renderUniforms(programInfo, this);
+		renderer.renderUniforms(programInfo, shader);
 
-		// 6. Set the textures for the shader program
-		renderer.bindTexture(texture.id, 0);
-
-		// 7. Draw the object using the specified mode and count
+		// 6. Draw the object using the specified mode and count
 		renderer.drawElements(mode, indices.length);
 	}
 
+	private function assignShader():Shader {
+		return new TexturedShader();
+	}
+
 	//** Getters and setters.
+
+	private function get_texture():Texture {
+		return __texture;
+	}
+
+	private function set_texture(value:Texture):Texture {
+		__texture = value;
+		if (value != null) {
+			shader.setUniform("uTexture", value);
+		}
+		return value;
+	}
 	
 	private function set_angle(value:Float):Float {
 		__angle = (value %= 360) >= 0 ? value : (value + 360);
-		transform.dirty = true;
+		__transform.dirty = true;
 		return value;
 	}
 
@@ -129,8 +140,8 @@ class Image extends DisplayObject {
 		// Vertices: [top-left, top-right, bottom-right, bottom-left]
 		vertices.set(1, 0 - originY);
 		vertices.set(6, 0 - originY);
-		vertices.set(11, -(value * transform.scaleY) - originY);
-		vertices.set(16, -(value * transform.scaleY) - originY);
+		vertices.set(11, -(value * __transform.scaleY) - originY);
+		vertices.set(16, -(value * __transform.scaleY) - originY);
 		
 		__height = value;
 		__needsBufferUpdate = true;
@@ -141,8 +152,8 @@ class Image extends DisplayObject {
 	private function set_width(value:Float):Float {
 		// Vertices: [top-left, top-right, bottom-right, bottom-left]
 		vertices.set(0, 0 - originX);                      
-		vertices.set(5, (value * transform.scaleX) - originX);
-		vertices.set(10, (value * transform.scaleX) - originX);
+		vertices.set(5, (value * __transform.scaleX) - originX);
+		vertices.set(10, (value * __transform.scaleX) - originX);
 		vertices.set(15, 0 - originX);
 		
 		__width = value;
@@ -184,20 +195,20 @@ class Image extends DisplayObject {
 	}
 
 	private function set_x(value:Float):Float {
-		transform.x = value;
+		__transform.x = value;
 		return value;
 	}
 
 	private function get_x():Float {
-		return transform.x;
+		return __transform.x;
 	}
 
 	private function set_y(value:Float):Float {
-		transform.y = value;
+		__transform.y = value;
 		return value;
 	}
 
 	private function get_y():Float {
-		return transform.y;
+		return __transform.y;
 	}
 }

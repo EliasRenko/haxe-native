@@ -16,6 +16,45 @@ import haxe.io.BytesData;
 
 typedef SDL_PropertiesID = UInt64;
 typedef SDL_JoystickID = UInt32;
+typedef SDL_MessageBoxFlags = UInt32;
+typedef SDL_MessageBoxButtonFlags = UInt32;
+typedef SDL_LogOutputCallback = (userdata:RawPointer<Void>, category:Int, priority:Int, message:ConstCharStar) -> Void;
+typedef SDL_DialogFileCallback = (userdata:RawPointer<Void>, filelist:Pointer<ConstCharStar>, filter:Int) -> Void;
+
+@:structAccess
+@:native("::cpp::Struct<SDL_DialogFileFilter>")
+extern class SDL_DialogFileFilter {
+    var name:ConstCharStar;
+    var pattern:ConstCharStar;
+}
+
+@:structAccess
+@:native("::cpp::Struct<SDL_MessageBoxButtonData>")
+extern class SDL_MessageBoxButtonData {
+    var flags:SDL_MessageBoxButtonFlags;
+    var buttonID:Int;
+    var text:ConstCharStar;
+}
+
+@:structAccess
+@:native("::cpp::Struct<SDL_MessageBoxColor>")
+extern class SDL_MessageBoxColor {
+    var r:UInt8;
+    var g:UInt8;
+    var b:UInt8;
+}
+
+@:structAccess
+@:native("::cpp::Struct<SDL_MessageBoxData>")
+extern class SDL_MessageBoxData {
+    var flags:SDL_MessageBoxFlags;
+    var window:WindowPtr;
+    var title:ConstCharStar;
+    var message:ConstCharStar;
+    var numbuttons:Int;
+    var buttons:RawPointer<SDL_MessageBoxButtonData>;
+    var colorScheme:RawPointer<Void>;
+}
 
 // Path info structure
 @:unreflective
@@ -53,7 +92,7 @@ extern class SDL_Gamepad {}
 @:keep
 @:buildXml(
 '<target id="haxe" if="windows">
-   <lib name="lib/x64/SDL3.lib"/>
+   <lib name="${haxelib:haxe-native}/lib/x64/SDL3.lib"/>
    <lib name="user32.lib"/>
    <lib name="gdi32.lib"/>
    <lib name="winmm.lib"/>
@@ -66,7 +105,7 @@ extern class SDL_Gamepad {}
    <lib name="uuid.lib"/>
 </target>
 <files id="haxe">
-    <compilerflag value="-Iinclude"/>
+    <compilerflag value="-I${haxelib:haxe-native}/include"/>
     <compilerflag value="-DHXCPP_NO_PCH"/>
     <compilerflag value="-DHXCPP_NO_PRECOMPILED_HEADERS"/>
 </files>')
@@ -244,8 +283,17 @@ extern class SDL {
     @:native("SDL_LogMessage")
     static function logMessage(category:Int, priority:SDL_LogPriority, text:String):Void;
 
-    @:native("SDL_SetLogOutputFunction")
-    static function setLogOutputFunction(callback:cpp.RawPointer<Void>, userdata:cpp.RawPointer<Void>):Void;
+    static inline function setLogOutputFunction(callback:cpp.Callable<SDL_LogOutputCallback>):Void {
+        untyped __cpp__("SDL_SetLogOutputFunction((SDL_LogOutputFunction)({0}.call), nullptr)", callback);
+    }
+
+    static inline function writeLogToDefaultOutput(category:Int, priority:Int, message:ConstCharStar):Void {
+        untyped __cpp__("SDL_GetDefaultLogOutputFunction()(nullptr, {0}, static_cast<SDL_LogPriority>({1}), {2})", category, priority, message);
+    }
+
+    static inline function restoreDefaultLogOutputFunction():Void {
+        untyped __cpp__("SDL_SetLogOutputFunction(SDL_GetDefaultLogOutputFunction(), nullptr)");
+    }
 
     //@:native("SDL_LogMessageV")
     //static function logMessageV(category:Int, priority:SDL_LogPriority, text:String, ?):Void;
@@ -405,11 +453,93 @@ extern class SDL {
     @:native("SDL_WINDOW_NOT_FOCUSABLE")
     static var WINDOW_NOT_FOCUSABLE(default, null):CreateWindowFlag;
 
+    // ** Message box flags
+    @:native("SDL_MESSAGEBOX_ERROR")
+    static var MESSAGEBOX_ERROR(default, null):SDL_MessageBoxFlags;
+    @:native("SDL_MESSAGEBOX_WARNING")
+    static var MESSAGEBOX_WARNING(default, null):SDL_MessageBoxFlags;
+    @:native("SDL_MESSAGEBOX_INFORMATION")
+    static var MESSAGEBOX_INFORMATION(default, null):SDL_MessageBoxFlags;
+    @:native("SDL_MESSAGEBOX_BUTTONS_LEFT_TO_RIGHT")
+    static var MESSAGEBOX_BUTTONS_LEFT_TO_RIGHT(default, null):SDL_MessageBoxFlags;
+    @:native("SDL_MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT")
+    static var MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT(default, null):SDL_MessageBoxFlags;
+    @:native("SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT")
+    static var MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT(default, null):SDL_MessageBoxButtonFlags;
+    @:native("SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT")
+    static var MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT(default, null):SDL_MessageBoxButtonFlags;
+
     @:native("SDL_StartTextInput")
     public static function startTextInput(window:WindowPtr):Bool;
 
     @:native("SDL_StopTextInput")
     public static function stopTextInput(window:WindowPtr):Bool;
+
+    // ** Message boxes
+    @:native("SDL_ShowSimpleMessageBox")
+    static function showSimpleMessageBox(
+        flags:SDL_MessageBoxFlags,
+        title:ConstCharStar,
+        message:ConstCharStar,
+        window:WindowPtr
+    ):Bool;
+
+    @:native("SDL_ShowMessageBox")
+    static inline function showMessageBox(
+        data:RawPointer<Void>,
+        buttonID:Pointer<Int>
+    ):Bool {
+        untyped return __cpp__(
+            "SDL_ShowMessageBox((const SDL_MessageBoxData*){0}, (int*)&{1})",
+            data, buttonID
+        );
+    }
+
+    // ** File dialogs
+    @:native("SDL_ShowOpenFileDialog")
+    static inline function showOpenFileDialog(
+        callback:cpp.Callable<SDL_DialogFileCallback>,
+        userdata:RawPointer<Void>,
+        window:WindowPtr,
+        filters:RawPointer<Void>,
+        nfilters:Int,
+        defaultLocation:ConstCharStar,
+        allowMany:Bool
+    ):Void {
+        untyped __cpp__(
+            "SDL_ShowOpenFileDialog((SDL_DialogFileCallback)({0}.call), {1}, {2}, (const SDL_DialogFileFilter*){3}, {4}, {5}, {6})",
+            callback, userdata, window, filters, nfilters, defaultLocation, allowMany
+        );
+    }
+
+    @:native("SDL_ShowSaveFileDialog")
+    static inline function showSaveFileDialog(
+        callback:cpp.Callable<SDL_DialogFileCallback>,
+        userdata:RawPointer<Void>,
+        window:WindowPtr,
+        filters:RawPointer<Void>,
+        nfilters:Int,
+        defaultLocation:ConstCharStar
+    ):Void {
+        untyped __cpp__(
+            "SDL_ShowSaveFileDialog((SDL_DialogFileCallback)({0}.call), {1}, {2}, (const SDL_DialogFileFilter*){3}, {4}, {5})",
+            callback, userdata, window, filters, nfilters, defaultLocation
+        );
+    }
+
+    @:native("SDL_ShowOpenFolderDialog")
+    static inline function showOpenFolderDialog(
+        callback:cpp.Callable<SDL_DialogFileCallback>,
+        userdata:RawPointer<Void>,
+        window:WindowPtr,
+        defaultLocation:ConstCharStar,
+        allowMany:Bool
+    ):Void {
+        untyped __cpp__(
+            "SDL_ShowOpenFolderDialog((SDL_DialogFileCallback)({0}.call), {1}, {2}, {3}, {4})",
+            callback, userdata, window, defaultLocation, allowMany
+        );
+    }
 
     //@:native("SDL_GetClipboardText")
     //public static function getClipboardText():ConstCharStar;
@@ -1299,15 +1429,15 @@ abstract SDL_UserEventType(UInt) from UInt to UInt {
 
 @:enum
 abstract SDL_LogPriority(UInt32) from UInt32 to UInt32 {
-    var SDL_LOG_PRIORITY_INVALID = -1;
-    var SDL_LOG_PRIORITY_TRACE = 0;
-    var SDL_LOG_PRIORITY_VERBOSE = 1;
-    var SDL_LOG_PRIORITY_DEBUG = 2;
-    var SDL_LOG_PRIORITY_INFO = 3;
-    var SDL_LOG_PRIORITY_WARN = 4;
-    var SDL_LOG_PRIORITY_ERROR = 5;
-    var SDL_LOG_PRIORITY_CRITICAL = 6;
-    var SDL_LOG_PRIORITY_COUNT = 7;
+    var SDL_LOG_PRIORITY_INVALID = 0;
+    var SDL_LOG_PRIORITY_TRACE = 1;
+    var SDL_LOG_PRIORITY_VERBOSE = 2;
+    var SDL_LOG_PRIORITY_DEBUG = 3;
+    var SDL_LOG_PRIORITY_INFO = 4;
+    var SDL_LOG_PRIORITY_WARN = 5;
+    var SDL_LOG_PRIORITY_ERROR = 6;
+    var SDL_LOG_PRIORITY_CRITICAL = 7;
+    var SDL_LOG_PRIORITY_COUNT = 8;
 }
 
 typedef PtrEvent = Pointer<Event>;

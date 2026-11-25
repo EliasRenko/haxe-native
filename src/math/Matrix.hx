@@ -30,6 +30,22 @@ class Matrix {
         }
         return m;
     }
+
+    public static function multiplyInto(output:Matrix, left:Matrix, right:Matrix):Void {
+        if (output == left || output == right) {
+            throw "Matrix product output must not alias either input";
+        }
+
+        for (i in 0...4) {
+            for (j in 0...4) {
+                var sum = 0.0;
+                for (k in 0...4) {
+                    sum += left.data[i * 4 + k] * right.data[k * 4 + j];
+                }
+                output.data[i * 4 + j] = sum;
+            }
+        }
+    }
     
     // Matrix transformation methods
     public function setTranslation(x:Float, y:Float, z:Float):Void {

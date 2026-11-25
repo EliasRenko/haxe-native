@@ -24,11 +24,21 @@ class SlotArray<T> {
 
     /** Add an item. Returns a stable id valid until remove() is called with it. */
     public function add(item:T):Int {
+        if (item == null) return -1;
         var id = (_freeList.length > 0) ? _freeList.pop() : _slots.length;
         if (id == _slots.length) _slots.push(cast null); // grow by 1 if needed
         _slots[id] = item;
         _count++;
         return id;
+    }
+
+    /** Ensure the backing slot array can hold at least minimumCapacity items. */
+    public function reserve(minimumCapacity:Int):Void {
+        if (minimumCapacity <= _slots.length) return;
+
+        var oldLength = _slots.length;
+        _slots.resize(minimumCapacity);
+        for (i in oldLength...minimumCapacity) _freeList.push(i);
     }
 
     /** Remove item at id. Slot is cleared and id is recycled for future adds. */

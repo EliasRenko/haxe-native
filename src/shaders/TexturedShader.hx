@@ -1,43 +1,51 @@
 package shaders;
 
-@:shaderVert("
-    #version 300 es
+import data.Shader;
 
-    layout(location = 0) in vec3 aPosition;
-    layout(location = 1) in vec2 aTexCoord;
+@:shaderSourceVert("
+    #version 330 core
+
+    layout (location = 0) in vec3 aPos;
+    layout (location = 1) in vec2 aTexCoord;
+
+    out vec2 TexCoord;
 
     uniform mat4 uMatrix;
 
-    out vec2 vTexCoord;
-
     void main() {
-        gl_Position = uMatrix * vec4(aPosition, 1.0);
-        vTexCoord = aTexCoord;
+        gl_Position = uMatrix * vec4(aPos, 1.0);
+        TexCoord = aTexCoord;
     }
 ")
 
-@:shaderFrag("
-    #version 300 es
+@:shaderSourceFrag("
+    #version 330 core
 
-    precision mediump float;
+    in vec2 TexCoord;
+    out vec4 FragColor;
 
     uniform sampler2D uTexture;
-
-    in vec2 vTexCoord;
-
-    out vec4 fragColor;
+    uniform bool silhouette = false;
+    uniform vec4 silhouetteColor = vec4(1.0);
+    uniform float uAlpha = 1.0;
 
     void main() {
-        fragColor = texture(uTexture, vTexCoord);
+        if (silhouette) {
+            FragColor = silhouetteColor;
+        } else {
+            vec4 texColor = texture(uTexture, TexCoord);
+            FragColor = vec4(texColor.rgb, texColor.a * uAlpha);
+        }
     }
 ")
+
+@:uniform("uMatrix", Matrix)
+@:uniform("uTexture", Texture)
+@:uniform("silhouette", Bool)
+@:uniform("silhouetteColor", Vec4)
+@:uniform("uAlpha", Float)
+
 class TexturedShader extends Shader {
-
-    @:uniform("uMatrix", 0)
-    public var matrix:Uniform<Matrix>;
-
-    @:uniform("uTexture", 1)
-    public var texture:Uniform<Texture>;
 
     public function new() {
         super();
