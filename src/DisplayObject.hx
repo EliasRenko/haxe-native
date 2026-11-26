@@ -9,7 +9,6 @@ import data.Vertices;
 import data.Shader;
 
 abstract class DisplayObject {
-
 	// Publics
 	public var blending:Blending = { source: BlendFactors.SRC_ALPHA, destination: BlendFactors.ONE_MINUS_SRC_ALPHA };
 	public var indices(get, null):Indices;

@@ -1,16 +1,10 @@
 package math;
 
-// Comprehensive Matrix class for 4x4 transformations
 class Matrix {
     public var data:Array<Float>;
     
     public function new() {
-        data = [
-            1, 0, 0, 0,
-            0, 1, 0, 0, 
-            0, 0, 1, 0,
-            0, 0, 0, 1
-        ];
+        identity();
     }
     
     public function identity():Void {

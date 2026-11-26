@@ -6,7 +6,7 @@ import cpp.RawConstPointer;
 import cpp.RawPointer;
 import cpp.UInt32;
 import data.Indices;
-import data.Shader as DataShader;
+import data.Shader;
 import data.TextureData;
 import data.Vertices;
 import data.AttributeInfo;
@@ -101,6 +101,7 @@ class Renderer {
     private var __currentBlendDestination:Int = -1;
     private var __activeFramebufferId:Int = -1;
     private var __frameCount:Int = 0;
+    
     private var __diagnostics:RendererDiagnostics = new RendererDiagnostics();
     private var __scissorEnabled:Bool = false;
     private var __scissorRect:ScissorRect = new ScissorRect();
@@ -200,7 +201,7 @@ class Renderer {
         return __programInfos[index];
     }
 
-    public function renderUniforms(programInfo:ProgramInfo, shader:Null<DataShader>):Void {
+    public function renderUniforms(programInfo:ProgramInfo, shader:Null<Shader>):Void {
         if (shader == null) return;
 
         for (uniform in shader.getUniforms()) {
@@ -502,7 +503,7 @@ class Renderer {
                 setter: isSampler ? null : createUniformSetter(format, location),
                 location: location
             };
-            setUniformAt(uniforms, DataShader.getUniformId(canonicalUniformName(name)), uniform);
+            setUniformAt(uniforms, Shader.getUniformId(canonicalUniformName(name)), uniform);
             if (isSampler) samplers.push(uniform);
             trace("Uniform " + i + ": '" + name + "' location=" + location + " type=" + type + " format=" + format);
         }
@@ -1318,6 +1319,18 @@ class Renderer {
     }
 
     // ===== VIEWPORT =====
+
+    /** Set a top-left-origin viewport within the current render target. */
+    public function setCameraViewport(x:Int, y:Int, width:Int, height:Int):Void {
+        if (x < 0 || y < 0 || width <= 0 || height <= 0)
+            throw "Camera viewport requires a nonnegative position and positive dimensions";
+        GL.viewport(x, __viewportHeight - y - height, width, height);
+    }
+
+    /** Restore the full viewport of the current render target. */
+    public function resetCameraViewport():Void {
+        GL.viewport(0, 0, __viewportWidth, __viewportHeight);
+    }
 
     private function setViewport(width:Int, height:Int):Void {
         __viewportWidth = width;
