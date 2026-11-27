@@ -29,8 +29,10 @@ extern class SDL_DialogFileFilter {
 }
 
 @:structAccess
-@:native("::cpp::Struct<SDL_MessageBoxButtonData>")
+@:native("SDL_MessageBoxButtonData")
 extern class SDL_MessageBoxButtonData {
+    function new();
+
     var flags:SDL_MessageBoxButtonFlags;
     var buttonID:Int;
     var text:ConstCharStar;
@@ -45,8 +47,10 @@ extern class SDL_MessageBoxColor {
 }
 
 @:structAccess
-@:native("::cpp::Struct<SDL_MessageBoxData>")
+@:native("SDL_MessageBoxData")
 extern class SDL_MessageBoxData {
+    function new();
+
     var flags:SDL_MessageBoxFlags;
     var window:WindowPtr;
     var title:ConstCharStar;
@@ -54,6 +58,15 @@ extern class SDL_MessageBoxData {
     var numbuttons:Int;
     var buttons:RawPointer<SDL_MessageBoxButtonData>;
     var colorScheme:RawPointer<Void>;
+}
+
+@:structAccess
+@:include("array")
+@:native("std::array<SDL_MessageBoxButtonData, 2>")
+extern class SDL_MessageBoxButtonArray {
+    function new();
+
+    function data():Pointer<SDL_MessageBoxButtonData>;
 }
 
 // Path info structure
@@ -485,15 +498,10 @@ extern class SDL {
     ):Bool;
 
     @:native("SDL_ShowMessageBox")
-    static inline function showMessageBox(
-        data:RawPointer<Void>,
-        buttonID:Pointer<Int>
-    ):Bool {
-        untyped return __cpp__(
-            "SDL_ShowMessageBox((const SDL_MessageBoxData*){0}, (int*)&{1})",
-            data, buttonID
-        );
-    }
+    static function showMessageBox(
+        data:RawPointer<SDL_MessageBoxData>,
+        buttonID:RawPointer<Int>
+    ):Bool;
 
     // ** File dialogs
     @:native("SDL_ShowOpenFileDialog")

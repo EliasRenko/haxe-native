@@ -234,45 +234,30 @@ class Runtime {
 			flags = 0;
 
 		var buttonID:Int = -1;
-		var titlePtr = ConstCharStar.fromString(title);
-		var messagePtr = ConstCharStar.fromString(message);
-		var confirmPtr = ConstCharStar.fromString(confirmText);
+		var nativeButtons = new SDL_MessageBoxButtonArray();
+		var buttonData = nativeButtons.data();
+		buttonData[0].flags = SDL.MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT;
+		buttonData[0].buttonID = 1;
+		buttonData[0].text = ConstCharStar.fromString(confirmText);
 
-		if (cancelText == null) {
-			untyped __cpp__("
-				SDL_MessageBoxButtonData nativeButtons[1] = {};
-				nativeButtons[0].flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT;
-				nativeButtons[0].buttonID = 1;
-				nativeButtons[0].text = {2};
-				SDL_MessageBoxData data = {};
-				data.flags = (SDL_MessageBoxFlags){3};
-				data.window = {4};
-				data.title = {1};
-				data.message = {5};
-				data.numbuttons = 1;
-				data.buttons = nativeButtons;
-				SDL_ShowMessageBox(&data, &{0});
-				", buttonID, titlePtr, confirmPtr, flags, __window.ptr, messagePtr);
-		} else {
-			var cancelPtr = ConstCharStar.fromString(cancelText);
-			untyped __cpp__("
-				SDL_MessageBoxButtonData nativeButtons[2] = {};
-				nativeButtons[0].flags = SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT;
-				nativeButtons[0].buttonID = 0;
-				nativeButtons[0].text = {2};
-				nativeButtons[1].flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT;
-				nativeButtons[1].buttonID = 1;
-				nativeButtons[1].text = {3};
-				SDL_MessageBoxData data = {};
-				data.flags = (SDL_MessageBoxFlags){4};
-				data.window = {5};
-				data.title = {1};
-				data.message = {6};
-				data.numbuttons = 2;
-				data.buttons = nativeButtons;
-				SDL_ShowMessageBox(&data, &{0});
-				", buttonID, titlePtr, cancelPtr, confirmPtr, flags, __window.ptr, messagePtr);
+		if (cancelText != null) {
+			buttonData[0].flags = SDL.MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT;
+			buttonData[0].buttonID = 0;
+			buttonData[0].text = ConstCharStar.fromString(cancelText);
+			buttonData[1].flags = SDL.MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT;
+			buttonData[1].buttonID = 1;
+			buttonData[1].text = ConstCharStar.fromString(confirmText);
 		}
+
+		var data = new SDL_MessageBoxData();
+		data.flags = flags;
+		data.window = __window.ptr;
+		data.title = ConstCharStar.fromString(title);
+		data.message = ConstCharStar.fromString(message);
+		data.numbuttons = cancelText == null ? 1 : 2;
+		data.buttons = buttonData.raw;
+		data.colorScheme = null;
+		SDL.showMessageBox(Pointer.addressOf(data).raw, Pointer.addressOf(buttonID).raw);
 		return buttonID;
 	}
 
@@ -326,28 +311,29 @@ class Runtime {
 
     private function quit():Void {
         if (__audioEnabled) {
+            SDL.quitSubSystem(SDL.INIT_AUDIO);
             SDLMixer.quit();
             __audioEnabled = false;
         }
 
-        if (__videoEnabled) {
-            SDL.quitVideo();
-            __videoEnabled = false;
-        }
-
-        if (__joysticksEnabled) {
-            SDL.quitJoysticks();
-            __joysticksEnabled = false;
+        if (__hapticEnabled) {
+            SDL.quitSubSystem(SDL.INIT_HAPTIC);
+            __hapticEnabled = false;
         }
 
         if (__gamepadsEnabled) {
-            SDL.quitGamepads();
+            SDL.quitSubSystem(SDL.INIT_GAMEPAD);
             __gamepadsEnabled = false;
         }
 
-        if (__hapticEnabled) {
-            SDL.quitHaptic();
-            __hapticEnabled = false;
+        if (__joysticksEnabled) {
+            SDL.quitSubSystem(SDL.INIT_JOYSTICK);
+            __joysticksEnabled = false;
+        }
+
+        if (__videoEnabled) {
+            SDL.quitSubSystem(SDL.INIT_VIDEO);
+            __videoEnabled = false;
         }
 
         SDL.quit();
