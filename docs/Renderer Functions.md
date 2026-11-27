@@ -1,0 +1,93 @@
+# Renderer Functions
+
+Function inventory for `Renderer` in `haxe-native/src/Renderer.hx`. Helper-class methods in that source file are not included.
+
+## Public functions
+
+- `new(app)` — Initializes the renderer, loads registered shaders, and sets initial render state.
+- `render()` — Begins a render frame by resetting cached bindings and scissor state, and updating frame diagnostics.
+- `release()` — Releases renderer-owned framebuffers, buffers, textures, and shader programs.
+- `useProgram(programInfo)` — Activates the shader program and vertex array, avoiding redundant state changes.
+- `getProgramInfo(index)` — Returns a shader program by index; throws if the index is out of range.
+- `renderUniforms(programInfo, shader)` — Applies the shader's uniform values to the matching program uniforms.
+- `drawElements(mode, count)` — Issues an indexed draw call and updates draw diagnostics.
+- `drawArrays(mode, first, count)` — Issues a non-indexed draw call and updates draw diagnostics.
+- `createProgramInfo(name, vertexSource, fragmentSource)` — Compiles a shader program, inspects its inputs, creates its vertex array, and registers the resulting program info.
+- `disposeProgramInfo(programInfo)` — Deletes the program's vertex array and shader program.
+- `bindBuffers(bufferId, stride)` — Binds the selected vertex and index buffers.
+- `createBuffers(programInfoIndex)` — Creates and registers vertex/index buffers associated with a shader program.
+- `getBuffers(bufferId)` — Returns the buffer record for the given ID.
+- `uploadData(bufferId, vertices, indices)` — Uploads vertex and index data using dynamic buffer usage.
+- `orphanAndUploadData(bufferId, vertices, indices, maxBufferSize)` — Orphans and streams vertex/index data into GPU buffers.
+- `deleteBuffers(bufferId)` — Deletes and unregisters the buffers for the given ID.
+- `uploadTexture(textureData)` — Creates a 2D texture and uploads pixel data using its bytes-per-pixel format.
+- `createRenderTargetTexture(width, height, internalFormat, format, type)` — Creates an empty 2D texture for use as a render target.
+- `disposeTexture(texture)` — Deletes a renderer-owned texture and removes it from tracking.
+- `clearScreen()` — Clears the color and depth buffers.
+- `setBlendFunction(source, destination)` — Sets the blend factors when they differ from the current factors.
+- `setDepthTest(enabled)` — Enables or disables depth testing.
+- `setDepthWrite(enabled)` — Enables or disables writes to the depth buffer.
+- `setBlendMode(enabled)` — Enables or disables blending, using standard alpha factors when enabled.
+- `setScissor(x, y, width, height)` — Sets a top-left-origin clip rectangle, clamped to the current render target.
+- `pushScissor(x, y, width, height)` — Saves the current clip and applies the intersection with the requested rectangle.
+- `popScissor()` — Restores the previous clip; returns `false` if the scissor stack is empty.
+- `disableScissor()` — Disables scissor testing if it is currently enabled.
+- `clearScissorStack()` — Clears saved clips and disables scissor testing.
+- `createFramebuffer(width, height, textureConfigs, useDepthRenderbuffer)` — Creates and registers a framebuffer with the requested texture attachments and optional depth renderbuffer.
+- `getFramebufferTexture(frameBufferId, attachment)` — Returns a framebuffer texture for the specified attachment.
+- `resizeFramebuffer(frameBufferId, width, height)` — Recreates a framebuffer's attachments at the requested size.
+- `bindFramebuffer(frameBufferId)` — Binds a framebuffer and sets the viewport to its dimensions.
+- `unbindFramebuffer(frameBufferId)` — Unbinds the active framebuffer and restores the window-sized viewport.
+- `disposeFramebuffer(frameBufferId)` — Deletes and unregisters a framebuffer and its attachments.
+- `setViewport(x, y, width, height)` — Sets a top-left-origin viewport within the current render target.
+- `resetViewport()` — Restores the full viewport of the current render target.
+- `updateRenderTargetSize(width, height)` — Updates the viewport dimensions after a render-target or window resize.
+
+## Private functions
+
+- `initializeSamplerUnits(programInfo)` — Assigns texture units to sampler uniforms and resets cached program/buffer bindings.
+- `compileProgram(name, vertexSource, fragmentSource)` — Compiles vertex and fragment shaders, links them, and returns the program ID or `0` on failure.
+- `checkShaderCompilation(shader, type)` — Checks shader compilation and reports any compiler log.
+- `checkProgramLinking(program)` — Checks program linking and reports any linker log.
+- `createProgramVertexArray(attributes)` — Creates and configures a vertex array from the introspected attributes.
+- `getGLFormat(format)` — Maps an attribute format to its OpenGL scalar type.
+- `introspectProgram(program, fragmentSource, name)` — Collects program attributes and uniforms and computes vertex offsets and stride.
+- `introspectAttributes(program)` — Reads active vertex attributes and sorts them by location.
+- `introspectUniforms(program, fragmentSource)` — Reads active uniforms, creates setters, and assigns sampler texture units.
+- `setUniformAt(uniforms, index, uniform)` — Stores a uniform at its index, extending the array as needed.
+- `canonicalUniformName(name)` — Removes the trailing `[0]` from array uniform names.
+- `getValuesPerVertex(format)` — Returns the number of scalar values represented by an attribute format.
+- `getBytesPerVertex(format)` — Returns the byte size of one vertex attribute value.
+- `createUniformSetter(format, uniformLocation, textureUnit)` — Selects the appropriate setter for a uniform format.
+- `floatSetter(location)` — Creates a setter for a scalar float uniform.
+- `floatVec2Setter(location)` — Creates a setter for a two-component float uniform.
+- `floatVec3Setter(location)` — Creates a setter for a three-component float uniform.
+- `floatVec4Setter(location)` — Creates a setter for a four-component float uniform.
+- `floatMat2Setter(location)` — Creates a setter for a 2×2 float matrix uniform.
+- `floatMat3Setter(location)` — Creates a setter for a 3×3 float matrix uniform.
+- `floatMat4Setter(location)` — Creates a setter for a 4×4 float matrix uniform.
+- `intSetter(location)` — Creates a setter for a scalar integer uniform.
+- `intVec2Setter(location)` — Creates a setter for a two-component integer uniform.
+- `intVec3Setter(location)` — Creates a setter for a three-component integer uniform.
+- `intVec4Setter(location)` — Creates a setter for a four-component integer uniform.
+- `boolSetter(location)` — Creates a setter for a scalar boolean uniform.
+- `boolVec2Setter(location)` — Creates a setter for a two-component boolean uniform.
+- `boolVec3Setter(location)` — Creates a setter for a three-component boolean uniform.
+- `boolVec4Setter(location)` — Creates a setter for a four-component boolean uniform.
+- `sampler2DSetter(textureUnit)` — Creates a setter that binds a 2D texture to the assigned texture unit.
+- `samplerCubeSetter(textureUnit)` — Creates a setter that binds a cube-map texture to the assigned texture unit.
+- `bindTextureUniform(textureUnit, texture)` — Binds a texture to a sampler's texture unit.
+- `applyScissor(rect)` — Converts the clip rectangle's top-left-origin Y coordinate and applies it in OpenGL coordinates.
+- `clampScissor(rect)` — Clips a rectangle to the current render-target bounds.
+- `copyScissor(rect)` — Returns a copy of a scissor rectangle, preserving `null`.
+- `getFramebufferOrThrow(frameBufferId)` — Returns the framebuffer for an ID or throws if it does not exist.
+- `initializeFramebufferAttachments(framebuffer)` — Creates and attaches framebuffer textures and optional depth storage, then checks completeness.
+- `restoreFramebufferBinding()` — Rebinds the active framebuffer, or the default framebuffer if none is active.
+- `getFramebufferStatusString(status)` — Converts an OpenGL framebuffer status code to a readable name.
+- `disposeFramebufferAttachments(framebuffer)` — Deletes a framebuffer's texture attachments and depth renderbuffer.
+- `disposeFramebufferResources(framebuffer, deleteFramebuffer)` — Disposes framebuffer attachments and optionally deletes the framebuffer object.
+- `get_app()` — Returns the associated application instance for the `app` property.
+- `get_frameCount()` — Returns the current frame count for the `frameCount` property.
+- `get_scissorEnabled()` — Returns whether scissor testing is enabled.
+- `get_scissorStackDepth()` — Returns the number of saved scissor rectangles.
+- `get_diagnostics()` — Returns the renderer diagnostics object.

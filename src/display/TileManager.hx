@@ -137,43 +137,34 @@ class TileManager extends DisplayObject {
         markDirty();
     }
 
-    public function defineRegion(
-        atlasX:Int,
-        atlasY:Int,
-        regionWidth:Int,
-        regionHeight:Int
-    ):Int {
-        if (__texture == null) throw "TileManager has no atlas texture";
+	public function defineRegion(atlasX:Int, atlasY:Int, regionWidth:Int, regionHeight:Int):Int {
+		if (__texture == null)
+			throw "TileManager has no atlas texture";
 
-        var region = new AtlasRegion();
-        region.x = atlasX;
-        region.y = atlasY;
-        region.width = regionWidth;
-        region.height = regionHeight;
-        updateRegionUVs(region);
-        var regionId = atlasRegions.add(region);
-        markDirty();
-        return regionId;
-    }
+		var region = new AtlasRegion();
+		region.x = atlasX;
+		region.y = atlasY;
+		region.width = regionWidth;
+		region.height = regionHeight;
+		updateRegionUVs(region);
+		var regionId = atlasRegions.add(region);
+		markDirty();
+		return regionId;
+	}
 
-    public function updateRegion(
-        regionId:Int,
-        atlasX:Int,
-        atlasY:Int,
-        regionWidth:Int,
-        regionHeight:Int
-    ):Bool {
-        var region = atlasRegions.get(regionId);
-        if (region == null) return false;
+	public function updateRegion(regionId:Int, atlasX:Int, atlasY:Int, regionWidth:Int, regionHeight:Int):Bool {
+		var region = atlasRegions.get(regionId);
+		if (region == null)
+			return false;
 
-        region.x = atlasX;
-        region.y = atlasY;
-        region.width = regionWidth;
-        region.height = regionHeight;
-        updateRegionUVs(region);
-        markDirty();
-        return true;
-    }
+		region.x = atlasX;
+		region.y = atlasY;
+		region.width = regionWidth;
+		region.height = regionHeight;
+		updateRegionUVs(region);
+		markDirty();
+		return true;
+	}
 
     private function updateRegionUVs(region:AtlasRegion):Void {
         if (__texture == null) return;
@@ -205,26 +196,22 @@ class TileManager extends DisplayObject {
         markDirty();
     }
 
-    public function addTile(
-        x:Float,
-        y:Float,
-        width:Float,
-        height:Float,
-        regionId:Int
-    ):Int {
-        if (!hasRegion(regionId)) return -1;
-        if (__tiles.count >= __capacity) growCapacity();
+	public function addTile(x:Float, y:Float, width:Float, height:Float, regionId:Int):Int {
+		if (!hasRegion(regionId))
+			return -1;
+		if (__tiles.count >= __capacity)
+			growCapacity();
 
-        var tile = new Tile(this, regionId);
-        tile.onChanged = markDirty;
-        tile.x = x;
-        tile.y = y;
-        tile.width = width;
-        tile.height = height;
-        var tileId = __tiles.add(tile);
-        markDirty();
-        return tileId;
-    }
+		var tile = new Tile(this, regionId);
+		tile.onChanged = markDirty;
+		tile.x = x;
+		tile.y = y;
+		tile.width = width;
+		tile.height = height;
+		var tileId = __tiles.add(tile);
+		markDirty();
+		return tileId;
+	}
 
     public function addTileInstance(tile:Tile):Int {
         if (tile == null) return -1;

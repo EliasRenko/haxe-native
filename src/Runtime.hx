@@ -229,14 +229,9 @@ class Runtime {
         return SDL.showSimpleMessageBox(flags, ConstCharStar.fromString(title), ConstCharStar.fromString(message), __window.ptr);
 	}
 
-	public function showMessageBox(
-		title:String,
-		message:String,
-		confirmText:String = "OK",
-		cancelText:String = null,
-		flags:SDL_MessageBoxFlags = null
-	):Int {
-		if (flags == null) flags = 0;
+	public function showMessageBox(title:String, message:String, confirmText:String = "OK", cancelText:String = null, flags:SDL_MessageBoxFlags = null):Int {
+		if (flags == null)
+			flags = 0;
 
 		var buttonID:Int = -1;
 		var titlePtr = ConstCharStar.fromString(title);
@@ -244,8 +239,7 @@ class Runtime {
 		var confirmPtr = ConstCharStar.fromString(confirmText);
 
 		if (cancelText == null) {
-			untyped __cpp__(
-				"
+			untyped __cpp__("
 				SDL_MessageBoxButtonData nativeButtons[1] = {};
 				nativeButtons[0].flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT;
 				nativeButtons[0].buttonID = 1;
@@ -258,13 +252,10 @@ class Runtime {
 				data.numbuttons = 1;
 				data.buttons = nativeButtons;
 				SDL_ShowMessageBox(&data, &{0});
-				",
-				buttonID, titlePtr, confirmPtr, flags, __window.ptr, messagePtr
-			);
+				", buttonID, titlePtr, confirmPtr, flags, __window.ptr, messagePtr);
 		} else {
 			var cancelPtr = ConstCharStar.fromString(cancelText);
-			untyped __cpp__(
-				"
+			untyped __cpp__("
 				SDL_MessageBoxButtonData nativeButtons[2] = {};
 				nativeButtons[0].flags = SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT;
 				nativeButtons[0].buttonID = 0;
@@ -280,9 +271,7 @@ class Runtime {
 				data.numbuttons = 2;
 				data.buttons = nativeButtons;
 				SDL_ShowMessageBox(&data, &{0});
-				",
-				buttonID, titlePtr, cancelPtr, confirmPtr, flags, __window.ptr, messagePtr
-			);
+				", buttonID, titlePtr, cancelPtr, confirmPtr, flags, __window.ptr, messagePtr);
 		}
 		return buttonID;
 	}
@@ -336,17 +325,30 @@ class Runtime {
     }
 
     private function quit():Void {
-        #if !no_audio
         if (__audioEnabled) {
             SDLMixer.quit();
+            __audioEnabled = false;
         }
-        #end
 
-        __videoEnabled = false;
-        __audioEnabled = false;
-        __joysticksEnabled = false;
-        __gamepadsEnabled = false;
-        __hapticEnabled = false;
+        if (__videoEnabled) {
+            SDL.quitVideo();
+            __videoEnabled = false;
+        }
+
+        if (__joysticksEnabled) {
+            SDL.quitJoysticks();
+            __joysticksEnabled = false;
+        }
+
+        if (__gamepadsEnabled) {
+            SDL.quitGamepads();
+            __gamepadsEnabled = false;
+        }
+
+        if (__hapticEnabled) {
+            SDL.quitHaptic();
+            __hapticEnabled = false;
+        }
 
         SDL.quit();
     }

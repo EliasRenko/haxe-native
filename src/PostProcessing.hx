@@ -1,12 +1,15 @@
-package display;
+package;
 
 import Renderer;
+import display.ScreenPass;
 
 class PostProcessing {
+    // Publics
     public var enabled:Bool = true;
     public var activePass(get, null):ScreenPass;
     public var passCount(get, null):Int;
 
+    // Privates
     private var __renderer:Renderer;
     private var __passes:Array<ScreenPass> = [];
     private var __activePassIndex:Int = 0;

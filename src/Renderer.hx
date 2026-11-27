@@ -137,6 +137,7 @@ class Renderer {
         setBlendMode(true);
     }
     
+    // TODO: Rename and clarify the purpose of this function
     public function render():Void {
         clearScissorStack();
         currentProgram = -1;
@@ -1178,20 +1179,8 @@ class Renderer {
     private function initializeFramebufferAttachments(framebuffer:Framebuffer):Void {
         GL.bindFramebuffer(GL.FRAMEBUFFER, framebuffer.fbo);
         for (config in framebuffer.textureConfigs) {
-            var texture = createRenderTargetTexture(
-                framebuffer.width,
-                framebuffer.height,
-                config.internalFormat,
-                config.format,
-                config.type
-            );
-            GL.framebufferTexture2D(
-                GL.FRAMEBUFFER,
-                config.attachment,
-                GL.TEXTURE_2D,
-                texture.id,
-                0
-            );
+			var texture = createRenderTargetTexture(framebuffer.width, framebuffer.height, config.internalFormat, config.format, config.type);
+			GL.framebufferTexture2D(GL.FRAMEBUFFER, config.attachment, GL.TEXTURE_2D, texture.id, 0);
             framebuffer.textures.push({attachment: config.attachment, texture: texture});
         }
 
@@ -1206,10 +1195,7 @@ class Renderer {
                 if (firstColorAttachment < 0) firstColorAttachment = config.attachment;
             }
         }
-        GL.drawBuffers(
-            drawBuffers.length > 0 ? drawBuffers.length : 1,
-            drawBuffers.length > 0 ? drawBuffers : [GL.NONE]
-        );
+		GL.drawBuffers(drawBuffers.length > 0 ? drawBuffers.length : 1, drawBuffers.length > 0 ? drawBuffers : [GL.NONE]);
         GL.readBuffer(firstColorAttachment >= 0 ? firstColorAttachment : GL.NONE);
 
         if (framebuffer.hasDepthRenderbuffer) {
@@ -1239,12 +1225,10 @@ class Renderer {
         );
     }
 
-    private function restoreFramebufferBinding():Void {
-        var framebuffer = __activeFramebufferId >= 0
-            ? framebuffers.get(__activeFramebufferId)
-            : null;
-        GL.bindFramebuffer(GL.FRAMEBUFFER, framebuffer != null ? framebuffer.fbo : 0);
-    }
+	private function restoreFramebufferBinding():Void {
+		var framebuffer = __activeFramebufferId >= 0 ? framebuffers.get(__activeFramebufferId) : null;
+		GL.bindFramebuffer(GL.FRAMEBUFFER, framebuffer != null ? framebuffer.fbo : 0);
+	}
 
     private function getFramebufferStatusString(status:Int):String {
         return switch (status) {
@@ -1289,7 +1273,9 @@ class Renderer {
 
         var framebuffer = getFramebufferOrThrow(frameBufferId);
         GL.bindFramebuffer(GL.FRAMEBUFFER, framebuffer.fbo);
-        setViewport(framebuffer.width, framebuffer.height);
+        __viewportWidth = framebuffer.width;
+        __viewportHeight = framebuffer.height;
+        setViewport(0, 0, framebuffer.width, framebuffer.height);
         __activeFramebufferId = frameBufferId;
         if (__diagnostics.enabled) __diagnostics.framebufferBindings++;
 	}
@@ -1302,7 +1288,9 @@ class Renderer {
         __activeFramebufferId = -1;
         GL.bindFramebuffer(GL.FRAMEBUFFER, 0);
         var size = app.window.getWindowSizeInPixels();
-        setViewport(size.width, size.height);
+        __viewportWidth = size.width;
+        __viewportHeight = size.height;
+        setViewport(0, 0, size.width, size.height);
         if (__diagnostics.enabled) __diagnostics.framebufferBindings++;
 	}
 	
@@ -1321,33 +1309,31 @@ class Renderer {
     // ===== VIEWPORT =====
 
     /** Set a top-left-origin viewport within the current render target. */
-    public function setCameraViewport(x:Int, y:Int, width:Int, height:Int):Void {
+    public function setViewport(x:Int, y:Int, width:Int, height:Int):Void {
         if (x < 0 || y < 0 || width <= 0 || height <= 0)
-            throw "Camera viewport requires a nonnegative position and positive dimensions";
+            throw "Viewport requires a nonnegative position and positive dimensions";
         GL.viewport(x, __viewportHeight - y - height, width, height);
     }
 
     /** Restore the full viewport of the current render target. */
-    public function resetCameraViewport():Void {
+    public function resetViewport():Void {
         GL.viewport(0, 0, __viewportWidth, __viewportHeight);
     }
 
-    private function setViewport(width:Int, height:Int):Void {
-        __viewportWidth = width;
-        __viewportHeight = height;
-        GL.viewport(0, 0, width, height);
-    }
-
-    public function resize(width:Int, height:Int):Void {
+    public function updateRenderTargetSize(width:Int, height:Int):Void {
         if (width <= 0 || height <= 0) return; // Ignore degenerate resize (e.g. window minimised)
         if (__activeFramebufferId >= 0) {
             var activeFramebuffer = framebuffers.get(__activeFramebufferId);
             if (activeFramebuffer == null) {
                 throw "Active framebuffer no longer exists";
             }
-            setViewport(activeFramebuffer.width, activeFramebuffer.height);
+            __viewportWidth = activeFramebuffer.width;
+            __viewportHeight = activeFramebuffer.height;
+            setViewport(0, 0, activeFramebuffer.width, activeFramebuffer.height);
         } else {
-            setViewport(width, height);
+            __viewportWidth = width;
+            __viewportHeight = height;
+            setViewport(0, 0, width, height);
         }
     }
 
